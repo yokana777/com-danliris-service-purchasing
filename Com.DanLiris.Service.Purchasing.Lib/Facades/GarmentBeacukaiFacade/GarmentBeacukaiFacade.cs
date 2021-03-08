@@ -205,7 +205,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                             .Include(m => m.Items)
                             .ThenInclude(i => i.Details)
                             .FirstOrDefault(s => s.Id == item.GarmentDOId);
-                        var productNames = string.Join(", ", deliveryOrder.Items.SelectMany(doItem => doItem.Details).Select(doDetail => doDetail.ProductName).ToList());
 
                         if (deliveryOrder != null)
                         {
@@ -223,6 +222,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                             }
 
                             var categories = deliveryOrder.Items.SelectMany(doItem => doItem.Details).Select(detail => detail.CodeRequirment);
+                            var productNames = string.Join(", ", deliveryOrder.Items.SelectMany(doItem => doItem.Details).Select(doDetail => doDetail.ProductName).ToList());
 
                             await _garmentDebtBalanceService.CreateFromCustoms(new CustomsFormDto(0, string.Join("\n", categories), deliveryOrder.BillNo, deliveryOrder.PaymentBill, (int)deliveryOrder.Id, deliveryOrder.DONo, (int)model.SupplierId, model.SupplierCode, model.SupplierName, deliveryOrder.SupplierIsImport, (int)deliveryOrder.DOCurrencyId.GetValueOrDefault(), deliveryOrder.DOCurrencyCode, deliveryOrder.DOCurrencyRate.GetValueOrDefault(), productNames, deliveryOrder.ArrivalDate, dppAmount, currencyDPPAmount));
                         }
@@ -260,6 +260,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                             deliveryOrder.PaymentBill = null;
                             deliveryOrder.CustomsId = 0;
                             EntityExtension.FlagForDelete(item, username, USER_AGENT);
+
+                            var deleted = _garmentDebtBalanceService.RemoveCustoms((int)deliveryOrder.Id).Result;
                         }
 
                     }
@@ -333,6 +335,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                                     EntityExtension.FlagForCreate(item, user, USER_AGENT);
 
                                     deliveryOrder.CustomsId = model.Id;
+
+                                    var dppAmount = 0.0;
+                                    var currencyDPPAmount = 0.0;
+
+                                    if (deliveryOrder.DOCurrencyCode == "IDR")
+                                    {
+                                        dppAmount = deliveryOrder.TotalAmount;
+                                    }
+                                    else
+                                    {
+                                        currencyDPPAmount = deliveryOrder.TotalAmount;
+                                        dppAmount = deliveryOrder.TotalAmount * deliveryOrder.DOCurrencyRate.GetValueOrDefault();
+                                    }
+
+                                    var categories = deliveryOrder.Items.SelectMany(doItem => doItem.Details).Select(detail => detail.CodeRequirment);
+                                    var productNames = string.Join(", ", deliveryOrder.Items.SelectMany(doItem => doItem.Details).Select(doDetail => doDetail.ProductName).ToList());
+
+                                    await _garmentDebtBalanceService.CreateFromCustoms(new CustomsFormDto(0, string.Join("\n", categories), deliveryOrder.BillNo, deliveryOrder.PaymentBill, (int)deliveryOrder.Id, deliveryOrder.DONo, (int)model.SupplierId, model.SupplierCode, model.SupplierName, deliveryOrder.SupplierIsImport, (int)deliveryOrder.DOCurrencyId.GetValueOrDefault(), deliveryOrder.DOCurrencyCode, deliveryOrder.DOCurrencyRate.GetValueOrDefault(), productNames, deliveryOrder.ArrivalDate, dppAmount, currencyDPPAmount));
                                 }
                             }
                             else if (oldItem != null)
@@ -351,6 +371,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                             deleteDO.BillNo = null;
                             deleteDO.PaymentBill = null;
                             deleteDO.CustomsId = 0;
+
+                            await _garmentDebtBalanceService.RemoveCustoms((int)deleteDO.Id);
                         }
                     }
 

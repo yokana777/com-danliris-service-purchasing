@@ -76,6 +76,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                                 garmentDeliveryOrder.InternNo = m.INNo;
                             }
                             EntityExtension.FlagForCreate(detail, user, USER_AGENT);
+
+                            await _garmentDebtBalanceService.UpdateFromInternalNote((int)detail.DOId, new InternalNoteFormDto((int)m.Id, m.INNo));
                         }
                     }
 
@@ -125,6 +127,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                                 garmentDeliveryOrder.InternNo = null;
                             }
                             EntityExtension.FlagForDelete(detail, username, USER_AGENT);
+
+                            var result = _garmentDebtBalanceService.EmptyInternalNote((int)garmentDeliveryOrder.Id).Result;
                         }
                     }
 
@@ -231,6 +235,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                                     garmentDeliveryOrder.InternNo = null;
 
                                     EntityExtension.FlagForDelete(detail, user, USER_AGENT);
+                                    await _garmentDebtBalanceService.EmptyInternalNote((int)detail.DOId);
                                 }
                             }
                             else
@@ -247,6 +252,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                                     if (garmentInvoice != null)
                                         garmentInvoice.HasInternNote = true;
                                     EntityExtension.FlagForCreate(item, user, USER_AGENT);
+
                                 }
                                 else
                                 {
@@ -270,6 +276,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                                             garmentDeliveryOrder.InternNo = m.INNo;
                                         }
                                         EntityExtension.FlagForCreate(detail, user, USER_AGENT);
+
+                                        await _garmentDebtBalanceService.UpdateFromInternalNote((int)garmentDeliveryOrder.Id, new InternalNoteFormDto((int)m.Id, m.INNo));
                                     }
                                     else
                                     {
@@ -593,23 +601,57 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             foreach (var invoiceNoteItem in invoiceNoteItems)
             {
                 var deliveryOrder = dbContext.GarmentDeliveryOrders.FirstOrDefault(entity => entity.Id == invoiceNoteItem.DeliveryOrderId);
+                var invoiceNote = invoiceNotes.FirstOrDefault(element => element.Id == invoiceNoteItem.InvoiceId);
 
                 if (deliveryOrder != null)
                 {
-                    var dppAmount = 0.0;
-                    var currencyDPPAmount = 0.0;
-
-                    if (deliveryOrder.DOCurrencyCode == "IDR")
+                    if (dppVATIsPaid)
                     {
-                        dppAmount = deliveryOrder.TotalAmount;
+                        var amount = 0.0;
+                        var currencyAmount = 0.0;
+                        var vatAmount = 0.0;
+                        var currencyVATAmount = 0.0;
+                        var incomeTaxAmount = 0.0;
+                        var currencyIncomeTaxAmount = 0.0;
+
+                        if (invoiceNote.CurrencyCode == "IDR")
+                        {
+                            amount = invoiceNoteItem.TotalAmount;
+                            if (invoiceNote.IsPayVat)
+                            {
+                                vatAmount = invoiceNoteItem.TotalAmount * 0.1;
+                            }
+
+                            if (invoiceNote.IsPayTax)
+                            {
+                                incomeTaxAmount = invoiceNoteItem.TotalAmount * invoiceNote.IncomeTaxRate / 100;
+                            }
+                        }
+                        else
+                        {
+                            amount = invoiceNoteItem.TotalAmount * deliveryOrder.DOCurrencyRate.GetValueOrDefault();
+                            currencyAmount = invoiceNoteItem.TotalAmount;
+                            if (invoiceNote.IsPayVat)
+                            {
+                                vatAmount = amount * 0.1;
+                                currencyVATAmount = invoiceNoteItem.TotalAmount * 0.1;
+                            }
+
+                            if (invoiceNote.IsPayTax)
+                            {
+                                incomeTaxAmount = amount * invoiceNote.IncomeTaxRate / 100;
+                                currencyIncomeTaxAmount = invoiceNoteItem.TotalAmount * invoiceNote.IncomeTaxRate / 100;
+                            }
+                        }
+
+                        amount = amount + vatAmount - incomeTaxAmount;
+                        currencyAmount = currencyAmount + currencyVATAmount - currencyIncomeTaxAmount;
+                        await _garmentDebtBalanceService.UpdateFromBankExpenditureNote((int)invoiceNoteItem.DeliveryOrderId, new BankExpenditureNoteFormDto(bankExpenditureNoteId, bankExpenditureNoteNo, amount, currencyAmount));
                     }
                     else
                     {
-                        currencyDPPAmount = deliveryOrder.TotalAmount;
-                        dppAmount = deliveryOrder.TotalAmount * deliveryOrder.DOCurrencyRate.GetValueOrDefault();
+                        await _garmentDebtBalanceService.EmptyBankExpenditureNote((int)deliveryOrder.Id);
                     }
-
-                    await _garmentDebtBalanceService.UpdateFromBankExpenditureNote((int)invoiceNoteItem.DeliveryOrderId, new BankExpenditureNoteFormDto(bankExpenditureNoteId, bankExpenditureNoteNo, dppAmount, currencyDPPAmount));
 
                 }
             }
