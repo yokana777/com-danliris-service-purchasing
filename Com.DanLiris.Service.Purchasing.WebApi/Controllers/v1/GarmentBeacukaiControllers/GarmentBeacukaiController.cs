@@ -38,12 +38,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
 			this.DOfacade = DOfacade;
 			this.identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
 		}
+
 		[HttpGet("by-user")]
 		public IActionResult GetByUser(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
 		{
 			try
 			{
 				identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+				identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 
 				string filterUser = string.Concat("'CreatedBy':'", identityService.Username, "'");
 				if (filter == null || !(filter.Trim().StartsWith("{") && filter.Trim().EndsWith("}")) || filter.Replace(" ", "").Equals("{}"))
@@ -65,12 +67,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
 				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
 			}
 		}
+
 		[HttpGet]
 		public IActionResult Get(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
 		{
 			try
 			{
 				identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+				identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 				var Data = facade.Read(page, size, order, keyword, filter);
 
 				var viewModel = mapper.Map<List<GarmentBeacukaiViewModel>>(Data.Item1);
@@ -109,6 +113,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
 			try
 			{
 				identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+				identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 
 				IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
 
@@ -174,31 +179,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
 			}
 		}
 
-		//[HttpGet("import-value-loader")]
-		//public async Task<IActionResult> GetImportValueList(string keyword)
-		//{
-		//	try
-		//	{
-		//		var model = facade.ReadImportValue(keyword);
-				
-		//		Dictionary<string, object> Result =
-		//			new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-		//			.Ok(model);
-		//		return Ok(Result);
-		//	}
-		//	catch (Exception e)
-		//	{
-		//		Dictionary<string, object> Result =
-		//			new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-		//			.Fail();
-		//		return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-		//	}
-		//}
-
 		[HttpDelete("{id}")]
 		public IActionResult Delete([FromRoute]int id)
 		{
 			identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+			identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 
 			try
 			{
@@ -210,12 +195,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
 				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
 			}
 		}
+
 		[HttpPut("{id}")]
 		public async Task<IActionResult> Put(int id, [FromBody]GarmentBeacukaiViewModel ViewModel)
 		{
 			try
 		{
 				identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+				identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 
 				IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
 
