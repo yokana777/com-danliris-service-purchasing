@@ -226,7 +226,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
 
                             //var categories = deliveryOrder.Items.SelectMany(doItem => doItem.Details).Select(detail => detail.CodeRequirment);
                             var categories = string.Join(',',garmentExternalOrder.Select(s=> s.Category).ToList().GroupBy(s=> s).Select(s=> s.Key));
-                            var paymentMethod = garmentExternalOrder.FirstOrDefault().PaymentMethod;
+                            var paymentMethod = garmentExternalOrder.FirstOrDefault().PaymentType;
                             var productNames = string.Join(", ", deliveryOrder.Items.SelectMany(doItem => doItem.Details).Select(doDetail => doDetail.ProductName).ToList());
 
                             await _garmentDebtBalanceService.CreateFromCustoms(new CustomsFormDto(0, string.Join("\n", categories), deliveryOrder.BillNo, deliveryOrder.PaymentBill, (int)deliveryOrder.Id, deliveryOrder.DONo, (int)model.SupplierId, model.SupplierCode, model.SupplierName, deliveryOrder.SupplierIsImport, (int)deliveryOrder.DOCurrencyId.GetValueOrDefault(), deliveryOrder.DOCurrencyCode, deliveryOrder.DOCurrencyRate.GetValueOrDefault(), productNames, deliveryOrder.ArrivalDate, dppAmount, currencyDPPAmount, paymentMethod));
@@ -357,7 +357,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                                     }
 
                                     var categories = string.Join(',', garmentExternalOrder.Select(s => s.Category).ToList().GroupBy(s => s).Select(s => s.Key));
-                                    var paymentMethod = garmentExternalOrder.FirstOrDefault().PaymentMethod;
+                                    var paymentMethod = garmentExternalOrder.FirstOrDefault().PaymentType;
                                     var productNames = string.Join(", ", deliveryOrder.Items.SelectMany(doItem => doItem.Details).Select(doDetail => doDetail.ProductName).ToList());
 
                                     await _garmentDebtBalanceService.CreateFromCustoms(new CustomsFormDto(0, string.Join("\n", categories), deliveryOrder.BillNo, deliveryOrder.PaymentBill, (int)deliveryOrder.Id, deliveryOrder.DONo, (int)model.SupplierId, model.SupplierCode, model.SupplierName, deliveryOrder.SupplierIsImport, (int)deliveryOrder.DOCurrencyId.GetValueOrDefault(), deliveryOrder.DOCurrencyCode, deliveryOrder.DOCurrencyRate.GetValueOrDefault(), productNames, deliveryOrder.ArrivalDate, dppAmount, currencyDPPAmount, paymentMethod));
