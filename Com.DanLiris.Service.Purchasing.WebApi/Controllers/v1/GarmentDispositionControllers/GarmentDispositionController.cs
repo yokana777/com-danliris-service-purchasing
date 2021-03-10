@@ -9,6 +9,7 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDispositionPurchase;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDispositionControllers
 {
@@ -23,12 +24,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDispositi
         private readonly IGarmentDispositionPurchaseFacade facade;
         private readonly IdentityService identityService;
 
-        public GarmentDispositionController(string apiVersion, IServiceProvider serviceProvider, IGarmentDispositionPurchaseFacade facade, IdentityService identityService)
+        public GarmentDispositionController( IServiceProvider serviceProvider, IGarmentDispositionPurchaseFacade facade, IdentityService identityService)
         {
-            ApiVersion = apiVersion;
             this.serviceProvider = serviceProvider;
-            this.facade = (IGarmentDispositionPurchaseFacade)serviceProvider.GetService(typeof(IGarmentDispositionPurchaseFacade));
+            //this.facade = serviceProvider.GetService<IGarmentDispositionPurchaseFacade>();
+            this.facade = facade;
+            //this.identityService = serviceProvider.GetService<IdentityService>();
             this.identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
+
         }
 
         [HttpGet]

@@ -1079,7 +1079,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 
             List<string> searchAttributes = new List<string>()
             {
-                "EPONo"
+                "PONo"
             };
 
             IQueryable<GarmentExternalPurchaseOrderItem> QueryItem = dbContext.GarmentExternalPurchaseOrderItems;

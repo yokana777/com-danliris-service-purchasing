@@ -23,10 +23,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
         private readonly IMapper mapper;
 
 
-        public GarmentDispositionPurchaseFacade(PurchasingDbContext dbContext, DbSet<GarmentDispositionPurchase> dbSet, IServiceProvider serviceProvider, IdentityService identityService,IMapper mapper)
+        public GarmentDispositionPurchaseFacade(PurchasingDbContext dbContext, IServiceProvider serviceProvider, IdentityService identityService,IMapper mapper)
         {
             this.dbContext = dbContext;
-            this.dbSet = dbSet;
+            this.dbSet = dbContext.GarmentDispositionPurchases;
             this.serviceProvider = serviceProvider;
             this.identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
             this.mapper = mapper;
