@@ -482,13 +482,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
         }
 
         [HttpGet("by-epo-no")]
-        public IActionResult ByEPONO(string EPONo = null, string Filter = "{}")
+        public IActionResult ByEPONO(string keyword = null, string Filter = "{}")
         {
             try
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-                var Data = facade.ReadItemByEPONoSimply(EPONo, Filter);
+                var Data = facade.ReadItemByEPONoSimply(EPONo, keyword);
 
                 List<GarmentExternalPurchaseOrderViewModel> viewModel = mapper.Map<List<GarmentExternalPurchaseOrderViewModel>>(Data);
 
