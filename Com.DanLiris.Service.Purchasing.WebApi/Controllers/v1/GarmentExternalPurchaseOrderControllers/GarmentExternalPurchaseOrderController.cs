@@ -480,5 +480,53 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
+
+        [HttpGet("by-epo-no")]
+        public IActionResult ByEPONO(string EPONo = null, string Filter = "{}")
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                var Data = facade.ReadItemByEPONo(EPONo, Filter);
+
+                var newData = mapper.Map<List<GarmentExternalPurchaseOrderItemViewModel>>(Data);
+
+                List<object> listData = new List<object>();
+                listData.AddRange(
+                    newData.AsQueryable().Select(i => new
+                    {
+                        i.Id,
+                        i.RONo,
+                        i.PO_SerialNumber,
+                        i.Product,
+                        i.DealQuantity,
+                        i.DealUom,
+                        i.GarmentEPOId,
+                        i.Article,
+                        i.CreatedUtc
+                    }).ToList()
+                );
+
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = listData,
+                    info = new Dictionary<string, object>
+                {
+                    { "count", listData.Count },
+                },
+                });
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
     }
 }
