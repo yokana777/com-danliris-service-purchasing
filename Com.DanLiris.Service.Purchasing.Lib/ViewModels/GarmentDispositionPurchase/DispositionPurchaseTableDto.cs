@@ -6,6 +6,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDispositionPurch
 {
     public class DispositionPurchaseTableDto
     {
+        public int Id { get; set; }
         public string DispositionNo { get; set; }
         public DateTimeOffset DispositionDate { get; set; }
         public string Category { get; set; }

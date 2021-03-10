@@ -141,6 +141,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib
         public DbSet<BudgetCashflowWorstCaseItem> BudgetCashflowWorstCaseItems { get; set; }
 
         public DbSet<GarmentDispositionPurchase> GarmentDispositionPurchases { get; set; }
+        public DbSet<GarmentDispositionPurchaseItem> GarmentDispositionPurchaseItems { get; set; }
+        public DbSet<GarmentDispositionPurchaseDetail> GarmentDispositionPurchaseDetailss { get; set; }
 
         //public DbSet<ImportValue> ImportValues { get; set; }
 
