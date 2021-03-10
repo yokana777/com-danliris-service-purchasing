@@ -103,7 +103,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                     .Include(p => p.GarmentDispositionPurchaseItems)
                         .ThenInclude(p => p.GarmentDispositionPurchaseDetails).AsQueryable();
 
-            if (keyword == null)
+            if (keyword != null)
                 dataModel = dataModel.Where(s => s.DispositionNo.Contains(keyword) || s.SupplierName.Contains(keyword));
 
             var countData = dataModel.Count();
@@ -123,7 +123,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                     .Include(p => p.GarmentDispositionPurchaseItems)
                         .ThenInclude(p => p.GarmentDispositionPurchaseDetails).AsQueryable();
 
-            if (dispositionNo == null)
+            if (dispositionNo != null)
                 dataModel = dataModel.Where(s => s.DispositionNo.Contains(dispositionNo));
 
 
