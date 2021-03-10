@@ -488,35 +488,19 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-                var Data = facade.ReadItemByEPONo(EPONo, Filter);
+                var Data = facade.ReadItemByEPONoSimply(EPONo, Filter);
 
-                var newData = mapper.Map<List<GarmentExternalPurchaseOrderItemViewModel>>(Data);
-
-                List<object> listData = new List<object>();
-                listData.AddRange(
-                    newData.AsQueryable().Select(i => new
-                    {
-                        i.Id,
-                        i.RONo,
-                        i.PO_SerialNumber,
-                        i.Product,
-                        i.DealQuantity,
-                        i.DealUom,
-                        i.GarmentEPOId,
-                        i.Article,
-                        i.CreatedUtc
-                    }).ToList()
-                );
+                List<GarmentExternalPurchaseOrderViewModel> viewModel = mapper.Map<List<GarmentExternalPurchaseOrderViewModel>>(Data);
 
                 return Ok(new
                 {
                     apiVersion = ApiVersion,
                     statusCode = General.OK_STATUS_CODE,
                     message = General.OK_MESSAGE,
-                    data = listData,
+                    data = Data.Select(s=> new { Id = s.Id, EPONo= s.EPONo}),
                     info = new Dictionary<string, object>
                 {
-                    { "count", listData.Count },
+                    { "count", Data.Count },
                 },
                 });
             }
