@@ -17,6 +17,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseM
         public bool IsDispositionCreated { get; set; }
         public bool IsDispositionPaid { get; set; }
         public int GarmentDispositionPurchaseId { get; set; }
+        public int CurrencyId { get; set; }
+        public string CurrencyCode { get; set; }
+        public double CurrencyRate { get; set; }
         [ForeignKey("GarmentDispositionPurchaseId")]
         public virtual GarmentDispositionPurchase GarmentDispositionPurchase { get; set; }
         public virtual List<GarmentDispositionPurchaseDetail> GarmentDispositionPurchaseDetails { get; set; }

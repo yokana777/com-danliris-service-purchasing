@@ -11,6 +11,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseM
         public string Category { get; set; }
         public int SupplierId { get; set; }
         public string SupplierName { get; set; }
+        public string SupplierCode { get; set; }
+        public bool SupplierIsImport { get; set; }
         public int CurrencyId { get; set; }
         public string CurrencyName { get; set; }
         public string Bank { get; set; }
