@@ -1,4 +1,5 @@
-﻿using Com.Moonlay.Models;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Enums;
+using Com.Moonlay.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -27,5 +28,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseM
         public double OtherCost { get; set; }
         public double Amount { get; set; }
         public virtual List<GarmentDispositionPurchaseItem> GarmentDispositionPurchaseItems { get; set; }
+        public PurchasingGarmentExpeditionPosition Position { get; set; }
     }
 }

@@ -24,6 +24,43 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
             _identityService = serviceProvider.GetService<IdentityService>();
         }
 
+        public List<GarmentDispositionNoteDto> GetGarmentDispositionNotes(string keyword)
+        {
+            var query = _dbContext.GarmentDispositionPurchases.Where(entity => entity.Position == PurchasingGarmentExpeditionPosition.Purchasing || entity.Position == PurchasingGarmentExpeditionPosition.SendToPurchasing);
+
+            if (!string.IsNullOrWhiteSpace(keyword))
+                query = query.Where(entity => entity.DispositionNo.Contains(keyword));
+
+            var result = new List<GarmentDispositionNoteDto>();
+            var queryResult = query
+                .Take(10)
+                .ToList();
+            var dispositionIds = queryResult.Select(element => element.Id).ToList();
+            var dispositionItems = _dbContext.GarmentDispositionPurchaseItems.Where(entity => dispositionIds.Contains(entity.GarmentDispositionPurchaseId)).ToList();
+            var dispositionItemIds = dispositionItems.Select(entity => entity.Id).ToList();
+            var dispositionDetails = _dbContext.GarmentDispositionPurchaseDetailss.Where(entity => dispositionItemIds.Contains(entity.GarmentDispositionPurchaseItemId)).ToList();
+            foreach (var dispositionNote in queryResult)
+            {
+                var items = dispositionItems.Where(element => element.GarmentDispositionPurchaseId == dispositionNote.Id).ToList();
+
+                var resultItems = new List<GarmentDispositionNoteItemDto>();
+
+                foreach (var item in items)
+                {
+                    var details = dispositionDetails.Where(element => element.GarmentDispositionPurchaseItemId == item.Id).ToList();
+                    
+                    foreach (var detail in details)
+                    {
+                        resultItems.Add(new GarmentDispositionNoteItemDto(detail.UnitId, "", detail.UnitName, detail.ProductId, detail.ProductName, detail.QTYOrder, detail.PricePerQTY));
+                    }
+                }
+
+                result.Add(new GarmentDispositionNoteDto(dispositionNote.Id, dispositionNote.DispositionNo, dispositionNote.CreatedUtc.ToUniversalTime(), dispositionNote.DueDate, dispositionNote.SupplierId, "", dispositionNote.SupplierName, dispositionNote.VAT, dispositionNote.VAT, dispositionNote.IncomeTax, dispositionNote.IncomeTax, dispositionNote.Amount, dispositionNote.Amount, dispositionNote.CurrencyId, dispositionNote.CurrencyName, 0, dispositionNote.Dpp, dispositionNote.Dpp, resultItems));
+            }
+
+            return result;
+        }
+
         public List<GarmentInternalNoteDto> GetGarmentInternalNotes(string keyword, GarmentInternalNoteFilterDto filter)
         {
             //var internalNoteQuery = _dbContext.GarmentInternNotes.Where(entity => entity.Position <= PurchasingGarmentExpeditionPosition.Purchasing || entity.Position == PurchasingGarmentExpeditionPosition.SendToPurchasing);
@@ -328,6 +365,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
             }).ToList();
 
             _dbContext.GarmentInternNotes.UpdateRange(models);
+            return _dbContext.SaveChanges();
+        }
+        public int UpdateDispositionNotePosition(UpdatePositionFormDto form)
+        {
+            var models = _dbContext.GarmentDispositionPurchases.Where(entity => form.Ids.Contains((int)entity.Id)).ToList();
+
+            models = models.Select(model =>
+            {
+                model.Position = form.Position;
+                EntityExtension.FlagForUpdate(model, _identityService.Username, UserAgent);
+
+                return model;
+            }).ToList();
+
+            _dbContext.GarmentDispositionPurchases.UpdateRange(models);
             return _dbContext.SaveChanges();
         }
 
