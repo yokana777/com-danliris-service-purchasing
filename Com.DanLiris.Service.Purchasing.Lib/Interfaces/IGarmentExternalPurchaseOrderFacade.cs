@@ -30,6 +30,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
 		MemoryStream GenerateExcelEPOOverBudget(string epono, string unit, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset);
 		Tuple<List<GarmentExternalPurchaseOrderOverBudgetMonitoringViewModel>, int> GetEPOOverBudgetReport(string epono, string unit, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset);
         List<GarmentExternalPurchaseOrderItem> ReadItemByRO(string Keyword = null, string Filter = "{}");
+        List<GarmentExternalPurchaseOrderItem> ReadItemByEPONo(string EPONo = null, string Filter = "{}");
+
 
     }
 }

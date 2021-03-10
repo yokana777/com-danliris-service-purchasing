@@ -1072,5 +1072,45 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 
             return QueryItem.ToList();
         }
+
+        public List<GarmentExternalPurchaseOrderItem> ReadItemByEPONo(string EPONo = null, string Filter = "{}")
+        {
+            IQueryable<GarmentExternalPurchaseOrder> Query = this.dbSet.Where(m => m.IsPosted == true && m.IsClosed == false && m.IsDeleted == false && m.IsCanceled == false);
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "EPONo"
+            };
+
+            IQueryable<GarmentExternalPurchaseOrderItem> QueryItem = dbContext.GarmentExternalPurchaseOrderItems;
+
+            QueryItem = QueryHelper<GarmentExternalPurchaseOrderItem>.ConfigureSearch(QueryItem, searchAttributes, EPONo);
+
+            QueryItem = (from i in QueryItem
+                         join b in Query on i.GarmentEPOId equals b.Id
+                         // where i.ProductName.ToUpper() == "PROCESS"
+                         select new GarmentExternalPurchaseOrderItem
+                         {
+                             Id = i.Id,
+                             GarmentEPOId = i.GarmentEPOId,
+                             RONo = i.RONo,
+                             ProductCode = i.ProductCode,
+                             ProductId = i.ProductId,
+                             ProductName = i.ProductName,
+                             PO_SerialNumber = i.PO_SerialNumber,
+                             DealQuantity = i.DealQuantity,
+                             DealUomId = i.DealUomId,
+                             DealUomUnit = i.DealUomUnit,
+                             Article = i.Article,
+                             CreatedUtc = i.CreatedUtc
+                         });
+
+
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            QueryItem = QueryHelper<GarmentExternalPurchaseOrderItem>.ConfigureFilter(QueryItem, FilterDictionary);
+
+            return QueryItem.ToList();
+        }
     }
 }
