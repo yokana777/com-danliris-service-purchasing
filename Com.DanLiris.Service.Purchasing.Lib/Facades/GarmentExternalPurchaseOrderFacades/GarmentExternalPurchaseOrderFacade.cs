@@ -1093,9 +1093,34 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 
             return Query.ToList();
         }
-        public List<GarmentExternalPurchaseOrder> ReadItemByEPONoSimply(string EPONo = null, string Filter = "{}",int supplierId=0, int currencyId=0)
+        public Tuple<List<GarmentExternalPurchaseOrder>, int, Dictionary<string, string>> ReadItemByEPONoSimply(string EPONo = null, string Filter = "{}",int supplierId=0, int currencyId=0,int Page = 1,int Size= 10)
         {
-            IQueryable<GarmentExternalPurchaseOrder> Query = this.dbSet.Include(s => s.Items).Where(m =>m.IsPosted && m.IsClosed == false && m.IsDeleted == false && m.IsCanceled == false && m.IsDispositionPaidCreatedAll == false && m.Items.Any(t=> t.IsDispositionCreatedAll == false));
+            //IQueryable<GarmentExternalPurchaseOrder> Query = this.dbSet.Include(s => s.Items).Where(m =>m.IsPosted && m.IsClosed == false && m.IsDeleted == false && m.IsCanceled == false && m.IsDispositionPaidCreatedAll == false && m.Items.Any(t=> t.IsDispositionCreatedAll == false));
+
+            //List<string> searchAttributes = new List<string>()
+            //{
+            //    "EPONo"
+            //};
+
+            //Query = QueryHelper<GarmentExternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, EPONo);
+
+            //if (supplierId != 0)
+            //    Query = Query.Where(s => s.SupplierId == supplierId);
+
+            //if (currencyId != 0)
+            //    Query = Query.Where(s => s.CurrencyId == currencyId);
+
+            //Query = Query.Select(s => new GarmentExternalPurchaseOrder
+            //{
+            //    Id = s.Id,
+            //    EPONo = s.EPONo
+            //});
+
+            //Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            //Query = QueryHelper<GarmentExternalPurchaseOrder>.ConfigureFilter(Query, FilterDictionary);
+
+            //return Query.ToList();
+            IQueryable<GarmentExternalPurchaseOrder> Query = this.dbSet.Include(s => s.Items).Where(m => m.IsPosted && m.IsClosed == false && m.IsDeleted == false && m.IsCanceled == false && m.IsDispositionPaidCreatedAll == false && m.Items.Any(t => t.IsDispositionCreatedAll == false)); ;
 
             List<string> searchAttributes = new List<string>()
             {
@@ -1104,22 +1129,46 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 
             Query = QueryHelper<GarmentExternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, EPONo);
 
-            if (supplierId != 0)
-                Query = Query.Where(s => s.SupplierId == supplierId);
-
-            if (currencyId != 0)
-                Query = Query.Where(s => s.CurrencyId == currencyId);
-
             Query = Query.Select(s => new GarmentExternalPurchaseOrder
             {
                 Id = s.Id,
-                EPONo = s.EPONo
+                UId = s.UId,
+                IsPosted = s.IsPosted,
+                SupplierId = s.SupplierId,
+                SupplierName = s.SupplierName,
+                SupplierCode = s.SupplierCode,
+                Category = s.Category,
+                PaymentType = s.PaymentType,
+                CurrencyId = s.CurrencyId,
+                OrderDate = s.OrderDate,
+                EPONo = s.EPONo,
+                SupplierImport = s.SupplierImport,
+                IsOverBudget = s.IsOverBudget,
+                IsApproved = s.IsApproved,
+                Items = s.Items.Select(a => new GarmentExternalPurchaseOrderItem
+                {
+                    PRNo = a.PRNo,
+                    PRId = a.PRId
+                }).ToList(),
+                CreatedBy = s.CreatedBy,
+                LastModifiedUtc = s.LastModifiedUtc
             });
+
 
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
             Query = QueryHelper<GarmentExternalPurchaseOrder>.ConfigureFilter(Query, FilterDictionary);
 
-            return Query.ToList();
+            //Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            //Query = QueryHelper<GarmentExternalPurchaseOrder>.ConfigureOrder(Query, OrderDictionary);
+
+            Dictionary<string, string> OrderDictionary = new Dictionary<string, string>() ;
+            Query = QueryHelper<GarmentExternalPurchaseOrder>.ConfigureOrder(Query, OrderDictionary);
+
+            Pageable<GarmentExternalPurchaseOrder> pageable = new Pageable<GarmentExternalPurchaseOrder>(Query, Page - 1, Size);
+            List<GarmentExternalPurchaseOrder> Data = pageable.Data.ToList<GarmentExternalPurchaseOrder>();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData, OrderDictionary);
         }
     }
 }

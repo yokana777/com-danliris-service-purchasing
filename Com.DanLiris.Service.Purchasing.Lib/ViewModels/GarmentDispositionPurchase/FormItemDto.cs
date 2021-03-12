@@ -7,6 +7,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDispositionPurch
 {
     public class FormItemDto
     {
+        public int Id { get; set; }
         public string EPONo { get; set; }
         public int EPOId { get; set; }
         public bool IsUseVat { get; set; }

@@ -101,7 +101,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDispositi
                     int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
                     GarmentPurchasingPDFTemplate PdfTemplate = new GarmentPurchasingPDFTemplate();
-                    MemoryStream stream = PdfTemplate.GeneratePdfTemplate(Data, clientTimeZoneOffset);
+                    MemoryStream stream = PdfTemplate.GeneratePdfTemplate(Data, clientTimeZoneOffset,identityService.Username);
 
                     return new FileStreamResult(stream, "application/pdf")
                     {
