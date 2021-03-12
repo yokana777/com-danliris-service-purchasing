@@ -1093,9 +1093,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 
             return Query.ToList();
         }
-        public List<GarmentExternalPurchaseOrder> ReadItemByEPONoSimply(string EPONo = null, string Filter = "{}")
+        public List<GarmentExternalPurchaseOrder> ReadItemByEPONoSimply(string EPONo = null, string Filter = "{}",int supplierId=0, int currencyId=0)
         {
-            IQueryable<GarmentExternalPurchaseOrder> Query = this.dbSet.Include(s => s.Items).Where(m => m.IsClosed == false && m.IsDeleted == false && m.IsCanceled == false);
+            IQueryable<GarmentExternalPurchaseOrder> Query = this.dbSet.Include(s => s.Items).Where(m =>m.IsPosted && m.IsClosed == false && m.IsDeleted == false && m.IsCanceled == false && m.IsDispositionPaidCreatedAll == false && m.Items.Any(t=> t.IsDispositionCreatedAll == false));
 
             List<string> searchAttributes = new List<string>()
             {
@@ -1103,6 +1103,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             };
 
             Query = QueryHelper<GarmentExternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, EPONo);
+
+            if (supplierId != 0)
+                Query = Query.Where(s => s.SupplierId == supplierId);
+
+            if (currencyId != 0)
+                Query = Query.Where(s => s.CurrencyId == currencyId);
 
             Query = Query.Select(s => new GarmentExternalPurchaseOrder
             {

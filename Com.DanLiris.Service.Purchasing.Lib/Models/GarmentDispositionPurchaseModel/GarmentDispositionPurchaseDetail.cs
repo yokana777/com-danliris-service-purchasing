@@ -25,6 +25,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseM
         public double QTYPaid { get; set; }
         public double PaidPrice { get; set; }
         public double PercentageOverQTY { get; set; }
+        public int EPO_POId { get; set; }
+
         public int GarmentDispositionPurchaseItemId { get; set; }
         [ForeignKey("GarmentDispositionPurchaseItemId")]
         public GarmentDispositionPurchaseItem GarmentDispositionPurchaseItem { get; set; }
