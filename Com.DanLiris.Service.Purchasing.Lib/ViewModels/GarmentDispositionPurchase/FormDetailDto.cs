@@ -14,6 +14,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDispositionPurch
         public string ProductName { get; set; }
         public int UnitId { get; set; }
         public string UnitName { get; set; }
+        public string UnitCode { get; set; }
         public double QTYOrder { get; set; }
         public string QTYUnit { get; set; }
         public double QTYRemains { get; set; }
@@ -22,5 +23,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDispositionPurch
         public double QTYPaid { get; set; }
         public double PaidPrice { get; set; }
         public double PercentageOverQTY { get; set; }
+        public int EPO_POId { get; set; }
     }
 }
