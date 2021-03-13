@@ -1566,61 +1566,64 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                            join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
                                            where a.IsDeleted == false && b.IsDeleted == false
                                            && a.StorageName == "GUDANG BAHAN BAKU"
-                                           && a.CreatedUtc.Date >= DateFrom.Date
-                                           && a.CreatedUtc.Date <= DateTo.Date
+                                           && a.ExpenditureDate.Date >= DateFrom.Date
+                                           && a.ExpenditureDate.Date <= DateTo.Date
                                            select new MonitoringOutViewModel
                                            {
                                                CreatedUtc = a.CreatedUtc,
-                                               ExTo = a.ExpenditureTo,
+                                               ExTo = a.ExpenditureType == "EXTERNAL" ? "RETUR KE PEMBELIAN" : a.ExpenditureType,
                                                ItemCode = b.ProductCode,
                                                ItemName = b.ProductName,
                                                PONo = b.POSerialNumber,
-                                               Quantity = b.Quantity,
+                                               Quantity = b.Quantity * (double)b.Conversion,
                                                Storage = a.StorageName,
                                                UENNo = a.UENNo,
                                                UnitCode = a.UnitRequestCode,
                                                UnitName = a.UnitRequestName,
-                                               UnitQtyName = b.UomUnit
+                                               UnitQtyName = b.UomUnit,
+                                               ExDate = a.ExpenditureDate
                                            }
                         : type == "NON FABRIC" ? from a in dbContext.GarmentUnitExpenditureNotes
                                                  join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
                                                  where a.IsDeleted == false && b.IsDeleted == false
                                                  && a.StorageName != "GUDANG BAHAN BAKU"
-                                                 && a.CreatedUtc.Date >= DateFrom.Date
-                                                 && a.CreatedUtc.Date <= DateTo.Date
+                                                 && a.ExpenditureDate.Date >= DateFrom.Date
+                                                 && a.ExpenditureDate.Date <= DateTo.Date
                                                  select new MonitoringOutViewModel
                                                  {
                                                      CreatedUtc = a.CreatedUtc,
-                                                     ExTo = a.ExpenditureTo,
+                                                     ExTo = a.ExpenditureType == "EXTERNAL" ? "RETUR KE PEMBELIAN" : a.ExpenditureType,
                                                      ItemCode = b.ProductCode,
                                                      ItemName = b.ProductName,
                                                      PONo = b.POSerialNumber,
-                                                     Quantity = b.Quantity,
+                                                     Quantity = b.Quantity * (double)b.Conversion,
                                                      Storage = a.StorageName,
                                                      UENNo = a.UENNo,
                                                      UnitCode = a.UnitRequestCode,
                                                      UnitName = a.UnitRequestName,
-                                                     UnitQtyName = b.UomUnit
+                                                     UnitQtyName = b.UomUnit,
+                                                     ExDate = a.ExpenditureDate
                                                  }
                                                  : from a in dbContext.GarmentUnitExpenditureNotes
                                                    join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
                                                    where a.IsDeleted == false && b.IsDeleted == false
                                                    && a.StorageName == a.StorageName
-                                                   && a.CreatedUtc.Date >= DateFrom.Date
-                                                   && a.CreatedUtc.Date <= DateTo.Date
+                                                   && a.ExpenditureDate.Date >= DateFrom.Date
+                                                   && a.ExpenditureDate.Date <= DateTo.Date
                                                    select new MonitoringOutViewModel
                                                    {
                                                        CreatedUtc = a.CreatedUtc,
-                                                       ExTo = a.ExpenditureTo,
+                                                       ExTo = a.ExpenditureType == "EXTERNAL" ? "RETUR KE PEMBELIAN" : a.ExpenditureType,
                                                        ItemCode = b.ProductCode,
                                                        ItemName = b.ProductName,
                                                        PONo = b.POSerialNumber,
-                                                       Quantity = b.Quantity,
+                                                       Quantity = b.Quantity * (double)b.Conversion,
                                                        Storage = a.StorageName,
                                                        UENNo = a.UENNo,
                                                        UnitCode = a.UnitRequestCode,
                                                        UnitName = a.UnitRequestName,
-                                                       UnitQtyName = b.UomUnit
+                                                       UnitQtyName = b.UomUnit,
+                                                       ExDate = a.ExpenditureDate
                                                    };
             return Query.AsQueryable();
 
@@ -1632,6 +1635,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             DataTable result = new DataTable();
             result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "No Pengeluaran", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Pembuatan Bon", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Keluar", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor PO", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
@@ -1641,7 +1646,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             result.Columns.Add(new DataColumn() { ColumnName = "Gudang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Jumlah", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Pembuatan", DataType = typeof(String) });
+            
 
 
             List<(string, Enum, Enum)> mergeCells = new List<(string, Enum, Enum)>() { };
@@ -1657,8 +1662,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                 {
                     index++;
                     string tgl1 = data.CreatedUtc == null ? "-" : data.CreatedUtc.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string tgl2 = data.ExDate == null ? "-" : data.ExDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     //string tgl2 = data.TanggalBuatBon == null ? "-" : data.TanggalBuatBon.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    result.Rows.Add(index, data.UENNo, data.PONo, data.ItemCode, data.ItemName, data.UnitCode, data.UnitName, data.ExTo, data.Storage, data.Quantity, data.UnitQtyName, tgl1);
+                    result.Rows.Add(index, data.UENNo, tgl1, tgl2, data.PONo, data.ItemCode, data.ItemName, data.UnitCode, data.UnitName, data.ExTo, data.Storage, data.Quantity, data.UnitQtyName);
 
                 }
 

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchaseOrderViewModel
+namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDispositionPurchase
 {
     public class GarmentExternalPurchaseOrderViewModel : BaseViewModel, IValidatableObject
     {
@@ -49,6 +49,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
 
         public bool IsPayVAT { get; set; }
         public bool IsPayIncomeTax { get; set; }
+        public double DispositionAmountPaid { get; set; }
+        public double DispositionAmountCreated { get; set; }
+        public double DispositionQuantityCreated { get; set; }
+        public double DispositionQuantityPaid { get; set; }
 
         public List<GarmentExternalPurchaseOrderItemViewModel> Items { get; set; }
 

@@ -13,9 +13,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210310050656_CreateTableDispositionPurchase")]
+    partial class CreateTableDispositionPurchase
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2057,13 +2058,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("PaymentType");
 
-                    b.Property<int>("Position");
-
-                    b.Property<string>("SupplierCode");
-
                     b.Property<int>("SupplierId");
-
-                    b.Property<bool>("SupplierIsImport");
 
                     b.Property<string>("SupplierName");
 
@@ -2104,8 +2099,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<DateTime>("DeletedUtc");
-
-                    b.Property<int>("EPO_POId");
 
                     b.Property<int>("GarmentDispositionPurchaseItemId");
 
@@ -2149,8 +2142,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("RONo");
 
-                    b.Property<string>("UnitCode");
-
                     b.Property<int>("UnitId");
 
                     b.Property<string>("UnitName");
@@ -2159,7 +2150,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.HasIndex("GarmentDispositionPurchaseItemId");
 
-                    b.ToTable("GarmentDispositionPurchaseDetailss");
+                    b.ToTable("GarmentDispositionPurchaseDetail");
                 });
 
             modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseModel.GarmentDispositionPurchaseItem", b =>
@@ -2178,12 +2169,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<DateTime>("CreatedUtc");
-
-                    b.Property<string>("CurrencyCode");
-
-                    b.Property<int>("CurrencyId");
-
-                    b.Property<double>("CurrencyRate");
 
                     b.Property<string>("DeletedAgent")
                         .IsRequired()
@@ -2229,7 +2214,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.HasIndex("GarmentDispositionPurchaseId");
 
-                    b.ToTable("GarmentDispositionPurchaseItems");
+                    b.ToTable("GarmentDispositionPurchaseItem");
                 });
 
             modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel.GarmentExternalPurchaseOrder", b =>
@@ -2301,8 +2286,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<bool>("IsClosed");
 
                     b.Property<bool>("IsDeleted");
-
-                    b.Property<bool>("IsDispositionPaidCreatedAll");
 
                     b.Property<bool>("IsIncomeTax");
 
@@ -2435,8 +2418,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<long>("GarmentEPOId");
 
                     b.Property<bool>("IsDeleted");
-
-                    b.Property<bool>("IsDispositionCreatedAll");
 
                     b.Property<bool>("IsOverBudget");
 

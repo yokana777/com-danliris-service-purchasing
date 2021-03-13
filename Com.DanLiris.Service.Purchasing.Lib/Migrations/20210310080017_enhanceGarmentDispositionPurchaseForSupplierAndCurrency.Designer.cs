@@ -13,9 +13,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210310080017_enhanceGarmentDispositionPurchaseForSupplierAndCurrency")]
+    partial class enhanceGarmentDispositionPurchaseForSupplierAndCurrency
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2057,8 +2058,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("PaymentType");
 
-                    b.Property<int>("Position");
-
                     b.Property<string>("SupplierCode");
 
                     b.Property<int>("SupplierId");
@@ -2105,8 +2104,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("DeletedUtc");
 
-                    b.Property<int>("EPO_POId");
-
                     b.Property<int>("GarmentDispositionPurchaseItemId");
 
                     b.Property<int>("IPOId");
@@ -2148,8 +2145,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<int>("ROId");
 
                     b.Property<string>("RONo");
-
-                    b.Property<string>("UnitCode");
 
                     b.Property<int>("UnitId");
 
@@ -2302,8 +2297,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("IsDeleted");
 
-                    b.Property<bool>("IsDispositionPaidCreatedAll");
-
                     b.Property<bool>("IsIncomeTax");
 
                     b.Property<bool>("IsOverBudget");
@@ -2435,8 +2428,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<long>("GarmentEPOId");
 
                     b.Property<bool>("IsDeleted");
-
-                    b.Property<bool>("IsDispositionCreatedAll");
 
                     b.Property<bool>("IsOverBudget");
 

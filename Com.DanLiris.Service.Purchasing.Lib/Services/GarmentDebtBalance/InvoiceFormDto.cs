@@ -11,7 +11,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance
 
         }
 
-        public InvoiceFormDto(int invoiceId, DateTimeOffset invoiceDate, string invoiceNo, double dPPAmount, double currencyDPPAmount, double vatAmount, double incomeTaxAmount, bool isPayVAT, bool isPayIncomeTax, double currencyVATAmount, double currencyIncomeTaxAmount)
+        public InvoiceFormDto(int invoiceId, DateTimeOffset invoiceDate, string invoiceNo, double dPPAmount, double currencyDPPAmount, double vatAmount, double incomeTaxAmount, bool isPayVAT, bool isPayIncomeTax, double currencyVATAmount, double currencyIncomeTaxAmount, string vatNo)
         {
             InvoiceId = invoiceId;
             InvoiceDate = invoiceDate;
@@ -24,6 +24,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance
             IsPayIncomeTax = isPayIncomeTax;
             CurrencyVATAmount = currencyVATAmount;
             CurrencyIncomeTaxAmount = currencyIncomeTaxAmount;
+            VATNo = vatNo;
         }
 
         public int InvoiceId { get; private set; }
@@ -37,5 +38,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance
         public bool IsPayIncomeTax { get; private set; }
         public double CurrencyVATAmount { get; private set; }
         public double CurrencyIncomeTaxAmount { get; private set; }
+        public string VATNo { get; private set; }
     }
 }

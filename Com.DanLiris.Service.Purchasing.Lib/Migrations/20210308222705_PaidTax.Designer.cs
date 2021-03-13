@@ -13,9 +13,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210308222705_PaidTax")]
+    partial class PaidTax
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1990,248 +1991,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.ToTable("GarmentDeliveryOrderItems");
                 });
 
-            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseModel.GarmentDispositionPurchase", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<bool>("Active");
-
-                    b.Property<double>("Amount");
-
-                    b.Property<string>("Bank");
-
-                    b.Property<string>("Category");
-
-                    b.Property<string>("ConfirmationOrderNo");
-
-                    b.Property<string>("CreatedAgent")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<DateTime>("CreatedUtc");
-
-                    b.Property<int>("CurrencyId");
-
-                    b.Property<string>("CurrencyName");
-
-                    b.Property<string>("DeletedAgent")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<string>("DeletedBy")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<DateTime>("DeletedUtc");
-
-                    b.Property<string>("Description");
-
-                    b.Property<string>("DispositionNo");
-
-                    b.Property<double>("Dpp");
-
-                    b.Property<DateTimeOffset>("DueDate");
-
-                    b.Property<double>("IncomeTax");
-
-                    b.Property<string>("InvoiceProformaNo");
-
-                    b.Property<bool>("IsDeleted");
-
-                    b.Property<string>("LastModifiedAgent")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<string>("LastModifiedBy")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<DateTime>("LastModifiedUtc");
-
-                    b.Property<double>("OtherCost");
-
-                    b.Property<string>("PaymentType");
-
-                    b.Property<int>("Position");
-
-                    b.Property<string>("SupplierCode");
-
-                    b.Property<int>("SupplierId");
-
-                    b.Property<bool>("SupplierIsImport");
-
-                    b.Property<string>("SupplierName");
-
-                    b.Property<double>("VAT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DispositionNo")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2020-02-01 00:00:00.0000000')");
-
-                    b.ToTable("GarmentDispositionPurchases");
-                });
-
-            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseModel.GarmentDispositionPurchaseDetail", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<bool>("Active");
-
-                    b.Property<string>("CreatedAgent")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<DateTime>("CreatedUtc");
-
-                    b.Property<string>("DeletedAgent")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<string>("DeletedBy")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<DateTime>("DeletedUtc");
-
-                    b.Property<int>("EPO_POId");
-
-                    b.Property<int>("GarmentDispositionPurchaseItemId");
-
-                    b.Property<int>("IPOId");
-
-                    b.Property<string>("IPONo");
-
-                    b.Property<bool>("IsDeleted");
-
-                    b.Property<string>("LastModifiedAgent")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<string>("LastModifiedBy")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<DateTime>("LastModifiedUtc");
-
-                    b.Property<double>("PaidPrice");
-
-                    b.Property<double>("PercentageOverQTY");
-
-                    b.Property<double>("PricePerQTY");
-
-                    b.Property<double>("PriceTotal");
-
-                    b.Property<int>("ProductId");
-
-                    b.Property<string>("ProductName");
-
-                    b.Property<double>("QTYOrder");
-
-                    b.Property<double>("QTYPaid");
-
-                    b.Property<double>("QTYRemains");
-
-                    b.Property<string>("QTYUnit");
-
-                    b.Property<int>("ROId");
-
-                    b.Property<string>("RONo");
-
-                    b.Property<string>("UnitCode");
-
-                    b.Property<int>("UnitId");
-
-                    b.Property<string>("UnitName");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GarmentDispositionPurchaseItemId");
-
-                    b.ToTable("GarmentDispositionPurchaseDetailss");
-                });
-
-            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseModel.GarmentDispositionPurchaseItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<bool>("Active");
-
-                    b.Property<string>("CreatedAgent")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<DateTime>("CreatedUtc");
-
-                    b.Property<string>("CurrencyCode");
-
-                    b.Property<int>("CurrencyId");
-
-                    b.Property<double>("CurrencyRate");
-
-                    b.Property<string>("DeletedAgent")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<string>("DeletedBy")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<DateTime>("DeletedUtc");
-
-                    b.Property<int>("EPOId");
-
-                    b.Property<string>("EPONo");
-
-                    b.Property<int>("GarmentDispositionPurchaseId");
-
-                    b.Property<double>("IncomeTaxAmount");
-
-                    b.Property<bool>("IsDeleted");
-
-                    b.Property<bool>("IsDispositionCreated");
-
-                    b.Property<bool>("IsDispositionPaid");
-
-                    b.Property<bool>("IsIncomeTax");
-
-                    b.Property<bool>("IsVAT");
-
-                    b.Property<string>("LastModifiedAgent")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<string>("LastModifiedBy")
-                        .IsRequired()
-                        .HasMaxLength(255);
-
-                    b.Property<DateTime>("LastModifiedUtc");
-
-                    b.Property<double>("VATAmount");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GarmentDispositionPurchaseId");
-
-                    b.ToTable("GarmentDispositionPurchaseItems");
-                });
-
             modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel.GarmentExternalPurchaseOrder", b =>
                 {
                     b.Property<long>("Id")
@@ -2301,8 +2060,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<bool>("IsClosed");
 
                     b.Property<bool>("IsDeleted");
-
-                    b.Property<bool>("IsDispositionPaidCreatedAll");
 
                     b.Property<bool>("IsIncomeTax");
 
@@ -2435,8 +2192,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<long>("GarmentEPOId");
 
                     b.Property<bool>("IsDeleted");
-
-                    b.Property<bool>("IsDispositionCreatedAll");
 
                     b.Property<bool>("IsOverBudget");
 
@@ -6793,22 +6548,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel.GarmentDeliveryOrder", "GarmentDeliveryOrder")
                         .WithMany("Items")
                         .HasForeignKey("GarmentDOId")
-                        .OnDelete(DeleteBehavior.Restrict);
-                });
-
-            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseModel.GarmentDispositionPurchaseDetail", b =>
-                {
-                    b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseModel.GarmentDispositionPurchaseItem", "GarmentDispositionPurchaseItem")
-                        .WithMany("GarmentDispositionPurchaseDetails")
-                        .HasForeignKey("GarmentDispositionPurchaseItemId")
-                        .OnDelete(DeleteBehavior.Restrict);
-                });
-
-            modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseModel.GarmentDispositionPurchaseItem", b =>
-                {
-                    b.HasOne("Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseModel.GarmentDispositionPurchase", "GarmentDispositionPurchase")
-                        .WithMany("GarmentDispositionPurchaseItems")
-                        .HasForeignKey("GarmentDispositionPurchaseId")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
