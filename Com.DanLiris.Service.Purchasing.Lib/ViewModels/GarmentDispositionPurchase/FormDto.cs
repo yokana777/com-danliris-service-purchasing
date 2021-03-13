@@ -29,7 +29,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDispositionPurch
         public double MiscAmount { get; set; }
         public double Amount { get; set; }
         public List<FormItemDto> Items { get; set; }
-        public DateTimeOffset CreatedDate { get; set; }
+        public DateTime CreatedUtc { get; set; }
 
     }
 }
