@@ -1,4 +1,5 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseModel;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Enums;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseModel;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -30,6 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDispositionPurch
         public double Amount { get; set; }
         public List<FormItemDto> Items { get; set; }
         public DateTime CreatedUtc { get; set; }
+        public PurchasingGarmentExpeditionPosition Position { get; set; }
 
     }
 }

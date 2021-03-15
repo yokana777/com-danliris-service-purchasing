@@ -53,6 +53,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForMember(s => s.DispositionNo, opt => opt.MapFrom(d => d.DispositionNo))
                 .ForMember(s => s.DueDate, opt => opt.MapFrom(d => d.DueDate))
                 .ForMember(s => s.Supplier, opt => opt.MapFrom(d => d.SupplierName))
+                .ForMember(s=> s.AmountDisposition, opt => opt.MapFrom(d=> d.Amount))
                 .ReverseMap();
         }
     }

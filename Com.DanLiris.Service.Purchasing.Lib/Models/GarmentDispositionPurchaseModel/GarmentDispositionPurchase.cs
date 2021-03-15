@@ -16,6 +16,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseM
         public bool SupplierIsImport { get; set; }
         public int CurrencyId { get; set; }
         public string CurrencyName { get; set; }
+        public DateTimeOffset CurrencyDate { get; set; }
         public string Bank { get; set; }
         public string ConfirmationOrderNo { get; set; }
         public string PaymentType { get; set; }
