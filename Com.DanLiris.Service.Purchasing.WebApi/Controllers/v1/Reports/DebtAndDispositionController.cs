@@ -73,6 +73,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
 
             try
             {
+                VerifyUser();
                 if (!dueDate.HasValue)
                     dueDate = DateTimeOffset.MaxValue.AddHours(Math.Abs(_identityService.TimezoneOffset) * -1);
 
@@ -100,6 +101,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
        
         private MemoryStream GenerateExcel(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset dueDate, int accountingUnitId, bool isImport, bool isForeignCurrency, int divisionId)
         {
+            VerifyUser();
             var dueDateString = $"{dueDate:dd/MM/yy}";
             if (dueDate == DateTimeOffset.MaxValue)
                 dueDateString = "-";
