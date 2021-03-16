@@ -505,6 +505,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                         dispositionTotal -= element.DispositionTotal * (incomeTaxRate / 100);
                     }
 
+                    var accountingUnitName = "-";
+                    var selectedAccountingUnitId = "";
+                    var unit = _units.FirstOrDefault(_unit => _unit.Id.ToString() == element.UnitId);
+                    if (unit != null)
+                    {
+                        var accountingUnit = _accountingUnits.FirstOrDefault(_accountingUnit => _accountingUnit.Id == unit.AccountingUnitId);
+                        if (accountingUnit != null)
+                        {
+                            accountingUnitName = accountingUnit.Name;
+                            selectedAccountingUnitId = accountingUnit.Id.ToString();
+                        }
+                    }
+
                     return new DebtAndDispositionSummaryDto()
                     {
                         CategoryCode = element.CategoryCode,
@@ -513,7 +526,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                         CurrencyCode = element.CurrencyCode,
                         DebtTotal = debtTotal,
                         DispositionTotal = dispositionTotal,
-                        Total = debtTotal + dispositionTotal
+                        Total = debtTotal + dispositionTotal,
+                        DivisionId = element.DivisionId,
+                        DivisionName = element.DivisionName,
+                        DivisionCode = element.DivisionCode,
+                        UnitCode = element.UnitCode,
+                        UnitId = element.UnitId,
+                        UnitName = element.UnitName,
+                        AccountingUnitId = selectedAccountingUnitId,
+                        AccountingUnitName = accountingUnitName
                     };
                 })
                 .GroupBy(element => new { element.CategoryCode, element.CurrencyCode })
@@ -521,6 +542,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                 {
                     var debtTotal = element.Sum(sum => sum.DebtTotal);
                     var dispositionTotal = element.Sum(sum => sum.DispositionTotal);
+
 
                     return new DebtAndDispositionSummaryDto()
                     {
@@ -530,7 +552,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary
                         CurrencyCode = element.Key.CurrencyCode,
                         DebtTotal = debtTotal,
                         DispositionTotal = dispositionTotal,
-                        Total = debtTotal + dispositionTotal
+                        Total = debtTotal + dispositionTotal,
+                        DivisionId = element.FirstOrDefault().DivisionId,
+                        DivisionName = element.FirstOrDefault().DivisionName,
+                        DivisionCode = element.FirstOrDefault().DivisionCode,
+                        UnitCode = element.FirstOrDefault().UnitCode,
+                        UnitId = element.FirstOrDefault().UnitId,
+                        UnitName = element.FirstOrDefault().UnitName,
+                        AccountingUnitId = element.FirstOrDefault().AccountingUnitId,
+                        AccountingUnitName = element.FirstOrDefault().AccountingUnitName
                     };
                 })
                 .OrderBy(element => element.CategoryLayoutIndex)
