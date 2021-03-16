@@ -1,11 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchaseFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDispositionPurchase;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchaseOrderViewModel;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,16 +28,25 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDispositi
         private string ApiVersion = "1.0.0";
         public readonly IServiceProvider serviceProvider;
         private readonly IGarmentDispositionPurchaseFacade facade;
+        private readonly IGarmentExternalPurchaseOrderFacade EPOfacade;
         private readonly IdentityService identityService;
+        private readonly IMapper mapper;
 
-        public GarmentDispositionController( IServiceProvider serviceProvider, IGarmentDispositionPurchaseFacade facade, IdentityService identityService)
+        public GarmentDispositionController( IServiceProvider serviceProvider, IGarmentDispositionPurchaseFacade facade, IdentityService identityService, IMapper mapper)
         {
             this.serviceProvider = serviceProvider;
             //this.facade = serviceProvider.GetService<IGarmentDispositionPurchaseFacade>();
             this.facade = facade;
             //this.identityService = serviceProvider.GetService<IdentityService>();
             this.identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
+            this.mapper = mapper;
+        }
 
+        private void VerifyUser()
+        {
+            identityService.Username = User.Claims.ToArray().SingleOrDefault(p => p.Type.Equals("username")).Value;
+            identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
+            identityService.TimezoneOffset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
         }
 
         [HttpGet]
@@ -39,6 +54,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDispositi
         {
             try
             {
+                VerifyUser();
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
                 var Data = await facade.GetAll(keyword,page, size);
@@ -56,19 +72,110 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDispositi
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
-        [HttpGet("{id}")]
-        public IActionResult GetById([FromRoute]int id)
+
+        [HttpGet("loader")]
+        public IActionResult GetLoader(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
         {
             try
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-                var Data = facade.GetFormById(id);
+                var Data = facade.Read(page, size, order, keyword, filter);
+
+                //var viewModel = mapper.Map<List<PurchasingDispositionViewModel>>(Data.Item1);
+                //var newData = facade.GetTotalPaidPrice(viewModel);
+                List<object> listData = new List<object>();
+                listData.AddRange(
+                    Data.Item1.Select(s => new
+                    {
+                        s.DispositionNo,
+                        s.Id,
+                        s.SupplierName,
+                        s.Bank,
+                        s.ConfirmationOrderNo,
+                        //s.InvoiceNo,
+                        s.PaymentType,
+                        //s.CreatedBy,
+                        //s.Bank,
+                        //s.Investation,
+                        s.Remark,
+                        s.ProformaNo,
+                        s.Amount,
+                        s.CurrencyCode,
+                        //s.lastt,
+                        s.CreatedUtc,
+                        s.PaymentDueDate,
+                        s.Position,
+                        s.Items,
+                        s.Category,
+                        //s.Division,
+                        s.DPP,
+                        s.IncomeTaxValue,
+                        //s.income,
+                        s.VatValue,
+                        s.MiscAmount
+                    }).ToList()
+                );
+
+                var info = new Dictionary<string, object>
+                    {
+                        { "count", listData.Count },
+                        { "total", Data.Item2 },
+                        { "order", Data.Item3 },
+                        { "page", page },
+                        { "size", size }
+                    };
 
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-                    .Ok(Data);
+                    .Ok(listData, info);
                 return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById([FromRoute]int id)
+        {
+            try
+            {
+                VerifyUser();
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
+
+                var Data = await facade.GetFormById(id);
+                if (indexAcceptPdf < 0)
+                {
+                    //return Ok(new
+                    //{
+                    //    apiVersion = ApiVersion,
+                    //    statusCode = General.OK_STATUS_CODE,
+                    //    message = General.OK_MESSAGE,
+                    //    data = Data,
+                    //});
+                    Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(Data);
+                    return Ok(Result);
+                }
+                else
+                {
+                    int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+
+                    GarmentPurchasingPDFTemplate PdfTemplate = new GarmentPurchasingPDFTemplate();
+                    MemoryStream stream = PdfTemplate.GeneratePdfTemplate(Data, clientTimeZoneOffset,identityService.Username);
+
+                    return new FileStreamResult(stream, "application/pdf")
+                    {
+                        FileDownloadName = $"{Data.DispositionNo}.pdf"
+                    };
+                }
+                
             }
             catch (Exception e)
             {
@@ -84,7 +191,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDispositi
         {
             try
             {
-
+                VerifyUser();
                 var Data = facade.ReadByDispositionNo(dispositionNo, page, size);
 
                 Dictionary<string, object> Result =
@@ -106,8 +213,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDispositi
         {
             try
             {
-
-                var Data = facade.Post(model);
+                VerifyUser();
+                var Data = await facade.Post(model);
 
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
@@ -128,8 +235,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDispositi
         {
             try
             {
-
-                var Data = facade.Update(model);
+                VerifyUser();
+                var Data = await facade.Update(model);
 
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
@@ -150,13 +257,41 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDispositi
         {
             try
             {
-
+                VerifyUser();
                 var Data = await facade.Delete(id);
 
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
                     .Ok(new { Message = "Data Saved"});
                 return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpGet("po-external-id/{id}")]
+        public IActionResult Get([FromRoute] int id,[FromQuery]int supplierId, [FromQuery]int currencyId)
+        {
+            try
+            {
+                VerifyUser();
+                var viewModel = facade.ReadByEPOWithDisposition(id,supplierId,currencyId);
+                if (viewModel == null)
+                {
+                    throw new Exception("Invalid Id");
+                }
+                    return Ok(new
+                    {
+                        apiVersion = ApiVersion,
+                        statusCode = General.OK_STATUS_CODE,
+                        message = General.OK_MESSAGE,
+                        data = viewModel,
+                    });
             }
             catch (Exception e)
             {

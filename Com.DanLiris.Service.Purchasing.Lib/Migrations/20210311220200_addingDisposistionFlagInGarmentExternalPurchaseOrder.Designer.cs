@@ -13,9 +13,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210311220200_addingDisposistionFlagInGarmentExternalPurchaseOrder")]
+    partial class addingDisposistionFlagInGarmentExternalPurchaseOrder
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2015,8 +2016,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("CreatedUtc");
 
-                    b.Property<DateTimeOffset>("CurrencyDate");
-
                     b.Property<int>("CurrencyId");
 
                     b.Property<string>("CurrencyName");
@@ -2107,8 +2106,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("DeletedUtc");
 
-                    b.Property<int>("EPO_POId");
-
                     b.Property<int>("GarmentDispositionPurchaseItemId");
 
                     b.Property<int>("IPOId");
@@ -2197,14 +2194,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTime>("DeletedUtc");
 
-                    b.Property<double>("DispositionAmountCreated");
-
-                    b.Property<double>("DispositionAmountPaid");
-
-                    b.Property<double>("DispositionQuantityCreated");
-
-                    b.Property<double>("DispositionQuantityPaid");
-
                     b.Property<int>("EPOId");
 
                     b.Property<string>("EPONo");
@@ -2212,12 +2201,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<int>("GarmentDispositionPurchaseId");
 
                     b.Property<double>("IncomeTaxAmount");
-
-                    b.Property<int>("IncomeTaxId");
-
-                    b.Property<string>("IncomeTaxName");
-
-                    b.Property<double>("IncomeTaxRate");
 
                     b.Property<bool>("IsDeleted");
 
@@ -2451,8 +2434,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<long>("GarmentEPOId");
 
                     b.Property<bool>("IsDeleted");
-
-                    b.Property<bool>("IsDispositionCreatedAll");
 
                     b.Property<bool>("IsOverBudget");
 

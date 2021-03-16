@@ -14,12 +14,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseM
         public double VATAmount { get; set; }
         public bool IsIncomeTax { get; set; }
         public double IncomeTaxAmount { get; set; }
+        public int IncomeTaxId { get; set; }
+        public string IncomeTaxName { get; set; }
+        public double IncomeTaxRate { get; set; }
         public bool IsDispositionCreated { get; set; }
         public bool IsDispositionPaid { get; set; }
         public int GarmentDispositionPurchaseId { get; set; }
         public int CurrencyId { get; set; }
         public string CurrencyCode { get; set; }
         public double CurrencyRate { get; set; }
+        public double DispositionAmountPaid { get; set; }
+        public double DispositionAmountCreated { get; set; }
+        public double DispositionQuantityCreated { get; set; }
+        public double DispositionQuantityPaid { get; set; }
         [ForeignKey("GarmentDispositionPurchaseId")]
         public virtual GarmentDispositionPurchase GarmentDispositionPurchase { get; set; }
         public virtual List<GarmentDispositionPurchaseDetail> GarmentDispositionPurchaseDetails { get; set; }
