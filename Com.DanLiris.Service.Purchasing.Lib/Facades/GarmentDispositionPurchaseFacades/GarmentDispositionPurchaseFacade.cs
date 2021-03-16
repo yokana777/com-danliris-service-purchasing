@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDispositionPurchase;
 using Com.Moonlay.Models;
+using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -158,7 +161,104 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
             var indexModel = new DispositionPurchaseIndexDto(model, page, countData);
             return indexModel;
         }
+        public Tuple<List<FormDto>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+        {
+            IQueryable<GarmentDispositionPurchase> Query = this.dbSet;
 
+            List<string> searchAttributes = new List<string>()
+            {
+                "DispositionNo"
+            };
+
+            Query = QueryHelper<GarmentDispositionPurchase>.ConfigureSearch(Query, searchAttributes, Keyword);
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<GarmentDispositionPurchase>.ConfigureFilter(Query, FilterDictionary);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            Query = QueryHelper<GarmentDispositionPurchase>.ConfigureOrder(Query, OrderDictionary);
+            //Query = Query
+            //    .Select(s => new FormDto
+            //    {
+            //        DispositionNo = s.DispositionNo,
+            //        Id = s.Id,
+            //        SupplierCode = s.SupplierCode,
+            //        SupplierId = s.SupplierId,
+            //        SupplierName = s.SupplierName,
+            //        Bank = s.Bank,
+            //        CurrencyCode = s.CurrencyCode,
+            //        CurrencyId = s.CurrencyId,
+            //        CurrencyRate = s.CurrencyRate,
+            //        ConfirmationOrderNo = s.ConfirmationOrderNo,
+            //        //InvoiceNo = s.InvoiceNo,
+            //        PaymentMethod = s.PaymentMethod,
+            //        PaymentDueDate = s.PaymentDueDate,
+            //        CreatedBy = s.CreatedBy,
+            //        LastModifiedUtc = s.LastModifiedUtc,
+            //        CreatedUtc = s.CreatedUtc,
+            //        Amount = s.Amount,
+            //        Calculation = s.Calculation,
+            //        //Investation = s.Investation,
+            //        Position = s.Position,
+            //        ProformaNo = s.ProformaNo,
+            //        Remark = s.Remark,
+            //        UId = s.UId,
+            //        CategoryCode = s.CategoryCode,
+            //        CategoryId = s.CategoryId,
+            //        CategoryName = s.CategoryName,
+            //        DPP = s.DPP,
+            //        IncomeTaxValue = s.IncomeTaxValue,
+            //        VatValue = s.VatValue,
+            //        IncomeTaxBy = s.IncomeTaxBy,
+            //        DivisionCode = s.DivisionCode,
+            //        DivisionId = s.DivisionId,
+            //        DivisionName = s.DivisionName,
+            //        PaymentCorrection = s.PaymentCorrection,
+            //        Items = s.Items.Select(x => new PurchasingDispositionItem()
+            //        {
+            //            EPOId = x.EPOId,
+            //            EPONo = x.EPONo,
+            //            Id = x.Id,
+            //            IncomeTaxId = x.IncomeTaxId,
+            //            IncomeTaxName = x.IncomeTaxName,
+            //            IncomeTaxRate = x.IncomeTaxRate,
+            //            UseVat = x.UseVat,
+            //            UseIncomeTax = x.UseIncomeTax,
+            //            UId = x.UId,
+
+            //            Details = x.Details.Select(y => new PurchasingDispositionDetail()
+            //            {
+
+            //                UId = y.UId,
+
+            //                DealQuantity = y.DealQuantity,
+            //                DealUomId = y.DealUomId,
+            //                DealUomUnit = y.DealUomUnit,
+            //                Id = y.Id,
+            //                PaidPrice = y.PaidPrice,
+            //                PaidQuantity = y.PaidQuantity,
+            //                PricePerDealUnit = y.PricePerDealUnit,
+            //                PriceTotal = y.PriceTotal,
+            //                PRId = y.PRId,
+            //                PRNo = y.PRNo,
+            //                ProductCode = y.ProductCode,
+            //                ProductId = y.ProductId,
+            //                ProductName = y.ProductName,
+            //                PurchasingDispositionItem = y.PurchasingDispositionItem,
+            //                PurchasingDispositionItemId = y.PurchasingDispositionItemId,
+            //                UnitCode = y.UnitCode,
+            //                UnitId = y.UnitId,
+            //                UnitName = y.UnitName
+            //            }).ToList()
+            //        }).ToList()
+            //    });
+            Pageable<GarmentDispositionPurchase> pageable = new Pageable<GarmentDispositionPurchase>(Query, Page - 1, Size);
+            List<FormDto> listMap = mapper.Map<List<FormDto>>(pageable.Data.ToList());
+            //List<PurchasingDisposition> Data = pageable.Data.ToList<PurchasingDisposition>();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(listMap, TotalData, OrderDictionary);
+        }
         public async Task<List<FormDto>> ReadByDispositionNo(string dispositionNo, int page, int size)
         {
             var dataModel = dbSet
