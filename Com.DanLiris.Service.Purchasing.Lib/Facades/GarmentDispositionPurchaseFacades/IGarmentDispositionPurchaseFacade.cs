@@ -11,7 +11,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
     {
         Task<int> Post(FormDto model);
         Task<int> Delete(int id);
-        Task<int> Update(FormDto model);
+        Task<int> Update(FormEditDto model);
         Task<FormDto> GetFormById(int id);
         Task<DispositionPurchaseIndexDto> GetAll(string keyword, int page, int size);
         Task<List<FormDto>> ReadByDispositionNo(string dispositionNo, int page, int size);
