@@ -72,6 +72,73 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDispositi
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
+
+        [HttpGet("loader")]
+        public IActionResult GetLoader(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                var Data = facade.Read(page, size, order, keyword, filter);
+
+                //var viewModel = mapper.Map<List<PurchasingDispositionViewModel>>(Data.Item1);
+                //var newData = facade.GetTotalPaidPrice(viewModel);
+                List<object> listData = new List<object>();
+                listData.AddRange(
+                    Data.Item1.Select(s => new
+                    {
+                        s.DispositionNo,
+                        s.Id,
+                        s.SupplierName,
+                        s.Bank,
+                        s.ConfirmationOrderNo,
+                        //s.InvoiceNo,
+                        s.PaymentType,
+                        //s.CreatedBy,
+                        //s.Bank,
+                        //s.Investation,
+                        s.Remark,
+                        s.ProformaNo,
+                        s.Amount,
+                        s.CurrencyCode,
+                        //s.lastt,
+                        s.CreatedUtc,
+                        s.PaymentDueDate,
+                        s.Position,
+                        s.Items,
+                        s.Category,
+                        //s.Division,
+                        s.DPP,
+                        s.IncomeTaxValue,
+                        //s.income,
+                        s.VatValue,
+                        s.MiscAmount
+                    }).ToList()
+                );
+
+                var info = new Dictionary<string, object>
+                    {
+                        { "count", listData.Count },
+                        { "total", Data.Item2 },
+                        { "order", Data.Item3 },
+                        { "page", page },
+                        { "size", size }
+                    };
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(listData, info);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute]int id)
         {
