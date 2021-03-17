@@ -46,6 +46,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
         public double CurrencyRate { get; private set; }
         public double DPPAmount { get; private set; }
         public double CurrencyDPPAmount { get; private set; }
+        public string ProformaNo { get; private set; }
         public List<GarmentDispositionNoteItemDto> Items { get; private set; }
     }
 }
