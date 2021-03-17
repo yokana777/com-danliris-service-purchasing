@@ -26,5 +26,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDispositionPurch
         public double PercentageOverQTY { get; set; }
         public int EPO_POId { get; set; }
         public int GarmentDispositionPurchaseItemId { get; set; }
+        public double DispositionAmountPaid { get; set; }
+        public double DispositionAmountCreated { get; set; }
+        public double DispositionQuantityCreated { get; set; }
+        public double DispositionQuantityPaid { get; set; }
     }
 }
