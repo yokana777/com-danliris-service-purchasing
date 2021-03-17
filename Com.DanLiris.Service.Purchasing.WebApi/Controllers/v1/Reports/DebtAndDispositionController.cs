@@ -77,9 +77,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
                 if (!dueDate.HasValue)
                     dueDate = DateTimeOffset.MaxValue.AddHours(Math.Abs(_identityService.TimezoneOffset) * -1);
 
-                var result = _service.GetSummary(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
+                var result = _service.GetReport(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
 
-                var stream = GenerateExcel(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault().AddHours(_identityService.TimezoneOffset), accountingUnitId, isImport, isForeignCurrency, divisionId);
+                var stream = GenerateExcel(result.Data, _identityService.TimezoneOffset, dueDate.GetValueOrDefault().AddHours(_identityService.TimezoneOffset), accountingUnitId, isImport, isForeignCurrency, divisionId);
 
                 var filename = "Laporan Rekap Hutang & Disposisi Lokal";
                 if (isForeignCurrency)
@@ -252,9 +252,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
                 if (!dueDate.HasValue)
                     dueDate = DateTimeOffset.MaxValue.AddHours(Math.Abs(_identityService.TimezoneOffset) * -1);
 
-                var result = _service.GetSummary(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
+                var result = _service.GetReport(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
 
-                var stream = DebtAndDispositionSummaryPDFTemplate.Generate(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), accountingUnitId, isImport, isForeignCurrency, divisionId);
+                var stream = DebtAndDispositionSummaryPDFTemplate.Generate(result.Data, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), accountingUnitId, isImport, isForeignCurrency, divisionId);
 
                 var filename = "Laporan Rekap Hutang & Disposisi Lokal";
                 if (isForeignCurrency)
