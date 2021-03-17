@@ -285,54 +285,66 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                 try
                 {
                     //validation
-                    var dataExist = dbSet.FirstOrDefault(s => s.Id == model.Id);
+                    var dataExist = this.dbContext.GarmentDispositionPurchases.AsNoTracking().Include(s=> s.GarmentDispositionPurchaseItems).ThenInclude(s=>s.GarmentDispositionPurchaseDetails).FirstOrDefault(s => s.Id == model.Id);
                     if (dataExist == null)
                     {
                         throw new Exception("Data Not Found");
                     }
                     GarmentDispositionPurchase dataModel = mapper.Map<FormEditDto, GarmentDispositionPurchase>(model);
-                    EntityExtension.FlagForUpdate(dataModel, identityService.Username, USER_AGENT);
-                    dataModel.GarmentDispositionPurchaseItems.ForEach(s => {
-
+                    //EntityExtension.FlagForUpdate(dataModel, identityService.Username, USER_AGENT);
+                    //dataModel.GarmentDispositionPurchaseItems.ForEach(s => {
+                    foreach (var s in dataModel.GarmentDispositionPurchaseItems)
+                    {
                         //createNew Items
                         if (s.Id == 0)
                         {
                             EntityExtension.FlagForCreate(s, identityService.Username, USER_AGENT);
                             s.IsDispositionCreated = true;
-                            s.GarmentDispositionPurchaseDetails.ForEach(t =>
+                            //s.GarmentDispositionPurchaseDetails.ForEach(t =>
+                            foreach (var t in s.GarmentDispositionPurchaseDetails)
                             {
-                                if (t.QTYPaid >= t.QTYRemains)
+                                if (t.QTYRemains <= 0)
                                 {
-                                    var EPOItems1 = this.dbContext.GarmentExternalPurchaseOrderItems.Where(a => a.Id == t.EPO_POId).FirstOrDefault();
+                                    var EPOItems1 = this.dbContext.GarmentExternalPurchaseOrderItems.AsNoTracking().Where(a => a.Id == t.EPO_POId).FirstOrDefault();
                                     EPOItems1.IsDispositionCreatedAll = true;
                                     EntityExtension.FlagForUpdate(EPOItems1, identityService.Username, USER_AGENT);
                                     var afterUpdateModel1 = this.dbContext.GarmentExternalPurchaseOrderItems.Update(EPOItems1);
+                                    dbContext.SaveChanges();
+
                                 }
                                 EntityExtension.FlagForCreate(t, identityService.Username, USER_AGENT);
-                            });
+                                //});
+                            }
                         }
                         else//updatet data if items Exist
                         {
                             EntityExtension.FlagForUpdate(s, identityService.Username, USER_AGENT);
 
-                            s.GarmentDispositionPurchaseDetails.ForEach(t =>
+                            //s.GarmentDispositionPurchaseDetails.ForEach(t =>
+                            foreach (var t in s.GarmentDispositionPurchaseDetails)
                             {
-                                if (t.QTYPaid >= t.QTYRemains)
+                                if (t.QTYRemains <= 0)
                                 {
-                                    var EPOItems2 = this.dbContext.GarmentExternalPurchaseOrderItems.Where(a => a.Id == t.EPO_POId).FirstOrDefault();
+                                    var EPOItems2 = this.dbContext.GarmentExternalPurchaseOrderItems.AsNoTracking().Where(a => a.Id == t.EPO_POId).FirstOrDefault();
                                     EPOItems2.IsDispositionCreatedAll = true;
                                     EntityExtension.FlagForUpdate(EPOItems2, identityService.Username, USER_AGENT);
                                     this.dbContext.GarmentExternalPurchaseOrderItems.Update(EPOItems2);
+                                    dbContext.SaveChanges();
+
                                 }
                                 else
                                 {
-                                    var EPOItems3= this.dbContext.GarmentExternalPurchaseOrderItems.Where(a => a.Id == t.EPO_POId).FirstOrDefault();
+                                    var EPOItems3 = this.dbContext.GarmentExternalPurchaseOrderItems.AsNoTracking().Where(a => a.Id == t.EPO_POId).FirstOrDefault();
                                     EPOItems3.IsDispositionCreatedAll = false;
                                     EntityExtension.FlagForUpdate(EPOItems3, identityService.Username, USER_AGENT);
-                                     this.dbContext.GarmentExternalPurchaseOrderItems.Update(EPOItems3);
+                                    this.dbContext.GarmentExternalPurchaseOrderItems.Update(EPOItems3);
+                                    dbContext.SaveChanges();
+
                                 }
                                 EntityExtension.FlagForUpdate(t, identityService.Username, USER_AGENT);
-                            });
+
+                                //});
+                            }
                         }
 
                         //deleted detail when not exist anymore
@@ -340,29 +352,62 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                         var detailsFormPerItem = s.GarmentDispositionPurchaseDetails.Select(j => j.Id).ToList();
                         var deletedDetails = detailsPerItems.Where(j => !detailsFormPerItem.Contains(j.Id)).ToList();
 
-                        deletedDetails.ForEach(j =>
+                        //deletedDetails.ForEach(j =>
+                        foreach (var j in deletedDetails)
                         {
-                            var EPOItems = this.dbContext.GarmentExternalPurchaseOrderItems.Where(a => a.Id == j.EPO_POId).FirstOrDefault();
+                            var EPOItems = this.dbContext.GarmentExternalPurchaseOrderItems.AsNoTracking().Where(a => a.Id == j.EPO_POId).FirstOrDefault();
                             EPOItems.IsDispositionCreatedAll = false;
                             EntityExtension.FlagForUpdate(EPOItems, identityService.Username, USER_AGENT);
                             this.dbContext.GarmentExternalPurchaseOrderItems.Update(EPOItems);
+                            dbContext.SaveChanges();
 
                             EntityExtension.FlagForDelete(j, identityService.Username, USER_AGENT);
-                             this.dbContext.GarmentDispositionPurchaseDetailss.Update(j);
-                        });
-                    });
+                            this.dbContext.GarmentDispositionPurchaseDetailss.Update(j);
+                            dbContext.SaveChanges();
+
+                            //});
+                        }
+                        //});
+                    }
                     //deleted items 
                     var dataformItems = dataModel.GarmentDispositionPurchaseItems.Select(t => t.Id).ToList();
                     var deletedItems = dataExist.GarmentDispositionPurchaseItems.Where(s => dataformItems.Contains(s.Id)).ToList();
-                    deletedItems.ForEach(t =>
+                    //deletedItems.ForEach(t =>
+                    foreach (var t in deletedItems)
                     {
                         EntityExtension.FlagForDelete(t, identityService.Username, USER_AGENT);
                         var afterDeletedItems = this.dbContext.GarmentDispositionPurchaseItems.Update(t);
+                        dbContext.SaveChanges();
 
-                    });
 
-                    var afterUpdateModel = dbContext.GarmentDispositionPurchases.Update(dataModel);
-                    Updated = await dbContext.SaveChangesAsync();
+                        //});
+                    }
+                    var modelParentUpdate = this.dbContext.GarmentDispositionPurchases.FirstOrDefault(t => t.Id == dataModel.Id);
+                    //dataModel.GarmentDispositionPurchaseItems = null;
+                    modelParentUpdate.Amount = dataModel.Amount;
+                    modelParentUpdate.Bank = dataModel.Bank;
+                    modelParentUpdate.Category = dataModel.Category;
+                    modelParentUpdate.ConfirmationOrderNo = dataModel.ConfirmationOrderNo;
+                    modelParentUpdate.CurrencyDate = dataModel.CurrencyDate;
+                    modelParentUpdate.CurrencyId = dataModel.CurrencyId;
+                    modelParentUpdate.CurrencyName = dataModel.CurrencyName;
+                    modelParentUpdate.Description = dataModel.Description;
+                    modelParentUpdate.DispositionNo = dataModel.DispositionNo;
+                    modelParentUpdate.Dpp = dataModel.Dpp;
+                    modelParentUpdate.DueDate = dataModel.DueDate;
+                    modelParentUpdate.IncomeTax = dataModel.IncomeTax;
+                    modelParentUpdate.InvoiceProformaNo = dataModel.InvoiceProformaNo;
+                    modelParentUpdate.OtherCost = dataModel.OtherCost;
+                    modelParentUpdate.PaymentType = dataModel.PaymentType;
+                    //modelParentUpdate.Position = dataModel.Position;
+                    modelParentUpdate.SupplierCode = dataModel.SupplierCode;
+                    modelParentUpdate.SupplierId = dataModel.SupplierId;
+                    modelParentUpdate.SupplierIsImport = dataModel.SupplierIsImport;
+                    modelParentUpdate.SupplierName = dataModel.SupplierName;
+                    modelParentUpdate.VAT = dataModel.VAT;
+                    
+                    var afterUpdateModel = dbContext.GarmentDispositionPurchases.Update(modelParentUpdate);
+                    Updated = dbContext.SaveChanges();
                     transaction.Commit();
                 }
                 catch (Exception e)
