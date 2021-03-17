@@ -31,6 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDispositionPurch
         public double Amount { get; set; }
         public List<FormItemDto> Items { get; set; }
         public DateTime CreatedUtc { get; set; }
+        public string CreatedBy { get; set; }
         public PurchasingGarmentExpeditionPosition Position { get; set; }
 
     }

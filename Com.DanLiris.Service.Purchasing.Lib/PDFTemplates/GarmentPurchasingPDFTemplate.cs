@@ -213,7 +213,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Colspan = 2;
-            cellLeftNoBorder.Phrase = new Phrase(viewModel.CurrencyCode + "  " + $"{(viewModel.DPP+ viewModel.VatValue+ viewModel.IncomeTaxValue).ToString("N", new CultureInfo("id-ID")) }", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase(viewModel.CurrencyCode + "  " + $"{(viewModel.DPP+ viewModel.VatValue - viewModel.IncomeTaxValue).ToString("N", new CultureInfo("id-ID")) }", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase("", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
@@ -250,7 +250,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellSuppMid.Phrase = new Phrase(":", normal_font);
             tableIdentity.AddCell(cellSuppMid);
             cellSuppRight.Colspan = 2;
-            cellSuppRight.Phrase = new Phrase(viewModel.CurrencyCode + "  " + $"{(viewModel.DPP + viewModel.VatValue + viewModel.IncomeTaxValue).ToString("N", new CultureInfo("id-ID"))}", normal_font);
+            cellSuppRight.Phrase = new Phrase(viewModel.CurrencyCode + "  " + $"{((viewModel.DPP + viewModel.VatValue - viewModel.IncomeTaxValue)+viewModel.MiscAmount).ToString("N", new CultureInfo("id-ID"))}", normal_font);
             tableIdentity.AddCell(cellSuppRight);
             cellLeftNoBorder.Colspan = 0;
             cellLeftNoBorder.Phrase = new Phrase("", normal_font);
@@ -488,7 +488,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 ).ToList();
             foreach(var perUnit in AmountPerUnit)
             {
-                cellLeftNoBorder.Phrase = new Phrase($"- {perUnit.Key.UnitName} = {perUnit.Value.Sum(t=> (t.PricePerQTY*t.QTYRemains) + (t.PricePerQTY* t.QTYRemains*0.1) + (t.PricePerQTY*t.QTYRemains*(viewModel.Items.Where(a=> a.Id == t.GarmentDispositionPurchaseItemId).FirstOrDefault()?.IncomeTaxRate /100)))?.ToString("N", new CultureInfo("id-ID"))}", bold_font3); 
+                cellLeftNoBorder.Phrase = new Phrase($"- {perUnit.Key.UnitName} = {perUnit.Value.Sum(t=> (t.PaidPrice) + (t.PaidPrice*0.1) - (t.PaidPrice*(viewModel.Items.Where(a=> a.Id == t.GarmentDispositionPurchaseItemId).FirstOrDefault()?.IncomeTaxRate /100)))?.ToString("N", new CultureInfo("id-ID"))}", bold_font3); 
                 tableBeban.AddCell(cellLeftNoBorder);
             }
             PdfPCell cellBeban = new PdfPCell(tableBeban); // dont remove
