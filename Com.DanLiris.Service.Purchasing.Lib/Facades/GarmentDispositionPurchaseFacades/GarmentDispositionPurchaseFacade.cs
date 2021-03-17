@@ -54,7 +54,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                         s.IsDispositionCreated = true;
                         s.GarmentDispositionPurchaseDetails.ForEach(t =>
                         {
-                            if(t.QTYPaid>= t.QTYRemains)
+                            if(t.QTYRemains<= 0)
                             {
                                 var EPOItems = this.dbContext.GarmentExternalPurchaseOrderItems.Where(a => a.Id == t.EPO_POId).FirstOrDefault();
                                 EPOItems.IsDispositionCreatedAll = true;
