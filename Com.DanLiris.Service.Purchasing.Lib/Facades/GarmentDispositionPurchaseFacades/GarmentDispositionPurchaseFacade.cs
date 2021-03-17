@@ -276,7 +276,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
             return model;
         }
 
-        public async Task<int> Update(FormDto model)
+        public async Task<int> Update(FormEditDto model)
         {
             int Updated = 0;
 
@@ -290,7 +290,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                     {
                         throw new Exception("Data Not Found");
                     }
-                    GarmentDispositionPurchase dataModel = mapper.Map<FormDto, GarmentDispositionPurchase>(model);
+                    GarmentDispositionPurchase dataModel = mapper.Map<FormEditDto, GarmentDispositionPurchase>(model);
                     EntityExtension.FlagForUpdate(dataModel, identityService.Username, USER_AGENT);
                     dataModel.GarmentDispositionPurchaseItems.ForEach(s => {
 
@@ -400,15 +400,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                 && s.CurrencyId == currencyId
                 );
 
-            var dispositionPaid = searchDisposition.SelectMany(s=> s.GarmentDispositionPurchaseItems).Where(s => s.IsDispositionPaid);
-            var dispositionCreated = searchDisposition.SelectMany(s=> s.GarmentDispositionPurchaseItems).Where(s => s.IsDispositionCreated);
+            
+            var dispositionPaid = searchDisposition.SelectMany(s=> s.GarmentDispositionPurchaseItems).Where(s => s.IsDispositionPaid).ToList().Select(s=> new {Item = s, TotalPaidPrice = s.GarmentDispositionPurchaseDetails.Sum(t=> t.PaidPrice) }).ToList();
+            var dispositionCreated = searchDisposition.SelectMany(s=> s.GarmentDispositionPurchaseItems).Where(s => s.IsDispositionCreated).ToList().Select(s => new { Item = s, TotalPaidPrice = s.GarmentDispositionPurchaseDetails.Sum(t => t.PaidPrice) }).ToList();
             //viewModel.ForEach(Model => { 
-            viewModel.DispositionAmountCreated = dispositionCreated.SelectMany(s=> s.GarmentDispositionPurchaseDetails).Sum(t => t.PaidPrice);
-            viewModel.DispositionAmountPaid = dispositionPaid.SelectMany(s => s.GarmentDispositionPurchaseDetails).Sum(t => t.PaidPrice);
+
+            viewModel.DispositionAmountCreated = dispositionCreated.Sum(s => (s.Item.IncomeTaxAmount + s.Item.VATAmount + s.TotalPaidPrice));
+            
+            viewModel.DispositionAmountPaid = dispositionPaid.Sum(s => (s.Item.IncomeTaxAmount + s.Item.VATAmount + s.TotalPaidPrice));
             viewModel.DispositionQuantityCreated = dispositionCreated
-                .SelectMany(t => t.GarmentDispositionPurchaseDetails).Sum(t => t.QTYPaid);
+                .SelectMany(t => t.Item.GarmentDispositionPurchaseDetails).Sum(t => t.QTYPaid);
             viewModel.DispositionQuantityPaid = dispositionPaid
-                .SelectMany(t => t.GarmentDispositionPurchaseDetails).Sum(t => t.QTYPaid);
+                .SelectMany(t => t.Item.GarmentDispositionPurchaseDetails).Sum(t => t.QTYPaid);
             //foreach Unit
 
             viewModel.Items.ForEach(t =>
@@ -426,14 +429,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                 && s.CurrencyId == currencyId
                 );
 
-                var dispositionPaidIPO = searchDispositionIPO.SelectMany(d => d.GarmentDispositionPurchaseItems).Where(d => d.IsDispositionPaid);
-                var dispositionCreatedIPO = searchDispositionIPO.SelectMany(d => d.GarmentDispositionPurchaseItems).Where(d => d.IsDispositionCreated);
-                t.DispositionAmountCreated = dispositionCreatedIPO.SelectMany(d => d.GarmentDispositionPurchaseDetails).Where(d=> d.IPOId == t.POId).Sum(j => j.PaidPrice);
-                t.DispositionAmountPaid = dispositionPaidIPO.SelectMany(d => d.GarmentDispositionPurchaseDetails).Where(d => d.IPOId == t.POId).Sum(j => j.PaidPrice);
+                var dispositionPaidIPO = searchDispositionIPO.SelectMany(d => d.GarmentDispositionPurchaseItems).Where(d => d.IsDispositionPaid).Select(s => new { Item = s, TotalPaidPrice = s.GarmentDispositionPurchaseDetails.Where(a=> a.IPOId == a.IPOId).Sum(a => a.PaidPrice) }).ToList();
+                var dispositionCreatedIPO = searchDispositionIPO.SelectMany(d => d.GarmentDispositionPurchaseItems).Where(d => d.IsDispositionCreated).Select(s => new { Item = s, TotalPaidPrice = s.GarmentDispositionPurchaseDetails.Where(a => a.IPOId == a.IPOId).Sum(a => a.PaidPrice) }).ToList();
+
+                t.DispositionAmountCreated = dispositionCreatedIPO.Sum(d => (d.Item.IncomeTaxAmount + d.Item.VATAmount + d.TotalPaidPrice));
+                t.DispositionAmountPaid = dispositionPaidIPO.Sum(d => (d.Item.IncomeTaxAmount + d.Item.VATAmount + d.TotalPaidPrice));
                 t.DispositionQuantityCreated = dispositionCreatedIPO
-                    .SelectMany(j => j.GarmentDispositionPurchaseDetails).Where(d => d.IPOId == t.POId).Sum(j => j.QTYPaid);
+                    .SelectMany(j => j.Item.GarmentDispositionPurchaseDetails).Where(d => d.IPOId == t.POId).Sum(j => j.QTYPaid);
                 t.DispositionQuantityPaid = dispositionPaidIPO
-                    .SelectMany(j => j.GarmentDispositionPurchaseDetails).Where(d => d.IPOId == t.POId).Sum(j => j.QTYPaid);
+                    .SelectMany(j => j.Item.GarmentDispositionPurchaseDetails).Where(d => d.IPOId == t.POId).Sum(j => j.QTYPaid);
 
             });
             //});

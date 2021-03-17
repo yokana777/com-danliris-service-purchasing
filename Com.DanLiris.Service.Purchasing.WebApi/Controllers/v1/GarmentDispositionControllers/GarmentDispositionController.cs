@@ -230,8 +230,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDispositi
             }
         }
 
-        [HttpPut]
-        public async Task<IActionResult> Put([FromBody] FormDto model)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put([FromRoute] int id,[FromBody] FormDto model)
         {
             try
             {
