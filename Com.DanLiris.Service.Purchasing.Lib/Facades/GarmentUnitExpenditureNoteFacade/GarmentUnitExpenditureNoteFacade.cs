@@ -1550,7 +1550,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                 Query = Query.OrderBy(b => b.UENNo).ThenBy(b => b.PONo);
             }
 
-
+            
             Pageable<MonitoringOutViewModel> pageable = new Pageable<MonitoringOutViewModel>(Query, page - 1, size);
             List<MonitoringOutViewModel> Data = pageable.Data.ToList<MonitoringOutViewModel>();
             int TotalData = pageable.TotalCount;
@@ -1562,69 +1562,116 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
-            var Query = type == "FABRIC" ? from a in dbContext.GarmentUnitExpenditureNotes
-                                           join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
-                                           where a.IsDeleted == false && b.IsDeleted == false
-                                           && a.StorageName == "GUDANG BAHAN BAKU"
-                                           && a.CreatedUtc.Date >= DateFrom.Date
-                                           && a.CreatedUtc.Date <= DateTo.Date
-                                           select new MonitoringOutViewModel
-                                           {
-                                               CreatedUtc = a.CreatedUtc,
-                                               ExTo = a.ExpenditureType == "EXTERNAL" ? "RETUR KE PEMBELIAN" : a.ExpenditureType,
-                                               ItemCode = b.ProductCode,
-                                               ItemName = b.ProductName,
-                                               PONo = b.POSerialNumber,
-                                               Quantity = b.Quantity,
-                                               Storage = a.StorageName,
-                                               UENNo = a.UENNo,
-                                               UnitCode = a.UnitRequestCode,
-                                               UnitName = a.UnitRequestName,
-                                               UnitQtyName = b.UomUnit,
-                                               ExDate = a.ExpenditureDate
-                                           }
-                        : type == "NON FABRIC" ? from a in dbContext.GarmentUnitExpenditureNotes
-                                                 join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
-                                                 where a.IsDeleted == false && b.IsDeleted == false
-                                                 && a.StorageName != "GUDANG BAHAN BAKU"
-                                                 && a.CreatedUtc.Date >= DateFrom.Date
-                                                 && a.CreatedUtc.Date <= DateTo.Date
-                                                 select new MonitoringOutViewModel
-                                                 {
-                                                     CreatedUtc = a.CreatedUtc,
-                                                     ExTo = a.ExpenditureType == "EXTERNAL" ? "RETUR KE PEMBELIAN" : a.ExpenditureType,
-                                                     ItemCode = b.ProductCode,
-                                                     ItemName = b.ProductName,
-                                                     PONo = b.POSerialNumber,
-                                                     Quantity = b.Quantity,
-                                                     Storage = a.StorageName,
-                                                     UENNo = a.UENNo,
-                                                     UnitCode = a.UnitRequestCode,
-                                                     UnitName = a.UnitRequestName,
-                                                     UnitQtyName = b.UomUnit,
-                                                     ExDate = a.ExpenditureDate
-                                                 }
-                                                 : from a in dbContext.GarmentUnitExpenditureNotes
-                                                   join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
-                                                   where a.IsDeleted == false && b.IsDeleted == false
-                                                   && a.StorageName == a.StorageName
-                                                   && a.CreatedUtc.Date >= DateFrom.Date
-                                                   && a.CreatedUtc.Date <= DateTo.Date
-                                                   select new MonitoringOutViewModel
-                                                   {
-                                                       CreatedUtc = a.CreatedUtc,
-                                                       ExTo = a.ExpenditureType == "EXTERNAL" ? "RETUR KE PEMBELIAN" : a.ExpenditureType,
-                                                       ItemCode = b.ProductCode,
-                                                       ItemName = b.ProductName,
-                                                       PONo = b.POSerialNumber,
-                                                       Quantity = b.Quantity,
-                                                       Storage = a.StorageName,
-                                                       UENNo = a.UENNo,
-                                                       UnitCode = a.UnitRequestCode,
-                                                       UnitName = a.UnitRequestName,
-                                                       UnitQtyName = b.UomUnit,
-                                                       ExDate = a.ExpenditureDate
-                                                   };
+
+            var Data1 = from a in dbContext.GarmentUnitExpenditureNotes
+                        join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
+                        where a.IsDeleted == false && b.IsDeleted == false
+                        && (type == "FABRIC" ? a.StorageName == "GUDANG BAHAN BAKU" : type == "NON FABRIC" ? a.StorageName != "GUDANG BAHAN BAKU" : a.StorageName == a.StorageName)
+                        && a.CreatedUtc.Date >= DateFrom.Date
+                        && a.CreatedUtc.Date <= DateTo.Date
+                        && a.UId == null
+                        select new MonitoringOutViewModel
+                        {
+                            CreatedUtc = a.CreatedUtc,
+                            ExTo = a.ExpenditureType == "EXTERNAL" ? "RETUR KE PEMBELIAN" : a.ExpenditureType,
+                            ItemCode = b.ProductCode,
+                            ItemName = b.ProductName,
+                            PONo = b.POSerialNumber,
+                            Quantity = b.Quantity,
+                            Storage = a.StorageName,
+                            UENNo = a.UENNo,
+                            UnitCode = a.UnitRequestCode,
+                            UnitName = a.UnitRequestName,
+                            UnitQtyName = b.UomUnit,
+                            ExDate = a.ExpenditureDate
+                        };
+            var Data2 = from a in dbContext.GarmentUnitExpenditureNotes
+                        join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
+                        where a.IsDeleted == false && b.IsDeleted == false
+                        && (type == "FABRIC" ? a.StorageName == "GUDANG BAHAN BAKU" : type == "NON FABRIC" ? a.StorageName != "GUDANG BAHAN BAKU" : a.StorageName == a.StorageName)
+                        && a.LastModifiedUtc.Date >= DateFrom.Date
+                        && a.LastModifiedUtc.Date <= DateTo.Date
+                        && a.UId != null
+                        select new MonitoringOutViewModel
+                        {
+                            CreatedUtc = a.CreatedUtc,
+                            ExTo = a.ExpenditureType == "EXTERNAL" ? "RETUR KE PEMBELIAN" : a.ExpenditureType,
+                            ItemCode = b.ProductCode,
+                            ItemName = b.ProductName,
+                            PONo = b.POSerialNumber,
+                            Quantity = b.Quantity,
+                            Storage = a.StorageName,
+                            UENNo = a.UENNo,
+                            UnitCode = a.UnitRequestCode,
+                            UnitName = a.UnitRequestName,
+                            UnitQtyName = b.UomUnit,
+                            ExDate = a.ExpenditureDate
+                        };
+            var Query = Data1.Union(Data2);
+            //var Query = type == "FABRIC" ? from a in dbContext.GarmentUnitExpenditureNotes
+            //                               join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
+            //                               where a.IsDeleted == false && b.IsDeleted == false
+            //                               && a.StorageName == "GUDANG BAHAN BAKU"
+            //                               && a.LastModifiedUtc.Date >= DateFrom.Date
+            //                               && a.LastModifiedUtc.Date <= DateTo.Date
+
+            //                               select new MonitoringOutViewModel
+            //                               {
+            //                                   CreatedUtc = a.CreatedUtc,
+            //                                   ExTo = a.ExpenditureType == "EXTERNAL" ? "RETUR KE PEMBELIAN" : a.ExpenditureType,
+            //                                   ItemCode = b.ProductCode,
+            //                                   ItemName = b.ProductName,
+            //                                   PONo = b.POSerialNumber,
+            //                                   Quantity = b.Quantity,
+            //                                   Storage = a.StorageName,
+            //                                   UENNo = a.UENNo,
+            //                                   UnitCode = a.UnitRequestCode,
+            //                                   UnitName = a.UnitRequestName,
+            //                                   UnitQtyName = b.UomUnit,
+            //                                   ExDate = a.ExpenditureDate
+            //                               }
+            //            : type == "NON FABRIC" ? from a in dbContext.GarmentUnitExpenditureNotes
+            //                                     join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
+            //                                     where a.IsDeleted == false && b.IsDeleted == false
+            //                                     && a.StorageName != "GUDANG BAHAN BAKU"
+            //                                     && a.LastModifiedUtc.Date >= DateFrom.Date
+            //                                     && a.LastModifiedUtc.Date <= DateTo.Date
+            //                                     select new MonitoringOutViewModel
+            //                                     {
+            //                                         CreatedUtc = a.CreatedUtc,
+            //                                         ExTo = a.ExpenditureType == "EXTERNAL" ? "RETUR KE PEMBELIAN" : a.ExpenditureType,
+            //                                         ItemCode = b.ProductCode,
+            //                                         ItemName = b.ProductName,
+            //                                         PONo = b.POSerialNumber,
+            //                                         Quantity = b.Quantity,
+            //                                         Storage = a.StorageName,
+            //                                         UENNo = a.UENNo,
+            //                                         UnitCode = a.UnitRequestCode,
+            //                                         UnitName = a.UnitRequestName,
+            //                                         UnitQtyName = b.UomUnit,
+            //                                         ExDate = a.ExpenditureDate
+            //                                     }
+            //                                     : from a in dbContext.GarmentUnitExpenditureNotes
+            //                                       join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
+            //                                       where a.IsDeleted == false && b.IsDeleted == false
+            //                                       && a.StorageName == a.StorageName
+            //                                       && a.LastModifiedUtc.Date >= DateFrom.Date
+            //                                       && a.LastModifiedUtc.Date <= DateTo.Date
+            //                                       select new MonitoringOutViewModel
+            //                                       {
+            //                                           CreatedUtc = a.CreatedUtc,
+            //                                           ExTo = a.ExpenditureType == "EXTERNAL" ? "RETUR KE PEMBELIAN" : a.ExpenditureType,
+            //                                           ItemCode = b.ProductCode,
+            //                                           ItemName = b.ProductName,
+            //                                           PONo = b.POSerialNumber,
+            //                                           Quantity = b.Quantity,
+            //                                           Storage = a.StorageName,
+            //                                           UENNo = a.UENNo,
+            //                                           UnitCode = a.UnitRequestCode,
+            //                                           UnitName = a.UnitRequestName,
+            //                                           UnitQtyName = b.UomUnit,
+            //                                           ExDate = a.ExpenditureDate
+            //                                       };
             return Query.AsQueryable();
 
         }
