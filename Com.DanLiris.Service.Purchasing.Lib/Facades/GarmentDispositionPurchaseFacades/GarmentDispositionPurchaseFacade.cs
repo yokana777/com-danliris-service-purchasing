@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Enums;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
@@ -178,9 +179,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
             var indexModel = new DispositionPurchaseIndexDto(model, page, countData);
             return indexModel;
         }
-        public Tuple<List<FormDto>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+        public Tuple<List<FormDto>, int, Dictionary<string, string>> Read(PurchasingGarmentExpeditionPosition position, int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}", int supplierId=0)
         {
             IQueryable<GarmentDispositionPurchase> Query = this.dbSet;
+
+            if (position != PurchasingGarmentExpeditionPosition.Invalid)
+                Query = Query.Where(s => s.Position == position);
+
+            if (supplierId != 0)
+                Query = Query.Where(s => s.SupplierId == supplierId);
 
             List<string> searchAttributes = new List<string>()
             {
