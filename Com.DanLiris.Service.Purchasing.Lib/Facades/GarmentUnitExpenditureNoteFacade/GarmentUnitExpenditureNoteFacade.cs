@@ -1566,8 +1566,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                            join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
                                            where a.IsDeleted == false && b.IsDeleted == false
                                            && a.StorageName == "GUDANG BAHAN BAKU"
-                                           && a.ExpenditureDate.Date >= DateFrom.Date
-                                           && a.ExpenditureDate.Date <= DateTo.Date
+                                           && a.CreatedUtc.Date >= DateFrom.Date
+                                           && a.CreatedUtc.Date <= DateTo.Date
                                            select new MonitoringOutViewModel
                                            {
                                                CreatedUtc = a.CreatedUtc,
@@ -1575,7 +1575,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                                ItemCode = b.ProductCode,
                                                ItemName = b.ProductName,
                                                PONo = b.POSerialNumber,
-                                               Quantity = b.Quantity * (double)b.Conversion,
+                                               Quantity = b.Quantity,
                                                Storage = a.StorageName,
                                                UENNo = a.UENNo,
                                                UnitCode = a.UnitRequestCode,
@@ -1587,8 +1587,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                                  join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
                                                  where a.IsDeleted == false && b.IsDeleted == false
                                                  && a.StorageName != "GUDANG BAHAN BAKU"
-                                                 && a.ExpenditureDate.Date >= DateFrom.Date
-                                                 && a.ExpenditureDate.Date <= DateTo.Date
+                                                 && a.CreatedUtc.Date >= DateFrom.Date
+                                                 && a.CreatedUtc.Date <= DateTo.Date
                                                  select new MonitoringOutViewModel
                                                  {
                                                      CreatedUtc = a.CreatedUtc,
@@ -1596,7 +1596,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                                      ItemCode = b.ProductCode,
                                                      ItemName = b.ProductName,
                                                      PONo = b.POSerialNumber,
-                                                     Quantity = b.Quantity * (double)b.Conversion,
+                                                     Quantity = b.Quantity,
                                                      Storage = a.StorageName,
                                                      UENNo = a.UENNo,
                                                      UnitCode = a.UnitRequestCode,
@@ -1608,8 +1608,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                                    join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
                                                    where a.IsDeleted == false && b.IsDeleted == false
                                                    && a.StorageName == a.StorageName
-                                                   && a.ExpenditureDate.Date >= DateFrom.Date
-                                                   && a.ExpenditureDate.Date <= DateTo.Date
+                                                   && a.CreatedUtc.Date >= DateFrom.Date
+                                                   && a.CreatedUtc.Date <= DateTo.Date
                                                    select new MonitoringOutViewModel
                                                    {
                                                        CreatedUtc = a.CreatedUtc,
@@ -1617,7 +1617,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                                        ItemCode = b.ProductCode,
                                                        ItemName = b.ProductName,
                                                        PONo = b.POSerialNumber,
-                                                       Quantity = b.Quantity * (double)b.Conversion,
+                                                       Quantity = b.Quantity,
                                                        Storage = a.StorageName,
                                                        UENNo = a.UENNo,
                                                        UnitCode = a.UnitRequestCode,
