@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseModel
 {
-    public class GarmentDispositionPurchase: StandardEntity
+    public class GarmentDispositionPurchase : StandardEntity
     {
         public string DispositionNo { get; set; }
         public string Category { get; set; }
@@ -30,5 +30,52 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseM
         public double Amount { get; set; }
         public virtual List<GarmentDispositionPurchaseItem> GarmentDispositionPurchaseItems { get; set; }
         public PurchasingGarmentExpeditionPosition Position { get; set; }
+
+        /// <summary>
+        /// only use for update GarmentDisposiion
+        /// </summary>
+        /// <param name="modelReplace"></param>
+        public void Update(GarmentDispositionPurchase modelReplace)
+        {
+            DispositionNo = modelReplace.DispositionNo;
+            Category = modelReplace.Category;
+            SupplierId = modelReplace.SupplierId;
+            SupplierName = modelReplace.SupplierName;
+            SupplierCode = modelReplace.SupplierCode;
+            SupplierIsImport = modelReplace.SupplierIsImport;
+            CurrencyId = modelReplace.CurrencyId;
+            CurrencyName = modelReplace.CurrencyName;
+            CurrencyDate = modelReplace.CurrencyDate;
+            Bank = modelReplace.Bank;
+            ConfirmationOrderNo = modelReplace.ConfirmationOrderNo;
+            PaymentType = modelReplace.PaymentType;
+            DueDate = modelReplace.DueDate;
+            Description = modelReplace.Description;
+            InvoiceProformaNo = modelReplace.InvoiceProformaNo;
+            Dpp = modelReplace.Dpp;
+            IncomeTax = modelReplace.IncomeTax;
+            VAT = modelReplace.VAT;
+            OtherCost = modelReplace.OtherCost;
+            Amount = modelReplace.Amount;
+            //GarmentDispositionPurchaseItems = modelReplace.GarmentDispositionPurchaseItems;
+            //modelReplace.GarmentDispositionPurchaseItems.ForEach(t =>
+            //{
+            //    t.upda
+            //});
+        }
+        public void SetAudit(GarmentDispositionPurchase modelReplace)
+        {
+            Active = modelReplace.Active;
+            CreatedUtc = modelReplace.CreatedUtc;
+            CreatedBy = modelReplace.CreatedBy;
+            CreatedAgent = modelReplace.CreatedAgent;
+            LastModifiedUtc = modelReplace.LastModifiedUtc;
+            LastModifiedBy = modelReplace.LastModifiedBy;
+            LastModifiedAgent = modelReplace.LastModifiedAgent;
+            IsDeleted = modelReplace.IsDeleted;
+            DeletedUtc = modelReplace.DeletedUtc;
+            DeletedBy = modelReplace.DeletedBy;
+            DeletedAgent = modelReplace.DeletedAgent;
+        }
     }
 }

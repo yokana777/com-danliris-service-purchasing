@@ -300,6 +300,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                         {
                             EntityExtension.FlagForCreate(s, identityService.Username, USER_AGENT);
                             s.IsDispositionCreated = true;
+                            s.GarmentDispositionPurchaseId = dataModel.Id;
+                            var afterCreateItem = this.dbContext.GarmentDispositionPurchaseItems.Add(s);
+                            //this.dbContext.SaveChanges();
                             //s.GarmentDispositionPurchaseDetails.ForEach(t =>
                             foreach (var t in s.GarmentDispositionPurchaseDetails)
                             {
@@ -309,17 +312,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                                     EPOItems1.IsDispositionCreatedAll = true;
                                     EntityExtension.FlagForUpdate(EPOItems1, identityService.Username, USER_AGENT);
                                     var afterUpdateModel1 = this.dbContext.GarmentExternalPurchaseOrderItems.Update(EPOItems1);
-                                    dbContext.SaveChanges();
+                                    //dbContext.SaveChanges();
 
                                 }
-                                EntityExtension.FlagForCreate(t, identityService.Username, USER_AGENT);
-                                //});
+
+                                if (t.Id <= 0)
+                                {
+                                    EntityExtension.FlagForCreate(t, identityService.Username, USER_AGENT);
+                                    t.GarmentDispositionPurchaseItemId = afterCreateItem.Entity.Id;
+                                    var afterCreateDetail = this.dbContext.GarmentDispositionPurchaseDetailss.Add(t);
+                                    //this.dbContext.SaveChanges();
+                                }
+                                else
+                                {
+                                    EntityExtension.FlagForUpdate(t, identityService.Username, USER_AGENT);
+                                    var afterCreateDetail = this.dbContext.GarmentDispositionPurchaseDetailss.Update(t);
+                                    //this.dbContext.SaveChanges();
+                                }
+                                
                             }
+                            this.dbContext.SaveChanges();
                         }
                         else//updatet data if items Exist
                         {
                             EntityExtension.FlagForUpdate(s, identityService.Username, USER_AGENT);
-
+                            var afterCreateItem = this.dbContext.GarmentDispositionPurchaseItems.Update(s);
+                            this.dbContext.SaveChanges();
                             //s.GarmentDispositionPurchaseDetails.ForEach(t =>
                             foreach (var t in s.GarmentDispositionPurchaseDetails)
                             {
@@ -341,7 +359,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                                     dbContext.SaveChanges();
 
                                 }
-                                EntityExtension.FlagForUpdate(t, identityService.Username, USER_AGENT);
+                                if (t.Id == 0)
+                                {
+                                    EntityExtension.FlagForCreate(t, identityService.Username, USER_AGENT);
+                                    t.GarmentDispositionPurchaseItemId = afterCreateItem.Entity.Id;
+                                    var afterCreateDetail = this.dbContext.GarmentDispositionPurchaseDetailss.Add(t);
+                                    this.dbContext.SaveChanges();
+                                }
+                                else
+                                {
+                                    EntityExtension.FlagForUpdate(t, identityService.Username, USER_AGENT);
+                                    var afterCreateDetail = this.dbContext.GarmentDispositionPurchaseDetailss.Update(t);
+                                    this.dbContext.SaveChanges();
+                                }
+                                //EntityExtension.FlagForUpdate(t, identityService.Username, USER_AGENT);
 
                                 //});
                             }
@@ -371,7 +402,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                     }
                     //deleted items 
                     var dataformItems = dataModel.GarmentDispositionPurchaseItems.Select(t => t.Id).ToList();
-                    var deletedItems = dataExist.GarmentDispositionPurchaseItems.Where(s => dataformItems.Contains(s.Id)).ToList();
+                    var deletedItems = dataExist.GarmentDispositionPurchaseItems.Where(s => !dataformItems.Contains(s.Id)).ToList();
                     //deletedItems.ForEach(t =>
                     foreach (var t in deletedItems)
                     {
@@ -405,9 +436,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                     modelParentUpdate.SupplierIsImport = dataModel.SupplierIsImport;
                     modelParentUpdate.SupplierName = dataModel.SupplierName;
                     modelParentUpdate.VAT = dataModel.VAT;
-                    
+                    //modelParentUpdate.GarmentDispositionPurchaseItems = dataModel.GarmentDispositionPurchaseItems;
+
                     var afterUpdateModel = dbContext.GarmentDispositionPurchases.Update(modelParentUpdate);
                     Updated = dbContext.SaveChanges();
+
+                    //save Items
+                    //dataModel.GarmentDispositionPurchaseItems.ForEach(s =>
+                    //{
+                    //    if (s.Id == 0)
+                    //    {
+                    //        var modethis.dbContext.GarmentDispositionPurchaseItems.Add(s);
+                    //        this.dbContext.SaveChanges();
+                    //    }
+                    //});
+
                     transaction.Commit();
                 }
                 catch (Exception e)

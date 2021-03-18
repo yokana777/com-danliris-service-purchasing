@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseModel
 {
-    public class GarmentDispositionPurchaseDetail: StandardEntity
+    public class GarmentDispositionPurchaseDetail : StandardEntity
     {
         public int ROId { get; set; }
         public string RONo { get; set; }
@@ -34,6 +34,50 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseM
         public int GarmentDispositionPurchaseItemId { get; set; }
         [ForeignKey("GarmentDispositionPurchaseItemId")]
         public GarmentDispositionPurchaseItem GarmentDispositionPurchaseItem { get; set; }
+        /// <summary>
+        /// Only use for Update Garment Disposition
+        /// </summary>
+        /// <param name="modelReplace"></param>
+        public void Update(GarmentDispositionPurchaseDetail modelReplace)
+        {
+            ROId = modelReplace.ROId;
+            RONo = modelReplace.RONo;
+            IPONo = modelReplace.IPONo;
+            IPOId = modelReplace.IPOId;
+            ProductId = modelReplace.ProductId;
+            ProductName = modelReplace.ProductName;
+            UnitId = modelReplace.UnitId;
+            UnitName = modelReplace.UnitName;
+            UnitCode = modelReplace.UnitCode;
+            QTYOrder = modelReplace.QTYOrder;
+            QTYUnit = modelReplace.QTYUnit;
+            QTYRemains = modelReplace.QTYRemains;
+            PricePerQTY = modelReplace.PricePerQTY;
+            PriceTotal = modelReplace.PriceTotal;
+            QTYPaid = modelReplace.QTYPaid;
+            PaidPrice = modelReplace.PaidPrice;
+            PercentageOverQTY = modelReplace.PercentageOverQTY;
+            EPO_POId = modelReplace.EPO_POId;
+            DispositionAmountPaid = modelReplace.DispositionAmountPaid;
+            DispositionAmountCreated = modelReplace.DispositionAmountCreated;
+            DispositionQuantityCreated = modelReplace.DispositionQuantityCreated;
+            DispositionQuantityPaid = modelReplace.DispositionQuantityPaid;
+        }
+
+        public void SetAudit(GarmentDispositionPurchase modelReplace)
+        {
+            Active = modelReplace.Active;
+            CreatedUtc = modelReplace.CreatedUtc;
+            CreatedBy = modelReplace.CreatedBy;
+            CreatedAgent = modelReplace.CreatedAgent;
+            LastModifiedUtc = modelReplace.LastModifiedUtc;
+            LastModifiedBy = modelReplace.LastModifiedBy;
+            LastModifiedAgent = modelReplace.LastModifiedAgent;
+            IsDeleted = modelReplace.IsDeleted;
+            DeletedUtc = modelReplace.DeletedUtc;
+            DeletedBy = modelReplace.DeletedBy;
+            DeletedAgent = modelReplace.DeletedAgent;
+        }
 
     }
 }
