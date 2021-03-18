@@ -27,6 +27,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
             CurrencyDPPAmount = currencyDPPAmount;
             Items = items;
         }
+        public GarmentDispositionNoteDto(int id, string documentNo, DateTimeOffset date, DateTimeOffset dueDate, int supplierId, string supplierCode, string supplierName, double vATAmount, double currencyVATAmount, double incomeTaxAmount, double currencyIncomeTaxAmount, double totalPaid, double currencyTotalPaid, int currencyId, string currencyCode, double currencyRate, double dPPAmount, double currencyDPPAmount, List<GarmentDispositionNoteItemDto> items, string proformaNo)
+        {
+            Id = id;
+            DocumentNo = documentNo;
+            Date = date;
+            DueDate = dueDate;
+            SupplierId = supplierId;
+            SupplierCode = supplierCode;
+            SupplierName = supplierName;
+            VATAmount = vATAmount;
+            CurrencyVATAmount = currencyVATAmount;
+            IncomeTaxAmount = incomeTaxAmount;
+            CurrencyIncomeTaxAmount = currencyIncomeTaxAmount;
+            TotalPaid = totalPaid;
+            CurrencyTotalPaid = currencyTotalPaid;
+            CurrencyId = currencyId;
+            CurrencyCode = currencyCode;
+            CurrencyRate = currencyRate;
+            DPPAmount = dPPAmount;
+            CurrencyDPPAmount = currencyDPPAmount;
+            Items = items;
+            ProformaNo = proformaNo;
+        }
 
         public int Id { get; private set; }
         public string DocumentNo { get; private set; }
