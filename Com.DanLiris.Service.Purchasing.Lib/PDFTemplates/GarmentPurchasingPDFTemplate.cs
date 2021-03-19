@@ -423,7 +423,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             //cellLeftNoBorder.Phrase = new Phrase(viewModel.InvoiceNo, normal_font);
             //tableNote.AddCell(cellLeftNoBorder);
 
-            cellLeftNoBorder.Phrase = new Phrase("No Proforma", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase("No Proforma/Invoice", normal_font);
             tableNote.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableNote.AddCell(cellLeftNoBorder);
