@@ -24,9 +24,11 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -305,6 +307,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.VBRequestPOExternal
         }
 
 
+
+
+
+        
         [Fact]
         public async Task Should_Success_AutoJournalVBRequest()
         {
