@@ -31,7 +31,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDispositionPurch
         public double Amount { get; set; }
         public List<FormItemDto> Items { get; set; }
         public DateTime CreatedUtc { get; set; }
+        public string CreatedBy { get; set; }
         public PurchasingGarmentExpeditionPosition Position { get; set; }
+        public bool Active { get; set; }
+        public string CreatedAgent { get; set; }
+        public DateTime LastModifiedUtc { get; set; }
+        public string LastModifiedBy { get; set; }
+        public string LastModifiedAgent { get; set; }
+        public bool IsDeleted { get; set; }
+        public DateTime DeletedUtc { get; set; }
+        public string DeletedBy { get; set; }
+        public string DeletedAgent { get; set; }
 
     }
 }

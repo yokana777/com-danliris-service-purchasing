@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Enums;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchaseFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseModel;
@@ -74,13 +75,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDispositi
         }
 
         [HttpGet("loader")]
-        public IActionResult GetLoader(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
+        public IActionResult GetLoader(PurchasingGarmentExpeditionPosition position = PurchasingGarmentExpeditionPosition.Invalid,int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}", int supplierId=0)
         {
             try
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-                var Data = facade.Read(page, size, order, keyword, filter);
+                var Data = facade.Read(position, page, size, order, keyword, filter, supplierId);
 
                 //var viewModel = mapper.Map<List<PurchasingDispositionViewModel>>(Data.Item1);
                 //var newData = facade.GetTotalPaidPrice(viewModel);
