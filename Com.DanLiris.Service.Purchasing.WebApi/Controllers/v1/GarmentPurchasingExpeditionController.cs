@@ -57,6 +57,26 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
             }
         }
 
+        [HttpGet("disposition-notes")]
+        public IActionResult GetGarmentDispositionNotes([FromQuery] string keyword)
+        {
+            try
+            {
+                var result = _service.GetGarmentDispositionNotes(keyword);
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = result
+                });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+            }
+        }
+
         [HttpGet("internal-notes-details")]
         public IActionResult GetGarmentInternalNoteDetails([FromQuery] string keyword, [FromQuery] GarmentInternalNoteFilterDto filter)
         {
@@ -106,6 +126,22 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
                 VerifyUser();
 
                 var result = _service.UpdateInternNotePosition(form);
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+            }
+        }
+
+        [HttpPut("disposition-notes/position")]
+        public IActionResult UpdateGarmentDispositionNotePosition([FromBody] UpdatePositionFormDto form)
+        {
+            try
+            {
+                VerifyUser();
+
+                var result = _service.UpdateDispositionNotePosition(form);
                 return NoContent();
             }
             catch (Exception e)
