@@ -26,7 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
 
         public List<GarmentDispositionNoteDto> GetGarmentDispositionNotes(string keyword)
         {
-            var query = _dbContext.GarmentDispositionPurchases.Where(entity => entity.Position == PurchasingGarmentExpeditionPosition.Purchasing || entity.Position == PurchasingGarmentExpeditionPosition.SendToPurchasing);
+            var query = _dbContext.GarmentDispositionPurchases.Where(entity => entity.Position == PurchasingGarmentExpeditionPosition.Purchasing);
 
             if (!string.IsNullOrWhiteSpace(keyword))
                 query = query.Where(entity => entity.DispositionNo.Contains(keyword));
@@ -66,7 +66,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
             //var internalNoteQuery = _dbContext.GarmentInternNotes.Where(entity => entity.Position <= PurchasingGarmentExpeditionPosition.Purchasing || entity.Position == PurchasingGarmentExpeditionPosition.SendToPurchasing);
             var internalNoteQuery = _dbContext.GarmentInternNotes.AsQueryable();
             if (filter.PositionIds == null)
-                internalNoteQuery = internalNoteQuery.Where(entity => entity.Position <= PurchasingGarmentExpeditionPosition.Purchasing || entity.Position == PurchasingGarmentExpeditionPosition.SendToPurchasing);
+                internalNoteQuery = internalNoteQuery.Where(entity => entity.Position <= PurchasingGarmentExpeditionPosition.Purchasing);
             else
                 internalNoteQuery = internalNoteQuery.Where(entity => filter.PositionIds.Contains((int)entity.Position));
 
