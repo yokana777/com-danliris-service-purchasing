@@ -27,6 +27,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseM
         public double DispositionAmountCreated { get; set; }
         public double DispositionQuantityCreated { get; set; }
         public double DispositionQuantityPaid { get; set; }
+        public double VerifiedAmount { get; set; }
         [ForeignKey("GarmentDispositionPurchaseId")]
         public virtual GarmentDispositionPurchase GarmentDispositionPurchase { get; set; }
         public virtual List<GarmentDispositionPurchaseDetail> GarmentDispositionPurchaseDetails { get; set; }
