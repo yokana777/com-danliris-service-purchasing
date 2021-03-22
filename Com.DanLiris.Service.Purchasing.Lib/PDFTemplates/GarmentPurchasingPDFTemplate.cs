@@ -423,7 +423,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             //cellLeftNoBorder.Phrase = new Phrase(viewModel.InvoiceNo, normal_font);
             //tableNote.AddCell(cellLeftNoBorder);
 
-            cellLeftNoBorder.Phrase = new Phrase("No Proforma", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase("No Proforma/Invoice", normal_font);
             tableNote.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableNote.AddCell(cellLeftNoBorder);
@@ -465,7 +465,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableNote.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableNote.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase($"{viewModel.CurrencyCode}" + " " + $"{(totalPurchase + ppnPurchase).ToString("N", new CultureInfo("id-ID"))}", normal_font);
+            //cellLeftNoBorder.Phrase = new Phrase($"{viewModel.CurrencyCode}" + " " + $"{(totalPurchase + ppnPurchase).ToString("N", new CultureInfo("id-ID"))}", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase($"{viewModel.CurrencyCode}" + " " + $"{((viewModel.DPP + viewModel.VatValue)- viewModel.incom).ToString("N", new CultureInfo("id-ID"))}", normal_font);
+
             tableNote.AddCell(cellLeftNoBorder);
 
             PdfPCell cellNote = new PdfPCell(tableNote); // dont remove
@@ -488,7 +490,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 ).ToList();
             foreach(var perUnit in AmountPerUnit)
             {
-                cellLeftNoBorder.Phrase = new Phrase($"- {perUnit.Key.UnitName} = {perUnit.Value.Sum(t=> (t.PaidPrice) + (t.PaidPrice*0.1) - (t.PaidPrice*(viewModel.Items.Where(a=> a.Id == t.GarmentDispositionPurchaseItemId).FirstOrDefault()?.IncomeTaxRate /100)))?.ToString("N", new CultureInfo("id-ID"))}", bold_font3); 
+                var sumPerUnit = perUnit.Value.Sum(t => 
+                (t.PaidPrice) + 
+                (viewModel.Items.Where(a => a.Id == t.GarmentDispositionPurchaseItemId).FirstOrDefault().IsUseVat? t.PaidPrice * 0.1:0) - 
+                (t.PaidPrice * (viewModel.Items.Where(a => a.Id == t.GarmentDispositionPurchaseItemId).FirstOrDefault()?.IncomeTaxRate / 100)))?.ToString("N", new CultureInfo("id-ID"));
+                cellLeftNoBorder.Phrase = new Phrase($"- {perUnit.Key.UnitName} = {sumPerUnit}", bold_font3); 
                 tableBeban.AddCell(cellLeftNoBorder);
             }
             PdfPCell cellBeban = new PdfPCell(tableBeban); // dont remove
@@ -529,7 +535,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableSignature.AddCell(cellSignatureContent);
             cellSignatureContent.Phrase = new Phrase("\n\n\n\n\n\n\n(   Kabag Pembelian    )", bold_font3);
             tableSignature.AddCell(cellSignatureContent);
-            cellSignatureContent.Phrase = new Phrase("\n\n\n\n\n\n\n(   Kabag Pembelian    )", bold_font3);
+            cellSignatureContent.Phrase = new Phrase("\n\n\n\n\n\n\n(   Kasie Pembelian    )", bold_font3);
             tableSignature.AddCell(cellSignatureContent);
             cellSignatureContent.Phrase = new Phrase("\n\n\n\n\n\n\n(     "+userName+"     )", bold_font3);
             tableSignature.AddCell(cellSignatureContent);

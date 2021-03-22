@@ -369,11 +369,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
         }
         public int UpdateDispositionNotePosition(UpdatePositionFormDto form)
         {
-            var models = _dbContext.GarmentDispositionPurchases.Where(entity => form.Ids.Contains((int)entity.Id)).ToList();
+            var models = _dbContext.GarmentDispositionPurchases.Include(item=> item.GarmentDispositionPurchaseItems).ThenInclude(detail => detail.GarmentDispositionPurchaseDetails).Where(entity => form.Ids.Contains((int)entity.Id)).ToList();
 
             models = models.Select(model =>
             {
                 model.Position = form.Position;
+                if (form.Position != PurchasingGarmentExpeditionPosition.SendToPurchasing || form.Position != PurchasingGarmentExpeditionPosition.Purchasing)
+                {
+                    model.GarmentDispositionPurchaseItems = model.GarmentDispositionPurchaseItems.Select(item =>
+                    {
+                        item.VerifiedAmount = item.VATAmount + item.GarmentDispositionPurchaseDetails.Sum(detail => detail.PaidPrice) - item.IncomeTaxAmount;
+                        return item;
+
+                    }).ToList();
+                }
+                else
+                {
+                    model.GarmentDispositionPurchaseItems = model.GarmentDispositionPurchaseItems.Select(item =>
+                    {
+                        item.VerifiedAmount = 0;
+                        return item;
+
+                    }).ToList();
+                }
                 EntityExtension.FlagForUpdate(model, _identityService.Username, UserAgent);
 
                 return model;

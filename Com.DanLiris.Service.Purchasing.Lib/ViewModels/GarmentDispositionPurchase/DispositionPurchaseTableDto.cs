@@ -14,5 +14,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDispositionPurch
         public DateTimeOffset DueDate { get; set; }
         public string Currency { get; set; }
         public double AmountDisposition { get; set; }
+        public DateTimeOffset VerifiedDateReceive { get; set; }
+        public DateTimeOffset VerifiedDateSend { get; set; }
     }
 }
