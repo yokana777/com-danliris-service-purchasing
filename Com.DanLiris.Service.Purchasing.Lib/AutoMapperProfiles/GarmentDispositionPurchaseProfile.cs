@@ -53,7 +53,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForMember(s => s.DispositionNo, opt => opt.MapFrom(d => d.DispositionNo))
                 .ForMember(s => s.DueDate, opt => opt.MapFrom(d => d.DueDate))
                 .ForMember(s => s.Supplier, opt => opt.MapFrom(d => d.SupplierName))
+                .ForMember(s=> s.AmountDisposition, opt => opt.MapFrom(d=> d.Amount))
                 .ReverseMap();
+
+            var mapEdit = CreateMap<GarmentDispositionPurchase, FormEditDto>();
+            //map.ForAllMembers(opt => opt.Ignore());
+            mapEdit.ForMember(s => s.Items, opt => opt.MapFrom(d => d.GarmentDispositionPurchaseItems));
+            mapEdit.ForMember(s => s.PaymentDueDate, opt => opt.MapFrom(d => d.DueDate));
+            mapEdit.ForMember(s => s.Remark, opt => opt.MapFrom(d => d.Description));
+            mapEdit.ForMember(s => s.ProformaNo, opt => opt.MapFrom(d => d.InvoiceProformaNo));
+            mapEdit.ForMember(s => s.DPP, opt => opt.MapFrom(d => d.Dpp));
+            mapEdit.ForMember(s => s.IncomeTaxValue, opt => opt.MapFrom(d => d.IncomeTax));
+            mapEdit.ForMember(s => s.VatValue, opt => opt.MapFrom(d => d.VAT));
+            mapEdit.ForMember(s => s.MiscAmount, opt => opt.MapFrom(d => d.OtherCost));
+            mapEdit.ForMember(s => s.CurrencyCode, opt => opt.MapFrom(d => d.CurrencyName));
+               
+            mapEdit.ReverseMap();
         }
     }
 }

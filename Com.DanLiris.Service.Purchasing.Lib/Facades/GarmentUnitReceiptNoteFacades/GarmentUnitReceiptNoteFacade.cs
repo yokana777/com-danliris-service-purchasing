@@ -1530,7 +1530,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             if (Query.ToArray().Count() == 0)
             {
                 //result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0, "", 0, ""); // to allow column name to be generated properly for empty data as template
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", 0, "", 0, "", 0, ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add(0, "", "", "", "", "", "", "", "", "", "", 0, "", 0, "", 0, ""); // to allow column name to be generated properly for empty data as template
             }
             else
             {
@@ -1624,81 +1624,134 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
-            var Query = type == "FABRIC" ? from a in dbContext.GarmentUnitReceiptNotes
-                                           join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
-                                           where a.IsDeleted == false && b.IsDeleted == false
-                                           && a.StorageName == "GUDANG BAHAN BAKU"
-                                           && a.ReceiptDate.Date >= DateFrom.Date
-                                           && a.ReceiptDate.Date <= DateTo.Date
-                                           select new GarmentUnitReceiptNoteINReportViewModel
-                                           {
-                                               NoSuratJalan = a.DONo,
-                                               NoBUM = a.URNNo,
-                                               UNit = a.UnitName,
-                                               TanggalMasuk = a.ReceiptDate,
-                                               TanggalBuatBon = a.CreatedUtc,
-                                               Gudang = a.StorageName,
-                                               AsalTerima = a.URNType,
-                                               NoPO = b.POSerialNumber,
-                                               Keterangan = b.ProductRemark,
-                                               NoRO = b.RONo,
-                                               JumlahDiterima = Convert.ToDouble(b.ReceiptQuantity),
-                                               Satuan = b.UomUnit,
-                                               JumlahKecil = Convert.ToDouble(b.SmallQuantity),
-                                               NamaBarang = b.ProductName,
-                                               KodeBarang = b.ProductCode,
-                                               Supplier = a.SupplierName
-                                           }
-                        : type == "NON FABRIC" ? from a in dbContext.GarmentUnitReceiptNotes
-                                                 join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
-                                                 where a.IsDeleted == false && b.IsDeleted == false
-                                                 && a.StorageName != "GUDANG BAHAN BAKU"
-                                                 && a.ReceiptDate.Date >= DateFrom.Date
-                                                 && a.ReceiptDate.Date <= DateTo.Date
-                                                 select new GarmentUnitReceiptNoteINReportViewModel
-                                                 {
-                                                     NoSuratJalan = a.DONo,
-                                                     NoBUM = a.URNNo,
-                                                     UNit = a.UnitName,
-                                                     TanggalMasuk = a.ReceiptDate,
-                                                     TanggalBuatBon = a.CreatedUtc,
-                                                     Gudang = a.StorageName,
-                                                     AsalTerima = a.URNType,
-                                                     NoPO = b.POSerialNumber,
-                                                     Keterangan = b.ProductRemark,
-                                                     NoRO = b.RONo,
-                                                     JumlahDiterima = Convert.ToDouble(b.ReceiptQuantity),
-                                                     Satuan = b.UomUnit,
-                                                     JumlahKecil = Convert.ToDouble(b.SmallQuantity),
-                                                     NamaBarang = b.ProductName,
-                                                     KodeBarang = b.ProductCode,
-                                                     Supplier = a.SupplierName
-                                                 }
-                                                 : from a in dbContext.GarmentUnitReceiptNotes
-                                                   join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
-                                                   where a.IsDeleted == false && b.IsDeleted == false
-                                                   && a.StorageName == a.StorageName
-                                                   && a.ReceiptDate.Date >= DateFrom.Date
-                                                   && a.ReceiptDate.Date <= DateTo.Date
-                                                   select new GarmentUnitReceiptNoteINReportViewModel
-                                                   {
-                                                       NoSuratJalan = a.DONo,
-                                                       NoBUM = a.URNNo,
-                                                       UNit = a.UnitName,
-                                                       TanggalMasuk = a.ReceiptDate,
-                                                       TanggalBuatBon = a.CreatedUtc,
-                                                       Gudang = a.StorageName,
-                                                       AsalTerima = a.URNType,
-                                                       NoPO = b.POSerialNumber,
-                                                       Keterangan = b.ProductRemark,
-                                                       NoRO = b.RONo,
-                                                       JumlahDiterima = Convert.ToDouble(b.ReceiptQuantity),
-                                                       Satuan = b.UomUnit,
-                                                       JumlahKecil = Convert.ToDouble(b.SmallQuantity),
-                                                       NamaBarang = b.ProductName,
-                                                       KodeBarang = b.ProductCode,
-                                                       Supplier = a.SupplierName
-                                                   };
+            var Data1 = from a in dbContext.GarmentUnitReceiptNotes
+                        join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+                        where a.IsDeleted == false && b.IsDeleted == false
+                        && (type == "FABRIC" ? a.StorageName == "GUDANG BAHAN BAKU" : type == "NON FABRIC" ? a.StorageName != "GUDANG BAHAN BAKU" : a.StorageName == a.StorageName)
+                        && a.CreatedUtc.Date >= DateFrom.Date
+                        && a.CreatedUtc.Date <= DateTo.Date
+                        && a.UId == null
+                        select new GarmentUnitReceiptNoteINReportViewModel
+                        {
+                            NoSuratJalan = a.DONo,
+                            NoBUM = a.URNNo,
+                            UNit = a.UnitName,
+                            TanggalMasuk = a.ReceiptDate,
+                            TanggalBuatBon = a.CreatedUtc,
+                            Gudang = a.StorageName,
+                            AsalTerima = a.URNType,
+                            NoPO = b.POSerialNumber,
+                            Keterangan = b.ProductRemark,
+                            NoRO = b.RONo,
+                            JumlahDiterima = Convert.ToDouble(b.ReceiptQuantity),
+                            Satuan = b.UomUnit,
+                            JumlahKecil = Convert.ToDouble(b.SmallQuantity),
+                            NamaBarang = b.ProductName,
+                            KodeBarang = b.ProductCode,
+                            Supplier = a.SupplierName
+                        };
+            var Data2 = from a in dbContext.GarmentUnitReceiptNotes
+                        join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+                        where a.IsDeleted == false && b.IsDeleted == false
+                        && (type == "FABRIC" ? a.StorageName == "GUDANG BAHAN BAKU" : type == "NON FABRIC" ? a.StorageName != "GUDANG BAHAN BAKU" : a.StorageName == a.StorageName)
+                        && a.LastModifiedUtc.Date >= DateFrom.Date
+                        && a.LastModifiedUtc.Date <= DateTo.Date
+                        && a.UId != null
+                        select new GarmentUnitReceiptNoteINReportViewModel
+                        {
+                            NoSuratJalan = a.DONo,
+                            NoBUM = a.URNNo,
+                            UNit = a.UnitName,
+                            TanggalMasuk = a.ReceiptDate,
+                            TanggalBuatBon = a.CreatedUtc,
+                            Gudang = a.StorageName,
+                            AsalTerima = a.URNType,
+                            NoPO = b.POSerialNumber,
+                            Keterangan = b.ProductRemark,
+                            NoRO = b.RONo,
+                            JumlahDiterima = Convert.ToDouble(b.ReceiptQuantity),
+                            Satuan = b.UomUnit,
+                            JumlahKecil = Convert.ToDouble(b.SmallQuantity),
+                            NamaBarang = b.ProductName,
+                            KodeBarang = b.ProductCode,
+                            Supplier = a.SupplierName
+                        };
+            var Query = Data1.Union(Data2);
+            //var Query = type == "FABRIC" ? from a in dbContext.GarmentUnitReceiptNotes
+            //                               join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+            //                               where a.IsDeleted == false && b.IsDeleted == false
+            //                               && a.StorageName == "GUDANG BAHAN BAKU"
+            //                               && a.LastModifiedUtc.Date >= DateFrom.Date
+            //                               && a.LastModifiedUtc.Date <= DateTo.Date
+            //                               select new GarmentUnitReceiptNoteINReportViewModel
+            //                               {
+            //                                   NoSuratJalan = a.DONo,
+            //                                   NoBUM = a.URNNo,
+            //                                   UNit = a.UnitName,
+            //                                   TanggalMasuk = a.ReceiptDate,
+            //                                   TanggalBuatBon = a.CreatedUtc,
+            //                                   Gudang = a.StorageName,
+            //                                   AsalTerima = a.URNType,
+            //                                   NoPO = b.POSerialNumber,
+            //                                   Keterangan = b.ProductRemark,
+            //                                   NoRO = b.RONo,
+            //                                   JumlahDiterima = Convert.ToDouble(b.ReceiptQuantity),
+            //                                   Satuan = b.UomUnit,
+            //                                   JumlahKecil = Convert.ToDouble(b.SmallQuantity),
+            //                                   NamaBarang = b.ProductName,
+            //                                   KodeBarang = b.ProductCode,
+            //                                   Supplier = a.SupplierName
+            //                               }
+            //            : type == "NON FABRIC" ? from a in dbContext.GarmentUnitReceiptNotes
+            //                                     join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+            //                                     where a.IsDeleted == false && b.IsDeleted == false
+            //                                     && a.StorageName != "GUDANG BAHAN BAKU"
+            //                                     && a.LastModifiedUtc.Date >= DateFrom.Date
+            //                                     && a.LastModifiedUtc.Date <= DateTo.Date
+            //                                     select new GarmentUnitReceiptNoteINReportViewModel
+            //                                     {
+            //                                         NoSuratJalan = a.DONo,
+            //                                         NoBUM = a.URNNo,
+            //                                         UNit = a.UnitName,
+            //                                         TanggalMasuk = a.ReceiptDate,
+            //                                         TanggalBuatBon = a.CreatedUtc,
+            //                                         Gudang = a.StorageName,
+            //                                         AsalTerima = a.URNType,
+            //                                         NoPO = b.POSerialNumber,
+            //                                         Keterangan = b.ProductRemark,
+            //                                         NoRO = b.RONo,
+            //                                         JumlahDiterima = Convert.ToDouble(b.ReceiptQuantity),
+            //                                         Satuan = b.UomUnit,
+            //                                         JumlahKecil = Convert.ToDouble(b.SmallQuantity),
+            //                                         NamaBarang = b.ProductName,
+            //                                         KodeBarang = b.ProductCode,
+            //                                         Supplier = a.SupplierName
+            //                                     }
+            //                                     : from a in dbContext.GarmentUnitReceiptNotes
+            //                                       join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+            //                                       where a.IsDeleted == false && b.IsDeleted == false
+            //                                       && a.StorageName == a.StorageName
+            //                                       && a.LastModifiedUtc.Date >= DateFrom.Date
+            //                                       && a.LastModifiedUtc.Date <= DateTo.Date
+            //                                       select new GarmentUnitReceiptNoteINReportViewModel
+            //                                       {
+            //                                           NoSuratJalan = a.DONo,
+            //                                           NoBUM = a.URNNo,
+            //                                           UNit = a.UnitName,
+            //                                           TanggalMasuk = a.ReceiptDate,
+            //                                           TanggalBuatBon = a.CreatedUtc,
+            //                                           Gudang = a.StorageName,
+            //                                           AsalTerima = a.URNType,
+            //                                           NoPO = b.POSerialNumber,
+            //                                           Keterangan = b.ProductRemark,
+            //                                           NoRO = b.RONo,
+            //                                           JumlahDiterima = Convert.ToDouble(b.ReceiptQuantity),
+            //                                           Satuan = b.UomUnit,
+            //                                           JumlahKecil = Convert.ToDouble(b.SmallQuantity),
+            //                                           NamaBarang = b.ProductName,
+            //                                           KodeBarang = b.ProductCode,
+            //                                           Supplier = a.SupplierName
+            //                                       };
             return Query.AsQueryable();
 
         }
