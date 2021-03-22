@@ -465,7 +465,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableNote.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableNote.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase($"{viewModel.CurrencyCode}" + " " + $"{(totalPurchase + ppnPurchase).ToString("N", new CultureInfo("id-ID"))}", normal_font);
+            //cellLeftNoBorder.Phrase = new Phrase($"{viewModel.CurrencyCode}" + " " + $"{(totalPurchase + ppnPurchase).ToString("N", new CultureInfo("id-ID"))}", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase($"{viewModel.CurrencyCode}" + " " + $"{((viewModel.DPP + viewModel.VatValue)- viewModel.incom).ToString("N", new CultureInfo("id-ID"))}", normal_font);
+
             tableNote.AddCell(cellLeftNoBorder);
 
             PdfPCell cellNote = new PdfPCell(tableNote); // dont remove
@@ -533,7 +535,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableSignature.AddCell(cellSignatureContent);
             cellSignatureContent.Phrase = new Phrase("\n\n\n\n\n\n\n(   Kabag Pembelian    )", bold_font3);
             tableSignature.AddCell(cellSignatureContent);
-            cellSignatureContent.Phrase = new Phrase("\n\n\n\n\n\n\n(   Kabag Pembelian    )", bold_font3);
+            cellSignatureContent.Phrase = new Phrase("\n\n\n\n\n\n\n(   Kasie Pembelian    )", bold_font3);
             tableSignature.AddCell(cellSignatureContent);
             cellSignatureContent.Phrase = new Phrase("\n\n\n\n\n\n\n(     "+userName+"     )", bold_font3);
             tableSignature.AddCell(cellSignatureContent);

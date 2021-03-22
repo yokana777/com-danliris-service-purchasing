@@ -369,7 +369,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
         }
         public int UpdateDispositionNotePosition(UpdatePositionFormDto form)
         {
-            var models = _dbContext.GarmentDispositionPurchases.Where(entity => form.Ids.Contains((int)entity.Id)).ToList();
+            var models = _dbContext.GarmentDispositionPurchases.Include(item=> item.GarmentDispositionPurchaseItems).ThenInclude(detail => detail.GarmentDispositionPurchaseDetails).Where(entity => form.Ids.Contains((int)entity.Id)).ToList();
 
             models = models.Select(model =>
             {
