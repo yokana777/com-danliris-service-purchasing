@@ -165,7 +165,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
             var dataModel = dbSet
                 .AsNoTracking()
                     .Include(p => p.GarmentDispositionPurchaseItems)
-                        .ThenInclude(p => p.GarmentDispositionPurchaseDetails).AsQueryable();
+                        .ThenInclude(p => p.GarmentDispositionPurchaseDetails)
+                        .Where(s=> s.Position == PurchasingGarmentExpeditionPosition.Purchasing).AsQueryable();
 
             if (keyword != null)
                 dataModel = dataModel.Where(s => s.DispositionNo.Contains(keyword) || s.SupplierName.Contains(keyword));
@@ -315,7 +316,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                         throw new Exception("Data Not Found");
                     }
                     GarmentDispositionPurchase dataModel = mapper.Map<FormEditDto, GarmentDispositionPurchase>(model);
-                    //EntityExtension.FlagForUpdate(dataModel, identityService.Username, USER_AGENT);
                     //dataModel.GarmentDispositionPurchaseItems.ForEach(s => {
                     foreach (var s in dataModel.GarmentDispositionPurchaseItems)
                     {
@@ -326,7 +326,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                             s.IsDispositionCreated = true;
                             s.GarmentDispositionPurchaseId = dataModel.Id;
                             var afterCreateItem = this.dbContext.GarmentDispositionPurchaseItems.Add(s);
-                            //this.dbContext.SaveChanges();
                             //s.GarmentDispositionPurchaseDetails.ForEach(t =>
                             foreach (var t in s.GarmentDispositionPurchaseDetails)
                             {
@@ -396,8 +395,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                                     var afterCreateDetail = this.dbContext.GarmentDispositionPurchaseDetailss.Update(t);
                                     this.dbContext.SaveChanges();
                                 }
-                                //EntityExtension.FlagForUpdate(t, identityService.Username, USER_AGENT);
-
                                 //});
                             }
                         }
@@ -438,7 +435,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                         //});
                     }
                     var modelParentUpdate = this.dbContext.GarmentDispositionPurchases.FirstOrDefault(t => t.Id == dataModel.Id);
-                    //dataModel.GarmentDispositionPurchaseItems = null;
                     modelParentUpdate.Amount = dataModel.Amount;
                     modelParentUpdate.Bank = dataModel.Bank;
                     modelParentUpdate.Category = dataModel.Category;
@@ -454,26 +450,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                     modelParentUpdate.InvoiceProformaNo = dataModel.InvoiceProformaNo;
                     modelParentUpdate.OtherCost = dataModel.OtherCost;
                     modelParentUpdate.PaymentType = dataModel.PaymentType;
-                    //modelParentUpdate.Position = dataModel.Position;
                     modelParentUpdate.SupplierCode = dataModel.SupplierCode;
                     modelParentUpdate.SupplierId = dataModel.SupplierId;
                     modelParentUpdate.SupplierIsImport = dataModel.SupplierIsImport;
                     modelParentUpdate.SupplierName = dataModel.SupplierName;
                     modelParentUpdate.VAT = dataModel.VAT;
-                    //modelParentUpdate.GarmentDispositionPurchaseItems = dataModel.GarmentDispositionPurchaseItems;
 
                     var afterUpdateModel = dbContext.GarmentDispositionPurchases.Update(modelParentUpdate);
                     Updated = dbContext.SaveChanges();
-
-                    //save Items
-                    //dataModel.GarmentDispositionPurchaseItems.ForEach(s =>
-                    //{
-                    //    if (s.Id == 0)
-                    //    {
-                    //        var modethis.dbContext.GarmentDispositionPurchaseItems.Add(s);
-                    //        this.dbContext.SaveChanges();
-                    //    }
-                    //});
 
                     transaction.Commit();
                 }

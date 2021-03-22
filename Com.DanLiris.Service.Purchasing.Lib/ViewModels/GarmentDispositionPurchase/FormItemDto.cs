@@ -27,6 +27,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDispositionPurch
         public double DispositionAmountCreated { get; set; }
         public double DispositionQuantityCreated { get; set; }
         public double DispositionQuantityPaid { get; set; }
+        public double VerifiedAmount { get; set; }
         public List<FormDetailDto> Details { get; set; }
         public bool Active { get; set; }
         public DateTime CreatedUtc { get; set; }
