@@ -48,11 +48,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
             var mapTable = CreateMap<GarmentDispositionPurchase, DispositionPurchaseTableDto>();
             mapTable
                 .ForMember(s => s.Category, opt => opt.MapFrom(d => d.Category))
-                .ForMember(s => s.Currency, opt => opt.MapFrom(d => d.CurrencyName))
-                .ForMember(s => s.DispositionDate, opt => opt.MapFrom(d => d.CreatedUtc))
+                .ForMember(s => s.CurrencyName, opt => opt.MapFrom(d => d.CurrencyName))
+                .ForMember(s => s.CreatedUtc, opt => opt.MapFrom(d => d.CreatedUtc))
                 .ForMember(s => s.DispositionNo, opt => opt.MapFrom(d => d.DispositionNo))
                 .ForMember(s => s.DueDate, opt => opt.MapFrom(d => d.DueDate))
-                .ForMember(s => s.Supplier, opt => opt.MapFrom(d => d.SupplierName))
+                .ForMember(s => s.SupplierName, opt => opt.MapFrom(d => d.SupplierName))
                 .ForMember(s=> s.AmountDisposition, opt => opt.MapFrom(d=> d.Amount))
                 .ReverseMap();
 

@@ -205,6 +205,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
             Query = QueryHelper<GarmentDispositionPurchase>.ConfigureFilter(Query, FilterDictionary);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(order);
+
             Query = QueryHelper<GarmentDispositionPurchase>.ConfigureOrder(Query, OrderDictionary);
 
             Pageable<GarmentDispositionPurchase> pageable = new Pageable<GarmentDispositionPurchase>(Query, page - 1, size);
