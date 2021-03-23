@@ -374,16 +374,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
             models = models.Select(model =>
             {
                 model.Position = form.Position;
-                if (form.Position != PurchasingGarmentExpeditionPosition.SendToCashier)
+                if (form.Position == PurchasingGarmentExpeditionPosition.SendToCashier)
                 {
                     model.GarmentDispositionPurchaseItems = model.GarmentDispositionPurchaseItems.Select(item =>
                     {
-                        item.VerifiedAmount = item.VATAmount + item.GarmentDispositionPurchaseDetails.Sum(detail => detail.PaidPrice) - item.IncomeTaxAmount;
+                        var previousVerifiedAmount = _dbContext.GarmentDispositionPurchaseItems.Where(t=> t.EPOId == item.EPOId).Sum(t=> t.VerifiedAmount);
+                        item.VerifiedAmount = (item.VATAmount + item.GarmentDispositionPurchaseDetails.Sum(detail => detail.PaidPrice) - item.IncomeTaxAmount)+ previousVerifiedAmount;
                         return item;
 
                     }).ToList();
                 }
-                else if (form.Position != PurchasingGarmentExpeditionPosition.SendToPurchasing)
+                else if (form.Position == PurchasingGarmentExpeditionPosition.SendToPurchasing)
                 {
                     model.GarmentDispositionPurchaseItems = model.GarmentDispositionPurchaseItems.Select(item =>
                     {

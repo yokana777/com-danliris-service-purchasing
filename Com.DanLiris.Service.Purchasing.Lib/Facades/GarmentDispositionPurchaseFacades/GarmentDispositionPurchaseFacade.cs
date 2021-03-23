@@ -147,14 +147,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
             return Deleted;
         }
 
-        public async Task<FormDto> GetFormById(int id)
+        public async Task<FormDto> GetFormById(int id,bool isVerifiedAmountCalculated= false)
         {
             var dataModel = await dbSet
                 .AsNoTracking()
                     .Include(p => p.GarmentDispositionPurchaseItems)
                         .ThenInclude(p => p.GarmentDispositionPurchaseDetails)
+                //.Select(s=> {
+                //    s.GarmentDispositionPurchaseItems = s.GarmentDispositionPurchaseItems.Select(t => {
+                //        t.VerifiedAmount = dbContext.GarmentDispositionPurchaseItems.Where(j => j.EPOId == t.EPOId).Sum(j => (j.VATAmount + j.GarmentDispositionPurchaseDetails.Sum(a => a.PaidPrice)) - j.IncomeTaxAmount)
+                //        return t;
+                //    }).ToList();
+                //    return s;
+                //})
                 .Where(d => d.Id.Equals(id))
                 .FirstOrDefaultAsync();
+
+            var listEPOID = dataModel.GarmentDispositionPurchaseItems.Select(s => s.EPOId).ToList();
+            var listItemsWithSameEPOID = dbContext.GarmentDispositionPurchaseItems.Where(s => listEPOID.Contains(s.EPOId));
+
+            dataModel.GarmentDispositionPurchaseItems = dataModel.GarmentDispositionPurchaseItems.Select(s => {
+                s.VerifiedAmount = isVerifiedAmountCalculated? listItemsWithSameEPOID.Where(t => t.EPOId == s.EPOId).Sum(t=> t.VerifiedAmount):s.VerifiedAmount;
+                return s;
+            }).ToList(); 
 
             var model = mapper.Map<GarmentDispositionPurchase, FormDto>(dataModel);
             return model;
