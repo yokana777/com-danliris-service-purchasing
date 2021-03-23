@@ -1624,10 +1624,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+            var coderequirement = new[] { "BP", "BE" };  
             var Data1 = from a in dbContext.GarmentUnitReceiptNotes
                         join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
                         where a.IsDeleted == false && b.IsDeleted == false
-                        && (type == "FABRIC" ? a.StorageName == "GUDANG BAHAN BAKU" : type == "NON FABRIC" ? a.StorageName != "GUDANG BAHAN BAKU" : a.StorageName == a.StorageName)
+                        && (type == "FABRIC" ? b.ProductName == "FABRIC" : type == "NON FABRIC" ? b.ProductName != "FABRIC" : b.ProductName == b.ProductName)
+                        && b.ProductName != "PROCESS"
                         && a.CreatedUtc.Date >= DateFrom.Date
                         && a.CreatedUtc.Date <= DateTo.Date
                         && a.UId == null
@@ -1653,7 +1655,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             var Data2 = from a in dbContext.GarmentUnitReceiptNotes
                         join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
                         where a.IsDeleted == false && b.IsDeleted == false
-                        && (type == "FABRIC" ? a.StorageName == "GUDANG BAHAN BAKU" : type == "NON FABRIC" ? a.StorageName != "GUDANG BAHAN BAKU" : a.StorageName == a.StorageName)
+                        && (type == "FABRIC" ? b.ProductName == "FABRIC" : type == "NON FABRIC" ? b.ProductName != "FABRIC" : b.ProductName == b.ProductName)
+                        && b.ProductName != "PROCESS"
                         && a.LastModifiedUtc.Date >= DateFrom.Date
                         && a.LastModifiedUtc.Date <= DateTo.Date
                         && a.UId != null
