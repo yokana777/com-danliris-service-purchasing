@@ -14,7 +14,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
         Task<int> Delete(int id);
         Task<int> Update(FormEditDto model);
         Task<FormDto> GetFormById(int id);
-        Task<DispositionPurchaseIndexDto> GetAll(string keyword, int page, int size);
+        Task<DispositionPurchaseIndexDto> GetAll(string keyword, int page, int size,string filter, string order);
         Task<List<FormDto>> ReadByDispositionNo(string dispositionNo, int page, int size);
         GarmentExternalPurchaseOrderViewModel ReadByEPOWithDisposition(int EPOid, int supplierId, int currencyId);
         Tuple<List<FormDto>, int, Dictionary<string, string>> Read(PurchasingGarmentExpeditionPosition position,int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}",int supplierId=0);

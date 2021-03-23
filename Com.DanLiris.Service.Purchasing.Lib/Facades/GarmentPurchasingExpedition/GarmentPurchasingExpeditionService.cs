@@ -374,7 +374,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
             models = models.Select(model =>
             {
                 model.Position = form.Position;
-                if (form.Position != PurchasingGarmentExpeditionPosition.SendToPurchasing || form.Position != PurchasingGarmentExpeditionPosition.Purchasing)
+                if (form.Position != PurchasingGarmentExpeditionPosition.SendToCashier)
                 {
                     model.GarmentDispositionPurchaseItems = model.GarmentDispositionPurchaseItems.Select(item =>
                     {
@@ -383,11 +383,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
 
                     }).ToList();
                 }
-                else
+                else if (form.Position != PurchasingGarmentExpeditionPosition.SendToPurchasing)
                 {
                     model.GarmentDispositionPurchaseItems = model.GarmentDispositionPurchaseItems.Select(item =>
                     {
                         item.VerifiedAmount = 0;
+                        return item;
+
+                    }).ToList();
+                }
+                else
+                {
+                    model.GarmentDispositionPurchaseItems = model.GarmentDispositionPurchaseItems.Select(item =>
+                    {
+                        //item.VerifiedAmount = 0;
                         return item;
 
                     }).ToList();

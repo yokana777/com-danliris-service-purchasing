@@ -160,13 +160,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
             return model;
         }
 
-        public async Task<DispositionPurchaseIndexDto> GetAll(string keyword, int page, int size)
+        public async Task<DispositionPurchaseIndexDto> GetAll(string keyword, int page, int size,string filter, string order)
         {
             var dataModel = dbSet
                 .AsNoTracking()
                     .Include(p => p.GarmentDispositionPurchaseItems)
                         .ThenInclude(p => p.GarmentDispositionPurchaseDetails)
-                        .Where(s=> s.Position == PurchasingGarmentExpeditionPosition.Purchasing).AsQueryable();
+                        //.Where(s=> s.Position == PurchasingGarmentExpeditionPosition.Purchasing)
+                        .AsQueryable();
 
             if (keyword != null)
                 dataModel = dataModel.Where(s => s.DispositionNo.Contains(keyword) || s.SupplierName.Contains(keyword));
@@ -175,7 +176,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
 
             var dataList = await dataModel.ToListAsync();
 
-            var model = mapper.Map<List<GarmentDispositionPurchase>, List<DispositionPurchaseTableDto>>(dataList);
+
+            var Query = dataList.AsQueryable();
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "DispositionNo"
+            };
+
+            Query = QueryHelper<GarmentDispositionPurchase>.ConfigureSearch(Query, searchAttributes, keyword);
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(filter);
+            Query = QueryHelper<GarmentDispositionPurchase>.ConfigureFilter(Query, FilterDictionary);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(order);
+            Query = QueryHelper<GarmentDispositionPurchase>.ConfigureOrder(Query, OrderDictionary);
+
+            Pageable<GarmentDispositionPurchase> pageable = new Pageable<GarmentDispositionPurchase>(Query, page - 1, size);
+            List<GarmentDispositionPurchase> Data = pageable.Data.ToList();
+            int TotalData = pageable.TotalCount;
+
+            var model = mapper.Map<List<GarmentDispositionPurchase>, List<DispositionPurchaseTableDto>>(Data.ToList());
 
             var indexModel = new DispositionPurchaseIndexDto(model, page, countData);
             return indexModel;
