@@ -24,9 +24,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
             _identityService = serviceProvider.GetService<IdentityService>();
         }
 
-        public List<GarmentDispositionNoteDto> GetGarmentDispositionNotes(string keyword)
+        public List<GarmentDispositionNoteDto> GetGarmentDispositionNotes(string keyword, PurchasingGarmentExpeditionPosition position)
         {
-            var query = _dbContext.GarmentDispositionPurchases.Where(entity => entity.Position == PurchasingGarmentExpeditionPosition.Purchasing);
+            var query = _dbContext.GarmentDispositionPurchases.AsQueryable();
+
+            if (position > 0)
+                query = query.Where(entity => entity.Position == position);
+            else
+                query = query.Where(entity => entity.Position == PurchasingGarmentExpeditionPosition.Purchasing);
 
             if (!string.IsNullOrWhiteSpace(keyword))
                 query = query.Where(entity => entity.DispositionNo.Contains(keyword));
@@ -48,7 +53,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                 foreach (var item in items)
                 {
                     var details = dispositionDetails.Where(element => element.GarmentDispositionPurchaseItemId == item.Id).ToList();
-                    
+
                     foreach (var detail in details)
                     {
                         resultItems.Add(new GarmentDispositionNoteItemDto(detail.UnitId, detail.UnitCode, detail.UnitName, detail.ProductId, detail.ProductName, detail.QTYPaid, detail.PricePerQTY));
@@ -95,7 +100,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
             var correctionItems = _dbContext.GarmentCorrectionNoteItems.Where(entity => correctionIds.Contains(entity.GCorrectionId)).Select(entity => new { entity.Id, entity.PricePerDealUnitAfter, entity.Quantity, entity.GCorrectionId });
 
             var invoiceIds = internalNoteItems.Select(element => element.InvoiceId).ToList();
-            var invoices = _dbContext.GarmentInvoices.Where(entity => invoiceIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.IsPayTax, entity.IsPayVat, entity.UseIncomeTax, entity.UseVat, entity.IncomeTaxRate, entity.TotalAmount, entity.InvoiceNo}).ToList();
+            var invoices = _dbContext.GarmentInvoices.Where(entity => invoiceIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.IsPayTax, entity.IsPayVat, entity.UseIncomeTax, entity.UseVat, entity.IncomeTaxRate, entity.TotalAmount, entity.InvoiceNo }).ToList();
 
             var result = internalNotes.Select(internalNote =>
             {
@@ -173,7 +178,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                 //var productCodeInvoiceFirst = productInvoiceFirst == null ? string.Empty : productInvoiceFirst.ProductCode;
 
                 var invoiceFirst = invoices.FirstOrDefault();
-                return new GarmentInternalNoteDto((int)internalNote.Id, internalNote.INNo, internalNote.INDate, internalNoteDetail.PaymentDueDate, (int)internalNote.SupplierId, internalNote.SupplierName, vatTotal, incomeTaxTotal, totalAmount, (int)internalNote.CurrencyId, internalNote.CurrencyCode, amountDPP,correctionAmount, internalNoteDetail.PaymentType, internalNoteDetail.PaymentMethod, internalNoteDetail.PaymentDueDays, invoicesNo);
+                return new GarmentInternalNoteDto((int)internalNote.Id, internalNote.INNo, internalNote.INDate, internalNoteDetail.PaymentDueDate, (int)internalNote.SupplierId, internalNote.SupplierName, vatTotal, incomeTaxTotal, totalAmount, (int)internalNote.CurrencyId, internalNote.CurrencyCode, amountDPP, correctionAmount, internalNoteDetail.PaymentType, internalNoteDetail.PaymentMethod, internalNoteDetail.PaymentDueDays, invoicesNo);
             }).ToList();
 
             return result;
@@ -185,7 +190,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
             var deliveryOrderInfo = _dbContext.GarmentDeliveryOrders;
             var externalPurchasOrder = _dbContext.GarmentExternalPurchaseOrders;
             var invoiceInfoHeader = _dbContext.GarmentInvoices;
-            var internalNoteQuery = _dbContext.GarmentInternNotes.Include(s => s.Items).ThenInclude(s => s.Details).Where(s=> !s.IsPphPaid)
+            var internalNoteQuery = _dbContext.GarmentInternNotes.Include(s => s.Items).ThenInclude(s => s.Details).Where(s => !s.IsPphPaid)
                 .Select(element =>
                 new GarmentInternalNoteDetailsDto
                 {
@@ -240,9 +245,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                             IsDeleted = elementItem.IsDeleted,
                             LastModifiedBy = elementItem.LastModifiedBy,
                             LastModifiedUtc = elementItem.LastModifiedUtc,
-                            GarmentInvoice = invoiceInfoHeader.FirstOrDefault(s=> s.Id == elementItem.InvoiceId),
-                            TotalIncomeTax = _dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == elementItem.InvoiceId) == null ? 0:
-                            (_dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == elementItem.InvoiceId).IncomeTaxRate / 100 )* elementItem.TotalAmount,
+                            GarmentInvoice = invoiceInfoHeader.FirstOrDefault(s => s.Id == elementItem.InvoiceId),
+                            TotalIncomeTax = _dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == elementItem.InvoiceId) == null ? 0 :
+                            (_dbContext.GarmentInvoices.FirstOrDefault(s => s.Id == elementItem.InvoiceId).IncomeTaxRate / 100) * elementItem.TotalAmount,
                             Details = elementItem.Details == null ? new List<GarmentNoteItemsInvoiceDetailsDto>() :
                             elementItem.Details.Select(elementDetails =>
                             new GarmentNoteItemsInvoiceDetailsDto
@@ -262,7 +267,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                                 ProductCode = elementDetails.ProductCode,
                                 ProductId = elementDetails.ProductId,
                                 ProductName = elementDetails.ProductName,
-                                ProductCategory = externalPurchasOrder.FirstOrDefault(s=> s.Id == elementDetails.EPOId).Category,
+                                ProductCategory = externalPurchasOrder.FirstOrDefault(s => s.Id == elementDetails.EPOId).Category,
                                 Quantity = elementDetails.Quantity,
                                 UnitId = elementDetails.UnitId,
                                 UnitCode = elementDetails.UnitCode,
@@ -276,8 +281,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                                 InvoiceDate = elementItem.InvoiceDate,
                                 InvoiceTotalAmount = elementItem.TotalAmount,
                                 GarmentInvoiceDetail = invoiceInfo.FirstOrDefault(s => s.Id == elementDetails.InvoiceDetailId),
-                                GarmentDeliveryOrder = deliveryOrderInfo.FirstOrDefault(s=> s.Id == elementDetails.DOId),
-                                
+                                GarmentDeliveryOrder = deliveryOrderInfo.FirstOrDefault(s => s.Id == elementDetails.DOId),
+
                             }).ToList()
                             //elementItem.Details.GroupBy(
                             //    productKey => productKey.DOId,
@@ -369,7 +374,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
         }
         public int UpdateDispositionNotePosition(UpdatePositionFormDto form)
         {
-            var models = _dbContext.GarmentDispositionPurchases.Include(item=> item.GarmentDispositionPurchaseItems).ThenInclude(detail => detail.GarmentDispositionPurchaseDetails).Where(entity => form.Ids.Contains((int)entity.Id)).ToList();
+            var models = _dbContext.GarmentDispositionPurchases.Include(item => item.GarmentDispositionPurchaseItems).ThenInclude(detail => detail.GarmentDispositionPurchaseDetails).Where(entity => form.Ids.Contains((int)entity.Id)).ToList();
 
             models = models.Select(model =>
             {
@@ -415,7 +420,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
         {
             var listModelINId = listModel.Select(s => s.InternNoteId);
             var existingData = _dbContext.GarmentInternNotes.Where(entity => listModelINId.Contains(entity.Id));
-            foreach(var data in existingData)
+            foreach (var data in existingData)
             {
                 data.IsPphPaid = listModel.FirstOrDefault(s => s.InternNoteId == data.Id).IsPphPaid;
                 EntityExtension.FlagForUpdate(data, "finance-service", UserAgent);
