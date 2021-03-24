@@ -147,25 +147,42 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
             return Deleted;
         }
 
-        public async Task<FormDto> GetFormById(int id)
+        public async Task<FormDto> GetFormById(int id,bool isVerifiedAmountCalculated= false)
         {
             var dataModel = await dbSet
                 .AsNoTracking()
                     .Include(p => p.GarmentDispositionPurchaseItems)
                         .ThenInclude(p => p.GarmentDispositionPurchaseDetails)
+                //.Select(s=> {
+                //    s.GarmentDispositionPurchaseItems = s.GarmentDispositionPurchaseItems.Select(t => {
+                //        t.VerifiedAmount = dbContext.GarmentDispositionPurchaseItems.Where(j => j.EPOId == t.EPOId).Sum(j => (j.VATAmount + j.GarmentDispositionPurchaseDetails.Sum(a => a.PaidPrice)) - j.IncomeTaxAmount)
+                //        return t;
+                //    }).ToList();
+                //    return s;
+                //})
                 .Where(d => d.Id.Equals(id))
                 .FirstOrDefaultAsync();
+
+            var listEPOID = dataModel.GarmentDispositionPurchaseItems.Select(s => s.EPOId).ToList();
+            var listItemsWithSameEPOID = dbContext.GarmentDispositionPurchaseItems.Where(s => listEPOID.Contains(s.EPOId));
+
+            dataModel.GarmentDispositionPurchaseItems = dataModel.GarmentDispositionPurchaseItems.Select(s => {
+                s.VerifiedAmount = isVerifiedAmountCalculated? listItemsWithSameEPOID.Where(t => t.EPOId == s.EPOId).Sum(t=> t.VerifiedAmount):s.VerifiedAmount;
+                return s;
+            }).ToList(); 
 
             var model = mapper.Map<GarmentDispositionPurchase, FormDto>(dataModel);
             return model;
         }
 
-        public async Task<DispositionPurchaseIndexDto> GetAll(string keyword, int page, int size)
+        public async Task<DispositionPurchaseIndexDto> GetAll(string keyword, int page, int size,string filter, string order)
         {
             var dataModel = dbSet
                 .AsNoTracking()
                     .Include(p => p.GarmentDispositionPurchaseItems)
-                        .ThenInclude(p => p.GarmentDispositionPurchaseDetails).AsQueryable();
+                        .ThenInclude(p => p.GarmentDispositionPurchaseDetails)
+                        //.Where(s=> s.Position == PurchasingGarmentExpeditionPosition.Purchasing)
+                        .AsQueryable();
 
             if (keyword != null)
                 dataModel = dataModel.Where(s => s.DispositionNo.Contains(keyword) || s.SupplierName.Contains(keyword));
@@ -174,7 +191,28 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
 
             var dataList = await dataModel.ToListAsync();
 
-            var model = mapper.Map<List<GarmentDispositionPurchase>, List<DispositionPurchaseTableDto>>(dataList);
+
+            var Query = dataList.AsQueryable();
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "DispositionNo"
+            };
+
+            Query = QueryHelper<GarmentDispositionPurchase>.ConfigureSearch(Query, searchAttributes, keyword);
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(filter);
+            Query = QueryHelper<GarmentDispositionPurchase>.ConfigureFilter(Query, FilterDictionary);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(order);
+
+            Query = QueryHelper<GarmentDispositionPurchase>.ConfigureOrder(Query, OrderDictionary);
+
+            Pageable<GarmentDispositionPurchase> pageable = new Pageable<GarmentDispositionPurchase>(Query, page - 1, size);
+            List<GarmentDispositionPurchase> Data = pageable.Data.ToList();
+            int TotalData = pageable.TotalCount;
+
+            var model = mapper.Map<List<GarmentDispositionPurchase>, List<DispositionPurchaseTableDto>>(Data.ToList());
 
             var indexModel = new DispositionPurchaseIndexDto(model, page, countData);
             return indexModel;
@@ -315,7 +353,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                         throw new Exception("Data Not Found");
                     }
                     GarmentDispositionPurchase dataModel = mapper.Map<FormEditDto, GarmentDispositionPurchase>(model);
-                    //EntityExtension.FlagForUpdate(dataModel, identityService.Username, USER_AGENT);
                     //dataModel.GarmentDispositionPurchaseItems.ForEach(s => {
                     foreach (var s in dataModel.GarmentDispositionPurchaseItems)
                     {
@@ -326,7 +363,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                             s.IsDispositionCreated = true;
                             s.GarmentDispositionPurchaseId = dataModel.Id;
                             var afterCreateItem = this.dbContext.GarmentDispositionPurchaseItems.Add(s);
-                            //this.dbContext.SaveChanges();
                             //s.GarmentDispositionPurchaseDetails.ForEach(t =>
                             foreach (var t in s.GarmentDispositionPurchaseDetails)
                             {
@@ -396,8 +432,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                                     var afterCreateDetail = this.dbContext.GarmentDispositionPurchaseDetailss.Update(t);
                                     this.dbContext.SaveChanges();
                                 }
-                                //EntityExtension.FlagForUpdate(t, identityService.Username, USER_AGENT);
-
                                 //});
                             }
                         }
@@ -438,7 +472,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                         //});
                     }
                     var modelParentUpdate = this.dbContext.GarmentDispositionPurchases.FirstOrDefault(t => t.Id == dataModel.Id);
-                    //dataModel.GarmentDispositionPurchaseItems = null;
                     modelParentUpdate.Amount = dataModel.Amount;
                     modelParentUpdate.Bank = dataModel.Bank;
                     modelParentUpdate.Category = dataModel.Category;
@@ -454,26 +487,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                     modelParentUpdate.InvoiceProformaNo = dataModel.InvoiceProformaNo;
                     modelParentUpdate.OtherCost = dataModel.OtherCost;
                     modelParentUpdate.PaymentType = dataModel.PaymentType;
-                    //modelParentUpdate.Position = dataModel.Position;
                     modelParentUpdate.SupplierCode = dataModel.SupplierCode;
                     modelParentUpdate.SupplierId = dataModel.SupplierId;
                     modelParentUpdate.SupplierIsImport = dataModel.SupplierIsImport;
                     modelParentUpdate.SupplierName = dataModel.SupplierName;
                     modelParentUpdate.VAT = dataModel.VAT;
-                    //modelParentUpdate.GarmentDispositionPurchaseItems = dataModel.GarmentDispositionPurchaseItems;
 
                     var afterUpdateModel = dbContext.GarmentDispositionPurchases.Update(modelParentUpdate);
                     Updated = dbContext.SaveChanges();
-
-                    //save Items
-                    //dataModel.GarmentDispositionPurchaseItems.ForEach(s =>
-                    //{
-                    //    if (s.Id == 0)
-                    //    {
-                    //        var modethis.dbContext.GarmentDispositionPurchaseItems.Add(s);
-                    //        this.dbContext.SaveChanges();
-                    //    }
-                    //});
 
                     transaction.Commit();
                 }

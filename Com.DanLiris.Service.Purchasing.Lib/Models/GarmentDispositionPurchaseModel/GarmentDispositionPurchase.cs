@@ -28,6 +28,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseM
         public double VAT { get; set; }
         public double OtherCost { get; set; }
         public double Amount { get; set; }
+        public DateTimeOffset VerifiedDateReceive { get; set; }
+        public DateTimeOffset VerifiedDateSend { get; set; }
         public virtual List<GarmentDispositionPurchaseItem> GarmentDispositionPurchaseItems { get; set; }
         public PurchasingGarmentExpeditionPosition Position { get; set; }
 
@@ -57,6 +59,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseM
             VAT = modelReplace.VAT;
             OtherCost = modelReplace.OtherCost;
             Amount = modelReplace.Amount;
+            //VerifiedDateReceive = modelReplace.VerifiedDateReceive;
+            //VerifiedDateSend = modelReplace.VerifiedDateSend;
             //GarmentDispositionPurchaseItems = modelReplace.GarmentDispositionPurchaseItems;
             //modelReplace.GarmentDispositionPurchaseItems.ForEach(t =>
             //{

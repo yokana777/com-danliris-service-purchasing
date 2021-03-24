@@ -58,7 +58,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDispositi
                 VerifyUser();
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-                var Data = await facade.GetAll(keyword,page, size);
+                var Data = await facade.GetAll(keyword,page, size,filter,order);
 
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
@@ -141,7 +141,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDispositi
             }
         }
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById([FromRoute]int id)
+        public async Task<IActionResult> GetById([FromRoute]int id,[FromQuery] bool isVerifiedAmountCalculated =false)
         {
             try
             {
@@ -149,7 +149,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDispositi
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
                 var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
 
-                var Data = await facade.GetFormById(id);
+                var Data = await facade.GetFormById(id, isVerifiedAmountCalculated);
                 if (indexAcceptPdf < 0)
                 {
                     //return Ok(new
