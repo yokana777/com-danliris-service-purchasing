@@ -271,7 +271,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellLeftMerge.Phrase = new Phrase($"{viewModel.Currency.Code}", table_font);
                 tableContent.AddCell(cellLeftMerge);
 
-                cellRightMerge.Phrase = new Phrase($"{total.ToString("N2", new CultureInfo("en-EN"))}", table_font);
+                var isNotePpnShow = viewModel.IsUseVat && !viewModel.IsPayVAT;
+                var notePpnShow = isNotePpnShow ? "\n 10% VAT Defferred" : "";
+
+                cellRightMerge.Phrase = new Phrase($"{total.ToString("N2", new CultureInfo("en-EN"))}"+notePpnShow, table_font);
                 tableContent.AddCell(cellRightMerge);
 
             }
@@ -291,7 +294,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellLeftMerge.Phrase = new Phrase($"{viewModel.Currency.Code}", table_font);
                 tableContent.AddCell(cellLeftMerge);
 
-                cellRightMerge.Phrase = new Phrase($"{total.ToString("N2", new CultureInfo("id-ID"))}", table_font);
+
+                var isNotePpnShow = viewModel.IsUseVat && !viewModel.IsPayVAT;
+                var notePpnShow = isNotePpnShow ? "\n PPN 10% Ditangguhkan" : "";
+
+                cellRightMerge.Phrase = new Phrase($"{total.ToString("N2", new CultureInfo("id-ID"))}"+notePpnShow, table_font);
                 tableContent.AddCell(cellRightMerge);
 
                 double ppn = 0;
