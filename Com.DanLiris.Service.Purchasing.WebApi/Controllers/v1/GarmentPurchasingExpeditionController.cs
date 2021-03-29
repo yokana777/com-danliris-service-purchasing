@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Enums;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpedition;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
@@ -58,11 +59,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
         }
 
         [HttpGet("disposition-notes")]
-        public IActionResult GetGarmentDispositionNotes([FromQuery] string keyword)
+        public IActionResult GetGarmentDispositionNotes([FromQuery] string keyword, [FromQuery] PurchasingGarmentExpeditionPosition position)
         {
             try
             {
-                var result = _service.GetGarmentDispositionNotes(keyword);
+                var result = _service.GetGarmentDispositionNotes(keyword, position);
                 return Ok(new
                 {
                     apiVersion = ApiVersion,
