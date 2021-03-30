@@ -156,7 +156,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
         }
 
         [HttpGet("report/disposition-payment")]
-        public IActionResult GetDispositionPaymentReport([FromQuery] DateTimeOffset startDate, [FromQuery] DateTimeOffset endDate, [FromBody] string dispositionIds = "[]")
+        public IActionResult GetDispositionPaymentReport([FromQuery] DateTimeOffset startDate, [FromQuery] DateTimeOffset endDate, [FromQuery] string dispositionIds = "[]")
         {
             try
             {
