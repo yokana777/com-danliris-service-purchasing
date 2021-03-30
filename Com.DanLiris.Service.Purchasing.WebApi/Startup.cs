@@ -76,6 +76,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpedition;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookReport;
 using Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchaseFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPaymentReport;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -206,6 +207,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IGarmentPurchasingBookReportService, GarmentPurchasingBookReportService>()
                 .AddTransient<IGarmentDebtBalanceService, GarmentDebtBalanceService>()
                 .AddTransient<IGarmentDispositionPurchaseFacade, GarmentDispositionPurchaseFacade>()
+                .AddTransient<IGarmentDispositionPaymentReportService, GarmentDispositionPaymentReportService>()
                 .AddTransient<IROFeatureFacade, ROFeatureFacade>();
         }
 
