@@ -134,7 +134,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPaymentR
                         unitReceiptNote.Id > 0 ? unitReceiptNote.URNNo : "",
                         internalNote.Id > 0 ? (int)internalNote.Id : 0,
                         internalNote.Id > 0 ? internalNote.INNo : "",
-                        internalNoteDate
+                        internalNoteDate,
+                        disposition.CreatedBy
                         ));
                 }
             }
@@ -256,7 +257,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPaymentR
                         unitReceiptNote.Id > 0 ? unitReceiptNote.URNNo : "",
                         internalNote.Id > 0 ? (int)internalNote.Id : 0,
                         internalNote.Id > 0 ? internalNote.INNo : "",
-                        internalNoteDate
+                        internalNoteDate,
+                        disposition.CreatedBy
                         ));
                 }
             }
