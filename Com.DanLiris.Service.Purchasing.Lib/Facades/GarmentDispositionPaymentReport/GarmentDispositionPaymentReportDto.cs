@@ -4,7 +4,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPaymentR
 {
     public class GarmentDispositionPaymentReportDto
     {
-        public GarmentDispositionPaymentReportDto(int dispositionId, string dispositionNoteNo, DateTimeOffset dispositionNoteDate, DateTimeOffset dispositionNoteDueDate, string proformaNo, int supplierId, string supplierCode, string supplierName, int currencyId, string currencyCode, double currencyRate, double dPPAmount, double vATAmount, double incomeTaxAmount, double othersExpenditureAmount, double totalAmount, int categoryId, string categoryCode, string categoryName, int externalPurchaseOrderId, string externalPurchaseOrderNo, double dispositionQuantity, int deliveryOrderId, string deliveryOrderNo, double deliveryOrderQuantity, string paymentBillsNo, string billsNo, int customsNoteId, string customsNoteNo, DateTimeOffset? customsNoteDate, int unitReceiptNoteId, string unitReceiptNoteNo, int internalNoteId, string internalNoteNo, DateTimeOffset? internalNoteDate)
+        public GarmentDispositionPaymentReportDto(int dispositionId, string dispositionNoteNo, DateTimeOffset dispositionNoteDate, DateTimeOffset dispositionNoteDueDate, string proformaNo, int supplierId, string supplierCode, string supplierName, int currencyId, string currencyCode, double currencyRate, double dPPAmount, double vATAmount, double incomeTaxAmount, double othersExpenditureAmount, double totalAmount, int categoryId, string categoryCode, string categoryName, int externalPurchaseOrderId, string externalPurchaseOrderNo, double dispositionQuantity, int deliveryOrderId, string deliveryOrderNo, double deliveryOrderQuantity, string paymentBillsNo, string billsNo, int customsNoteId, string customsNoteNo, DateTimeOffset? customsNoteDate, int unitReceiptNoteId, string unitReceiptNoteNo, int internalNoteId, string internalNoteNo, DateTimeOffset? internalNoteDate, string dispositionCreatedBy)
         {
             DispositionId = dispositionId;
             DispositionNoteNo = dispositionNoteNo;
@@ -41,6 +41,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPaymentR
             InternalNoteId = internalNoteId;
             InternalNoteNo = internalNoteNo;
             InternalNoteDate = internalNoteDate;
+            DispositionCreatedBy = dispositionCreatedBy;
         }
 
         public int DispositionId { get; private set; }
@@ -78,5 +79,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPaymentR
         public int InternalNoteId { get; private set; }
         public string InternalNoteNo { get; private set; }
         public DateTimeOffset? InternalNoteDate { get; private set; }
+        public string DispositionCreatedBy { get; private set; }
     }
 }
