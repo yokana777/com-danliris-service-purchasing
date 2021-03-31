@@ -30,8 +30,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
 
             if (position > 0)
                 query = query.Where(entity => entity.Position == position);
-            else
-                query = query.Where(entity => entity.Position == PurchasingGarmentExpeditionPosition.Purchasing);
 
             if (!string.IsNullOrWhiteSpace(keyword))
                 query = query.Where(entity => entity.DispositionNo.Contains(keyword));
