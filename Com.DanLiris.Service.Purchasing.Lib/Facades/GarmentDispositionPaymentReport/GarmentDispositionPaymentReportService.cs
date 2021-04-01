@@ -161,6 +161,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPaymentR
                 var externalPurchaseOrders = _dbContext.GarmentExternalPurchaseOrders.Where(entity => epoIds.Contains(entity.Id)).ToList();
                 var deliveryOrderItems = _dbContext.GarmentDeliveryOrderItems.Where(entity => epoIds.Contains(entity.EPOId)).ToList();
                 var deliveryOrderItemIds = deliveryOrderItems.Select(element => element.Id).ToList();
+                var dispositionItemIds = dispositionItems.Select(entity => entity.Id).ToList();
+                var dispositionItemDetails = _dbContext.GarmentDispositionPurchaseDetailss.Where(entity => dispositionItemIds.Contains(entity.GarmentDispositionPurchaseItemId)).ToList();
                 var deliveryOrderIds = deliveryOrderItems.Select(element => element.GarmentDOId).ToList();
                 var deliveryOrderDetails = _dbContext.GarmentDeliveryOrderDetails.Where(entity => deliveryOrderItemIds.Contains(entity.GarmentDOItemId)).ToList();
                 var deliveryOrderDetailIds = deliveryOrderDetails.Select(entity => entity.Id).ToList();
@@ -229,6 +231,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPaymentR
                     if (internalNote.Id > 0)
                         internalNoteDate = internalNote.INDate;
 
+                    var sumDispositionPaid = dispositionItemDetails.Where(element => element.GarmentDispositionPurchaseItemId == dispositionItem.Id).Sum(detail => detail.QTYPaid);
+
+
                     result.Add(new GarmentDispositionPaymentReportDto(
                         disposition.Id,
                         disposition.DispositionNo,
@@ -251,7 +256,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPaymentR
                         disposition.Category,
                         (int)externalPurchaseOrder.Id,
                         externalPurchaseOrder.EPONo,
-                        selectedDispoositionDetails.Sum(sum => sum.QTYPaid),
+                        //dispositionItem.DispositionQuantityPaid,
+                        sumDispositionPaid,
                         deliveryOrder.Id > 0 ? (int)deliveryOrder.Id : 0,
                         deliveryOrder.Id > 0 ? deliveryOrder.DONo : "",
                         deliveryOrder.Id > 0 ? selectedDeliveryOrderDetails.Sum(sum => sum.DOQuantity) : 0,
