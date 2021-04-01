@@ -28,6 +28,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPaymentR
             {
                 var dispositionIds = dispositions.Select(element => element.Id).ToList();
                 var dispositionItems = _dbContext.GarmentDispositionPurchaseItems.Where(entity => dispositionIds.Contains(entity.GarmentDispositionPurchaseId)).ToList();
+                var dispositionItemIds = dispositionItems.Select(element => element.Id).ToList();
+                var dispositionDetails = _dbContext.GarmentDispositionPurchaseDetailss.Where(entity => dispositionItemIds.Contains(entity.GarmentDispositionPurchaseItemId)).ToList();
                 var epoIds = dispositionItems.Select(element => (long)element.EPOId).ToList();
                 var externalPurchaseOrders = _dbContext.GarmentExternalPurchaseOrders.Where(entity => epoIds.Contains(entity.Id)).ToList();
                 var deliveryOrderItems = _dbContext.GarmentDeliveryOrderItems.Where(entity => epoIds.Contains(entity.EPOId)).ToList();
@@ -52,6 +54,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPaymentR
                 {
                     var disposition = dispositions.FirstOrDefault(element => element.Id == dispositionItem.GarmentDispositionPurchaseId);
                     var externalPurchaseOrder = externalPurchaseOrders.FirstOrDefault(element => element.Id == dispositionItem.EPOId);
+                    var selectedDispoositionDetails = dispositionDetails.Where(element => element.GarmentDispositionPurchaseItemId == dispositionItem.Id).ToList();
                     var deliveryOrderItem = deliveryOrderItems.FirstOrDefault(element => element.EPOId == dispositionItem.EPOId);
                     if (deliveryOrderItem == null)
                         deliveryOrderItem = new GarmentDeliveryOrderItem();
@@ -121,7 +124,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPaymentR
                         disposition.Category,
                         (int)externalPurchaseOrder.Id,
                         externalPurchaseOrder.EPONo,
-                        dispositionItem.DispositionQuantityCreated,
+                        selectedDispoositionDetails.Sum(sum => sum.QTYPaid),
                         deliveryOrder.Id > 0 ? (int)deliveryOrder.Id : 0,
                         deliveryOrder.Id > 0 ? deliveryOrder.DONo : "",
                         deliveryOrder.Id > 0 ? selectedDeliveryOrderDetails.Sum(sum => sum.DOQuantity) : 0,
@@ -150,7 +153,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPaymentR
             var result = new List<GarmentDispositionPaymentReportDto>();
             if (dispositions.Count > 0)
             {
+                var dispositionIds = dispositions.Select(element => element.Id).ToList();
                 var dispositionItems = _dbContext.GarmentDispositionPurchaseItems.Where(entity => dispositionIds.Contains(entity.GarmentDispositionPurchaseId)).ToList();
+                var dispositionItemIds = dispositionItems.Select(element => element.Id).ToList();
+                var dispositionDetails = _dbContext.GarmentDispositionPurchaseDetailss.Where(entity => dispositionItemIds.Contains(entity.GarmentDispositionPurchaseItemId)).ToList();
                 var epoIds = dispositionItems.Select(element => (long)element.EPOId).ToList();
                 var externalPurchaseOrders = _dbContext.GarmentExternalPurchaseOrders.Where(entity => epoIds.Contains(entity.Id)).ToList();
                 var deliveryOrderItems = _dbContext.GarmentDeliveryOrderItems.Where(entity => epoIds.Contains(entity.EPOId)).ToList();
@@ -175,6 +181,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPaymentR
                 {
                     var disposition = dispositions.FirstOrDefault(element => element.Id == dispositionItem.GarmentDispositionPurchaseId);
                     var externalPurchaseOrder = externalPurchaseOrders.FirstOrDefault(element => element.Id == dispositionItem.EPOId);
+                    var selectedDispoositionDetails = dispositionDetails.Where(element => element.GarmentDispositionPurchaseItemId == dispositionItem.Id).ToList();
                     var deliveryOrderItem = deliveryOrderItems.FirstOrDefault(element => element.EPOId == dispositionItem.EPOId);
                     if (deliveryOrderItem == null)
                         deliveryOrderItem = new GarmentDeliveryOrderItem();
@@ -244,7 +251,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPaymentR
                         disposition.Category,
                         (int)externalPurchaseOrder.Id,
                         externalPurchaseOrder.EPONo,
-                        dispositionItem.DispositionQuantityCreated,
+                        selectedDispoositionDetails.Sum(sum => sum.QTYPaid),
                         deliveryOrder.Id > 0 ? (int)deliveryOrder.Id : 0,
                         deliveryOrder.Id > 0 ? deliveryOrder.DONo : "",
                         deliveryOrder.Id > 0 ? selectedDeliveryOrderDetails.Sum(sum => sum.DOQuantity) : 0,
