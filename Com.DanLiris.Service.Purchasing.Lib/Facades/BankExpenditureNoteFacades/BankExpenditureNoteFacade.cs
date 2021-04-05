@@ -329,16 +329,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
                     if (!string.IsNullOrWhiteSpace(vatCOA))
                     {
-                        var vatItem = new JournalTransactionItem()
-                        {
-                            COA = new COA()
-                            {
-                                Code = vatCOA
-                            },
-                            Debit = Convert.ToDecimal(datum.Total * 0.1)
-                        };
-
-                        items.Add(vatItem);
+                        item.Debit += Convert.ToDecimal(datum.Total * 0.1);
                     }
 
                     items.Add(item);
