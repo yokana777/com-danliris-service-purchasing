@@ -13,6 +13,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
     public interface IGarmentUnitExpenditureNoteFacade
     {
         ReadResponse<object> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
+        ReadResponse<object> ReadLoader(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
         GarmentUnitExpenditureNoteViewModel ReadById(int id);
 		ExpenditureROViewModel GetROAsalById(int id);
 		Task<int> Create(GarmentUnitExpenditureNote garmentUnitExpenditureNote);
