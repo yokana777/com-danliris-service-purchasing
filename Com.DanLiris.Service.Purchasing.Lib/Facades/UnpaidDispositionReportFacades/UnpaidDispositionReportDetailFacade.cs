@@ -238,6 +238,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnpaidDispositionReportFac
                     SubTotalCurrency = report.Sum(sum => sum.TotalCurrency)
                 }).OrderBy(order => order.CurrencyCode).ToList();
 
+            reportResult.CategorySummaries = reportResult.Reports
+                .GroupBy(report => new { report.CategoryName, report.CategoryId, report.CurrencyCode })
+                .Select(report => new Summary()
+                {
+                    CategoryName = report.Key.CategoryName,
+                    CategoryId = report.Key.CategoryId,
+                    CurrencyCode = report.Key.CurrencyCode,
+                    SubTotal = report.Sum(sum => sum.Total)                    
+                })
+                .OrderBy(order => order.CategoryId).ToList();
+
             reportResult.Reports = reportResult.Reports.OrderBy(order => order.CategoryLayoutIndex).ToList();
             reportResult.GrandTotal = reportResult.Reports.Sum(sum => sum.TotalCurrency);
             reportResult.UnitSummaryTotal = reportResult.UnitSummaries.Sum(categorySummary => categorySummary.SubTotalCurrency);
