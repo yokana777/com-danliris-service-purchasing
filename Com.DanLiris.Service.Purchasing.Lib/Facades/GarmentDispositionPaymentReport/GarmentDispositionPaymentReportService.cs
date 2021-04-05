@@ -153,7 +153,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPaymentR
             var result = new List<GarmentDispositionPaymentReportDto>();
             if (dispositions.Count > 0)
             {
-                var dispositionIds = dispositions.Select(element => element.Id).ToList();
+                //var dispositionIds = dispositions.Select(element => element.Id).ToList();
                 var dispositionItems = _dbContext.GarmentDispositionPurchaseItems.Where(entity => dispositionIds.Contains(entity.GarmentDispositionPurchaseId)).ToList();
                 var dispositionItemIds = dispositionItems.Select(element => element.Id).ToList();
                 var dispositionDetails = _dbContext.GarmentDispositionPurchaseDetailss.Where(entity => dispositionItemIds.Contains(entity.GarmentDispositionPurchaseItemId)).ToList();
@@ -161,7 +161,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPaymentR
                 var externalPurchaseOrders = _dbContext.GarmentExternalPurchaseOrders.Where(entity => epoIds.Contains(entity.Id)).ToList();
                 var deliveryOrderItems = _dbContext.GarmentDeliveryOrderItems.Where(entity => epoIds.Contains(entity.EPOId)).ToList();
                 var deliveryOrderItemIds = deliveryOrderItems.Select(element => element.Id).ToList();
-                var dispositionItemIds = dispositionItems.Select(entity => entity.Id).ToList();
+                //var dispositionItemIds = dispositionItems.Select(entity => entity.Id).ToList();
                 var dispositionItemDetails = _dbContext.GarmentDispositionPurchaseDetailss.Where(entity => dispositionItemIds.Contains(entity.GarmentDispositionPurchaseItemId)).ToList();
                 var deliveryOrderIds = deliveryOrderItems.Select(element => element.GarmentDOId).ToList();
                 var deliveryOrderDetails = _dbContext.GarmentDeliveryOrderDetails.Where(entity => deliveryOrderItemIds.Contains(entity.GarmentDOItemId)).ToList();
