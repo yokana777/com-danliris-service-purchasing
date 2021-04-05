@@ -373,6 +373,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         })
                         .OrderBy(order => order.CurrencyCode).ToList();
 
+            reportResult.CategorySummaries = reportResult.Reports
+                .GroupBy(report => new { report.CategoryName, report.CategoryId, report.CurrencyCode })
+                .Select(report => new SummaryDCB()
+                {
+                    CategoryName = report.Key.CategoryName,
+                    CategoryId = report.Key.CategoryId,
+                    CurrencyCode = report.Key.CurrencyCode,
+                    SubTotal = report.Sum(sum => sum.Total),
+                    SubTotalIDR = report.Sum(sum => sum.TotalIDR)
+                })
+                .OrderBy(order => order.CurrencyCode).ToList();
+
             //reportResult.Reports = reportResult.Reports
             reportResult.Reports = reportResult.Reports
                         .GroupBy(
