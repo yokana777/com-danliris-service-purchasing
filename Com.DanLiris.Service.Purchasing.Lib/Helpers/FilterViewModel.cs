@@ -148,12 +148,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
         /// <returns></returns>
         public static List<FilterViewModel> ConvertJsonAsList(string jsonString, ConditionType conditionType = ConditionType.ENUM_INT)
         {
-            List<object> listObject = JsonConvert.DeserializeObject<List<object>>(jsonString);
+            List<object> listObject = JsonConvert.DeserializeObject<List<object>>(jsonString,new JsonSerializerSettings { 
+            Formatting = Formatting.None
+            });
             List<FilterViewModel> listFilter = new List<FilterViewModel>();
             listObject.ForEach(obj =>
             {
+                object parseObject = JsonConvert.DeserializeObject<object>(obj.ToString());
                 var model = new FilterViewModel();
-                model.SetFilterViewModel(obj.ToString(), conditionType);
+                model.SetFilterViewModel(parseObject.ToString(), conditionType);
                 //listFilter.Add(new FilterViewModel().SetFilterViewModel(obj.ToString(), conditionType));
                 listFilter.Add(model);
             });

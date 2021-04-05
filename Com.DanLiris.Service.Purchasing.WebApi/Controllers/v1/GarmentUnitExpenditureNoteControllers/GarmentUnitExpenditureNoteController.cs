@@ -73,13 +73,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
             }
         }
         [HttpGet("custom-loader")]
-        public IActionResult GetCustomLoader(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
+        public IActionResult GetCustomLoader(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}", Lib.Helpers.ConditionType conditionType = Lib.Helpers.ConditionType.ENUM_INT)
         {
             try
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-                var model = facade.ReadLoader(page, size, order, keyword, filter);
+                var model = facade.ReadLoader(page, size, order, keyword, filter, conditionType);
 
                 var info = new Dictionary<string, object>
                     {

@@ -954,7 +954,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             return new ReadResponse<object>(ListData, TotalData, OrderDictionary);
         }
 
-        public ReadResponse<object> ReadLoader(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+        public ReadResponse<object> ReadLoader(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}",ConditionType conditionType=ConditionType.ENUM_INT)
         {
             IQueryable<GarmentUnitExpenditureNote> Query = dbSet;
 
@@ -966,7 +966,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             Query = QueryHelper<GarmentUnitExpenditureNote>.ConfigureSearch(Query, searchAttributes, Keyword);
 
             //List<object> FilterDictionary = JsonConvert.DeserializeObject<List<object>>(Filter);
-            List<FilterViewModel> filter = FilterViewModel.ConvertJsonAsList(Filter,ConditionType.DESCRIPTION);
+            List<FilterViewModel> filter = FilterViewModel.ConvertJsonAsList(Filter, conditionType);
             Query = QueryHelper<GarmentUnitExpenditureNote>.ConfigureFilter(Query, filter);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
