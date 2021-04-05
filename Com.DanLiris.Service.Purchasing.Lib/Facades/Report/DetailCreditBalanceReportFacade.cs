@@ -383,7 +383,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     SubTotal = report.Sum(sum => sum.Total),
                     SubTotalIDR = report.Sum(sum => sum.TotalIDR)
                 })
-                .OrderBy(order => order.CurrencyCode).ToList();
+                .OrderBy(order => order.CategoryId).ToList();
 
             //reportResult.Reports = reportResult.Reports
             reportResult.Reports = reportResult.Reports
