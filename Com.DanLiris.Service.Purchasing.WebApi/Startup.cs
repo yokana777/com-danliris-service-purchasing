@@ -77,6 +77,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookReport;
 using Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchaseFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPaymentReport;
+using Microsoft.ApplicationInsights.AspNetCore;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -88,6 +89,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
 
         public IConfiguration Configuration { get; }
 
+        public bool HasAppInsight => !string.IsNullOrEmpty(Configuration.GetValue<string>("APPINSIGHTS_INSTRUMENTATIONKEY") ?? Configuration.GetValue<string>("ApplicationInsights:InstrumentationKey"));
 
         public Startup(IConfiguration configuration)
         {
@@ -322,6 +324,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
 
                 c.CustomSchemaIds(i => i.FullName);
             });
+
+            // App Insight
+            if (HasAppInsight)
+            {
+                services.AddApplicationInsightsTelemetry();
+                services.AddAppInsightRequestBodyLogging();
+            }
+
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -342,6 +352,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             //        context.Database.Migrate();
             //    }
             //}
+
+            if(HasAppInsight){
+                app.UseAppInsightRequestBodyLogging();
+                app.UseAppInsightResponseBodyLogging();
+            }
 
             app.UseAuthentication();
             app.UseCors(PURCHASING_POLICITY);

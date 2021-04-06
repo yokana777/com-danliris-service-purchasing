@@ -150,7 +150,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
                             {
                                 Id = (int)detail.UnitPaymentOrderId,
-                                //IsPaid = true,
+                                IsPaid = true,
                                 BankExpenditureNoteNo = model.DocumentNo,
                                 BankExpenditureNoteDate = model.Date
                             };
@@ -190,7 +190,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
                             {
                                 Id = (int)detail.UnitPaymentOrderId,
-                                //IsPaid = false,
+                                IsPaid = false,
                                 BankExpenditureNoteNo = null,
                                 BankExpenditureNoteDate = null
                             };
@@ -249,7 +249,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                         PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
                         {
                             Id = (int)detail.UnitPaymentOrderId,
-                            //IsPaid = true,
+                            IsPaid = true,
                             BankExpenditureNoteNo = model.DocumentNo,
                             BankExpenditureNoteDate = model.Date
                         };
@@ -788,6 +788,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 })
                 .ToList();
             dbContext.UnitPaymentOrders.UpdateRange(unitPaymentOrders);
+
+            //var bankExpenditureNoteNos = models.Select(element => element.DocumentNo).ToList();
+            //var expeditions = dbContext
+            //    .PurchasingDocumentExpeditions
+            //    .Where(pde => bankExpenditureNoteNos.Contains(pde.BankExpenditureNoteNo))
+            //    .ToList()
+            //    .Select(pde =>
+            //    {
+            //        pde.IsPaid = true;
+            //        EntityExtension.FlagForUpdate(pde, identityService.Username, USER_AGENT);
+            //        return pde;
+            //    })
+            //    .ToList();
+            //dbContext.PurchasingDocumentExpeditions.UpdateRange(expeditions);
 
             foreach (var model in models)
             {
