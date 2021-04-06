@@ -556,7 +556,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             {
                 Query = (from a in dbContext.BankExpenditureNotes
                          join b in dbContext.BankExpenditureNoteDetails on a.Id equals b.BankExpenditureNoteId
-                         join c in dbContext.PurchasingDocumentExpeditions on b.UnitPaymentOrderId equals c.Id
+                         join c in dbContext.PurchasingDocumentExpeditions on b.UnitPaymentOrderNo equals c.UnitPaymentOrderNo
                          //where c.InvoiceNo == (InvoiceNo ?? c.InvoiceNo)
                          //   && c.SupplierCode == (SupplierCode ?? c.SupplierCode)
                          //   && c.UnitPaymentOrderNo == (UnitPaymentOrderNo ?? c.UnitPaymentOrderNo)
@@ -590,7 +590,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             {
                 Query = (from a in dbContext.BankExpenditureNotes
                          join b in dbContext.BankExpenditureNoteDetails on a.Id equals b.BankExpenditureNoteId
-                         join c in dbContext.PurchasingDocumentExpeditions on b.UnitPaymentOrderId equals c.Id
+                         join c in dbContext.PurchasingDocumentExpeditions on b.UnitPaymentOrderNo equals c.UnitPaymentOrderNo
                          //where c.InvoiceNo == (InvoiceNo ?? c.InvoiceNo)
                          //   && c.SupplierCode == (SupplierCode ?? c.SupplierCode)
                          //   && c.UnitPaymentOrderNo == (UnitPaymentOrderNo ?? c.UnitPaymentOrderNo)
