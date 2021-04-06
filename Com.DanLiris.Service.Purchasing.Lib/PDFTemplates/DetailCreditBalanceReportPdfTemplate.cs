@@ -366,22 +366,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             summaryTable.SetWidths(widthSummaryTable.ToArray());
 
             //summaryTable.AddCell(new PdfPCell() { Border = Rectangle.NO_BORDER });
-            if (isForeignCurrency || isImport)
-                summaryTable.AddCell(GetCategoryValasTable(viewModel.CategorySummaries));
-            else
-                summaryTable.AddCell(GetCategorySummaryTable(viewModel.CategorySummaries));
-
-            summaryTable.AddCell(new PdfPCell() { Border = Rectangle.NO_BORDER });
 
             if (isForeignCurrency || isImport)
                 summaryTable.AddCell(GetUnitSummaryValasTable(viewModel.AccountingUnitSummaries));
             else
                 summaryTable.AddCell(GetUnitSummaryTable(viewModel.AccountingUnitSummaries));
+            
+
+            summaryTable.AddCell(new PdfPCell() { Border = Rectangle.NO_BORDER });
+
+            if (isForeignCurrency || isImport)
+                summaryTable.AddCell(GetCategoryValasTable(viewModel.CategorySummaries));
+            else
+                summaryTable.AddCell(GetCategorySummaryTable(viewModel.CategorySummaries));
 
             //summaryTable.AddCell(GetCategorySummaryTable(viewModel.AccountingUnitSummaries, viewModel.AccountingUnitSummaryTotal));
             //summaryTable.AddCell(new PdfPCell() { Border = Rectangle.NO_BORDER });
             //summaryTable.AddCell(GetUnitSummaryTable(summaryUnit));     
-            
+
             summaryTable.AddCell(new PdfPCell() { Border = Rectangle.NO_BORDER });
 
             summaryTable.AddCell(GetCurrencySummaryTable(viewModel.CurrencySummaries));
@@ -389,6 +391,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             
 
             document.Add(summaryTable);
+
+
         }
 
         //private static PdfPCell GetCategorySummaryTable(List<SummaryDCB> categorySummaries, decimal categorySummaryTotal)

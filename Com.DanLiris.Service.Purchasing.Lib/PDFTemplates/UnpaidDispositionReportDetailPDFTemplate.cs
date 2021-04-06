@@ -118,6 +118,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 VerticalAlignment = Element.ALIGN_CENTER
             };
 
+
             cellHeader.Phrase = new Phrase("Mata Uang", _smallerBoldWhiteFont);
             table.AddCell(cellHeader);
 
@@ -644,9 +645,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             {
                 WidthPercentage = 95,
 
-            };
+            };            
 
-            var widthSummaryTable = new List<float>() { 3f, 1f, 3f, 1f,3f };
+            var widthSummaryTable = new List<float>() { 2f, 1f, 2f,1f,2f};
             summaryTable.SetWidths(widthSummaryTable.ToArray());
 
             //UnitSummary
@@ -656,17 +657,98 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 summaryTable.AddCell(GetUnitSummaryTable(viewModel.UnitSummaries));
 
             summaryTable.AddCell(new PdfPCell() { Border = Rectangle.NO_BORDER });
-            //CurrencySummary
-            summaryTable.AddCell(GetCurrencySummaryTable(viewModel.CurrencySummaries));
 
-            summaryTable.AddCell(new PdfPCell() { Border = Rectangle.NO_BORDER });
             //CategorySummary
             if (isForeignCurrency || isImport)
                 summaryTable.AddCell(GetCategoryValasTable(viewModel.CategorySummaries));
             else
                 summaryTable.AddCell(GetCategorySummaryTable(viewModel.CategorySummaries));
 
+            summaryTable.AddCell(new PdfPCell() { Border = Rectangle.NO_BORDER });
+            //CurrencySummary
+            summaryTable.AddCell(GetCurrencySummaryTable(viewModel.CurrencySummaries));
+
+
+
             document.Add(summaryTable);
+
+            ////Testing
+            //document.Add(new Paragraph("\n"));
+
+            //var currencyTable = new PdfPTable(5)
+            //{
+            //    WidthPercentage = 95,
+                
+            //};
+
+            //var leftTable = new PdfPTable(1)
+            //{
+            //    WidthPercentage = 95,
+                
+            //};
+            //var centerTable = new PdfPTable(1)
+            //{
+            //    WidthPercentage = 95,
+            //};
+            //var rightTable = new PdfPTable(1)
+            //{
+            //    WidthPercentage = 95,
+                
+            //};
+
+            //var leftTableCell = new PdfPCell()
+            //{
+            //    HorizontalAlignment = Element.ALIGN_LEFT,
+            //    VerticalAlignment = Element.ALIGN_MIDDLE,
+            //    Border = Rectangle.NO_BORDER
+                
+            //};
+            //var centerTableCell = new PdfPCell()
+            //{
+            //    HorizontalAlignment = Element.ALIGN_LEFT,
+            //    VerticalAlignment = Element.ALIGN_MIDDLE,
+            //    Border = Rectangle.NO_BORDER
+            //};
+            //var RightTableCell = new PdfPCell()
+            //{
+            //    HorizontalAlignment = Element.ALIGN_LEFT,
+            //    VerticalAlignment = Element.ALIGN_MIDDLE,
+            //    Border = Rectangle.NO_BORDER
+               
+            //};
+
+            //var currencyWidthTable = new List<float>() { 3f,1f, 3f,1f, 3f };
+            //currencyTable.SetWidths(currencyWidthTable.ToArray());
+
+            ////UnitSummary
+            //if (isForeignCurrency || isImport)
+            //    leftTable.AddCell(GetUnitSummaryValasTable(viewModel.UnitSummaries));
+            //else
+            //    leftTable.AddCell(GetUnitSummaryTable(viewModel.UnitSummaries));
+
+            //leftTableCell.AddElement(leftTable);
+            //currencyTable.AddCell(leftTable);
+
+            //currencyTable.AddCell(new PdfPCell() { Border = Rectangle.NO_BORDER });
+
+
+            ////CategorySummary
+            //if (isForeignCurrency || isImport)
+            //    centerTable.AddCell(GetCategoryValasTable(viewModel.CategorySummaries));
+            //else
+            //    centerTable.AddCell(GetCategorySummaryTable(viewModel.CategorySummaries));
+
+            //centerTableCell.AddElement(centerTable);
+            //currencyTable.AddCell(centerTable);
+
+            //currencyTable.AddCell(new PdfPCell() { Border = Rectangle.NO_BORDER });
+
+            ////CurrencySummary
+            //rightTable.AddCell(GetCurrencySummaryTable(viewModel.CurrencySummaries));
+            //RightTableCell.AddElement(rightTable);
+            //currencyTable.AddCell(rightTable);
+
+            //document.Add(currencyTable);
         }
 
         private static void SetReportTableHeader(PdfPTable table)
