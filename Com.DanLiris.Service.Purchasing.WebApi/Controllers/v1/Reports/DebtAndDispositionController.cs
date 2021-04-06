@@ -73,12 +73,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
 
             try
             {
+                VerifyUser();
                 if (!dueDate.HasValue)
                     dueDate = DateTimeOffset.MaxValue.AddHours(Math.Abs(_identityService.TimezoneOffset) * -1);
 
-                var result = _service.GetSummary(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
+                var result = _service.GetReport(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
 
-                var stream = GenerateExcel(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault().AddHours(_identityService.TimezoneOffset), accountingUnitId, isImport, isForeignCurrency, divisionId);
+                var stream = GenerateExcel(result.Data, _identityService.TimezoneOffset, dueDate.GetValueOrDefault().AddHours(_identityService.TimezoneOffset), accountingUnitId, isImport, isForeignCurrency, divisionId);
 
                 var filename = "Laporan Rekap Hutang & Disposisi Lokal";
                 if (isForeignCurrency)
@@ -100,6 +101,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
        
         private MemoryStream GenerateExcel(List<DebtAndDispositionSummaryDto> data, int timezoneOffset, DateTimeOffset dueDate, int accountingUnitId, bool isImport, bool isForeignCurrency, int divisionId)
         {
+            VerifyUser();
             var dueDateString = $"{dueDate:dd/MM/yy}";
             if (dueDate == DateTimeOffset.MaxValue)
                 dueDateString = "-";
@@ -250,9 +252,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
                 if (!dueDate.HasValue)
                     dueDate = DateTimeOffset.MaxValue.AddHours(Math.Abs(_identityService.TimezoneOffset) * -1);
 
-                var result = _service.GetSummary(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
+                var result = _service.GetReport(categoryId, accountingUnitId, divisionId, dueDate.GetValueOrDefault(), isImport, isForeignCurrency);
 
-                var stream = DebtAndDispositionSummaryPDFTemplate.Generate(result, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), accountingUnitId, isImport, isForeignCurrency, divisionId);
+                var stream = DebtAndDispositionSummaryPDFTemplate.Generate(result.Data, _identityService.TimezoneOffset, dueDate.GetValueOrDefault(), accountingUnitId, isImport, isForeignCurrency, divisionId);
 
                 var filename = "Laporan Rekap Hutang & Disposisi Lokal";
                 if (isForeignCurrency)
@@ -301,8 +303,34 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             }
         }
 
+        //[HttpGet("debt-budget-cashflow")]
+        //public IActionResult GetDebt([FromQuery] int unitId, [FromQuery] int divisionId, [FromQuery] int year, [FromQuery] int month, [FromQuery] bool isImport, [FromQuery] string categoryIds, [FromQuery] DateTimeOffset date)
+        //{
+
+        //    try
+        //    {
+        //        var result = _service.GetDebtSummary(unitId, divisionId, year, month, isImport, date, categoryIds);
+        //        return Ok(new
+        //        {
+        //            apiVersion = ApiVersion,
+        //            statusCode = General.OK_STATUS_CODE,
+        //            message = General.OK_MESSAGE,
+        //            data = result,
+        //            info = new Dictionary<string, object>
+        //            {
+        //                { "page", 1 },
+        //                { "size", 10 }
+        //            },
+        //        });
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+        //    }
+        //}
+
         [HttpGet("debt-budget-cashflow")]
-        public IActionResult GetDebt([FromQuery] int unitId, [FromQuery] int divisionId, [FromQuery] int year, [FromQuery] int month, [FromQuery] bool isImport, [FromQuery] string categoryIds, [FromQuery] DateTimeOffset date)
+        public IActionResult GetDebt([FromQuery] List<int> unitId, [FromQuery] int divisionId, [FromQuery] int year, [FromQuery] int month, [FromQuery] bool isImport, [FromQuery] string categoryIds, [FromQuery] DateTimeOffset date)
         {
 
             try
@@ -327,8 +355,34 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             }
         }
 
+        //[HttpGet("budget-cashflow-summary")]
+        //public IActionResult GetSummary([FromQuery] int unitId, [FromQuery] int divisionId, [FromQuery] int year, [FromQuery] int month, [FromQuery] bool isImport, [FromQuery] string categoryIds, [FromQuery] DateTimeOffset date)
+        //{
+
+        //    try
+        //    {
+        //        var result = _service.GetSummary(unitId, divisionId, year, month, isImport, date, categoryIds);
+        //        return Ok(new
+        //        {
+        //            apiVersion = ApiVersion,
+        //            statusCode = General.OK_STATUS_CODE,
+        //            message = General.OK_MESSAGE,
+        //            data = result,
+        //            info = new Dictionary<string, object>
+        //            {
+        //                { "page", 1 },
+        //                { "size", 10 }
+        //            },
+        //        });
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+        //    }
+        //}
+
         [HttpGet("budget-cashflow-summary")]
-        public IActionResult GetSummary([FromQuery] int unitId, [FromQuery] int divisionId, [FromQuery] int year, [FromQuery] int month, [FromQuery] bool isImport, [FromQuery] string categoryIds, [FromQuery] DateTimeOffset date)
+        public IActionResult GetSummary([FromQuery] List<int> unitId, [FromQuery] int divisionId, [FromQuery] int year, [FromQuery] int month, [FromQuery] bool isImport, [FromQuery] string categoryIds, [FromQuery] DateTimeOffset date)
         {
 
             try

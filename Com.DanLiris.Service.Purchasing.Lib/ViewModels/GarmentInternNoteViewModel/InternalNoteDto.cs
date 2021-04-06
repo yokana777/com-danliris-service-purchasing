@@ -15,7 +15,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
             DocumentNo = internalNote.INNo;
             Date = internalNote.INDate;
             DueDate = internalNote.Items.FirstOrDefault().Details.FirstOrDefault().PaymentDueDate;
-            Supplier = new SupplierDto(internalNote.SupplierId, internalNote.SupplierName);
+            Supplier = new SupplierDto(internalNote.SupplierId, internalNote.SupplierName, internalNote.SupplierCode);
             DPP = internalNoteInvoices.Sum(internalNoteInvoice => internalNoteInvoice.TotalAmount);
 
             TotalAmount = internalNoteInvoices.Sum(element =>
@@ -60,7 +60,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
             DocumentNo = internalNote.INNo;
             Date = internalNote.INDate;
             DueDate = internalNote.Items.FirstOrDefault().Details.FirstOrDefault().PaymentDueDate;
-            Supplier = new SupplierDto(internalNote.SupplierId, internalNote.SupplierName);
+            Supplier = new SupplierDto(internalNote.SupplierId, internalNote.SupplierName, internalNote.SupplierCode);
             DPP = internalNoteInvoices.Sum(internalNoteInvoice => internalNoteInvoice.GarmentInvoices.TotalAmount);
 
             TotalAmount = internalNoteInvoices.Sum(element =>

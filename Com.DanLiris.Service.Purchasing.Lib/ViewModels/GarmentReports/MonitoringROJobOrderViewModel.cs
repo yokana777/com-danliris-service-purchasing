@@ -7,6 +7,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public string POSerialNumber { get; set; }
         public string ProductCode { get; set; }
         public string ProductName { get; set; }
+        public string Description { get; set; }
         public double BudgetQuantity { get; set; }
         public string UomPriceUnit { get; set; }
         public string Status { get; set; }

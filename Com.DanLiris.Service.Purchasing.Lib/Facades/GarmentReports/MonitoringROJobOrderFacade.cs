@@ -74,6 +74,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                         POSerialNumber = m.PO_SerialNumber,
                         POMasterNumber = m.POMaster,
                         ProductCode = m.Product.Code,
+                        Description = m.Description, 
                         ProductName = productNames.GetValueOrDefault(m.Product.Id),
                         BudgetQuantity = m.BudgetQuantity,
                         UomPriceUnit = m.UOMPrice.Unit,

@@ -50,6 +50,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
             try
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 
                 string filterUser = string.Concat("'CreatedBy':'", identityService.Username, "'");
                 if (filter == null || !(filter.Trim().StartsWith("{") && filter.Trim().EndsWith("}")) || filter.Replace(" ", "").Equals("{}"))
@@ -94,11 +95,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
         }
 
         [HttpPut("dpp-vat-bank-expenditures/is-paid")]
-        public IActionResult UpdateIsPaidDPPVATBankExpenditures([FromQuery] bool dppVATIsPaid, [FromQuery] string internalNoteIds = "[]", [FromQuery] string invoiceNoteIds = "[]")
+        public IActionResult UpdateIsPaidDPPVATBankExpenditures([FromQuery] bool dppVATIsPaid, [FromQuery] int bankExpenditureNoteId, [FromQuery] string bankExpenditureNoteNo, [FromQuery] string internalNoteIds = "[]", [FromQuery] string invoiceNoteIds = "[]")
         {
             try
             {
-                var result = facade.BankExpenditureUpdateIsPaidInternalNoteAndInvoiceNote(dppVATIsPaid, internalNoteIds, invoiceNoteIds);
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
+
+                var result = facade.BankExpenditureUpdateIsPaidInternalNoteAndInvoiceNote(dppVATIsPaid, bankExpenditureNoteId, bankExpenditureNoteNo, internalNoteIds, invoiceNoteIds);
 
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
@@ -288,6 +292,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
             try
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
+
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
                 IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
 
@@ -323,6 +330,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
         {
             try
             {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
+
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
                 IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
@@ -375,6 +385,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
         {
             try
             {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
+
                 var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
 
                 GarmentInternNote model = facade.ReadById(id);
@@ -431,14 +444,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
         }
         #region Monitoring
         [HttpGet("monitoring")]
-        public IActionResult GetReportIN(DateTime? dateFrom, DateTime? dateTo, string no, string supplierCode, string curencyCode, string invoiceNo, string doNo, string billNo, string paymentBill, int page = 1, int size = 25, string Order = "{}")
+        public IActionResult GetReportIN(DateTime? dateFrom, DateTime? dateTo, string no, string supplierCode, string curencyCode, string invoiceNo, string npn, string doNo, string billNo, string paymentBill, int page = 1, int size = 25, string Order = "{}")
         {
             try
             {
                 int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
                 string accept = Request.Headers["Accept"];
 
-                var data = facade.GetReport(no, supplierCode, curencyCode, invoiceNo, doNo, billNo, paymentBill, dateFrom, dateTo, page, size, Order, offset);
+                var data = facade.GetReport(no, supplierCode, curencyCode, invoiceNo, npn, doNo, billNo, paymentBill, dateFrom, dateTo, page, size, Order, offset);
 
                 return Ok(new
                 {
@@ -458,7 +471,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
             }
         }
         [HttpGet("monitoring/download")]
-        public IActionResult GetXlsDO2(DateTime? dateFrom, DateTime? dateTo, string no, string supplierCode, string curencyCode, string invoiceNo, string doNo, string billNo, string paymentBill)
+        public IActionResult GetXlsDO2(DateTime? dateFrom, DateTime? dateTo, string no, string supplierCode, string curencyCode, string invoiceNo, string npn, string doNo, string billNo, string paymentBill)
         {
             //Console.WriteLine("sampai sini");
             try
@@ -469,7 +482,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                 DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : Convert.ToDateTime(dateFrom);
                 DateTime DateTo = dateTo == null ? DateTime.Now : Convert.ToDateTime(dateTo);
 
-                var xls = facade.GenerateExcelIn(no, supplierCode, curencyCode, invoiceNo, doNo, billNo, paymentBill, dateFrom, dateTo, offset);
+                var xls = facade.GenerateExcelIn(no, supplierCode, curencyCode, invoiceNo, npn, doNo, billNo, paymentBill, dateFrom, dateTo, offset);
                 string filename = String.Format("Nota Intern - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
 
                 xlsInBytes = xls.ToArray();
