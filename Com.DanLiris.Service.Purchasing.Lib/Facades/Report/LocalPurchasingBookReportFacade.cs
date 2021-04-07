@@ -162,6 +162,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 if (unit != null)
                 {
                     accountingUnit = accountingUnits.FirstOrDefault(element => element.Id == unit.AccountingUnitId);
+                    if (accountingUnit == null)
+                        accountingUnit = new AccountingUnit();
                 }
 
                 int.TryParse(item.CategoryId, out var categoryId);
@@ -170,6 +172,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 if (category != null)
                 {
                     accountingCategory = accountingCategories.FirstOrDefault(element => element.Id == category.AccountingCategoryId);
+                    if (accountingCategory == null)
+                        accountingCategory = new AccountingCategory();
                 }
 
                 decimal dpp = 0;
@@ -201,7 +205,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 if (item.IncomeTaxBy == "Supplier")
                 {
                     total = (dpp + ppn - incomeTax) * (decimal)currencyRate;
-                } else
+                }
+                else
                 {
                     total = (dpp + ppn) * (decimal)currencyRate;
                 }
@@ -416,7 +421,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             return reportResult;
         }
 
-        public async Task<LocalPurchasingBookReportViewModel> GetReportData(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas)
+        public async Task<LocalPurchasingBookReportViewModel> GetReportData(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas, int divisionId)
         {
             var d1 = dateFrom.GetValueOrDefault().ToUniversalTime();
             var d2 = (dateTo.HasValue ? dateTo.Value : DateTime.Now).ToUniversalTime();
@@ -453,6 +458,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             urnWithItem.UnitReceiptNote.UnitCode,
                             urnWithItem.UnitReceiptNote.UnitName,
                             urnWithItem.UnitReceiptNote.UnitId,
+                            urnWithItem.UnitReceiptNote.DivisionId,
                             urnWithItem.EPODetailId,
                             urnWithItem.PricePerDealUnit,
                             urnWithItem.ReceiptQuantity,
@@ -490,6 +496,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             {
                 query = query.Where(urn => urn.CurrencyCode == IDRCurrencyCode);
             }
+
+            if (divisionId > 0)
+                query = query.Where(urn => urn.DivisionId == divisionId.ToString());
 
             if (!string.IsNullOrWhiteSpace(no))
                 query = query.Where(urn => urn.URNNo == no);
@@ -539,6 +548,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 if (unit != null)
                 {
                     accountingUnit = accountingUnits.FirstOrDefault(element => element.Id == unit.AccountingUnitId);
+                    if (accountingUnit == null)
+                        accountingUnit = new AccountingUnit();
                 }
 
                 int.TryParse(item.CategoryId, out var categoryId);
@@ -547,6 +558,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 if (category != null)
                 {
                     accountingCategory = accountingCategories.FirstOrDefault(element => element.Id == category.AccountingCategoryId);
+                    if (accountingCategory == null)
+                        accountingCategory = new AccountingCategory();
                 }
 
                 decimal dpp = 0;
@@ -798,15 +811,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             return reportResult;
         }
 
-        public Task<LocalPurchasingBookReportViewModel> GetReport(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas)
+        public Task<LocalPurchasingBookReportViewModel> GetReport(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas, int divisionId)
         {
-            return GetReportData(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, isValas);
+            return GetReportData(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, isValas, divisionId);
         }
 
-        public Task<LocalPurchasingBookReportViewModel> GetReport(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo, bool isValas)
-        {
-            return GetReportData(no, unit, category, dateFrom, dateTo, isValas);
-        }
+        //public Task<LocalPurchasingBookReportViewModel> GetReport(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo, bool isValas)
+        //{
+        //    return GetReportData(no, unit, category, dateFrom, dateTo, isValas);
+        //}
 
         private DataTable GetFormatReportExcel(bool isValas)
         {
@@ -841,87 +854,88 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             {
                 dt.Columns.Add(new DataColumn() { ColumnName = "DPP", DataType = typeof(decimal) });
                 dt.Columns.Add(new DataColumn() { ColumnName = "PPN", DataType = typeof(decimal) });
+                dt.Columns.Add(new DataColumn() { ColumnName = "PPH", DataType = typeof(decimal) });
                 dt.Columns.Add(new DataColumn() { ColumnName = "Total", DataType = typeof(decimal) });
             }
 
             return dt;
         }
 
-        public async Task<MemoryStream> GenerateExcel(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo, bool isValas)
+        //public async Task<MemoryStream> GenerateExcel(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo, bool isValas)
+        //{
+        //    var result = await GetReport(no, unit, category, dateFrom, dateTo, isValas);
+        //    //var Data = reportResult.Reports;
+        //    var reportDataTable = GetFormatReportExcel(isValas);
+        //    //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(string) });
+        //    //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(string) });
+        //    //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Keterangan", DataType = typeof(string) });
+        //    //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No PO", DataType = typeof(string) });
+        //    //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No Surat Jalan", DataType = typeof(string) });
+        //    //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No Bon Penerimaan", DataType = typeof(string) });
+        //    //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No Invoice", DataType = typeof(string) });
+        //    //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No Faktur Pajak", DataType = typeof(string) });
+        //    //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No SPB/NI", DataType = typeof(string) });
+        //    //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Kategori", DataType = typeof(string) });
+        //    //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(string) });
+        //    //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "DPP", DataType = typeof(decimal) });
+        //    //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "DPP Valas", DataType = typeof(decimal) });
+        //    //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "PPN", DataType = typeof(decimal) });
+        //    //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Total", DataType = typeof(decimal) });
+
+        //    var categoryDataTable = new DataTable();
+        //    categoryDataTable.Columns.Add(new DataColumn() { ColumnName = "Kategori", DataType = typeof(string) });
+        //    categoryDataTable.Columns.Add(new DataColumn() { ColumnName = "Total (IDR)", DataType = typeof(decimal) });
+
+        //    var currencyDataTable = new DataTable();
+        //    currencyDataTable.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
+        //    currencyDataTable.Columns.Add(new DataColumn() { ColumnName = "Total", DataType = typeof(decimal) });
+
+        //    if (result.Reports.Count > 0)
+        //    {
+        //        foreach (var report in result.Reports)
+        //        {
+        //            if (isValas)
+        //            {
+        //                reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CategoryCode + " - " + report.CategoryName, report.UnitName, report.Quantity, report.Uom, report.CurrencyCode, report.CurrencyRate, report.DPP, report.DPPCurrency, report.VAT * report.CurrencyRate, report.IncomeTax * report.CurrencyRate, report.Total);
+        //            }
+        //            else
+        //            {
+        //                reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CategoryCode + " - " + report.CategoryName, report.UnitName, report.Quantity, report.Uom, report.CurrencyCode, report.DPP, report.VAT, report.Total);
+        //            }
+        //        }
+        //        foreach (var categorySummary in result.CategorySummaries)
+        //            categoryDataTable.Rows.Add(categorySummary.Category, categorySummary.SubTotal);
+
+        //        foreach (var currencySummary in result.CurrencySummaries)
+        //            currencyDataTable.Rows.Add(currencySummary.CurrencyCode, currencySummary.SubTotal);
+        //    }
+
+        //    using (var package = new ExcelPackage())
+        //    {
+        //        var company = "PT DAN LIRIS";
+        //        var title = "BUKU PEMBELIAN LOKAL";
+        //        if (isValas)
+        //            title = "BUKU PEMBELIAN LOKAL VALAS";
+        //        var period = $"Dari {dateFrom.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):dd/MM/yyyy} Sampai {dateTo.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):dd/MM/yyyy}";
+
+        //        var worksheet = package.Workbook.Worksheets.Add("Sheet 1");
+        //        worksheet.Cells["A1"].Value = company;
+        //        worksheet.Cells["A2"].Value = title;
+        //        worksheet.Cells["A3"].Value = period;
+        //        worksheet.Cells["A4"].LoadFromDataTable(reportDataTable, true);
+        //        worksheet.Cells[$"A{4 + 3 + result.Reports.Count}"].LoadFromDataTable(categoryDataTable, true);
+        //        worksheet.Cells[$"A{4 + result.Reports.Count + 3 + result.CategorySummaries.Count + 3}"].LoadFromDataTable(currencyDataTable, true);
+
+        //        var stream = new MemoryStream();
+        //        package.SaveAs(stream);
+
+        //        return stream;
+        //    }
+        //}
+
+        public async Task<MemoryStream> GenerateExcel(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas, int divisionId)
         {
-            var result = await GetReport(no, unit, category, dateFrom, dateTo, isValas);
-            //var Data = reportResult.Reports;
-            var reportDataTable = GetFormatReportExcel(isValas);
-            //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(string) });
-            //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(string) });
-            //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Keterangan", DataType = typeof(string) });
-            //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No PO", DataType = typeof(string) });
-            //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No Surat Jalan", DataType = typeof(string) });
-            //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No Bon Penerimaan", DataType = typeof(string) });
-            //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No Invoice", DataType = typeof(string) });
-            //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No Faktur Pajak", DataType = typeof(string) });
-            //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "No SPB/NI", DataType = typeof(string) });
-            //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Kategori", DataType = typeof(string) });
-            //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(string) });
-            //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "DPP", DataType = typeof(decimal) });
-            //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "DPP Valas", DataType = typeof(decimal) });
-            //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "PPN", DataType = typeof(decimal) });
-            //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Total", DataType = typeof(decimal) });
-
-            var categoryDataTable = new DataTable();
-            categoryDataTable.Columns.Add(new DataColumn() { ColumnName = "Kategori", DataType = typeof(string) });
-            categoryDataTable.Columns.Add(new DataColumn() { ColumnName = "Total (IDR)", DataType = typeof(decimal) });
-
-            var currencyDataTable = new DataTable();
-            currencyDataTable.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(string) });
-            currencyDataTable.Columns.Add(new DataColumn() { ColumnName = "Total", DataType = typeof(decimal) });
-
-            if (result.Reports.Count > 0)
-            {
-                foreach (var report in result.Reports)
-                {
-                    if (isValas)
-                    {
-                        reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CategoryCode + " - " + report.CategoryName, report.UnitName, report.Quantity, report.Uom, report.CurrencyCode, report.CurrencyRate, report.DPP, report.DPPCurrency, report.VAT * report.CurrencyRate, report.IncomeTax * report.CurrencyRate, report.Total);
-                    }
-                    else
-                    {
-                        reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CategoryCode + " - " + report.CategoryName, report.UnitName, report.Quantity, report.Uom, report.CurrencyCode, report.DPP, report.VAT, report.Total);
-                    }
-                }
-                foreach (var categorySummary in result.CategorySummaries)
-                    categoryDataTable.Rows.Add(categorySummary.Category, categorySummary.SubTotal);
-
-                foreach (var currencySummary in result.CurrencySummaries)
-                    currencyDataTable.Rows.Add(currencySummary.CurrencyCode, currencySummary.SubTotal);
-            }
-
-            using (var package = new ExcelPackage())
-            {
-                var company = "PT DAN LIRIS";
-                var title = "BUKU PEMBELIAN LOKAL";
-                if (isValas)
-                    title = "BUKU PEMBELIAN LOKAL VALAS";
-                var period = $"Dari {dateFrom.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):dd/MM/yyyy} Sampai {dateTo.GetValueOrDefault().AddHours(_identityService.TimezoneOffset):dd/MM/yyyy}";
-
-                var worksheet = package.Workbook.Worksheets.Add("Sheet 1");
-                worksheet.Cells["A1"].Value = company;
-                worksheet.Cells["A2"].Value = title;
-                worksheet.Cells["A3"].Value = period;
-                worksheet.Cells["A4"].LoadFromDataTable(reportDataTable, true);
-                worksheet.Cells[$"A{4 + 3 + result.Reports.Count}"].LoadFromDataTable(categoryDataTable, true);
-                worksheet.Cells[$"A{4 + result.Reports.Count + 3 + result.CategorySummaries.Count + 3}"].LoadFromDataTable(currencyDataTable, true);
-
-                var stream = new MemoryStream();
-                package.SaveAs(stream);
-
-                return stream;
-            }
-        }
-
-        public async Task<MemoryStream> GenerateExcel(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas)
-        {
-            var result = await GetReport(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, isValas);
+            var result = await GetReport(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, isValas, divisionId);
             //var Data = reportResult.Reports;
             var reportDataTable = GetFormatReportExcel(isValas);
             //reportDataTable.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(string) });
@@ -958,7 +972,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     }
                     else
                     {
-                        reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.AccountingCategoryName, report.CategoryName, report.AccountingUnitName, report.UnitName, report.Quantity, report.Uom, report.CurrencyCode, report.DPP, report.VAT, report.Total);
+                        reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.AccountingCategoryName, report.CategoryName, report.AccountingUnitName, report.UnitName, report.Quantity, report.Uom, report.CurrencyCode, report.DPP, report.VAT, report.IncomeTax, report.Total);
                     }
                 }
                 foreach (var categorySummary in result.CategorySummaries)
@@ -980,9 +994,75 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 worksheet.Cells["A1"].Value = company;
                 worksheet.Cells["A2"].Value = title;
                 worksheet.Cells["A3"].Value = period;
-                worksheet.Cells["A4"].LoadFromDataTable(reportDataTable, true);
-                worksheet.Cells[$"A{4 + 3 + result.Reports.Count}"].LoadFromDataTable(categoryDataTable, true);
-                worksheet.Cells[$"A{4 + result.Reports.Count + 3 + result.CategorySummaries.Count + 3}"].LoadFromDataTable(currencyDataTable, true);
+                #region PrintHeader
+                var rowStartHeader = 4;
+                var colStartHeader = 1;
+
+                foreach (var columns in reportDataTable.Columns)
+                {
+                    DataColumn column = (DataColumn)columns;
+                    if (column.ColumnName == "DPP Valas")
+                    {
+                        var rowStartHeaderSpan = rowStartHeader + 1;
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Value = column.ColumnName;
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Style.Font.Bold = true;
+
+                        worksheet.Cells[rowStartHeader, colStartHeader].Value = "Pembelian";
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 3].Merge = true;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 3].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 3].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 3].Style.Font.Bold = true;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 3].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin) ;
+                    }
+                    else if(column.ColumnName == "DPP" && !isValas)
+                    {
+                        var rowStartHeaderSpan = rowStartHeader + 1;
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Value = column.ColumnName;
+                        worksheet.Cells[rowStartHeader, colStartHeader].Value = "Pembelian";
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 2].Merge = true;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 2].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 2].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 2].Style.Font.Bold = true;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 2].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+
+                    }
+                    else if (column.ColumnName == "DPP (IDR)" || column.ColumnName == "PPN (IDR)" || column.ColumnName == "PPH (IDR)" || column.ColumnName == "PPN"|| column.ColumnName == "PPH")
+                    {
+                        var rowStartHeaderSpan = rowStartHeader + 1;
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Value = column.ColumnName;
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Style.Font.Bold = true;
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+
+                    }
+                    else
+                    {
+                        worksheet.Cells[rowStartHeader, colStartHeader].Value = column.ColumnName;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader + 1, colStartHeader].Merge = true;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader + 1, colStartHeader].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader + 1, colStartHeader].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader + 1, colStartHeader].Style.Font.Bold = true;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader + 1, colStartHeader].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+
+
+
+                    }
+                    colStartHeader += 1;
+                }
+                #endregion
+                //worksheet.Cells["A6"].LoadFromDataTable(reportDataTable, false,OfficeOpenXml.Table.TableStyles.Light18);
+                worksheet.Cells["A6"].LoadFromDataTable(reportDataTable, false);
+                for(int i=6; i< result.Reports.Count+6; i++)
+                {
+                    for (int j=1 ; j <= reportDataTable.Columns.Count; j++){
+                        worksheet.Cells[i, j].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                    }
+                }
+                //worksheet.Cells[4, 1, 6 + result.Reports.Count, reportDataTable.Columns.Count].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                worksheet.Cells[$"A{6 + 3 + result.Reports.Count}"].LoadFromDataTable(categoryDataTable, true, OfficeOpenXml.Table.TableStyles.Light18);
+                worksheet.Cells[$"A{6 + result.Reports.Count + 3 + result.CategorySummaries.Count + 3}"].LoadFromDataTable(currencyDataTable, true, OfficeOpenXml.Table.TableStyles.Light18);
 
                 var stream = new MemoryStream();
                 package.SaveAs(stream);
@@ -993,11 +1073,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
     }
 
-        public interface ILocalPurchasingBookReportFacade
+    public interface ILocalPurchasingBookReportFacade
     {
-        Task<LocalPurchasingBookReportViewModel> GetReport(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo, bool isValas);
-        Task<LocalPurchasingBookReportViewModel> GetReport(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas);
-        Task<MemoryStream> GenerateExcel(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo, bool isValas);
-        Task<MemoryStream> GenerateExcel(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas);
+        //Task<LocalPurchasingBookReportViewModel> GetReport(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo, bool isValas);
+        Task<LocalPurchasingBookReportViewModel> GetReport(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas, int divisionId);
+        //Task<MemoryStream> GenerateExcel(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo, bool isValas);
+        Task<MemoryStream> GenerateExcel(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas, int divisionId);
     }
 }

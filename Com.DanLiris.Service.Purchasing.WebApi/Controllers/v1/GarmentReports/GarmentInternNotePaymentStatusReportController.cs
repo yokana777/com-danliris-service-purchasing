@@ -21,12 +21,20 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
         private readonly IMapper mapper;
         private readonly IGarmenInternNotePaymentStatusFacade _facade;
         private readonly IServiceProvider serviceProvider;
-        private readonly IdentityService identityService;
+        private IdentityService IdentityService;
 
-        public GarmentInternNotePaymentStatusReportController(IGarmenInternNotePaymentStatusFacade facade, IServiceProvider serviceProvider)
+        public GarmentInternNotePaymentStatusReportController(IdentityService identityService, IGarmenInternNotePaymentStatusFacade facade, IServiceProvider serviceProvider)
         {
             this._facade = facade;
             this.serviceProvider = serviceProvider;
+            IdentityService = identityService;
+        }
+
+        protected void VerifyUser()
+        {
+            IdentityService.Username = User.Claims.ToArray().SingleOrDefault(p => p.Type.Equals("username")).Value;
+            IdentityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
+            IdentityService.TimezoneOffset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
         }
 
         [HttpGet]
@@ -34,6 +42,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
         {
             try
             {
+                VerifyUser();
+
                 int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
                 string accept = Request.Headers["Accept"];
 
@@ -61,6 +71,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
         {
             try
             {
+                VerifyUser();
                 byte[] xlsInBytes;
                 int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
                 var xls = _facade.GetXLs(inno, invono, dono, billno, paymentbill, npn, nph, corrno, supplier, dateNIFrom, dateNITo, dueDateFrom, dueDateTo, status, offset);

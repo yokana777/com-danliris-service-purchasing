@@ -67,6 +67,17 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFa
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSupplierBalanceDebtFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.UnpaidDispositionReportFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.ExcelGenerator;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfGenerator;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpedition;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookReport;
+using Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchaseFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPaymentReport;
+using Microsoft.ApplicationInsights.AspNetCore;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -78,6 +89,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
 
         public IConfiguration Configuration { get; }
 
+        public bool HasAppInsight => !string.IsNullOrEmpty(Configuration.GetValue<string>("APPINSIGHTS_INSTRUMENTATIONKEY") ?? Configuration.GetValue<string>("ApplicationInsights:InstrumentationKey"));
 
         public Startup(IConfiguration configuration)
         {
@@ -166,6 +178,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IUnitPaymentOrderExpeditionReportService, UnitPaymentOrderExpeditionReportService>()
                 .AddTransient<ILocalPurchasingBookReportFacade, LocalPurchasingBookReportFacade>()
                 .AddTransient<IImportPurchasingBookReportFacade, ImportPurchasingBookReportFacade>()
+                .AddTransient<IDetailCreditBalanceReportFacade, DetailCreditBalanceReportFacade>()
                 .AddTransient<ICurrencyProvider, CurrencyProvider>()
                 .AddTransient<IPurchaseMonitoringService, PurchaseMonitoringService>()
                 .AddTransient<IGarmentPurchasingBookReportFacade, GarmentPurchasingBookReportFacade>()
@@ -184,7 +197,21 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IBalanceDebtFacade, GarmentSupplierBalanceDebtFacade>()
                 .AddTransient<IDebtCardReportFacade, DebtCardReportFacade>()
                 .AddTransient<IVBRequestPOExternalService, VBRequestPOExternalService>()
-                .AddTransient<IGarmentStockOpnameFacade, GarmentStockOpnameFacade>();
+                .AddTransient<IDebtAndDispositionSummaryService, DebtAndDispositionSummaryService>()
+                .AddTransient<IGarmentStockOpnameFacade, GarmentStockOpnameFacade>()
+                .AddTransient<IBudgetCashflowService, BudgetCashflowService>()
+                .AddTransient<IBudgetCashflowUnitPdf, BudgetCashflowUnitPdf>()
+                .AddTransient<IBudgetCashflowDivisionPdf, BudgetCashflowDivisionPdf>()
+                .AddTransient<IBudgetCashflowUnitExcelGenerator, BudgetCashflowUnitExcelGenerator>()
+                .AddTransient<IBudgetCashflowDivisionExcelGenerator, BudgetCashflowDivisionExcelGenerator>()
+                .AddTransient<IGarmentPurchasingExpeditionService, GarmentPurchasingExpeditionService>()
+                .AddTransient<IUnpaidDispositionReportDetailFacade, UnpaidDispositionReportDetailFacade>()
+                .AddTransient<IGarmentPurchasingBookReportService, GarmentPurchasingBookReportService>()
+                .AddTransient<IGarmentDebtBalanceService, GarmentDebtBalanceService>()
+                .AddTransient<IGarmentDispositionPurchaseFacade, GarmentDispositionPurchaseFacade>()
+                .AddTransient<IGarmentDispositionPaymentReportService, GarmentDispositionPaymentReportService>()
+                .AddTransient<IROFeatureFacade, ROFeatureFacade>()
+                .AddTransient<IGarmentBC23ReportFacade, GarmentBC23ReportFacade>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)
@@ -243,6 +270,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             RegisterClassMap();
             MongoDbContext.connectionString = Configuration.GetConnectionString(Constant.MONGODB_CONNECTION) ?? Configuration[Constant.MONGODB_CONNECTION];
 
+            services.AddDistributedRedisCache(options =>
+            {
+                options.Configuration = Configuration.GetValue<string>("RedisConnection") ?? Configuration["RedisConnection"];
+                options.InstanceName = Configuration.GetValue<string>("RedisConnectionName") ?? Configuration["RedisConnectionName"];
+            });
 
             /* Versioning */
             services.AddApiVersioning(options => { options.DefaultApiVersion = new ApiVersion(1, 0); });
@@ -292,6 +324,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
 
                 c.CustomSchemaIds(i => i.FullName);
             });
+
+            // App Insight
+            if (HasAppInsight)
+            {
+                services.AddApplicationInsightsTelemetry();
+                services.AddAppInsightRequestBodyLogging();
+            }
+
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -302,15 +342,20 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             }
 
             /* Update Database */
-            using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            {
-                PurchasingDbContext context = serviceScope.ServiceProvider.GetService<PurchasingDbContext>();
-                
-                if (context.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
-                {
-                    context.Database.SetCommandTimeout(10 * 60 * 1000);
-                    context.Database.Migrate();
-                }
+            //using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            //{
+            //    PurchasingDbContext context = serviceScope.ServiceProvider.GetService<PurchasingDbContext>();
+
+            //    if (context.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
+            //    {
+            //        context.Database.SetCommandTimeout(10 * 60 * 1000);
+            //        context.Database.Migrate();
+            //    }
+            //}
+
+            if(HasAppInsight){
+                app.UseAppInsightRequestBodyLogging();
+                app.UseAppInsightResponseBodyLogging();
             }
 
             app.UseAuthentication();

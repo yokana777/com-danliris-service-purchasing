@@ -27,8 +27,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager.CacheData
 
     public class CategoryCOAResult
     {
-        public int _id { get; set; }
-        public string code { get; set; }
+        public int Id { get; set; }
+        public string Code { get; set; }
         public string PurchasingCOA { get; set; }
         public string StockCOA { get; set; }
         public string LocalDebtCOA { get; set; }

@@ -18,6 +18,7 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
@@ -37,7 +38,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
         private string USER_AGENT = "Facade";
         private readonly PurchasingDbContext dbContext;
         public readonly IServiceProvider serviceProvider;
-        private readonly IMemoryCacheManager _cacheManager;
+        private readonly IDistributedCache _cacheManager;
         private readonly ICurrencyProvider _currencyProvider;
         private readonly DbSet<UnitReceiptNote> dbSet;
         private readonly IEnumerable<string> SpecialCategoryCode = new List<string>()
@@ -48,16 +49,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
         public UnitReceiptNoteFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
             this.serviceProvider = serviceProvider;
-            _cacheManager = serviceProvider.GetService<IMemoryCacheManager>();
+            _cacheManager = serviceProvider.GetService<IDistributedCache>();
             _currencyProvider = serviceProvider.GetService<ICurrencyProvider>();
             this.dbContext = dbContext;
             this.dbSet = dbContext.Set<UnitReceiptNote>();
         }
 
-        private List<CategoryCOAResult> Categories => _cacheManager.Get(MemoryCacheConstant.Categories, entry => { return new List<CategoryCOAResult>(); });
-        private List<IdCOAResult> Units => _cacheManager.Get(MemoryCacheConstant.Units, entry => { return new List<IdCOAResult>(); });
-        private List<IdCOAResult> Divisions => _cacheManager.Get(MemoryCacheConstant.Divisions, entry => { return new List<IdCOAResult>(); });
-        private List<IncomeTaxCOAResult> IncomeTaxes => _cacheManager.Get(MemoryCacheConstant.IncomeTaxes, entry => { return new List<IncomeTaxCOAResult>(); });
+        //private List<CategoryCOAResult> Categories => _cacheManager.Get(MemoryCacheConstant.Categories, entry => { return new List<CategoryCOAResult>(); });
+        //private List<IdCOAResult> Units => _cacheManager.Get(MemoryCacheConstant.Units, entry => { return new List<IdCOAResult>(); });
+        //private List<IdCOAResult> Divisions => _cacheManager.Get(MemoryCacheConstant.Divisions, entry => { return new List<IdCOAResult>(); });
+        //private List<IncomeTaxCOAResult> IncomeTaxes => _cacheManager.Get(MemoryCacheConstant.IncomeTaxes, entry => { return new List<IncomeTaxCOAResult>(); });
+
+        private string _jsonCategories => _cacheManager.GetString(MemoryCacheConstant.Categories);
+        private string _jsonUnits => _cacheManager.GetString(MemoryCacheConstant.Units);
+        private string _jsonDivisions => _cacheManager.GetString(MemoryCacheConstant.Divisions);
+        private string _jsonIncomeTaxes => _cacheManager.GetString(MemoryCacheConstant.IncomeTaxes);
 
         public ReadResponse<UnitReceiptNote> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
@@ -282,7 +288,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 Currency = currencyCode,
                 CurrencyRate = currencyRate,
                 PaymentDuration = paymentDuration,
-                Products = productList
+                Products = productList,
+                model.DivisionId,
+                model.DivisionCode,
+                model.DivisionName,
+                model.UnitId,
+                model.UnitCode,
+                model.UnitName
             };
 
             string creditorAccountUri = "creditor-account/unit-receipt-note";
@@ -363,6 +375,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
         private async Task CreateJournalTransactions(UnitReceiptNote model)
         {
+            var jsonSerializerSettings = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            var divisions = JsonConvert.DeserializeObject<List<IdCOAResult>>(_jsonDivisions, jsonSerializerSettings);
+            var units = JsonConvert.DeserializeObject<List<IdCOAResult>>(_jsonUnits, jsonSerializerSettings);
+            var categories = JsonConvert.DeserializeObject<List<CategoryCOAResult>>(_jsonCategories, jsonSerializerSettings);
+            var incomeTaxes = JsonConvert.DeserializeObject<List<IncomeTaxCOAResult>>(_jsonIncomeTaxes, jsonSerializerSettings);
+
             var purchaseRequestIds = model.Items.Select(s => s.PRId).ToList();
             var purchaseRequests = dbContext.PurchaseRequests.Where(w => purchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.CategoryCode, s.CategoryId }).ToList();
 
@@ -388,7 +410,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             };
 
             int.TryParse(model.DivisionId, out var divisionId);
-            var division = Divisions.FirstOrDefault(f => f.Id.Equals(divisionId));
+            var division = divisions.FirstOrDefault(f => f.Id.Equals(divisionId));
             if (division == null)
             {
                 division = new IdCOAResult()
@@ -406,7 +428,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
 
             int.TryParse(model.UnitId, out var unitId);
-            var unit = Units.FirstOrDefault(f => f.Id.Equals(unitId));
+            var unit = units.FirstOrDefault(f => f.Id.Equals(unitId));
             if (unit == null)
             {
                 unit = new IdCOAResult()
@@ -445,7 +467,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
 
                 int.TryParse(purchaseRequest.CategoryId, out var categoryId);
-                var category = Categories.FirstOrDefault(f => f._id.Equals(categoryId));
+                var category = categories.FirstOrDefault(f => f.Id.Equals(categoryId));
                 if (category == null)
                 {
                     category = new CategoryCOAResult()
@@ -481,7 +503,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 if (externalPurchaseOrder.UseIncomeTax)
                 {
                     int.TryParse(externalPurchaseOrder.IncomeTaxId, out var incomeTaxId);
-                    var incomeTax = IncomeTaxes.FirstOrDefault(f => f.Id.Equals(incomeTaxId));
+                    var incomeTax = incomeTaxes.FirstOrDefault(f => f.Id.Equals(incomeTaxId));
 
                     if (incomeTax == null || string.IsNullOrWhiteSpace(incomeTax.COACodeCredit))
                     {
@@ -572,7 +594,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         Remark = $"- {item.ProductName}"
                     });
 
-                    if (SpecialCategoryCode.Contains(category.code))
+                    if (SpecialCategoryCode.Contains(category.Code))
                     {
                         //Stock Journal Item
                         journalDebitItems.Add(new JournalTransactionItem()
@@ -598,7 +620,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         Remark = $"- {item.ProductName}"
                     });
 
-                    if (SpecialCategoryCode.Contains(category.code))
+                    if (SpecialCategoryCode.Contains(category.Code))
                     {
                         //Purchasing Journal Item
                         journalCreditItems.Add(new JournalTransactionItem()

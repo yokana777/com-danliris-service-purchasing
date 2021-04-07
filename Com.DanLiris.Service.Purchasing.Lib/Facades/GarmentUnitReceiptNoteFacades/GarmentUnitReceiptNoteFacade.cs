@@ -30,6 +30,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFacade
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitExpenditureNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFacade;
 using OfficeOpenXml;
+using OfficeOpenXml.Style;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades
 {
@@ -1384,7 +1385,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             //        Status = new[] { "" };
             //        break;
             //}
+            var productname = (category == "SUBKON" ? "SUBKON" : "");
+            category = (category == "SUBKON" ? "BB" : category);
 
+            
             List<FlowDetailPenerimaanViewModels> Data = new List<FlowDetailPenerimaanViewModels>();
 
             var Query = (from a in dbContext.GarmentUnitReceiptNotes
@@ -1393,8 +1397,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                          join d in dbContext.GarmentDeliveryOrderDetails on b.DODetailId equals d.Id
                          join e in dbContext.GarmentExternalPurchaseOrderItems on b.EPOItemId equals e.Id
                          join f in dbContext.GarmentExternalPurchaseOrders on e.GarmentEPOId equals f.Id
-                         //join e in dbContext.GarmentDeliveryOrderItems on d.GarmentDOItemId equals e.Id
-                         //join f in dbContext.GarmentDeliveryOrders on e.GarmentDOId equals f.Id
+                         //join h in dbContext.GarmentUnitExpenditureNoteItems on b.UENItemId equals h.URNItemId
+                         join g in dbContext.GarmentUnitExpenditureNotes on a.UENId equals g.Id into uen
+                         from gg in uen.DefaultIfEmpty()
+                             //join e in dbContext.GarmentDeliveryOrderItems on d.GarmentDOItemId equals e.Id
+                             //join f in dbContext.GarmentDeliveryOrders on e.GarmentDOId equals f.Id
                          where a.IsDeleted == false
                             && b.IsDeleted == false
                             && c.IsDeleted == false
@@ -1405,6 +1412,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                             && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
                             && a.UnitCode == (string.IsNullOrWhiteSpace(unit) ? a.UnitCode : unit)
                             && d.CodeRequirment == (string.IsNullOrWhiteSpace(category) ? d.CodeRequirment : category)
+                            && d.ProductName == (string.IsNullOrWhiteSpace(productname) ? d.ProductName : productname)
 
                          //&& (category == "Bahan Baku" ? Status.Contains(b.ProductName) : (category == "Bahan Pendukung" ? Status.Contains(b.ProductName) : (category == "Bahan Embalase" ? Status.Contains(b.ProductName) : b.ProductName == b.ProductName)))
 
@@ -1419,12 +1427,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                              kdbuyer = c.BuyerCode,
                              nobukti = a.URNNo,
                              tanggal = a.CreatedUtc,
-                             jumlahbeli = a.URNType == "PEMBELIAN" ? d.DOQuantity : a.URNType == "PROSES" ? (double)b.SmallQuantity : (double)b.SmallQuantity,
-                             satuanbeli = a.URNType == "PEMBELIAN" ? d.SmallUomUnit : a.URNType == "PROSES" ? b.SmallUomUnit : b.SmallUomUnit,
-                             jumlahterima = decimal.ToDouble(b.ReceiptQuantity),
+                             jumlahbeli = a.URNType == "PEMBELIAN" ? decimal.ToDouble(b.ReceiptQuantity) : a.URNType == "PROSES" ? decimal.ToDouble(b.ReceiptQuantity) : decimal.ToDouble(b.ReceiptQuantity),
+                             satuanbeli = a.URNType == "PEMBELIAN" ? d.UomUnit : a.URNType == "PROSES" ? b.UomUnit : b.UomUnit,
+                             //jumlahterima = decimal.ToDouble(b.SmallQuantity),
+                             jumlahterima = Math.Round(decimal.ToDouble(b.ReceiptQuantity) * decimal.ToDouble(b.Conversion), 2),
                              satuanterima = b.SmallUomUnit,
-                             jumlah = b.DOCurrencyRate * decimal.ToDouble(b.PricePerDealUnit) * decimal.ToDouble(b.ReceiptQuantity),
-                             asal = a.URNType,
+                             jumlah = b.DOCurrencyRate * decimal.ToDouble(b.PricePerDealUnit) * Math.Round(decimal.ToDouble(b.ReceiptQuantity) * decimal.ToDouble(b.Conversion), 2),
+                             asal = a.URNType == "PROSES" ? a.URNType : a.URNType == "PEMBELIAN" ? "Pembelian Eksternal" : gg.UnitSenderName,
+                             Jenis = a.URNType,
                              tipepembayaran = f.PaymentMethod == "FREE FROM BUYER" || f.PaymentMethod == "CMT" || f.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL"
 
                          });
@@ -1447,6 +1457,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                            artikel = item.artikel,
                            kdbuyer = item.kdbuyer,
                            asal = item.asal,
+                           Jenis = item.Jenis,
                            nobukti = item.nobukti,
                            tanggal = item.tanggal,
                            jumlahbeli = item.jumlahbeli,
@@ -1477,20 +1488,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             }
 
 
-            Pageable<FlowDetailPenerimaanViewModels> pageable = new Pageable<FlowDetailPenerimaanViewModels>(Query, page - 1, size);
-            List<FlowDetailPenerimaanViewModels> Data = pageable.Data.ToList<FlowDetailPenerimaanViewModels>();
-            int TotalData = pageable.TotalCount;
+            //Pageable<FlowDetailPenerimaanViewModels> pageable = new Pageable<FlowDetailPenerimaanViewModels>(Query, page - 1, size);
+            //List<FlowDetailPenerimaanViewModels> Data = pageable.Data.ToList<FlowDetailPenerimaanViewModels>();
+            //int TotalData = pageable.TotalCount;
 
-            return Tuple.Create(Data, TotalData);
+            return Tuple.Create(Query.ToList(), Query.Count());
         }
 
-
-        public MemoryStream GenerateExcelLow(DateTime? dateFrom, DateTime? dateTo, string unit, string category, string categoryname, int offset, string unitname)
+        public MemoryStream GenerateExcelFlowForUnit(DateTime? dateFrom, DateTime? dateTo, string unit, string category, string categoryname, int offset, string unitname)
         {
             var Query = GetReportQueryFlow(dateFrom, dateTo, unit, category, offset, 1, int.MaxValue);
 
             DataTable result = new DataTable();
-            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "No PO", DataType = typeof(String) });
@@ -1498,22 +1508,118 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             result.Columns.Add(new DataColumn() { ColumnName = "No R/O", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Artikel", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Buyer", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "Jenis", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Asal", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor Bukti", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Beli", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Beli", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Satuan Beli", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Terima", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Terima", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Satuan Terima", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah", DataType = typeof(String) });
+
+            List<(string, Enum, Enum)> mergeCells = new List<(string, Enum, Enum)>() { };
+
+
+            double ReceiptQtyTotal = 0;
+            double PurchaseQtyTotal = 0;
+            if (Query.ToArray().Count() == 0)
+            {
+                //result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0, "", 0, ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add(0, "", "", "", "", "", "", "", "", "", "", 0, "", 0, ""); // to allow column name to be generated properly for empty data as template
+            }
+            else
+            {
+                int index = 0;
+                foreach (FlowDetailPenerimaanViewModels data in Query)
+                {
+                    index++;
+                    string tgl = data.tanggal == null ? "-" : data.tanggal.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    result.Rows.Add(index, data.kdbarang, data.nmbarang, data.nopo, data.keterangan, data.noro, data.artikel, data.kdbuyer, data.asal, data.nobukti, tgl, data.jumlahbeli, data.satuanbeli, data.jumlahterima, data.satuanterima);
+                    ReceiptQtyTotal += data.jumlahterima;
+                    PurchaseQtyTotal += data.jumlahbeli;
+                }
+
+            }
+            ExcelPackage package = new ExcelPackage();
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+            CultureInfo Id = new CultureInfo("id-ID");
+            string Month = Id.DateTimeFormat.GetMonthName(DateTo.Month);
+            var sheet = package.Workbook.Worksheets.Add("Report");
+
+            var col = (char)('A' + result.Columns.Count);
+            string tglawal = DateFrom.ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+            string tglakhir = DateTo.ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+            sheet.Cells[$"A1:{col}1"].Value = string.Format("LAPORAN FLOW PENERIMAAN {0}", categoryname);
+            sheet.Cells[$"A1:{col}1"].Merge = true;
+            sheet.Cells[$"A1:{col}1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A1:{col}1"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+            sheet.Cells[$"A1:{col}1"].Style.Font.Bold = true;
+            sheet.Cells[$"A2:{col}2"].Value = string.Format("Periode {0} - {1}", tglawal, tglakhir);
+            sheet.Cells[$"A2:{col}2"].Merge = true;
+            sheet.Cells[$"A2:{col}2"].Style.Font.Bold = true;
+            sheet.Cells[$"A2:{col}2"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A2:{col}2"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+            sheet.Cells[$"A3:{col}3"].Value = string.Format("KONFEKSI : {0}", (string.IsNullOrWhiteSpace(unitname) ? "ALL" : unitname));
+            sheet.Cells[$"A3:{col}3"].Merge = true;
+
+            sheet.Cells["A5"].LoadFromDataTable(result, true, OfficeOpenXml.Table.TableStyles.Light16);
+
+            var a = Query.Count();
+            sheet.Cells[$"A{6 + a}"].Value = "T O T A L  . . . . . . . . . . . . . . .";
+            sheet.Cells[$"A{6 + a}:K{6 + a}"].Merge = true;
+            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.Font.Bold = true;
+            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            sheet.Cells[$"L{6 + a}"].Value = PurchaseQtyTotal;
+            sheet.Cells[$"L{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"M{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"N{6 + a}"].Value = ReceiptQtyTotal;
+            sheet.Cells[$"N{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"O{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+
+            MemoryStream stream = new MemoryStream();
+            package.SaveAs(stream);
+            return stream;
+            //return Excel.CreateExcel(new List<(DataTable, string, List<(string, Enum, Enum)>)>() { (result, "Report", mergeCells) }, true);
+        }
+
+        public MemoryStream GenerateExcelLow(DateTime? dateFrom, DateTime? dateTo, string unit, string category, string categoryname, int offset, string unitname)
+        {
+            var Query = GetReportQueryFlow(dateFrom, dateTo, unit, category, offset, 1, int.MaxValue);
+
+            DataTable result = new DataTable();
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No PO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Keterangan Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No R/O", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Artikel", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Buyer", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "Jenis", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Asal", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor Bukti", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Beli", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Beli", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Terima", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Terima", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Metode Pembayaran", DataType = typeof(String) });
 
 
             List<(string, Enum, Enum)> mergeCells = new List<(string, Enum, Enum)>() { };
 
+
+            double ReceiptQtyTotal = 0;
+            double PriceReceiptTotal = 0;
+            double PurchaseQtyTotal = 0;
             if (Query.ToArray().Count() == 0)
             {
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                //result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0, "", 0, ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add(0, "", "", "", "", "", "", "", "", "", "", 0, "", 0, "", 0, ""); // to allow column name to be generated properly for empty data as template
             }
             else
             {
@@ -1523,7 +1629,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     index++;
                     string tgl = data.tanggal == null ? "-" : data.tanggal.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     result.Rows.Add(index, data.kdbarang, data.nmbarang, data.nopo, data.keterangan, data.noro, data.artikel, data.kdbuyer, data.asal, data.nobukti, tgl, data.jumlahbeli, data.satuanbeli, data.jumlahterima, data.satuanterima, data.jumlah, data.tipepembayaran);
-
+                    ReceiptQtyTotal += data.jumlahterima;
+                    PurchaseQtyTotal += data.jumlahbeli;
+                    PriceReceiptTotal += data.jumlah;
                 }
 
             }
@@ -1555,6 +1663,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
             sheet.Cells["A5"].LoadFromDataTable(result, true, OfficeOpenXml.Table.TableStyles.Light16);
 
+            var a = Query.Count();
+            sheet.Cells[$"A{6 + a}"].Value = "T O T A L  . . . . . . . . . . . . . . .";
+            sheet.Cells[$"A{6 + a}:K{6 + a}"].Merge = true;
+            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.Font.Bold = true;
+            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            sheet.Cells[$"L{6 + a}"].Value = PurchaseQtyTotal;
+            sheet.Cells[$"L{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"M{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"N{6 + a}"].Value = ReceiptQtyTotal;
+            sheet.Cells[$"N{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"O{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"P{6 + a}"].Value = PriceReceiptTotal;
+            sheet.Cells[$"P{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"Q{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+
+
             MemoryStream stream = new MemoryStream();
             package.SaveAs(stream);
             return stream;
@@ -1572,7 +1698,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             if (OrderDictionary.Count.Equals(0))
             {
-                Query = Query.OrderBy(b => b.NoBUM).ThenBy(b => b.NoPO);
+                Query = Query.OrderBy(b => b.NoBUM).ThenBy(b => b.NoPO).ThenBy(b => b.NoSuratJalan).ThenBy(b => b.UNit).ThenBy(b => b.TanggalMasuk).ThenBy(b => b.TanggalBuatBon).ThenBy(b => b.Gudang).ThenBy(b => b.Supplier).ThenBy(b => b.KodeBarang).ThenBy(b => b.NamaBarang);
             }
 
 
@@ -1587,81 +1713,137 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
-            var Query = type == "FABRIC" ? from a in dbContext.GarmentUnitReceiptNotes
-                                           join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
-                                           where a.IsDeleted == false && b.IsDeleted == false
-                                           && a.StorageName == "GUDANG BAHAN BAKU"
-                                           && a.CreatedUtc.Date >= DateFrom.Date
-                                           && a.CreatedUtc.Date <= DateTo.Date
-                                           select new GarmentUnitReceiptNoteINReportViewModel
-                                           {
-                                               NoSuratJalan = a.DONo,
-                                               NoBUM = a.URNNo,
-                                               UNit = a.UnitName,
-                                               TanggalMasuk = a.ReceiptDate,
-                                               TanggalBuatBon = a.CreatedUtc,
-                                               Gudang = a.StorageName,
-                                               AsalTerima = a.URNType,
-                                               NoPO = b.POSerialNumber,
-                                               Keterangan = b.ProductRemark,
-                                               NoRO = b.RONo,
-                                               JumlahDiterima = Convert.ToDouble(b.ReceiptQuantity),
-                                               Satuan = b.UomUnit,
-                                               JumlahKecil = Convert.ToDouble(b.SmallQuantity),
-                                               NamaBarang = b.ProductName,
-                                               KodeBarang = b.ProductCode,
-                                               Supplier = a.SupplierName
-                                           }
-                        : type == "NON FABRIC" ? from a in dbContext.GarmentUnitReceiptNotes
-                                                 join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
-                                                 where a.IsDeleted == false && b.IsDeleted == false
-                                                 && a.StorageName != "GUDANG BAHAN BAKU"
-                                                 && a.CreatedUtc.Date >= DateFrom.Date
-                                                 && a.CreatedUtc.Date <= DateTo.Date
-                                                 select new GarmentUnitReceiptNoteINReportViewModel
-                                                 {
-                                                     NoSuratJalan = a.DONo,
-                                                     NoBUM = a.URNNo,
-                                                     UNit = a.UnitName,
-                                                     TanggalMasuk = a.ReceiptDate,
-                                                     TanggalBuatBon = a.CreatedUtc,
-                                                     Gudang = a.StorageName,
-                                                     AsalTerima = a.URNType,
-                                                     NoPO = b.POSerialNumber,
-                                                     Keterangan = b.ProductRemark,
-                                                     NoRO = b.RONo,
-                                                     JumlahDiterima = Convert.ToDouble(b.ReceiptQuantity),
-                                                     Satuan = b.UomUnit,
-                                                     JumlahKecil = Convert.ToDouble(b.SmallQuantity),
-                                                     NamaBarang = b.ProductName,
-                                                     KodeBarang = b.ProductCode,
-                                                     Supplier = a.SupplierName
-                                                 }
-                                                 : from a in dbContext.GarmentUnitReceiptNotes
-                                                   join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
-                                                   where a.IsDeleted == false && b.IsDeleted == false
-                                                   && a.StorageName == a.StorageName
-                                                   && a.CreatedUtc.Date >= DateFrom.Date
-                                                   && a.CreatedUtc.Date <= DateTo.Date
-                                                   select new GarmentUnitReceiptNoteINReportViewModel
-                                                   {
-                                                       NoSuratJalan = a.DONo,
-                                                       NoBUM = a.URNNo,
-                                                       UNit = a.UnitName,
-                                                       TanggalMasuk = a.ReceiptDate,
-                                                       TanggalBuatBon = a.CreatedUtc,
-                                                       Gudang = a.StorageName,
-                                                       AsalTerima = a.URNType,
-                                                       NoPO = b.POSerialNumber,
-                                                       Keterangan = b.ProductRemark,
-                                                       NoRO = b.RONo,
-                                                       JumlahDiterima = Convert.ToDouble(b.ReceiptQuantity),
-                                                       Satuan = b.UomUnit,
-                                                       JumlahKecil = Convert.ToDouble(b.SmallQuantity),
-                                                       NamaBarang = b.ProductName,
-                                                       KodeBarang = b.ProductCode,
-                                                       Supplier = a.SupplierName
-                                                   };
+            var coderequirement = new[] { "BP", "BE" };  
+            var Data1 = from a in dbContext.GarmentUnitReceiptNotes
+                        join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+                        where a.IsDeleted == false && b.IsDeleted == false
+                        && (type == "FABRIC" ? b.ProductName == "FABRIC" : type == "NON FABRIC" ? b.ProductName != "FABRIC" : b.ProductName == b.ProductName)
+                        && b.ProductName != "PROCESS"
+                        && a.CreatedUtc.Date >= DateFrom.Date
+                        && a.CreatedUtc.Date <= DateTo.Date
+                        && a.UId == null
+                        select new GarmentUnitReceiptNoteINReportViewModel
+                        {
+                            NoSuratJalan = a.DONo,
+                            NoBUM = a.URNNo,
+                            UNit = a.UnitName,
+                            TanggalMasuk = a.ReceiptDate,
+                            TanggalBuatBon = a.CreatedUtc,
+                            Gudang = a.StorageName,
+                            AsalTerima = a.URNType,
+                            NoPO = b.POSerialNumber,
+                            Keterangan = b.ProductRemark,
+                            NoRO = b.RONo,
+                            JumlahDiterima = Convert.ToDouble(b.ReceiptQuantity),
+                            Satuan = b.UomUnit,
+                            JumlahKecil = Convert.ToDouble(b.SmallQuantity),
+                            NamaBarang = b.ProductName,
+                            KodeBarang = b.ProductCode,
+                            Supplier = a.SupplierName
+                        };
+            var Data2 = from a in dbContext.GarmentUnitReceiptNotes
+                        join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+                        where a.IsDeleted == false && b.IsDeleted == false
+                        && (type == "FABRIC" ? b.ProductName == "FABRIC" : type == "NON FABRIC" ? b.ProductName != "FABRIC" : b.ProductName == b.ProductName)
+                        && b.ProductName != "PROCESS"
+                        && a.LastModifiedUtc.Date >= DateFrom.Date
+                        && a.LastModifiedUtc.Date <= DateTo.Date
+                        && a.UId != null
+                        select new GarmentUnitReceiptNoteINReportViewModel
+                        {
+                            NoSuratJalan = a.DONo,
+                            NoBUM = a.URNNo,
+                            UNit = a.UnitName,
+                            TanggalMasuk = a.ReceiptDate,
+                            TanggalBuatBon = a.CreatedUtc,
+                            Gudang = a.StorageName,
+                            AsalTerima = a.URNType,
+                            NoPO = b.POSerialNumber,
+                            Keterangan = b.ProductRemark,
+                            NoRO = b.RONo,
+                            JumlahDiterima = Convert.ToDouble(b.ReceiptQuantity),
+                            Satuan = b.UomUnit,
+                            JumlahKecil = Convert.ToDouble(b.SmallQuantity),
+                            NamaBarang = b.ProductName,
+                            KodeBarang = b.ProductCode,
+                            Supplier = a.SupplierName
+                        };
+            var Query = Data1.Union(Data2);
+            //var Query = type == "FABRIC" ? from a in dbContext.GarmentUnitReceiptNotes
+            //                               join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+            //                               where a.IsDeleted == false && b.IsDeleted == false
+            //                               && a.StorageName == "GUDANG BAHAN BAKU"
+            //                               && a.LastModifiedUtc.Date >= DateFrom.Date
+            //                               && a.LastModifiedUtc.Date <= DateTo.Date
+            //                               select new GarmentUnitReceiptNoteINReportViewModel
+            //                               {
+            //                                   NoSuratJalan = a.DONo,
+            //                                   NoBUM = a.URNNo,
+            //                                   UNit = a.UnitName,
+            //                                   TanggalMasuk = a.ReceiptDate,
+            //                                   TanggalBuatBon = a.CreatedUtc,
+            //                                   Gudang = a.StorageName,
+            //                                   AsalTerima = a.URNType,
+            //                                   NoPO = b.POSerialNumber,
+            //                                   Keterangan = b.ProductRemark,
+            //                                   NoRO = b.RONo,
+            //                                   JumlahDiterima = Convert.ToDouble(b.ReceiptQuantity),
+            //                                   Satuan = b.UomUnit,
+            //                                   JumlahKecil = Convert.ToDouble(b.SmallQuantity),
+            //                                   NamaBarang = b.ProductName,
+            //                                   KodeBarang = b.ProductCode,
+            //                                   Supplier = a.SupplierName
+            //                               }
+            //            : type == "NON FABRIC" ? from a in dbContext.GarmentUnitReceiptNotes
+            //                                     join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+            //                                     where a.IsDeleted == false && b.IsDeleted == false
+            //                                     && a.StorageName != "GUDANG BAHAN BAKU"
+            //                                     && a.LastModifiedUtc.Date >= DateFrom.Date
+            //                                     && a.LastModifiedUtc.Date <= DateTo.Date
+            //                                     select new GarmentUnitReceiptNoteINReportViewModel
+            //                                     {
+            //                                         NoSuratJalan = a.DONo,
+            //                                         NoBUM = a.URNNo,
+            //                                         UNit = a.UnitName,
+            //                                         TanggalMasuk = a.ReceiptDate,
+            //                                         TanggalBuatBon = a.CreatedUtc,
+            //                                         Gudang = a.StorageName,
+            //                                         AsalTerima = a.URNType,
+            //                                         NoPO = b.POSerialNumber,
+            //                                         Keterangan = b.ProductRemark,
+            //                                         NoRO = b.RONo,
+            //                                         JumlahDiterima = Convert.ToDouble(b.ReceiptQuantity),
+            //                                         Satuan = b.UomUnit,
+            //                                         JumlahKecil = Convert.ToDouble(b.SmallQuantity),
+            //                                         NamaBarang = b.ProductName,
+            //                                         KodeBarang = b.ProductCode,
+            //                                         Supplier = a.SupplierName
+            //                                     }
+            //                                     : from a in dbContext.GarmentUnitReceiptNotes
+            //                                       join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+            //                                       where a.IsDeleted == false && b.IsDeleted == false
+            //                                       && a.StorageName == a.StorageName
+            //                                       && a.LastModifiedUtc.Date >= DateFrom.Date
+            //                                       && a.LastModifiedUtc.Date <= DateTo.Date
+            //                                       select new GarmentUnitReceiptNoteINReportViewModel
+            //                                       {
+            //                                           NoSuratJalan = a.DONo,
+            //                                           NoBUM = a.URNNo,
+            //                                           UNit = a.UnitName,
+            //                                           TanggalMasuk = a.ReceiptDate,
+            //                                           TanggalBuatBon = a.CreatedUtc,
+            //                                           Gudang = a.StorageName,
+            //                                           AsalTerima = a.URNType,
+            //                                           NoPO = b.POSerialNumber,
+            //                                           Keterangan = b.ProductRemark,
+            //                                           NoRO = b.RONo,
+            //                                           JumlahDiterima = Convert.ToDouble(b.ReceiptQuantity),
+            //                                           Satuan = b.UomUnit,
+            //                                           JumlahKecil = Convert.ToDouble(b.SmallQuantity),
+            //                                           NamaBarang = b.ProductName,
+            //                                           KodeBarang = b.ProductCode,
+            //                                           Supplier = a.SupplierName
+            //                                       };
             return Query.AsQueryable();
 
         }

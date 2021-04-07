@@ -58,7 +58,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                    p.IncomeTaxRate == incomeTaxRate &&
                    p.Currency == currency &&
                    p.IncomeTaxRate != 0 &&
-                   p.IsPaidPPH == false && p.Position == ExpeditionPosition.CASHIER_DIVISION
+                   p.IsPaidPPH == false && (p.Position == ExpeditionPosition.CASHIER_DIVISION || p.Position == ExpeditionPosition.FINANCE_DIVISION)
                );
             }
             else
@@ -71,7 +71,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                    p.IncomeTaxRate != 0 &&
                    p.DueDate.Date >= dateFrom.Value.Date &&
                    p.DueDate.Date <= dateTo.Value.Date &&
-                   p.IsPaidPPH == false && p.Position == ExpeditionPosition.CASHIER_DIVISION
+                   p.IsPaidPPH == false && (p.Position == ExpeditionPosition.CASHIER_DIVISION || p.Position == ExpeditionPosition.FINANCE_DIVISION)
                );
             }
 
@@ -95,7 +95,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     Currency = s.Currency,
                     Items = s.Items.Where(d => d.PurchasingDocumentExpeditionId == s.Id).ToList(),
                     LastModifiedUtc = s.LastModifiedUtc
-                });
+                }).OrderBy(s => s.UnitPaymentOrderNo.Remove(5, 6));
 
             List<object> list = new List<object>();
             list.AddRange(

@@ -103,12 +103,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             return ListData;
         }
 
-        public List<object> ReadForUnitDOMore(string Keyword = null, string Filter = "{}", int size = 25)
+        public List<object> ReadForUnitDOMore(string Keyword = null, string Filter = "{}", int size = 50)
         {
-            IQueryable<GarmentDOItems> GarmentDOItemsQuery = dbSetGarmentDOItems;
-            IQueryable<GarmentUnitReceiptNoteItem> GarmentUnitReceiptNoteItemsQuery = dbSetGarmentUnitReceiptNoteItem;
-            IQueryable<GarmentUnitReceiptNote> GarmentUnitReceiptNotesQuery = dbSetGarmentUnitReceiptNote;
-            IQueryable<GarmentExternalPurchaseOrderItem> GarmentExternalPurchaseOrderItemsQuery = dbSetGarmentExternalPurchaseOrderItem;
+            IQueryable<GarmentDOItems> GarmentDOItemsQuery = dbSetGarmentDOItems.Where(w => w.IsDeleted == false);
+            IQueryable<GarmentUnitReceiptNoteItem> GarmentUnitReceiptNoteItemsQuery = dbSetGarmentUnitReceiptNoteItem.Where(w => w.IsDeleted == false);
+            IQueryable<GarmentUnitReceiptNote> GarmentUnitReceiptNotesQuery = dbSetGarmentUnitReceiptNote.Where(w => w.IsDeleted == false);
+            IQueryable<GarmentExternalPurchaseOrderItem> GarmentExternalPurchaseOrderItemsQuery = dbSetGarmentExternalPurchaseOrderItem.IgnoreQueryFilters();
 
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
             long unitId = 0;
@@ -132,7 +132,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             }
 
             Keyword = (Keyword ?? "").Trim();
-            GarmentDOItemsQuery = GarmentDOItemsQuery.Where(x => x.RemainingQuantity > 0 && x.RO.Contains(Keyword));
+            GarmentDOItemsQuery = GarmentDOItemsQuery.Where(x => x.RemainingQuantity > 0 && (x.RO.Contains(Keyword) || x.POSerialNumber.Contains(Keyword)));
 
             var data = from doi in GarmentDOItemsQuery
                        join urni in GarmentUnitReceiptNoteItemsQuery on doi.URNItemId equals urni.Id
