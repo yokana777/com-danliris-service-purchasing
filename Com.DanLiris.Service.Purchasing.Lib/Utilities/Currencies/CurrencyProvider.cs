@@ -75,6 +75,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies
 
         public async Task<List<Currency>> GetCurrencyByCurrencyCodeDateList(IEnumerable<Tuple<string, DateTimeOffset>> currencyTuples)
         {
+            currencyTuples = currencyTuples.Distinct();
             var tasks = currencyTuples.Select(s => GetCurrencyByCurrencyCodeDate(s.Item1, s.Item2));
 
             var result = await Task.WhenAll(tasks);
