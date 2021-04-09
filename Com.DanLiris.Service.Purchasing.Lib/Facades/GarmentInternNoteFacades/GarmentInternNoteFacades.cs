@@ -388,7 +388,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                              invoiceId = Inv.Id,
                              priceTotal = pg.Sum(m => m.c.PriceTotal),
                              INDate = IN.INDate,
-                             NPN =  Inv.NPN
+                             NPN = Inv.NPN
                          });
             //  select new
             //{
@@ -404,7 +404,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 
             if (npn != null)
             {
-                Query = Query.Where( x => x.NPN == npn);
+                Query = Query.Where(x => x.NPN == npn);
             }
             //var Data = Query.GroupBy(s => s.doNo);
             TotalCountReport = Query.Distinct().Count();
@@ -545,11 +545,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 
                 foreach (var internalNote in internalNotes)
                 {
-                    var internalNoteInvoiceIds = internalNoteItems.Select(item => item.InvoiceId).ToList();
+                    var selectedInternalNoteItems = internalNoteItems.Where(element => element.GarmentINId == internalNote.Id).ToList();
+                    var internalNoteInvoiceIds = selectedInternalNoteItems.Select(item => item.InvoiceId).ToList();
 
                     var internalNoteDOIds = garmentInvoiceItems.Where(element => internalNoteInvoiceIds.Contains(element.InvoiceId)).Select(element => element.DeliveryOrderId).ToList();
                     var internalNoteDeliveryOrders = deliveryOrders.Where(element => internalNoteDOIds.Contains(element.Id)).ToList();
-                    var selectedInternalNoteItemIds = internalNoteItems.Where(element => element.GarmentINId == internalNote.Id).Select(element => element.Id).ToList();
+                    var selectedInternalNoteItemIds = selectedInternalNoteItems.Where(element => element.GarmentINId == internalNote.Id).Select(element => element.Id).ToList();
                     var selectedEPOIds = internalNoteDetails.Where(element => selectedInternalNoteItemIds.Contains(element.GarmentItemINId)).Select(element => element.EPOId).ToList();
                     var externalPurchaseOrder = externalPurchaseOrders.FirstOrDefault(element => selectedEPOIds.Contains(element.Id));
                     var selectedIPOIds = externalPurchaseOrderItems.Where(element => selectedEPOIds.Contains(element.GarmentEPOId)).Select(element => (long)element.POId).ToList();
@@ -564,7 +565,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                         var selectedDeliveryOrders = deliveryOrders.Where(element => selectedDeliveryOrderIds.Contains(element.Id)).ToList();
                         int.TryParse(internalPurchaseOrderItem.CategoryId, out var categoryId);
                         return new InternalNoteInvoiceDto(s.InvoiceNo, s.InvoiceDate, string.Join("\n", invoiceDetails.Select(element => $"- {element.ProductName}").Distinct()), categoryId, internalPurchaseOrderItem.CategoryName, externalPurchaseOrder.PaymentMethod, (int)s.Id, string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.DONo}").Distinct()), string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.BillNo}").Distinct()), string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.PaymentBill}").Distinct()), s.TotalAmount, s.UseVat, s.IsPayVat, s.UseIncomeTax, s.IsPayTax, s.IncomeTaxRate);
-                        
+
                     }).ToList();
 
                     if (internalNoteInvoices.Count > 0)
