@@ -521,44 +521,55 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             var result = new List<GarmentInternalNoteDto>();
             if (query.Count() > 0)
             {
-                var internalNotes = query.Include(entity => entity.Items).ThenInclude(entity => entity.Details).ToList();
+                var internalNotes = query.Select(entity => new { entity.Id, entity.INNo, entity.INDate, entity.SupplierId, entity.SupplierCode, entity.SupplierName, entity.CurrencyCode, entity.CurrencyId, entity.CurrencyRate });
                 var internalNoteIds = internalNotes.Select(entity => entity.Id).ToList();
+                var internalNoteItems = dbContext.GarmentInternNoteItems.Where(entity => internalNoteIds.Contains(entity.GarmentINId)).Select(entity => new { entity.Id, entity.GarmentINId, entity.InvoiceId });
+                var internalNoteItemIds = internalNoteItems.Select(entity => entity.Id).ToList();
+                var internalNoteDetails = dbContext.GarmentInternNoteDetails.Where(entity => internalNoteItemIds.Contains(entity.GarmentItemINId)).Select(entity => new { entity.Id, entity.DOId, entity.GarmentItemINId, entity.EPOId, entity.PaymentDueDate });
 
-                var invoiceIds = internalNotes.SelectMany(internalNote => internalNote.Items).Select(internalNoteItem => internalNoteItem.InvoiceId).ToList();
+                var invoiceIds = internalNoteItems.Select(internalNoteItem => internalNoteItem.InvoiceId).ToList();
 
-                var garmentInvoices = dbContext.GarmentInvoices.Where(entity => invoiceIds.Contains(entity.Id) && !entity.DPPVATIsPaid).Include(entity => entity.Items).ThenInclude(entity => entity.Details).ToList();
+                var garmentInvoices = dbContext.GarmentInvoices.Where(entity => invoiceIds.Contains(entity.Id) && !entity.DPPVATIsPaid).Select(entity => new { entity.Id, entity.InvoiceNo, entity.InvoiceDate, entity.UseVat, entity.IsPayVat, entity.UseIncomeTax, entity.IsPayTax, entity.TotalAmount, entity.IncomeTaxRate }).ToList();
+                var garmentInvoiceIds = garmentInvoices.Select(element => element.Id).ToList();
+                var garmentInvoiceItems = dbContext.GarmentInvoiceItems.Where(entity => garmentInvoiceIds.Contains(entity.InvoiceId)).Select(entity => new { entity.Id, entity.InvoiceId, entity.DeliveryOrderId });
+                var garmentInvoiceItemIds = garmentInvoiceItems.Select(element => element.Id).ToList();
+                var garmentInvoiceDetails = dbContext.GarmentInvoiceDetails.Where(entity => garmentInvoiceItemIds.Contains(entity.InvoiceItemId)).Select(entity => new { entity.Id, entity.InvoiceItemId, entity.ProductName }).ToList();
+                var deliveryOrderIds = garmentInvoiceItems.Select(element => element.DeliveryOrderId).ToList();
+                var deliveryOrders = dbContext.GarmentDeliveryOrders.Where(entity => deliveryOrderIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.DONo, entity.PaymentBill, entity.BillNo }).ToList();
 
-                var deliveryOrderIds = garmentInvoices.SelectMany(element => element.Items).Select(element => element.DeliveryOrderId).ToList();
-                var deliveryOrders = dbContext.GarmentDeliveryOrders.Where(entity => deliveryOrderIds.Contains(entity.Id)).ToList();
-
-                var externalPurchaseOrderIds = internalNotes.SelectMany(internalNote => internalNote.Items).SelectMany(item => item.Details).Select(detail => detail.EPOId).ToList();
-                var internalPurchaseOrderIds = dbContext.GarmentExternalPurchaseOrderItems.Where(externalPurchaseOrderItem => externalPurchaseOrderIds.Contains(externalPurchaseOrderItem.GarmentEPOId)).Select(externalPurchaseOrderItem => (long)externalPurchaseOrderItem.POId).ToList();
-                var internalPurchaseOrderItems = dbContext.GarmentInternalPurchaseOrderItems.Where(internalPurchaseOrderItem => internalPurchaseOrderIds.Contains(internalPurchaseOrderItem.GPOId)).ToList();
+                var externalPurchaseOrderIds = internalNoteDetails.Select(detail => detail.EPOId).ToList();
+                var externalPurchaseOrders = dbContext.GarmentExternalPurchaseOrders.Where(entity => externalPurchaseOrderIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.PaymentMethod }).ToList();
+                var externalPurchaseOrderItems = dbContext.GarmentExternalPurchaseOrderItems.Where(entity => externalPurchaseOrderIds.Contains(entity.GarmentEPOId)).Select(entity => new { entity.POId, entity.Id, entity.GarmentEPOId }).ToList();
+                var internalPurchaseOrderIds = externalPurchaseOrderItems.Select(externalPurchaseOrderItem => (long)externalPurchaseOrderItem.POId).ToList();
+                var internalPurchaseOrderItems = dbContext.GarmentInternalPurchaseOrderItems.Where(internalPurchaseOrderItem => internalPurchaseOrderIds.Contains(internalPurchaseOrderItem.GPOId)).Select(entity => new { entity.CategoryId, entity.CategoryName, entity.Id, entity.GPOId }).ToList();
 
                 foreach (var internalNote in internalNotes)
                 {
-                    var internalNoteInvoiceIds = internalNote.Items.Select(item => item.InvoiceId).ToList();
-                    var internalNoteDOIds = garmentInvoices.Where(invoice => internalNoteInvoiceIds.Contains(invoice.Id)).SelectMany(element => element.Items).Select(element => element.DeliveryOrderId).ToList();
+                    var internalNoteInvoiceIds = internalNoteItems.Select(item => item.InvoiceId).ToList();
+
+                    var internalNoteDOIds = garmentInvoiceItems.Where(element => internalNoteInvoiceIds.Contains(element.InvoiceId)).Select(element => element.DeliveryOrderId).ToList();
                     var internalNoteDeliveryOrders = deliveryOrders.Where(element => internalNoteDOIds.Contains(element.Id)).ToList();
+                    var selectedInternalNoteItemIds = internalNoteItems.Where(element => element.GarmentINId == internalNote.Id).Select(element => element.Id).ToList();
+                    var selectedEPOIds = internalNoteDetails.Where(element => selectedInternalNoteItemIds.Contains(element.GarmentItemINId)).Select(element => element.EPOId).ToList();
+                    var externalPurchaseOrder = externalPurchaseOrders.FirstOrDefault(element => selectedEPOIds.Contains(element.Id));
+                    var selectedIPOIds = externalPurchaseOrderItems.Where(element => selectedEPOIds.Contains(element.GarmentEPOId)).Select(element => (long)element.POId).ToList();
+                    var internalPurchaseOrderItem = internalPurchaseOrderItems.FirstOrDefault(element => selectedIPOIds.Contains(element.GPOId));
                     //var internalNoteInvoices = garmentInvoices.Where(invoice => internalNoteInvoiceIds.Contains(invoice.Id)).ToList();
                     var internalNoteInvoices = garmentInvoices.Where(invoice => internalNoteInvoiceIds.Contains(invoice.Id)).Select(s =>
                     {
-                        var selectedDeliveryOrderIds = s.Items.Select(item => item.DeliveryOrderId).ToList();
-                        return new GarmentInvoiceInternNoteViewModel
-                        {
-                            GarmentInvoices = s,
-                            BillsNo = string.Join("\n", internalNoteDeliveryOrders.Where(deliveryOrder => selectedDeliveryOrderIds.Contains(deliveryOrder.Id)).Select(element => $"- {element.BillNo}")),
-                            PaymentBills = string.Join("\n", internalNoteDeliveryOrders.Where(deliveryOrder => selectedDeliveryOrderIds.Contains(deliveryOrder.Id)).Select(element => $"- {element.PaymentBill}")),
-                            DeliveryOrdersNo = string.Join("\n", internalNoteDeliveryOrders.Where(deliveryOrder => selectedDeliveryOrderIds.Contains(deliveryOrder.Id)).Select(element => $"- {element.DONo}")),
-                            Category = dbContext.GarmentExternalPurchaseOrders.Where(categ => categ.Id == s.Items.FirstOrDefault().Details.FirstOrDefault().EPOId).Select(categ => new CategoryDto { Id = 0, Name = categ.Category }).FirstOrDefault(),
-                            PaymentMethod = dbContext.GarmentExternalPurchaseOrders.Where(categ => categ.Id == s.Items.FirstOrDefault().Details.FirstOrDefault().EPOId).FirstOrDefault().PaymentMethod
-                            //TODO : Category ID 0 karena tidak terpakai jadi tidak di ambil
-                        };
+                        var invoiceItems = garmentInvoiceItems.Where(element => element.InvoiceId == s.Id).ToList();
+                        var invoiceItemIds = invoiceItems.Select(element => element.Id).ToList();
+                        var invoiceDetails = garmentInvoiceDetails.Where(element => invoiceItemIds.Contains(element.InvoiceItemId)).ToList();
+                        var selectedDeliveryOrderIds = invoiceItems.Select(item => item.DeliveryOrderId).ToList();
+                        var selectedDeliveryOrders = deliveryOrders.Where(element => selectedDeliveryOrderIds.Contains(element.Id)).ToList();
+                        int.TryParse(internalPurchaseOrderItem.CategoryId, out var categoryId);
+                        return new InternalNoteInvoiceDto(s.InvoiceNo, s.InvoiceDate, string.Join("\n", invoiceDetails.Select(element => $"- {element.ProductName}").Distinct()), categoryId, internalPurchaseOrderItem.CategoryName, externalPurchaseOrder.PaymentMethod, (int)s.Id, string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.DONo}").Distinct()), string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.BillNo}").Distinct()), string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.PaymentBill}").Distinct()), s.TotalAmount, s.UseVat, s.IsPayVat, s.UseIncomeTax, s.IsPayTax, s.IncomeTaxRate);
+                        
                     }).ToList();
 
                     if (internalNoteInvoices.Count > 0)
                     {
-                        result.Add(new GarmentInternalNoteDto(internalNote, internalNoteInvoices));
+                        result.Add(new GarmentInternalNoteDto((int)internalNote.Id, internalNote.INNo, internalNote.INDate, internalNote.INDate, (int)internalNote.SupplierId, internalNote.SupplierName, internalNote.SupplierCode, (int)internalNote.CurrencyId, internalNote.CurrencyCode, internalNote.CurrencyRate, internalNoteInvoices));
                     }
                 }
 
