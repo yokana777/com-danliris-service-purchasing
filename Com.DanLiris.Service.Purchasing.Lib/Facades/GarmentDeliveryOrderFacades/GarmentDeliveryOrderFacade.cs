@@ -48,7 +48,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
         public Tuple<List<GarmentDeliveryOrder>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
-            IQueryable<GarmentDeliveryOrder> Query = this.dbSet.Include(m => m.Items);
+            //IQueryable<GarmentDeliveryOrder> Query = this.dbSet.Include(m => m.Items);
+            IQueryable<GarmentDeliveryOrder> Query = this.dbSet.AsNoTracking().Include(x => x.Items)
+                .Select(x => new GarmentDeliveryOrder
+                {
+                    Id = x.Id,
+                    DONo = x.DONo,
+                    DODate = x.DODate,
+                    ArrivalDate = x.ArrivalDate,
+                    BillNo = x.BillNo,
+                    PaymentBill = x.PaymentBill,
+                    SupplierName = x.SupplierName,
+                    CreatedBy = x.CreatedBy,
+                    IsClosed = x.IsClosed,
+                    IsCustoms = x.IsCustoms,
+                    IsInvoice = x.IsInvoice,
+                    LastModifiedUtc = x.LastModifiedUtc,
+                    Items = x.Items.Select(y => new GarmentDeliveryOrderItem
+                    {
+                        Id = y.Id,
+                        EPOId = y.EPOId,
+                        EPONo = y.EPONo,
+                        CurrencyId = y.CurrencyId,
+                        CurrencyCode = y.CurrencyCode,
+                        PaymentDueDays = y.PaymentDueDays
+                    })
+                });
 
             List<string> searchAttributes = new List<string>()
             {

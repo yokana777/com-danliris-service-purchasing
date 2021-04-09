@@ -55,7 +55,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel
         public double? DOCurrencyRate { get; set; }
 
 
-        public virtual ICollection<GarmentDeliveryOrderItem> Items { get; set; }
+        public virtual IEnumerable<GarmentDeliveryOrderItem> Items { get; set; }
         public bool SupplierIsImport { get; set; }
     }
 }
