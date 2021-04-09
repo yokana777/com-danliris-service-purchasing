@@ -193,6 +193,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IGarmentStockReportFacade, GarmentStockReportFacade>()
                 .AddTransient<IGarmenInternNotePaymentStatusFacade, GarmentInternNotePaymentStatusFacade>()
                 .AddTransient<IGarmentReportCMTFacade, GarmentReportCMTFacade>()
+                .AddTransient<IGarmentRealizationCMTReportFacade, GarmentRealizationCMTReportFacade>()
                 .AddTransient<IDebtBookReportFacade, DebtBookReportFacade>()
                 .AddTransient<IBalanceDebtFacade, GarmentSupplierBalanceDebtFacade>()
                 .AddTransient<IDebtCardReportFacade, DebtCardReportFacade>()
