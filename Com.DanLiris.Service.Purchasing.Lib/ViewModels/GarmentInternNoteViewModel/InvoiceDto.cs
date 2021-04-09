@@ -34,6 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
                 Amount -= amount * (incomeTaxRate / 100);
 
             Amount += correctionAmount;
+            CorrectionAmount = correctionAmount;
         }
 
         public string DocumentNo { get; set; }
@@ -52,5 +53,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
         public bool IsPayTax { get; private set; }
         public double IncomeTaxRate { get; private set; }
         public double TotalAmount { get; private set; }
+        public double CorrectionAmount { get; private set; }
     }
 }
