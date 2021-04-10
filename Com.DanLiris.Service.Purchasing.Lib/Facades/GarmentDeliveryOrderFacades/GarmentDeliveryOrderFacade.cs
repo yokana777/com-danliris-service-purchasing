@@ -2069,6 +2069,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              && a.DODate.AddHours(offset).Date >= DateFrom.Date
                              && a.DODate.AddHours(offset).Date <= DateTo.Date
                              && i.EPONo == (string.IsNullOrWhiteSpace(poEksNo) ? i.EPONo : poEksNo)
+                             && URN.URNType == "PEMBELIAN"
+
                          select new GarmentDeliveryOrderReportViewModel
                          {
                              no = a.DONo,

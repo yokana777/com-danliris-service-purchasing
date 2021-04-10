@@ -5,9 +5,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
 {
     public class InternalNoteInvoiceDto
     {
-        public InternalNoteInvoiceDto(string invoiceNo, DateTimeOffset invoiceDate, string productNames, int categoryId, string categoryName, string paymentMethod, int invoiceId, string deliveryOrdersNo, string billsNo, string paymentBills, double amount, bool useVAT, bool isPayVAT, bool useIncomeTax, bool isPayTax, double incomeTaxRate)
+        public InternalNoteInvoiceDto(string invoiceNo, DateTimeOffset invoiceDate, string productNames, int categoryId, string categoryName, string paymentMethod, int invoiceId, string deliveryOrdersNo, string billsNo, string paymentBills, double amount, bool useVAT, bool isPayVAT, bool useIncomeTax, bool isPayTax, double incomeTaxRate, double correctionAmount)
         {
-            Invoice = new InvoiceDto(invoiceNo, invoiceDate, productNames, categoryId, categoryName, paymentMethod, invoiceId, deliveryOrdersNo, billsNo, paymentBills, amount, useVAT, isPayVAT, useIncomeTax, isPayTax, incomeTaxRate);
+            Invoice = new InvoiceDto(invoiceNo, invoiceDate, productNames, categoryId, categoryName, paymentMethod, invoiceId, deliveryOrdersNo, billsNo, paymentBills, amount, useVAT, isPayVAT, useIncomeTax, isPayTax, incomeTaxRate, correctionAmount);
         }
 
         public InvoiceDto Invoice { get; set; }

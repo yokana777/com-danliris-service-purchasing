@@ -537,6 +537,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                 var deliveryOrderIds = garmentInvoiceItems.Select(element => element.DeliveryOrderId).ToList();
                 var deliveryOrders = dbContext.GarmentDeliveryOrders.Where(entity => deliveryOrderIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.DONo, entity.PaymentBill, entity.BillNo }).ToList();
 
+                var corrections = dbContext.GarmentCorrectionNotes.Where(entity => deliveryOrderIds.Contains(entity.DOId)).Select(entity => new { entity.Id, entity.TotalCorrection, entity.CorrectionType, entity.DOId });
+                var correctionIds = corrections.Select(element => element.Id).ToList();
+                var correctionItems = dbContext.GarmentCorrectionNoteItems.Where(entity => correctionIds.Contains(entity.GCorrectionId)).Select(entity => new { entity.Id, entity.PricePerDealUnitAfter, entity.Quantity, entity.GCorrectionId });
+
+
                 var externalPurchaseOrderIds = internalNoteDetails.Select(detail => detail.EPOId).ToList();
                 var externalPurchaseOrders = dbContext.GarmentExternalPurchaseOrders.Where(entity => externalPurchaseOrderIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.PaymentMethod }).ToList();
                 var externalPurchaseOrderItems = dbContext.GarmentExternalPurchaseOrderItems.Where(entity => externalPurchaseOrderIds.Contains(entity.GarmentEPOId)).Select(entity => new { entity.POId, entity.Id, entity.GarmentEPOId }).ToList();
@@ -555,6 +560,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     var externalPurchaseOrder = externalPurchaseOrders.FirstOrDefault(element => selectedEPOIds.Contains(element.Id));
                     var selectedIPOIds = externalPurchaseOrderItems.Where(element => selectedEPOIds.Contains(element.GarmentEPOId)).Select(element => (long)element.POId).ToList();
                     var internalPurchaseOrderItem = internalPurchaseOrderItems.FirstOrDefault(element => selectedIPOIds.Contains(element.GPOId));
+
                     //var internalNoteInvoices = garmentInvoices.Where(invoice => internalNoteInvoiceIds.Contains(invoice.Id)).ToList();
                     var internalNoteInvoices = garmentInvoices.Where(invoice => internalNoteInvoiceIds.Contains(invoice.Id)).Select(s =>
                     {
@@ -563,8 +569,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                         var invoiceDetails = garmentInvoiceDetails.Where(element => invoiceItemIds.Contains(element.InvoiceItemId)).ToList();
                         var selectedDeliveryOrderIds = invoiceItems.Select(item => item.DeliveryOrderId).ToList();
                         var selectedDeliveryOrders = deliveryOrders.Where(element => selectedDeliveryOrderIds.Contains(element.Id)).ToList();
+
+                        var selectedCorrections = corrections.Where(element => selectedDeliveryOrderIds.Contains(element.DOId)).ToList();
+                        var correctionAmount = selectedCorrections.Sum(element =>
+                        {
+                            var selectedCorrectionItems = correctionItems.Where(item => item.GCorrectionId == element.Id);
+
+                            var total = 0.0;
+                            if (element.CorrectionType.ToUpper() == "RETUR")
+                                total = (double)selectedCorrectionItems.Sum(item => item.PricePerDealUnitAfter * item.Quantity);
+                            else
+                                total = (double)element.TotalCorrection;
+
+                            return total;
+                        });
+
                         int.TryParse(internalPurchaseOrderItem.CategoryId, out var categoryId);
-                        return new InternalNoteInvoiceDto(s.InvoiceNo, s.InvoiceDate, string.Join("\n", invoiceDetails.Select(element => $"- {element.ProductName}").Distinct()), categoryId, internalPurchaseOrderItem.CategoryName, externalPurchaseOrder.PaymentMethod, (int)s.Id, string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.DONo}").Distinct()), string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.BillNo}").Distinct()), string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.PaymentBill}").Distinct()), s.TotalAmount, s.UseVat, s.IsPayVat, s.UseIncomeTax, s.IsPayTax, s.IncomeTaxRate);
+                        
+                        return new InternalNoteInvoiceDto(s.InvoiceNo, s.InvoiceDate, string.Join("\n", invoiceDetails.Select(element => $"- {element.ProductName}").Distinct()), categoryId, internalPurchaseOrderItem.CategoryName, externalPurchaseOrder.PaymentMethod, (int)s.Id, string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.DONo}").Distinct()), string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.BillNo}").Distinct()), string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.PaymentBill}").Distinct()), s.TotalAmount, s.UseVat, s.IsPayVat, s.UseIncomeTax, s.IsPayTax, s.IncomeTaxRate, correctionAmount);
 
                     }).ToList();
 

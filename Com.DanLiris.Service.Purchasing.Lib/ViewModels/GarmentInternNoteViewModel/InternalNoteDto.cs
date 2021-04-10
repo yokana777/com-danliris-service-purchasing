@@ -16,7 +16,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
             Date = internalNoteDate;
             DueDate = internalNoteDueDate;
             Supplier = new SupplierDto(supplierId, supplierName, supplierCode);
-            DPP = internalNoteInvoices.Sum(internalNoteInvoice => internalNoteInvoice.Invoice.TotalAmount);
+            DPP = internalNoteInvoices.Sum(internalNoteInvoice => internalNoteInvoice.Invoice.Amount);
 
             TotalAmount = internalNoteInvoices.Sum(element =>
             {
@@ -28,7 +28,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
                 if (element.Invoice.UseIncomeTax && element.Invoice.IsPayTax)
                     total -= element.Invoice.TotalAmount * (element.Invoice.IncomeTaxRate / 100);
 
-                return total;
+                return total + element.Invoice.CorrectionAmount;
             });
 
             VATAmount = internalNoteInvoices.Sum(element =>
