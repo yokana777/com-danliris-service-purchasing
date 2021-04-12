@@ -212,7 +212,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IGarmentDispositionPurchaseFacade, GarmentDispositionPurchaseFacade>()
                 .AddTransient<IGarmentDispositionPaymentReportService, GarmentDispositionPaymentReportService>()
                 .AddTransient<IROFeatureFacade, ROFeatureFacade>()
-                .AddTransient<IGarmentBC23ReportFacade, GarmentBC23ReportFacade>();
+                .AddTransient<IGarmentBC23ReportFacade, GarmentBC23ReportFacade>()
+                .AddTransient<IMutationBeacukaiFacade, MutationBeacukaiFacade>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)
