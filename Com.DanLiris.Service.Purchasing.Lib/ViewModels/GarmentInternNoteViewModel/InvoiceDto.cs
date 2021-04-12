@@ -6,7 +6,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
 {
     public class InvoiceDto
     {
-        public InvoiceDto(string invoiceNo, DateTimeOffset invoiceDate, string productNames, int categoryId, string categoryName, string paymentMethod, int invoiceId, string deliveryOrdersNo, string billsNo, string paymentBills, double amount, bool useVAT, bool isPayVAT, bool useIncomeTax, bool isPayTax, double incomeTaxRate)
+        public InvoiceDto(string invoiceNo, DateTimeOffset invoiceDate, string productNames, int categoryId, string categoryName, string paymentMethod, int invoiceId, string deliveryOrdersNo, string billsNo, string paymentBills, double amount, bool useVAT, bool isPayVAT, bool useIncomeTax, bool isPayTax, double incomeTaxRate, double correctionAmount)
         {
             DocumentNo = invoiceNo;
             Date = invoiceDate;
@@ -32,6 +32,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
 
             if (useIncomeTax && isPayTax)
                 Amount -= amount * (incomeTaxRate / 100);
+
+            Amount += correctionAmount;
+            CorrectionAmount = correctionAmount;
         }
 
         public string DocumentNo { get; set; }
@@ -50,5 +53,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
         public bool IsPayTax { get; private set; }
         public double IncomeTaxRate { get; private set; }
         public double TotalAmount { get; private set; }
+        public double CorrectionAmount { get; private set; }
     }
 }
