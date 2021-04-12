@@ -238,7 +238,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                 }
                 else
                 {
-                    viewModel.isEdit = model.Position != PurchasingGarmentExpeditionPosition.Purchasing;
+                    viewModel.isEdit = model.Position <= PurchasingGarmentExpeditionPosition.Purchasing;
                     foreach (GarmentInternNoteItemViewModel item in viewModel.items)
                     {
                         GarmentInvoice garmentInvoice = invoiceFacade.ReadById((int)item.garmentInvoice.Id);
