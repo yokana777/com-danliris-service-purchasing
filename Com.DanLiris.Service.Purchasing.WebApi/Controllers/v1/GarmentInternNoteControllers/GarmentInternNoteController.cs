@@ -94,6 +94,27 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
             }
         }
 
+        [HttpGet("dpp-vat-bank-expenditures-optimized")]
+        public IActionResult GetDPPVATBankExpendituresOptimized([FromQuery] int currencyId, [FromQuery] int supplierId)
+        {
+            try
+            {
+                var result = facade.BankExpenditureReadInternalNotesOptimized(currencyId, supplierId);
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(result);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
         [HttpPut("dpp-vat-bank-expenditures/is-paid")]
         public IActionResult UpdateIsPaidDPPVATBankExpenditures([FromQuery] bool dppVATIsPaid, [FromQuery] int bankExpenditureNoteId, [FromQuery] string bankExpenditureNoteNo, [FromQuery] string internalNoteIds = "[]", [FromQuery] string invoiceNoteIds = "[]")
         {
