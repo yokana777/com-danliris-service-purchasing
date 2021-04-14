@@ -494,7 +494,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             if (isValas)
             {
                 query = query.Where(urn => urn.CurrencyCode != IDRCurrencyCode);
-
             }
             else
             {
