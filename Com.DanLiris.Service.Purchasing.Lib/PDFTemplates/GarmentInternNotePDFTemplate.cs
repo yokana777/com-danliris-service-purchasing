@@ -205,7 +205,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                     if (item.garmentInvoice.useVat == true && item.garmentInvoice.isPayVat == true)
                     {
-                        ppn = 0.1 * (totalPriceTotal - (double)totalcorrection);
+                        ppn = 0.1 * (totalPriceTotal + (double)totalcorrection);
                     }
                     else if (item.garmentInvoice.isPayVat == false)
                     {
@@ -214,7 +214,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                     if (item.garmentInvoice.useIncomeTax == true && item.garmentInvoice.isPayTax == true)
                     {
-                        pph = (item.garmentInvoice.incomeTaxRate / 100) * (totalPriceTotal - (double)totalcorrection);
+                        pph = (item.garmentInvoice.incomeTaxRate / 100) * (totalPriceTotal + (double)totalcorrection);
                     }
                     else if (item.garmentInvoice.isPayTax == false)
                     {
