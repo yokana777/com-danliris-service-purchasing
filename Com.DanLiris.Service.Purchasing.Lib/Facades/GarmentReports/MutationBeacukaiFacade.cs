@@ -2,8 +2,10 @@
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -40,12 +42,59 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             return Tuple.Create(Data, TotalData);
         }
 
+        private List<GarmentCategoryViewModel> GetProductCodes(int page, int size, string order, string filter)
+        {
+            ////var param = new StringContent(JsonConvert.SerializeObject(codes), Encoding.UTF8, "application/json");
+            //IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
+            ////httpClient.GetAsync($"{APIEndpoint.Core}{currencyUri}/{currencyCode}").Result
+            //if (httpClient != null)
+            //{
+            //    var garmentSupplierUri = APIEndpoint.Core + $"master/garment-categories";
+            //    string queryUri = "?page=" + page + "&size=" + size + "&order=" + order + "&filter=" + filter;
+            //    string uri = garmentSupplierUri + queryUri;
+            //    //var response = httpClient.GetAsync($"{uri}").Result;
+            //    var response = httpClient.GetAsync($"{uri}").Result;
+            //    var response2  =  response.Content.ReadAsStringAsync();
+            //    Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
+            //    List<GarmentCategoryViewModel> viewModel = JsonConvert.DeserializeObject<List<GarmentCategoryViewModel>>(result.GetValueOrDefault("data").ToString());
+            //    return viewModel;
+            //}
+            //else
+            //{
+            //    List<GarmentCategoryViewModel> viewModel = null;
+            //    return viewModel;
+            //}
+
+            IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+            var garmentSupplierUri = APIEndpoint.Core + $"master/garment-categories";
+            string queryUri = "?page=" + page + "&size=" + size + "&order=" + order + "&filter=" + filter;
+            string uri = garmentSupplierUri + queryUri;
+            var response = httpClient.GetAsync($"{APIEndpoint.Core}/master/garment-categories?page={page}&size={size}").Result;
+            if (response.IsSuccessStatusCode)
+            {
+                var content = response.Content.ReadAsStringAsync().Result;
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+                List<GarmentCategoryViewModel> viewModel = JsonConvert.DeserializeObject<List<GarmentCategoryViewModel>>(result.GetValueOrDefault("data").ToString()); ;
+                return viewModel ;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public List<MutationBBCentralViewModel> GetCentralItemBBReport(DateTime? datefrom, DateTime? dateto, int offset)
         {
             DateTime DateFrom = datefrom == null ? new DateTime(1970, 1, 1) : (DateTime)datefrom;
             DateTime DateTo = dateto == null ? DateTime.Now : (DateTime)dateto;
 
             var pengeluaran = new[] { "PROSES", "SAMPLE", "EXTERNAL" };
+            var pemasukan = new[] { "PROSES", "PEMBELIAN" };
+
+            var categories = GetProductCodes(1, int.MaxValue, "{}", "{}");
+            var coderequirement = new[] { "BP", "BE" };
+            var categories1 = categories.Where(x => x.CodeRequirement == "BB").Select(x => x.Name).ToArray();
+
 
             List<MutationBBCentralViewModelTemp> saldoawalreceipt = new List<MutationBBCentralViewModelTemp>();
             List<MutationBBCentralViewModelTemp> saldoawalexpenditure = new List<MutationBBCentralViewModelTemp>();
@@ -55,7 +104,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             var lastdate = dbContext.BalanceStocks.OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault() == null ? new DateTime(1970, 1, 1) : dbContext.BalanceStocks.OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault();
 
             var BalanceStock = (from a in (from aa in dbContext.BalanceStocks where aa.CreateDate == lastdate select aa)
-                                join b in (from bb in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() where bb.ProductName == "FABRIC" select bb) on (long)a.EPOItemId equals b.Id
+                                join b in (from bb in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() where categories1.Contains(bb.ProductName) select bb) on (long)a.EPOItemId equals b.Id
                                 join c in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on b.GarmentEPOId equals c.Id
                                 select new MutationBBCentralViewModelTemp
                                 {
@@ -73,8 +122,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 });
 
             var ReceiptBalance = (from a in (from aa in dbContext.GarmentUnitReceiptNotes where aa.CreatedUtc.Date > lastdate
-                                             && aa.CreatedUtc.Date < DateFrom.Date && aa.UId == null && aa.IsDeleted == false && aa.URNType == "PEMBELIAN" select aa)
-                                  join b in (from bb in dbContext.GarmentUnitReceiptNoteItems where bb.ProductName == "FABRIC" && bb.IsDeleted == false select bb) on a.Id equals b.URNId
+                                             && aa.CreatedUtc.Date < DateFrom.Date && aa.UId == null && aa.IsDeleted == false && pemasukan.Contains(aa.URNType) select aa)
+                                  join b in (from bb in dbContext.GarmentUnitReceiptNoteItems where categories1.Contains(bb.ProductName) && bb.IsDeleted == false select bb) on a.Id equals b.URNId
                                   join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
                                   join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                                   //where a.CreatedUtc.Date > lastdate
@@ -98,8 +147,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                   });
 
             var ReceiptBalanceLocal = (from a in (from aa in dbContext.GarmentUnitReceiptNotes where aa.LastModifiedUtc.Date > lastdate.Value.Date && aa.LastModifiedUtc.Date < DateFrom.Date
-                                                  && aa.UId != null && aa.IsDeleted == false && aa.URNType == "PEMBELIAN" select aa)
-                                       join b in (from bb in dbContext.GarmentUnitReceiptNoteItems where bb.ProductName == "FABRIC" && bb.IsDeleted == false select bb) on a.Id equals b.URNId
+                                                  && aa.UId != null && aa.IsDeleted == false && pemasukan.Contains(aa.URNType)
+                                                  select aa)
+                                       join b in (from bb in dbContext.GarmentUnitReceiptNoteItems where categories1.Contains(bb.ProductName) && bb.IsDeleted == false select bb) on a.Id equals b.URNId
                                        join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
                                        join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                                        //where a.LastModifiedUtc.Date > lastdate.Value.Date
@@ -125,7 +175,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
            
             var ExpenditureBalance = (from a in (from aa in dbContext.GarmentUnitExpenditureNotes where aa.CreatedUtc.Date > lastdate && aa.CreatedUtc.Date < DateFrom.Date
                                                  && aa.UId == null && aa.IsDeleted == false && pengeluaran.Contains(aa.ExpenditureType) select aa)
-                                      join b in (from bb in dbContext.GarmentUnitExpenditureNoteItems where bb.ProductName == "FABRIC" && bb.IsDeleted == false select bb) on a.Id equals b.UENId
+                                      join b in (from bb in dbContext.GarmentUnitExpenditureNoteItems where categories1.Contains(bb.ProductName) && bb.IsDeleted == false select bb) on a.Id equals b.UENId
                                       join f in dbContext.GarmentUnitReceiptNoteItems on b.URNItemId equals f.Id
                                       join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on f.EPOItemId equals c.Id
                                       join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
@@ -148,7 +198,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                                       where aa.LastModifiedUtc.Date > lastdate && aa.LastModifiedUtc.Date < DateFrom.Date
                                                       && aa.UId != null && aa.IsDeleted == false && pengeluaran.Contains(aa.ExpenditureType)
                                                       select aa)
-                                           join b in (from bb in dbContext.GarmentUnitExpenditureNoteItems where bb.ProductName == "FABRIC" && bb.IsDeleted == false select bb) on a.Id equals b.UENId
+                                           join b in (from bb in dbContext.GarmentUnitExpenditureNoteItems where categories1.Contains(bb.ProductName) && bb.IsDeleted == false select bb) on a.Id equals b.UENId
                                            join f in dbContext.GarmentUnitReceiptNoteItems on b.URNItemId equals f.Id
                                            join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
                                            join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
@@ -168,34 +218,36 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                                UnitQtyName = b.UomUnit
                                            });
             
-            var ReceiptCorrectionBalance = (from a in (from aa in dbContext.GarmentReceiptCorrections where aa.CreatedUtc.Date > lastdate && aa.CreatedUtc.Date < DateFrom.Date
-                                                       && aa.UId == null && aa.IsDeleted == false select aa)
-                                            join b in (from bb in dbContext.GarmentReceiptCorrectionItems where bb.ProductName == "FABRIC" && bb.IsDeleted == false select bb) on a.Id equals b.CorrectionId
-                                            join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
-                                            join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
-                                            select new MutationBBCentralViewModelTemp
-                                            {
-                                                AdjustmentQty = 0,
-                                                BeginQty = (double)b.SmallQuantity,
-                                                ExpenditureQty = 0,
-                                                ItemCode = b.ProductCode,
-                                                ItemName = b.ProductName,
-                                                LastQty = 0,
-                                                OpnameQty = 0,
-                                                ReceiptQty = 0,
-                                                SupplierType = d.SupplierImport == false ? "LOKAL" : "IMPORT",
-                                                UnitQtyName = b.UomUnit
+            //var ReceiptCorrectionBalance = (from a in (from aa in dbContext.GarmentReceiptCorrections where aa.CreatedUtc.Date > lastdate && aa.CreatedUtc.Date < DateFrom.Date
+            //                                           && aa.UId == null && aa.IsDeleted == false select aa)
+            //                                join b in (from bb in dbContext.GarmentReceiptCorrectionItems where categories1.Contains(bb.ProductName) && bb.IsDeleted == false select bb) on a.Id equals b.CorrectionId
+            //                                join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
+            //                                join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
+            //                                select new MutationBBCentralViewModelTemp
+            //                                {
+            //                                    AdjustmentQty = 0,
+            //                                    BeginQty = (double)b.SmallQuantity,
+            //                                    ExpenditureQty = 0,
+            //                                    ItemCode = b.ProductCode,
+            //                                    ItemName = b.ProductName,
+            //                                    LastQty = 0,
+            //                                    OpnameQty = 0,
+            //                                    ReceiptQty = 0,
+            //                                    SupplierType = d.SupplierImport == false ? "LOKAL" : "IMPORT",
+            //                                    UnitQtyName = b.UomUnit
 
-                                            });
+            //                                });
 
             
             #endregion
             #region filtered
             var Receipt = (from a in (from aa in dbContext.GarmentUnitReceiptNotes where aa.CreatedUtc.Date >= DateFrom.Date && aa.CreatedUtc.Date <= DateTo.Date 
-                                      && aa.UId == null && aa.IsDeleted == false && aa.URNType == "PEMBELIAN" select aa)
-                                  join b in (from bb in dbContext.GarmentUnitReceiptNoteItems where bb.ProductName == "FABRIC" && bb.IsDeleted == false select bb) on a.Id equals b.URNId
+                                      && aa.UId == null && aa.IsDeleted == false && pemasukan.Contains(aa.URNType)
+                                      select aa)
+                                  join b in (from bb in dbContext.GarmentUnitReceiptNoteItems where categories1.Contains(bb.ProductName) && bb.IsDeleted == false select bb) on a.Id equals b.URNId
                                   join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
                                   join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
+                                  
                                   //group new { a, b, c, d } by new { b.ProductCode, b.ProductName, b.SmallUomUnit, d.SupplierImport } into data
                                   select new MutationBBCentralViewModelTemp
                                   {
@@ -213,9 +265,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var ReceiptLocal = (from a in (from aa in dbContext.GarmentUnitReceiptNotes
                                            where aa.LastModifiedUtc.Date >= DateFrom.Date && aa.LastModifiedUtc.Date <= DateTo.Date
-                                            && aa.UId != null && aa.IsDeleted == false && aa.URNType == "PEMBELIAN"
+                                            && aa.UId != null && aa.IsDeleted == false && pemasukan.Contains(aa.URNType)
                                            select aa)
-                                       join b in (from bb in dbContext.GarmentUnitReceiptNoteItems where bb.ProductName == "FABRIC" && bb.IsDeleted == false select bb) on a.Id equals b.URNId
+                                       join b in (from bb in dbContext.GarmentUnitReceiptNoteItems where categories1.Contains(bb.ProductName) && bb.IsDeleted == false select bb) on a.Id equals b.URNId
                                        join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
                                        join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters()  on c.GarmentEPOId equals d.Id
 
@@ -234,12 +286,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                        });
             var Expenditure = (from a in (from aa in dbContext.GarmentUnitExpenditureNotes where aa.CreatedUtc.Date >= DateFrom.Date && aa.CreatedUtc.Date <= DateTo.Date
                                           && aa.UId == null && aa.IsDeleted == false && pengeluaran.Contains(aa.ExpenditureType) select aa )
-                                      join b in (from bb in dbContext.GarmentUnitExpenditureNoteItems where bb.ProductName == "FABRIC" && bb.IsDeleted == false select bb) on a.Id equals b.UENId
+                                      join b in (from bb in dbContext.GarmentUnitExpenditureNoteItems where categories1.Contains(bb.ProductName) && bb.IsDeleted == false select bb) on a.Id equals b.UENId
                                       join f in dbContext.GarmentUnitReceiptNoteItems on b.URNItemId equals f.Id
                                       join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on f.EPOItemId equals c.Id
                                       join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
-
-                                      select new MutationBBCentralViewModelTemp
+                               where b.ProductCode == "APL001"
+                               select new MutationBBCentralViewModelTemp
                                       {
                                           AdjustmentQty = 0,
                                           BeginQty = 0,
@@ -254,13 +306,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                       });
             var ExpenditureLocal = (from a in (from aa in dbContext.GarmentUnitExpenditureNotes
                                                where aa.LastModifiedUtc.Date >= DateFrom.Date && aa.LastModifiedUtc.Date <= DateTo.Date
-                                                && aa.UId == null && aa.IsDeleted == false && pengeluaran.Contains(aa.ExpenditureType)
+                                                && aa.UId != null && aa.IsDeleted == false && pengeluaran.Contains(aa.ExpenditureType)
                                                select aa)
-                                    join b in (from bb in dbContext.GarmentUnitExpenditureNoteItems where bb.ProductName == "FABRIC" && bb.IsDeleted == false select bb) on a.Id equals b.UENId
+                                    join b in (from bb in dbContext.GarmentUnitExpenditureNoteItems where categories1.Contains(bb.ProductName) && bb.IsDeleted == false select bb) on a.Id equals b.UENId
                                     join f in dbContext.GarmentUnitReceiptNoteItems on b.URNItemId equals f.Id
                                     join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on f.EPOItemId equals c.Id
                                     join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
-
+                                    where b.ProductCode == "APL001"
                                     select new MutationBBCentralViewModelTemp
                                     {
                                         AdjustmentQty = 0,
@@ -275,28 +327,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                         UnitQtyName = b.UomUnit
                                     });
 
-            var ReceiptCorrection = (from a in (from aa in dbContext.GarmentReceiptCorrections where aa.CreatedUtc.Date >= DateFrom.Date && aa.CreatedUtc.Date <= DateTo.Date
-                                                && aa.UId == null && aa.IsDeleted == false select aa)
-                                            join b in (from bb in dbContext.GarmentReceiptCorrectionItems where bb.ProductName == "FABRIC" && bb.IsDeleted == false select bb) on a.Id equals b.CorrectionId
-                                            join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
-                                            join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
+            //var ReceiptCorrection = (from a in (from aa in dbContext.GarmentReceiptCorrections where aa.CreatedUtc.Date >= DateFrom.Date && aa.CreatedUtc.Date <= DateTo.Date
+            //                                    && aa.UId == null && aa.IsDeleted == false select aa)
+            //                                join b in (from bb in dbContext.GarmentReceiptCorrectionItems where categories1.Contains(bb.ProductName) && bb.IsDeleted == false select bb) on a.Id equals b.CorrectionId
+            //                                join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
+            //                                join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
+            //                         //where b.ProductCode == "TC07547"
+            //                         select new MutationBBCentralViewModelTemp
+            //                                {
+            //                                    AdjustmentQty = 0,
+            //                                    BeginQty = 0,
+            //                                    ExpenditureQty = b.SmallQuantity,
+            //                                    ItemCode = b.ProductCode,
+            //                                    ItemName = b.ProductName,
+            //                                    LastQty = 0,
+            //                                    OpnameQty = 0,
+            //                                    ReceiptQty = b.SmallQuantity,
+            //                                    SupplierType = d.SupplierImport == false ? "LOKAL" : "IMPORT",
+            //                                    UnitQtyName = b.UomUnit
+            //                                });
 
-                                            select new MutationBBCentralViewModelTemp
-                                            {
-                                                AdjustmentQty = 0,
-                                                BeginQty = 0,
-                                                ExpenditureQty = b.SmallQuantity < 0 ? b.SmallQuantity * -1 : 0,
-                                                ItemCode = b.ProductCode,
-                                                ItemName = b.ProductName,
-                                                LastQty = 0,
-                                                OpnameQty = 0,
-                                                ReceiptQty = b.SmallQuantity > 0 ? b.SmallQuantity : 0,
-                                                SupplierType = d.SupplierImport == false ? "LOKAL" : "IMPORT",
-                                                UnitQtyName = b.UomUnit
-                                            });
-
-            var dataUnion = ReceiptBalance.Union(BalanceStock).Union(ReceiptBalanceLocal).Union(ExpenditureBalance).Union(ExpenditureBalanceLocal).Union(ReceiptCorrectionBalance).Union(Receipt).Union(ReceiptLocal)
-                .Union(Expenditure).Union(ExpenditureLocal).Union(ReceiptCorrection).AsEnumerable();
+            var dataUnion = ReceiptBalance.Union(BalanceStock).Union(ReceiptBalanceLocal).Union(ExpenditureBalance).Union(ExpenditureBalanceLocal).
+               // Union(ReceiptCorrectionBalance).
+                Union(Receipt).Union(ReceiptLocal)
+                .Union(Expenditure).Union(ExpenditureLocal).
+                //Union(ReceiptCorrection).
+                AsEnumerable();
               
             #endregion
 
@@ -397,6 +453,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             DateTime DateTo = dateto == null ? DateTime.Now : (DateTime)dateto;
 
             var pengeluaran = new[] { "PROSES", "SAMPLE", "EXTERNAL" };
+            var pemasukan = new[] { "PROSES", "PEMBELIAN" };
+
+            var categories = GetProductCodes(1, int.MaxValue, "{}", "{}");
+            var coderequirement = new[] { "BP", "BE" };
+            var categories1 = categories.Where(x => coderequirement.Contains(x.CodeRequirement)).Select(x => x.Name).ToArray();
 
             List<MutationBPCentralViewModelTemp> saldoawalreceipt = new List<MutationBPCentralViewModelTemp>();
             List<MutationBPCentralViewModelTemp> saldoawalexpenditure = new List<MutationBPCentralViewModelTemp>();
@@ -406,7 +467,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             var lastdate = dbContext.BalanceStocks.OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault();
 
             var BalanceStock = (from a in (from aa in dbContext.BalanceStocks where aa.CreateDate == lastdate select aa)
-                                join b in (from bb in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() where bb.ProductName != "FABRIC" && bb.ProductName != "PROCESS" select bb) on (long)a.EPOItemId equals b.Id
+                                join b in (from bb in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() where categories1.Contains(bb.ProductName) select bb) on (long)a.EPOItemId equals b.Id
                                 join c in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on b.GarmentEPOId equals c.Id
                 
                                 select new MutationBPCentralViewModelTemp
@@ -422,8 +483,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 );
 
             var ReceiptBalance = (from a in (from aa in dbContext.GarmentUnitReceiptNotes where aa.CreatedUtc.Date > lastdate && aa.CreatedUtc.Date < DateFrom.Date
-                                             && aa.UId == null && aa.IsDeleted == false && aa.URNType == "PEMBELIAN" select aa)
-                                  join b in (from bb in dbContext.GarmentUnitReceiptNoteItems where bb.ProductName != "FABRIC" && bb.ProductName != "PROCESS" && bb.IsDeleted == false select bb) on a.Id equals b.URNId
+                                             && aa.UId == null && aa.IsDeleted == false && pemasukan.Contains(aa.URNType) select aa)
+                                  join b in (from bb in dbContext.GarmentUnitReceiptNoteItems where categories1.Contains(bb.ProductName) && bb.IsDeleted == false select bb) on a.Id equals b.URNId
                                   join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
                                   join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
   
@@ -443,9 +504,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var ReceiptBalanceLocal = (from a in (from aa in dbContext.GarmentUnitReceiptNotes
                                                    where aa.LastModifiedUtc.Date > lastdate && aa.LastModifiedUtc.Date < DateFrom.Date
-                                                    && aa.UId != null && aa.IsDeleted == false && aa.URNType == "PEMBELIAN"
-                                                   select aa)
-                                       join b in (from bb in dbContext.GarmentUnitReceiptNoteItems where bb.ProductName != "FABRIC" && bb.ProductName != "PROCESS" && bb.IsDeleted == false select bb) on a.Id equals b.URNId
+                                                    && aa.UId != null && aa.IsDeleted == false && pemasukan.Contains(aa.URNType)
+                                                  select aa)
+                                       join b in (from bb in dbContext.GarmentUnitReceiptNoteItems where categories1.Contains(bb.ProductName) && bb.IsDeleted == false select bb) on a.Id equals b.URNId
                                        join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
                                        join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
 
@@ -464,10 +525,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var ExpenditureBalance = (from a in (from aa in dbContext.GarmentUnitExpenditureNotes where aa.CreatedUtc.Date > lastdate &&
                                                  aa.CreatedUtc.Date < DateFrom.Date && aa.UId == null && aa.IsDeleted == false && pengeluaran.Contains(aa.ExpenditureType) select aa)
-                                      join b in (from bb in dbContext.GarmentUnitExpenditureNoteItems where bb.ProductName != "FABRIC" && bb.ProductName != "PROCESS" && bb.IsDeleted == false select bb) on a.Id equals b.UENId
+                                      join b in (from bb in dbContext.GarmentUnitExpenditureNoteItems where categories1.Contains(bb.ProductName) && bb.IsDeleted == false select bb) on a.Id equals b.UENId
                                       //join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
                                       //join g in dbContext.GarmentUnitDeliveryOrderItems on b.UnitDOItemId equals g.Id
-                                      join f in (from ff in dbContext.GarmentUnitReceiptNoteItems where ff.ProductName != "FABRIC" && ff.ProductName != "PROCESS" select ff) on b.URNItemId equals f.Id
+                                      join f in (from ff in dbContext.GarmentUnitReceiptNoteItems where categories1.Contains(ff.ProductName) select ff) on b.URNItemId equals f.Id
                                       join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on f.EPOItemId equals c.Id
                                       join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
     
@@ -487,9 +548,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                                       where aa.LastModifiedUtc.Date > lastdate &&
                                                        aa.LastModifiedUtc.Date < DateFrom.Date && aa.UId != null && aa.IsDeleted == false && pengeluaran.Contains(aa.ExpenditureType)
                                                       select aa)
-                                           join b in (from bb in dbContext.GarmentUnitExpenditureNoteItems where bb.ProductName != "FABRIC" && bb.ProductName != "PROCESS" && bb.IsDeleted == false select bb) on a.Id equals b.UENId
+                                           join b in (from bb in dbContext.GarmentUnitExpenditureNoteItems where categories1.Contains(bb.ProductName) && bb.IsDeleted == false select bb) on a.Id equals b.UENId
                                            //join g in dbContext.GarmentUnitDeliveryOrderItems on b.UnitDOItemId equals g.Id
-                                           join f in (from ff in dbContext.GarmentUnitReceiptNoteItems where ff.ProductName != "FABRIC" && ff.ProductName != "PROCESS" select ff) on b.URNItemId equals f.Id
+                                           join f in (from ff in dbContext.GarmentUnitReceiptNoteItems where categories1.Contains(ff.ProductName) select ff) on b.URNItemId equals f.Id
                                            join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
                                            join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
 
@@ -509,9 +570,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             #region filtered
             var Receipt = (from a in (from aa in dbContext.GarmentUnitReceiptNotes
                                       where aa.CreatedUtc.Date >= DateFrom.Date && aa.CreatedUtc.Date <= DateTo.Date
-                                        && aa.UId == null && aa.IsDeleted == false && aa.URNType == "PEMBELIAN"
+                                        && aa.UId == null && aa.IsDeleted == false && pemasukan.Contains(aa.URNType)
                                       select aa)
-                           join b in (from bb in dbContext.GarmentUnitReceiptNoteItems where bb.ProductName != "FABRIC" && bb.ProductName != "PROCESS" && bb.IsDeleted == false select bb) on a.Id equals b.URNId
+                           join b in (from bb in dbContext.GarmentUnitReceiptNoteItems where categories1.Contains(bb.ProductName) && bb.IsDeleted == false select bb) on a.Id equals b.URNId
                            join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
                            join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
 
@@ -528,9 +589,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                            );
             var ReceiptLocal = (from a in (from aa in dbContext.GarmentUnitReceiptNotes
                                            where aa.LastModifiedUtc.Date >= DateFrom.Date && aa.LastModifiedUtc.Date <= DateTo.Date
-                                            && aa.UId != null && aa.IsDeleted == false && aa.URNType == "PEMBELIAN"
+                                            && aa.UId != null && aa.IsDeleted == false && pemasukan.Contains(aa.URNType)
                                            select aa)
-                                join b in (from bb in dbContext.GarmentUnitReceiptNoteItems where bb.ProductName != "FABRIC" && bb.ProductName != "PROCESS" && bb.IsDeleted == false select bb) on a.Id equals b.URNId
+                                join b in (from bb in dbContext.GarmentUnitReceiptNoteItems where categories1.Contains(bb.ProductName) && bb.IsDeleted == false select bb) on a.Id equals b.URNId
                                 join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
                                 join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
 
@@ -550,12 +611,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                           where aa.CreatedUtc.Date >= DateFrom.Date &&
                                             aa.CreatedUtc.Date <= DateTo.Date && aa.UId == null && aa.IsDeleted == false && pengeluaran.Contains(aa.ExpenditureType)
                                           select aa)
-                               join b in (from bb in dbContext.GarmentUnitExpenditureNoteItems where bb.ProductName != "FABRIC" && bb.ProductName != "PROCESS" && bb.IsDeleted == false select bb) on a.Id equals b.UENId
+                               join b in (from bb in dbContext.GarmentUnitExpenditureNoteItems where categories1.Contains(bb.ProductName) && bb.IsDeleted == false select bb) on a.Id equals b.UENId
                                //join g in dbContext.GarmentUnitDeliveryOrderItems on b.UnitDOItemId equals g.Id
-                               join f in (from ff in dbContext.GarmentUnitReceiptNoteItems where ff.ProductName != "FABRIC" && ff.ProductName != "PROCESS" select ff) on b.URNItemId equals f.Id
+                               join f in (from ff in dbContext.GarmentUnitReceiptNoteItems select ff) on b.URNItemId equals f.Id
                                join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on f.EPOItemId equals c.Id
                                join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
-       
+                               //where b.ProductCode == "NLB001"
                                select new MutationBPCentralViewModelTemp
                                {
                                    ItemCode = b.ProductCode,
@@ -570,14 +631,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var ExpenditureLocal = (from a in (from aa in dbContext.GarmentUnitExpenditureNotes
                                                where aa.LastModifiedUtc.Date >= DateFrom.Date &&
-                                                 aa.LastModifiedUtc.Date <= DateTo.Date && aa.UId == null && aa.IsDeleted == false && pengeluaran.Contains(aa.ExpenditureType)
+                                                 aa.LastModifiedUtc.Date <= DateTo.Date && aa.UId != null && aa.IsDeleted == false && pengeluaran.Contains(aa.ExpenditureType)
                                                select aa)
-                                    join b in (from bb in dbContext.GarmentUnitExpenditureNoteItems where bb.ProductName != "FABRIC" && bb.ProductName != "PROCESS" && bb.IsDeleted == false select bb) on a.Id equals b.UENId
+                                    join b in (from bb in dbContext.GarmentUnitExpenditureNoteItems where categories1.Contains(bb.ProductName) && bb.IsDeleted == false select bb) on a.Id equals b.UENId
                                     //join g in dbContext.GarmentUnitDeliveryOrderItems on b.UnitDOItemId equals g.Id
-                                    join f in (from ff in dbContext.GarmentUnitReceiptNoteItems where ff.ProductName != "FABRIC" && ff.ProductName != "PROCESS" select ff) on b.URNItemId equals f.Id
+                                    join f in (from ff in dbContext.GarmentUnitReceiptNoteItems select ff) on b.URNItemId equals f.Id
                                     join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on f.EPOItemId equals c.Id
                                     join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
-                        
+                                    //where b.ProductCode == "NLB001"
                                     select new MutationBPCentralViewModelTemp
                                     {
                                         ItemCode = b.ProductCode,
@@ -590,28 +651,31 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                     }
                                     );
 
-            var ReceiptCorrection = (from a in (from aa in dbContext.GarmentReceiptCorrections where aa.CreatedUtc.Date >= DateFrom.Date
-                                                 && aa.CreatedUtc.Date <= DateTo.Date && aa.UId == null && aa.IsDeleted == false
-                                                select aa)
-                                     join b in (from bb in dbContext.GarmentReceiptCorrectionItems where bb.ProductName != "FABRIC" && bb.ProductName != "PROCESS" && bb.IsDeleted == false select bb) on a.Id equals b.CorrectionId
-                                     join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
-                                     join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
+            //var ReceiptCorrection = (from a in (from aa in dbContext.GarmentReceiptCorrections where aa.CreatedUtc.Date >= DateFrom.Date
+            //                                     && aa.CreatedUtc.Date <= DateTo.Date && aa.UId == null && aa.IsDeleted == false
+            //                                    select aa)
+            //                         join b in (from bb in dbContext.GarmentReceiptCorrectionItems where categories1.Contains(bb.ProductName) && bb.IsDeleted == false select bb) on a.Id equals b.CorrectionId
+            //                         join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
+            //                         join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                              
-                                     select new MutationBPCentralViewModelTemp
-                                     {
-                                         ItemCode = b.ProductCode,
-                                         BeginQty = 0,
-                                         ExpenditureQty = b.SmallQuantity < 0 ? b.SmallQuantity * -1 : 0,
-                                         ItemName = b.ProductName,
-                                         ReceiptQty = b.SmallQuantity > 0 ? b.SmallQuantity : 0,
-                                         SupplierType = d.SupplierImport,
-                                         UnitQtyName = b.UomUnit
-                                     }
-                                     );
+            //                         select new MutationBPCentralViewModelTemp
+            //                         {
+            //                             ItemCode = b.ProductCode,
+            //                             BeginQty = 0,
+            //                             ExpenditureQty = b.SmallQuantity < 0 ? b.SmallQuantity * -1 : 0,
+            //                             ItemName = b.ProductName,
+            //                             ReceiptQty = b.SmallQuantity > 0 ? b.SmallQuantity : 0,
+            //                             SupplierType = d.SupplierImport,
+            //                             UnitQtyName = b.UomUnit
+            //                         }
+            //                         );
 
             #endregion
 
-            var data = ReceiptBalance.Union(BalanceStock).Union(ReceiptBalanceLocal).Union(ExpenditureBalance).Union(ExpenditureBalanceLocal).Union(Receipt).Union(ReceiptLocal).Union(Expenditure).Union(ExpenditureLocal).Union(ReceiptCorrection).AsEnumerable();
+            var data = ReceiptBalance.Union(BalanceStock).Union(ReceiptBalanceLocal).Union(ExpenditureBalance).Union(ExpenditureBalanceLocal).
+                Union(Receipt).Union(ReceiptLocal).Union(Expenditure).Union(ExpenditureLocal).
+                //Union(ReceiptCorrection).
+                AsEnumerable();
 
             var mutationgroup = data.GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBPCentralViewModelTemp
             {
