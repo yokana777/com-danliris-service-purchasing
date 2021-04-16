@@ -2051,7 +2051,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
 
-            var Query = (from a in dbContext.GarmentDeliveryOrders
+            var Query1 = (from a in dbContext.GarmentDeliveryOrders
                          join i in dbContext.GarmentDeliveryOrderItems on a.Id equals i.GarmentDOId
                          join j in dbContext.GarmentDeliveryOrderDetails on i.Id equals j.GarmentDOItemId
                          join m in dbContext.GarmentExternalPurchaseOrders on i.EPOId equals m.Id
@@ -2069,13 +2069,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              && a.DODate.AddHours(offset).Date >= DateFrom.Date
                              && a.DODate.AddHours(offset).Date <= DateTo.Date
                              && i.EPONo == (string.IsNullOrWhiteSpace(poEksNo) ? i.EPONo : poEksNo)
+                             //&& URN.URNType == "PEMBELIAN"
+
                          select new GarmentDeliveryOrderReportViewModel
                          {
                              no = a.DONo,
                              supplierDoDate = a.DODate == null ? new DateTime(1970, 1, 1) : a.DODate,
                              date = a.ArrivalDate,
-                             URNNo = URN.URNNo ?? "-",
+                             URNNo = URN == null ? "-" : URN.URNNo,
                              URNDate = URN == null ? new DateTime(1970, 1, 1) : URN.ReceiptDate,
+                             URNType = URN == null ? "-" : URN.URNType,
                              UnitName = URN.UnitName ?? "-",
                              supplierName = a.SupplierName,
                              supplierCode = a.SupplierCode,
@@ -2102,6 +2105,45 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              INNo = a.InternNo,
                              TermPayment = m.PaymentMethod,
                          });
+
+            var Query = (from gdo in Query1
+                          where gdo.URNType != "PROSES" && gdo.URNType != "GUDANG LAIN"
+
+                          select new GarmentDeliveryOrderReportViewModel
+                          {
+                             no = gdo.no,
+                             supplierDoDate = gdo.supplierDoDate,
+                             date = gdo.date,
+                             URNNo = gdo.URNNo,
+                             URNDate = gdo.URNDate,
+                             UnitName = gdo.UnitName,
+                             supplierName = gdo.supplierName,
+                             supplierCode = gdo.supplierCode,
+                             shipmentNo = gdo.shipmentNo,
+                             shipmentType = gdo.shipmentType,
+                             createdBy = gdo.createdBy,
+                             doCurrencyCode = gdo.doCurrencyCode,
+                             doCurrencyRate = gdo.doCurrencyRate,
+                             isCustoms = gdo.isCustoms,
+                             price = gdo.price,
+                             ePONo = gdo.ePONo,
+                             productCode = gdo.productCode,
+                             productName = gdo.productName,
+                             productRemark = gdo.productRemark,
+                             prRefNo = gdo.prRefNo,
+                             roNo = gdo.roNo,
+                             prNo = gdo.prNo,
+                             remark = gdo.remark,
+                             dOQuantity = gdo.dOQuantity,
+                             dealQuantity = gdo.dealQuantity,
+                             uomUnit = gdo.uomUnit,
+                             createdUtc = gdo.createdUtc,
+                             EPOcreatedBy = gdo.createdBy,
+                             INNo = gdo.INNo,
+                             TermPayment = gdo.TermPayment,
+                             URNType = gdo.URNType,
+                         });
+
             Dictionary<string, double> q = new Dictionary<string, double>();
             List<GarmentDeliveryOrderReportViewModel> urn = new List<GarmentDeliveryOrderReportViewModel>();
             foreach (GarmentDeliveryOrderReportViewModel data in Query.ToList())
@@ -2120,7 +2162,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     urn.Add(data);
                 }
             }
-            return Query = urn.AsQueryable();
+            return Query1 = urn.AsQueryable();
         }
 
         public Tuple<List<GarmentDeliveryOrderReportViewModel>, int> GetReportDO(string no, string poEksNo, long supplierId, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Enums;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
@@ -44,12 +45,20 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
             this.invoiceFacade = invoiceFacade;
         }
 
+        protected void VerifyUser()
+        {
+            identityService.Username = User.Claims.ToArray().SingleOrDefault(p => p.Type.Equals("username")).Value;
+            identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
+            identityService.TimezoneOffset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+        }
+
         [HttpGet("by-user")]
         public IActionResult GetByUser(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
         {
             try
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 
                 string filterUser = string.Concat("'CreatedBy':'", identityService.Username, "'");
                 if (filter == null || !(filter.Trim().StartsWith("{") && filter.Trim().EndsWith("}")) || filter.Replace(" ", "").Equals("{}"))
@@ -62,6 +71,51 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                 }
 
                 return Get(page, size, order, keyword, filter);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpGet("dpp-vat-bank-expenditures")]
+        public IActionResult GetDPPVATBankExpenditures([FromQuery] string currencyCode, [FromQuery] int supplierId)
+        {
+            try
+            {
+                var result = facade.BankExpenditureReadInternalNotes(currencyCode, supplierId);
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(result);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpPut("dpp-vat-bank-expenditures/is-paid")]
+        public IActionResult UpdateIsPaidDPPVATBankExpenditures([FromQuery] bool dppVATIsPaid, [FromQuery] int bankExpenditureNoteId, [FromQuery] string bankExpenditureNoteNo, [FromQuery] string internalNoteIds = "[]", [FromQuery] string invoiceNoteIds = "[]")
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
+
+                var result = facade.BankExpenditureUpdateIsPaidInternalNoteAndInvoiceNote(dppVATIsPaid, bankExpenditureNoteId, bankExpenditureNoteNo, internalNoteIds, invoiceNoteIds);
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(result);
+                return Ok(Result);
             }
             catch (Exception e)
             {
@@ -120,7 +174,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                         s.inNo,
                         s.inDate,
                         supplier = new { s.supplier.Name },
-                        items = s.items.Select(i => new {
+                        items = s.items.Select(i => new
+                        {
                             //i.garmentInvoice,
                             garmentInvoice = new
                             {
@@ -190,10 +245,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                 }
                 else
                 {
+                    viewModel.isEdit = model.Position != PurchasingGarmentExpeditionPosition.Purchasing;
                     foreach (GarmentInternNoteItemViewModel item in viewModel.items)
                     {
                         GarmentInvoice garmentInvoice = invoiceFacade.ReadById((int)item.garmentInvoice.Id);
-                        if (garmentInvoice!=null)
+                        if (garmentInvoice != null)
                         {
                             GarmentInvoiceViewModel invoiceViewModel = mapper.Map<GarmentInvoiceViewModel>(garmentInvoice);
 
@@ -207,7 +263,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                             {
                                 GarmentDeliveryOrderViewModel deliveryOrderViewModel = mapper.Map<GarmentDeliveryOrderViewModel>(deliveryOrder);
                                 detail.deliveryOrder.items = deliveryOrderViewModel.items;
-                                if (detail.invoiceDetailId!=0)
+                                if (detail.invoiceDetailId != 0)
                                 {
                                     var invoiceItem = garmentInvoice.Items.First(s => s.Details.Any(d => d.Id == detail.invoiceDetailId));
 
@@ -218,7 +274,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                                         detail.dODetailId = invoiceDetail.DODetailId;
                                     }
                                 }
-                                
+
                             }
                         }
                     }
@@ -240,10 +296,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
 
         [HttpPost]
         [DisableRequestSizeLimit]
-        public async Task<IActionResult> Post([FromBody]GarmentInternNoteViewModel ViewModel)
+        public async Task<IActionResult> Post([FromBody] GarmentInternNoteViewModel ViewModel)
         {
             try
             {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
+
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
                 IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
@@ -252,7 +311,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
 
                 var model = mapper.Map<GarmentInternNote>(ViewModel);
 
-                await facade.Create(model,ViewModel.supplier.Import, identityService.Username);
+                await facade.Create(model, ViewModel.supplier.Import, identityService.Username);
 
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.CREATED_STATUS_CODE, General.OK_MESSAGE)
@@ -276,10 +335,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody]GarmentInternNoteViewModel ViewModel)
+        public async Task<IActionResult> Put(int id, [FromBody] GarmentInternNoteViewModel ViewModel)
         {
             try
             {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
+
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
                 IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
@@ -312,7 +374,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete([FromRoute]int id)
+        public IActionResult Delete([FromRoute] int id)
         {
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
@@ -332,6 +394,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
         {
             try
             {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
+
                 var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
 
                 GarmentInternNote model = facade.ReadById(id);
@@ -388,14 +453,16 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
         }
         #region Monitoring
         [HttpGet("monitoring")]
-        public IActionResult GetReportIN(DateTime? dateFrom, DateTime? dateTo, string no, string supplierCode, string curencyCode, string invoiceNo, string doNo, string billNo, string paymentBill, int page = 1, int size = 25, string Order = "{}")
+        public IActionResult GetReportIN(DateTime? dateFrom, DateTime? dateTo, string no, string supplierCode, string curencyCode, string invoiceNo, string npn, string doNo, string billNo, string paymentBill, int page = 1, int size = 25, string Order = "{}")
         {
             try
             {
+
+                VerifyUser();
                 int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
                 string accept = Request.Headers["Accept"];
 
-                var data = facade.GetReport(no, supplierCode, curencyCode, invoiceNo, doNo, billNo, paymentBill, dateFrom, dateTo, page, size, Order, offset);
+                var data = facade.GetReport(no, supplierCode, curencyCode, invoiceNo, npn, doNo, billNo, paymentBill, dateFrom, dateTo, page, size, Order, offset);
 
                 return Ok(new
                 {
@@ -415,18 +482,19 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
             }
         }
         [HttpGet("monitoring/download")]
-        public IActionResult GetXlsDO2(DateTime? dateFrom, DateTime? dateTo, string no, string supplierCode, string curencyCode, string invoiceNo, string doNo, string billNo, string paymentBill)
+        public IActionResult GetXlsDO2(DateTime? dateFrom, DateTime? dateTo, string no, string supplierCode, string curencyCode, string invoiceNo, string npn, string doNo, string billNo, string paymentBill)
         {
             //Console.WriteLine("sampai sini");
             try
             {
+                VerifyUser();
                 byte[] xlsInBytes;
                 int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
                 string accept = Request.Headers["Accept"];
                 DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : Convert.ToDateTime(dateFrom);
                 DateTime DateTo = dateTo == null ? DateTime.Now : Convert.ToDateTime(dateTo);
 
-                var xls = facade.GenerateExcelIn(no, supplierCode, curencyCode, invoiceNo, doNo, billNo, paymentBill, dateFrom, dateTo, offset);
+                var xls = facade.GenerateExcelIn(no, supplierCode, curencyCode, invoiceNo, npn, doNo, billNo, paymentBill, dateFrom, dateTo, offset);
                 string filename = String.Format("Nota Intern - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
 
                 xlsInBytes = xls.ToArray();

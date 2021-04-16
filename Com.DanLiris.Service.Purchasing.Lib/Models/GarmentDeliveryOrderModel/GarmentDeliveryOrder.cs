@@ -1,4 +1,5 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Enums;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -39,6 +40,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel
 
         public bool? UseVat { get; set; }
         public bool? UseIncomeTax { get; set; }
+        public bool? IsPayVAT { get; set; }
+        public bool? IsPayIncomeTax { get; set; }
 
         [MaxLength(255)]
         public int? IncomeTaxId { get; set; }
@@ -54,5 +57,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel
 
 
         public virtual ICollection<GarmentDeliveryOrderItem> Items { get; set; }
-	}
+        public bool SupplierIsImport { get; set; }
+    }
 }

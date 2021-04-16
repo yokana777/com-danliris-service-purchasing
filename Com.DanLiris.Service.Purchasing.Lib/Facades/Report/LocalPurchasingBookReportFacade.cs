@@ -154,7 +154,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 //var unitPaymentOrder = unitPaymentOrders.FirstOrDefault(f => f.URNId.Equals(urnItem.URNId));
                 //var epoItem = epoItems.FirstOrDefault(f => f.epoDetailIds.Contains(urnItem.EPODetailId));
                 //var epoDetail = epoItem.Details.FirstOrDefault(f => f.Id.Equals(urnItem.EPODetailId));
-                var currency = currencies.FirstOrDefault(f => f.Code == item.CurrencyCode);
+                var selectedCurrencies = currencies.Where(element => element.Code == item.CurrencyCode).ToList();
+                var currency = selectedCurrencies.OrderBy(entity => (entity.Date - item.ReceiptDate).Duration()).FirstOrDefault();
+
+                if (currency == null)
+                    currency = currencies.FirstOrDefault(element => element.Code == currency.Code);
 
                 int.TryParse(item.UnitId, out var unitId);
                 var unit = units.FirstOrDefault(element => element.Id == unitId);
@@ -540,7 +544,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 //var unitPaymentOrder = unitPaymentOrders.FirstOrDefault(f => f.URNId.Equals(urnItem.URNId));
                 //var epoItem = epoItems.FirstOrDefault(f => f.epoDetailIds.Contains(urnItem.EPODetailId));
                 //var epoDetail = epoItem.Details.FirstOrDefault(f => f.Id.Equals(urnItem.EPODetailId));
-                var currency = currencies.FirstOrDefault(f => f.Code == item.CurrencyCode);
+                var selectedCurrencies = currencies.Where(element => element.Code == item.CurrencyCode).ToList();
+                var currency = selectedCurrencies.OrderBy(entity => (entity.Date - item.ReceiptDate).Duration()).FirstOrDefault();
 
                 int.TryParse(item.UnitId, out var unitId);
                 var unit = units.FirstOrDefault(element => element.Id == unitId);
@@ -994,9 +999,75 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 worksheet.Cells["A1"].Value = company;
                 worksheet.Cells["A2"].Value = title;
                 worksheet.Cells["A3"].Value = period;
-                worksheet.Cells["A4"].LoadFromDataTable(reportDataTable, true);
-                worksheet.Cells[$"A{4 + 3 + result.Reports.Count}"].LoadFromDataTable(categoryDataTable, true);
-                worksheet.Cells[$"A{4 + result.Reports.Count + 3 + result.CategorySummaries.Count + 3}"].LoadFromDataTable(currencyDataTable, true);
+                #region PrintHeader
+                var rowStartHeader = 4;
+                var colStartHeader = 1;
+
+                foreach (var columns in reportDataTable.Columns)
+                {
+                    DataColumn column = (DataColumn)columns;
+                    if (column.ColumnName == "DPP Valas")
+                    {
+                        var rowStartHeaderSpan = rowStartHeader + 1;
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Value = column.ColumnName;
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Style.Font.Bold = true;
+
+                        worksheet.Cells[rowStartHeader, colStartHeader].Value = "Pembelian";
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 3].Merge = true;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 3].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 3].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 3].Style.Font.Bold = true;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 3].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin) ;
+                    }
+                    else if(column.ColumnName == "DPP" && !isValas)
+                    {
+                        var rowStartHeaderSpan = rowStartHeader + 1;
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Value = column.ColumnName;
+                        worksheet.Cells[rowStartHeader, colStartHeader].Value = "Pembelian";
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 2].Merge = true;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 2].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 2].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 2].Style.Font.Bold = true;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 2].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+
+                    }
+                    else if (column.ColumnName == "DPP (IDR)" || column.ColumnName == "PPN (IDR)" || column.ColumnName == "PPH (IDR)" || column.ColumnName == "PPN"|| column.ColumnName == "PPH")
+                    {
+                        var rowStartHeaderSpan = rowStartHeader + 1;
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Value = column.ColumnName;
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Style.Font.Bold = true;
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+
+                    }
+                    else
+                    {
+                        worksheet.Cells[rowStartHeader, colStartHeader].Value = column.ColumnName;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader + 1, colStartHeader].Merge = true;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader + 1, colStartHeader].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader + 1, colStartHeader].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader + 1, colStartHeader].Style.Font.Bold = true;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader + 1, colStartHeader].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+
+
+
+                    }
+                    colStartHeader += 1;
+                }
+                #endregion
+                //worksheet.Cells["A6"].LoadFromDataTable(reportDataTable, false,OfficeOpenXml.Table.TableStyles.Light18);
+                worksheet.Cells["A6"].LoadFromDataTable(reportDataTable, false);
+                for(int i=6; i< result.Reports.Count+6; i++)
+                {
+                    for (int j=1 ; j <= reportDataTable.Columns.Count; j++){
+                        worksheet.Cells[i, j].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                    }
+                }
+                //worksheet.Cells[4, 1, 6 + result.Reports.Count, reportDataTable.Columns.Count].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                worksheet.Cells[$"A{6 + 3 + result.Reports.Count}"].LoadFromDataTable(categoryDataTable, true, OfficeOpenXml.Table.TableStyles.Light18);
+                worksheet.Cells[$"A{6 + result.Reports.Count + 3 + result.CategorySummaries.Count + 3}"].LoadFromDataTable(currencyDataTable, true, OfficeOpenXml.Table.TableStyles.Light18);
 
                 var stream = new MemoryStream();
                 package.SaveAs(stream);

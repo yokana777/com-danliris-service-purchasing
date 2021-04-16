@@ -61,7 +61,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             httpClientService
                 .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-currencies"))))
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new CurrencyDataUtil().GetMultipleResultFormatterOkString()) });
+            httpClientService
+                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("expenditure-goods/byRO"))))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentExpenditureGoodDataUtil().GetMultipleResultFormatterOkString()) });
 
+            httpClientService
+                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-categories"))))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentCategoryDataUtil().GetMultipleResultFormatterOkString()) });
 
             //HttpResponseMessage httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK);
             //httpResponseMessage.Content = new StringContent("{\"apiVersion\":\"1.0\",\"statusCode\":200,\"message\":\"Ok\",\"data\":[{\"Id\":7,\"code\":\"USD\",\"rate\":13700.0,\"date\":\"2018/10/20\"}],\"info\":{\"count\":1,\"page\":1,\"size\":1,\"total\":2,\"order\":{\"date\":\"desc\"},\"select\":[\"Id\",\"code\",\"rate\",\"date\"]}}");
@@ -785,10 +791,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var dateFrom = dateTo.AddDays(-30);
             var results = reportService.GenerateExcel("", "", "", "", "", dateFrom, dateTo, 0);
 
-
-
             Assert.NotNull(results);
         }
+
         [Fact]
         public async Task Should_Success_GetXLS_Flow_Detail_Expend()
         {
@@ -820,6 +825,43 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var dateTo = DateTime.UtcNow.AddDays(1);
             var dateFrom = dateTo.AddDays(-30);
             var results = reportService.GenerateExcel("BB", "", "", "", "", dateFrom, dateTo, 0);
+
+
+
+            Assert.NotNull(results);
+        }
+
+        [Fact]
+        public async Task Should_Success_GetXLS_Flow_Detail_Unit_Expend()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var Facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var modelLocalSupplier = await dataUtil(Facade, GetCurrentMethod()).GetNewData();
+            modelLocalSupplier.ExpenditureDate = DateTimeOffset.MinValue;
+            var responseLocalSupplier = await Facade.Create(modelLocalSupplier);
+
+            var reportService = new GarmentFlowDetailMaterialReportFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var dateTo = DateTime.UtcNow.AddDays(1);
+            var dateFrom = dateTo.AddDays(-30);
+            var results = reportService.GenerateExcelForUnit("", "", "", "", "", dateFrom, dateTo, 0);
+
+
+
+            Assert.NotNull(results);
+        }
+
+        [Fact]
+        public async Task Should_Success_GetXLS_Flow_Detail_Unit_NUll_Result()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var Facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var modelLocalSupplier = await dataUtil(Facade, GetCurrentMethod()).GetNewData();
+            var responseLocalSupplier = await Facade.Create(modelLocalSupplier);
+
+            var reportService = new GarmentFlowDetailMaterialReportFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var dateTo = DateTime.UtcNow.AddDays(1);
+            var dateFrom = dateTo.AddDays(-30);
+            var results = reportService.GenerateExcelForUnit("BB", "", "", "", "", dateFrom, dateTo, 0);
 
 
 
@@ -1011,6 +1053,131 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
             Assert.NotNull(results);
         }
+        [Fact]
+        public async Task Should_Success_RO_Feature()
+        {
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
 
+            var ro = "";
+
+            foreach(var i in data.Items)
+            {
+                ro = i.RONo;
+            }
+
+            var RoFacade = new ROFeatureFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var Response = RoFacade.GetROReport(7, ro, 1, 25, "{}");
+
+            Assert.NotNull(Response.Item1);
+            //var Response = facade.Read()
+        }
+
+
+        //
+        //
+        [Fact]
+        public async Task Should_Success_GetReport_Realization_CMT()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var Facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var dtUnitExpenditureNote = await dataUtil(Facade, GetCurrentMethod()).GetNewDataForPreparing();
+          
+            var garmentExpenditureGoodDataUtil = new GarmentExpenditureGoodDataUtil();
+            var gegData = garmentExpenditureGoodDataUtil.GetNewData();
+            gegData.RONo = dtUnitExpenditureNote.Items.First().RONo;
+
+            var reportService = new GarmentRealizationCMTReportFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            var dateTo = DateTime.UtcNow.AddDays(1);
+            var dateFrom = dateTo.AddDays(-30);
+            var results = reportService.GetReport(dateFrom, dateTo, 0, 1, 25, "", 0);
+        
+            Assert.NotNull(results);
+        }
+
+        [Fact]
+        public async Task Should_Success_GetXls_Realization_CMT()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var Facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var dtUnitExpenditureNote = await dataUtil(Facade, GetCurrentMethod()).GetNewDataForPreparing();
+
+            var garmentExpenditureGoodDataUtil = new GarmentExpenditureGoodDataUtil();
+            var gegData = garmentExpenditureGoodDataUtil.GetNewData();
+            gegData.RONo = dtUnitExpenditureNote.Items.First().RONo;
+
+            var reportService = new GarmentRealizationCMTReportFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            var dateTo = DateTime.UtcNow.AddDays(1);
+            var dateFrom = dateTo.AddDays(-30);
+            var results = reportService.GenerateExcel(dateFrom, dateTo, 0, 0, null);
+
+            Assert.NotNull(results);
+        }
+
+        [Fact]
+        public async Task Should_Success_GetXls_Realization_CMT_Null_Result()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var Facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var dtUnitExpenditureNote = await dataUtil(Facade, GetCurrentMethod()).GetNewDataForPreparing();
+
+            var garmentExpenditureGoodDataUtil = new GarmentExpenditureGoodDataUtil();
+            var gegData = garmentExpenditureGoodDataUtil.GetNewData();
+            gegData.RONo = dtUnitExpenditureNote.Items.First().RONo;
+
+            var reportService = new GarmentRealizationCMTReportFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            var dateTo = DateTime.UtcNow.AddDays(1);
+            var dateFrom = dateTo.AddDays(-30);
+            var results = reportService.GenerateExcel(null, null, 0, 0, null);
+
+            Assert.NotNull(results);
+        }
+
+  
+        #region Mutation
+        [Fact]
+        public async Task Should_Success_Get_Mutation_BBCentral()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var facadeMutation = new MutationBeacukaiFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facadeMutation.GetReportBBCentral(1, 25, "{}", null, null, 7);
+            Assert.NotNull(Response.Item1);
+        }
+        [Fact]
+        public async Task Should_Success_Get_Excel_Mutation_BBCentral()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var facadeMutation = new MutationBeacukaiFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facadeMutation.GenerateExcelBBCentral(null, null, 7);
+            Assert.IsType<MemoryStream>(Response);
+        }
+        [Fact]
+        public async Task Should_Success_Get_Mutation_BPCentral()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var facadeMutation = new MutationBeacukaiFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facadeMutation.GetReportBPCentral(1, 25, "{}", null, null, 7);
+            Assert.NotNull(Response.Item1);
+        }
+        [Fact]
+        public async Task Should_Success_Get_Excel_Mutation_BPCentral()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var facadeMutation = new MutationBeacukaiFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facadeMutation.GenerateExcelBPCentral(null, null, 7);
+            Assert.IsType<MemoryStream>(Response);
+        }
+        #endregion
     }
 }
