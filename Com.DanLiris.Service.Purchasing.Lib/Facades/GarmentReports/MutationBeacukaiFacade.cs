@@ -290,7 +290,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                       join f in dbContext.GarmentUnitReceiptNoteItems on b.URNItemId equals f.Id
                                       join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on f.EPOItemId equals c.Id
                                       join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
-                               where b.ProductCode == "APL001"
                                select new MutationBBCentralViewModelTemp
                                       {
                                           AdjustmentQty = 0,
@@ -312,7 +311,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                     join f in dbContext.GarmentUnitReceiptNoteItems on b.URNItemId equals f.Id
                                     join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on f.EPOItemId equals c.Id
                                     join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
-                                    where b.ProductCode == "APL001"
                                     select new MutationBBCentralViewModelTemp
                                     {
                                         AdjustmentQty = 0,
