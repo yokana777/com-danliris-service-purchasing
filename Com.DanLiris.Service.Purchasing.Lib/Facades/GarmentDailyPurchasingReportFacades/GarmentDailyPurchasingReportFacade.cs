@@ -507,7 +507,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingRepo
                 double totalDPP1 = 0;
 
 
-                int rowPosition = 8;
+                int rowPosition = 7;
 
                 foreach (KeyValuePair<string, List<GarmentDailyPurchasingReportViewModel>> SupplName in dataBySupplier)
                 {
