@@ -53,7 +53,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             bool hasUnitFilter = FilterDictionary.ContainsKey("UnitId") && long.TryParse(FilterDictionary["UnitId"], out unitId);
             bool hasStorageFilter = FilterDictionary.ContainsKey("StorageId") && long.TryParse(FilterDictionary["StorageId"], out storageId);
             bool hasRONoFilter = FilterDictionary.ContainsKey("RONo");
+            bool hasPOSerialNumberFilter = FilterDictionary.ContainsKey("POSerialNumber");
             string RONo = hasRONoFilter ? (FilterDictionary["RONo"] ?? "").Trim() : "";
+            string POSerialNumber = hasPOSerialNumberFilter ? (FilterDictionary["POSerialNumber"] ?? "").Trim() : "";
 
             if (hasUnitFilter)
             {
@@ -66,6 +68,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             if (hasRONoFilter)
             {
                 GarmentDOItemsQuery = GarmentDOItemsQuery.Where(x => x.RO == RONo);
+            }
+            if (hasPOSerialNumberFilter)
+            {
+                GarmentDOItemsQuery = GarmentDOItemsQuery.Where(x => x.POSerialNumber == POSerialNumber);
             }
 
             List<object> ListData = new List<object>();
@@ -80,9 +86,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                            doi.URNItemId,
                            doi.EPOItemId,
                        };
-            var urnIds = data.Select(s => s.URNId).Distinct().ToList();
+            var urnIds= data.Select(s => s.URNId).Distinct().ToList();
             var URNs = dbSetGarmentUnitReceiptNote.Where(u => urnIds.Contains(u.Id))
-                .Select(s => new { s.Id, s.URNNo }).ToList();
+                .Select(s => new { s.Id, s.URNNo}).ToList();
             var urnItemIds = data.Select(s => s.URNItemId).Distinct().ToList();
             var urnItems = dbSetGarmentUnitReceiptNoteItem.Where(w => urnItemIds.Contains(w.Id))
                 .Select(s => new { s.Id, s.DODetailId, s.ProductRemark, s.PricePerDealUnit, s.ReceiptCorrection, s.CorrectionConversion }).ToList();
@@ -118,7 +124,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
                 ListData.Add(new
                 {
-                    DOItemId = doItem.DOItemsId,
+                    doItem.DOItemsId,
                     URNId = urn.Id,
                     urn.URNNo,
                     doItem.POItemId,
