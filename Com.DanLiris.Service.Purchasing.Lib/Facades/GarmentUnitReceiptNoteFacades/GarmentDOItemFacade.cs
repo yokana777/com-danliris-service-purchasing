@@ -53,7 +53,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             bool hasUnitFilter = FilterDictionary.ContainsKey("UnitId") && long.TryParse(FilterDictionary["UnitId"], out unitId);
             bool hasStorageFilter = FilterDictionary.ContainsKey("StorageId") && long.TryParse(FilterDictionary["StorageId"], out storageId);
             bool hasRONoFilter = FilterDictionary.ContainsKey("RONo");
+            bool hasPOSerialNumberFilter = FilterDictionary.ContainsKey("POSerialNumber");
             string RONo = hasRONoFilter ? (FilterDictionary["RONo"] ?? "").Trim() : "";
+            string POSerialNumber = hasPOSerialNumberFilter ? (FilterDictionary["POSerialNumber"] ?? "").Trim() : "";
 
             if (hasUnitFilter)
             {
@@ -66,6 +68,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             if (hasRONoFilter)
             {
                 GarmentDOItemsQuery = GarmentDOItemsQuery.Where(x => x.RO == RONo);
+            }
+            if (hasPOSerialNumberFilter)
+            {
+                GarmentDOItemsQuery = GarmentDOItemsQuery.Where(x => x.POSerialNumber == POSerialNumber);
             }
 
             List<object> ListData = new List<object>();
