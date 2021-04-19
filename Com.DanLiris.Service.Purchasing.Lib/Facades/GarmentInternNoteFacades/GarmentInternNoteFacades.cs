@@ -8,6 +8,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
@@ -388,7 +389,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                              invoiceId = Inv.Id,
                              priceTotal = pg.Sum(m => m.c.PriceTotal),
                              INDate = IN.INDate,
-                             NPN =  Inv.NPN
+                             NPN = Inv.NPN
                          });
             //  select new
             //{
@@ -404,7 +405,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 
             if (npn != null)
             {
-                Query = Query.Where( x => x.NPN == npn);
+                Query = Query.Where(x => x.NPN == npn);
             }
             //var Data = Query.GroupBy(s => s.doNo);
             TotalCountReport = Query.Distinct().Count();
@@ -427,6 +428,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                 var internnotedetail = internnotedetails.FirstOrDefault(x => x.Id.Equals(item.internNoteDetailId));
                 var deliveryorder = deliveryorders.FirstOrDefault(x => x.Id.Equals(item.deliveryOrderId));
                 var invoice = invoices.FirstOrDefault(x => x.Id.Equals(item.invoiceId));
+                var data1 = GetInvoice(item.invoiceId);
 
                 list.Add(new GarmentInternNoteReportViewModel
                 {
@@ -439,7 +441,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     NPN = invoice.NPN,
                     VatNo = invoice.VatNo,
                     //pOSerialNumber = String.Join(",",pg.Select(m=>m.c.POSerialNumber)),//InDetail.POSerialNumber,
-                    //priceTotal = item.priceTotal,//InDetail.PriceTotal,
+                    priceTotal = item.priceTotal,//InDetail.PriceTotal,
                     doNo = internnotedetail.DONo,
                     doDate = internnotedetail.DODate,
                     ProductName = internnotedetail.ProductName,
@@ -448,7 +450,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     billNo = deliveryorder.BillNo,
                     paymentBill = deliveryorder.PaymentBill,
                     doCurrencyRate = deliveryorder.DOCurrencyRate,
-                    paymentType = deliveryorder.PaymentMethod
+                    paymentType = deliveryorder.PaymentMethod,
+                    paymentDoc = data1 == null ? "-" : data1.ExpenditureNoteNo,
+                    paymentDate = data1 == null ? new DateTime(1970, 1, 1) : data1.ExpenditureDate
                 });
             }
             return list;
@@ -480,11 +484,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             result.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Rate", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tipe Bayar", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Pembayaran", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Pembayaran", DataType = typeof(String) });
             //result.Columns.Add(new DataColumn() { ColumnName = "poserialnumber", DataType = typeof(String) });
 
 
             if (Query.Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0, "");
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", 0, "","","");
             else
             {
                 int index = 0;
@@ -492,6 +498,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                 {
                     index++;
                     string date = item.iNDate == null ? "-" : item.iNDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string paymentdate = item.paymentDate == new DateTime(1970, 1, 1) ? "-" : item.paymentDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     //string DueDate = item.paymentDueDate == null ? "-" : item.paymentDueDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MM yyyy", new CultureInfo("id-ID"));
                     string invoDate = item.invoiceDate == null ? "-" : item.invoiceDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     string Dodate = item.doDate == null ? "-" : item.doDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
@@ -500,7 +507,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     //double totalHarga = item.pricePerDealUnit * item.quantity;
 
                     //result.Rows.Add(index, item.inNo, date, item.currencyCode, item.supplierName, item.paymentMethod, item.paymentType, DueDate, item.invoiceNo, invoDate, item.doNo, Dodate, item.pOSerialNumber, item.rONo, item.productCode, item.productName, item.quantity, item.uOMUnit, item.pricePerDealUnit, totalHarga);
-                    result.Rows.Add(index, item.inNo, date, item.supplierCode, item.supplierName, item.invoiceNo, invoDate, item.doNo, Dodate, item.billNo, item.paymentBill, priceTotal, item.NPN, item.VatNo, item.ProductName, item.currencyCode, item.doCurrencyRate, item.paymentType);
+                    result.Rows.Add(index, item.inNo, date, item.supplierCode, item.supplierName, item.invoiceNo, invoDate, item.doNo, Dodate, item.billNo, item.paymentBill, priceTotal, item.NPN, item.VatNo, item.ProductName, item.currencyCode, item.doCurrencyRate, item.paymentType, item.paymentDoc, paymentdate);
                 }
             }
 
@@ -508,12 +515,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 
         }
 
-        public List<GarmentInternalNoteDto> BankExpenditureReadInternalNotes(int currencyId, int supplierId)
+        public List<GarmentInternalNoteDto> BankExpenditureReadInternalNotes(string currencyCode, int supplierId)
         {
             var query = dbContext.GarmentInternNotes.Where(entity => entity.Position == PurchasingGarmentExpeditionPosition.AccountingAccepted || entity.Position == PurchasingGarmentExpeditionPosition.CashierAccepted);
 
-            if (currencyId > 0)
-                query = query.Where(entity => entity.CurrencyId.GetValueOrDefault() == currencyId);
+            if (!string.IsNullOrEmpty(currencyCode))
+                query = query.Where(entity => entity.CurrencyCode.Contains(currencyCode));
 
             if (supplierId > 0)
                 query = query.Where(entity => entity.SupplierId.GetValueOrDefault() == supplierId);
@@ -537,6 +544,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                 var deliveryOrderIds = garmentInvoiceItems.Select(element => element.DeliveryOrderId).ToList();
                 var deliveryOrders = dbContext.GarmentDeliveryOrders.Where(entity => deliveryOrderIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.DONo, entity.PaymentBill, entity.BillNo }).ToList();
 
+                var corrections = dbContext.GarmentCorrectionNotes.Where(entity => deliveryOrderIds.Contains(entity.DOId)).Select(entity => new { entity.Id, entity.TotalCorrection, entity.CorrectionType, entity.DOId });
+                var correctionIds = corrections.Select(element => element.Id).ToList();
+                var correctionItems = dbContext.GarmentCorrectionNoteItems.Where(entity => correctionIds.Contains(entity.GCorrectionId)).Select(entity => new { entity.Id, entity.PricePerDealUnitAfter, entity.Quantity, entity.GCorrectionId });
+
+
                 var externalPurchaseOrderIds = internalNoteDetails.Select(detail => detail.EPOId).ToList();
                 var externalPurchaseOrders = dbContext.GarmentExternalPurchaseOrders.Where(entity => externalPurchaseOrderIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.PaymentMethod }).ToList();
                 var externalPurchaseOrderItems = dbContext.GarmentExternalPurchaseOrderItems.Where(entity => externalPurchaseOrderIds.Contains(entity.GarmentEPOId)).Select(entity => new { entity.POId, entity.Id, entity.GarmentEPOId }).ToList();
@@ -545,15 +557,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 
                 foreach (var internalNote in internalNotes)
                 {
-                    var internalNoteInvoiceIds = internalNoteItems.Select(item => item.InvoiceId).ToList();
+                    var selectedInternalNoteItems = internalNoteItems.Where(element => element.GarmentINId == internalNote.Id).ToList();
+                    var internalNoteInvoiceIds = selectedInternalNoteItems.Select(item => item.InvoiceId).ToList();
 
                     var internalNoteDOIds = garmentInvoiceItems.Where(element => internalNoteInvoiceIds.Contains(element.InvoiceId)).Select(element => element.DeliveryOrderId).ToList();
                     var internalNoteDeliveryOrders = deliveryOrders.Where(element => internalNoteDOIds.Contains(element.Id)).ToList();
-                    var selectedInternalNoteItemIds = internalNoteItems.Where(element => element.GarmentINId == internalNote.Id).Select(element => element.Id).ToList();
+                    var selectedInternalNoteItemIds = selectedInternalNoteItems.Where(element => element.GarmentINId == internalNote.Id).Select(element => element.Id).ToList();
                     var selectedEPOIds = internalNoteDetails.Where(element => selectedInternalNoteItemIds.Contains(element.GarmentItemINId)).Select(element => element.EPOId).ToList();
                     var externalPurchaseOrder = externalPurchaseOrders.FirstOrDefault(element => selectedEPOIds.Contains(element.Id));
                     var selectedIPOIds = externalPurchaseOrderItems.Where(element => selectedEPOIds.Contains(element.GarmentEPOId)).Select(element => (long)element.POId).ToList();
                     var internalPurchaseOrderItem = internalPurchaseOrderItems.FirstOrDefault(element => selectedIPOIds.Contains(element.GPOId));
+
                     //var internalNoteInvoices = garmentInvoices.Where(invoice => internalNoteInvoiceIds.Contains(invoice.Id)).ToList();
                     var internalNoteInvoices = garmentInvoices.Where(invoice => internalNoteInvoiceIds.Contains(invoice.Id)).Select(s =>
                     {
@@ -562,9 +576,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                         var invoiceDetails = garmentInvoiceDetails.Where(element => invoiceItemIds.Contains(element.InvoiceItemId)).ToList();
                         var selectedDeliveryOrderIds = invoiceItems.Select(item => item.DeliveryOrderId).ToList();
                         var selectedDeliveryOrders = deliveryOrders.Where(element => selectedDeliveryOrderIds.Contains(element.Id)).ToList();
+
+                        var selectedCorrections = corrections.Where(element => selectedDeliveryOrderIds.Contains(element.DOId)).ToList();
+                        var correctionAmount = selectedCorrections.Sum(element =>
+                        {
+                            var selectedCorrectionItems = correctionItems.Where(item => item.GCorrectionId == element.Id);
+
+                            var total = 0.0;
+                            if (element.CorrectionType.ToUpper() == "RETUR")
+                                total = (double)selectedCorrectionItems.Sum(item => item.PricePerDealUnitAfter * item.Quantity);
+                            else
+                                total = (double)element.TotalCorrection;
+
+                            return total;
+                        });
+
                         int.TryParse(internalPurchaseOrderItem.CategoryId, out var categoryId);
-                        return new InternalNoteInvoiceDto(s.InvoiceNo, s.InvoiceDate, string.Join("\n", invoiceDetails.Select(element => $"- {element.ProductName}").Distinct()), categoryId, internalPurchaseOrderItem.CategoryName, externalPurchaseOrder.PaymentMethod, (int)s.Id, string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.DONo}").Distinct()), string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.BillNo}").Distinct()), string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.PaymentBill}").Distinct()), s.TotalAmount, s.UseVat, s.IsPayVat, s.UseIncomeTax, s.IsPayTax, s.IncomeTaxRate);
                         
+                        return new InternalNoteInvoiceDto(s.InvoiceNo, s.InvoiceDate, string.Join("\n", invoiceDetails.Select(element => $"- {element.ProductName}").Distinct()), categoryId, internalPurchaseOrderItem.CategoryName, externalPurchaseOrder.PaymentMethod, (int)s.Id, string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.DONo}").Distinct()), string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.BillNo}").Distinct()), string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.PaymentBill}").Distinct()), s.TotalAmount, s.UseVat, s.IsPayVat, s.UseIncomeTax, s.IsPayTax, s.IncomeTaxRate, correctionAmount);
+
                     }).ToList();
 
                     if (internalNoteInvoices.Count > 0)
@@ -688,5 +718,34 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             return dbContext.SaveChanges();
         }
         #endregion
+
+        public DPPVATBankExpenditureNoteViewModel GetInvoice(long InvoiceId)
+        {
+            string financeUri = "dpp-vat-bank-expenditure-notes/invoice";
+
+            IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+
+            var response = httpClient.GetAsync($"{APIEndpoint.Finance}{financeUri}/{InvoiceId}").Result;
+            if (response.IsSuccessStatusCode)
+            {
+                var content = response.Content.ReadAsStringAsync().Result;
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+
+                DPPVATBankExpenditureNoteViewModel viewModel;
+                if (result.GetValueOrDefault("data") == null)
+                {
+                    viewModel = null;
+                }
+                else
+                {
+                    viewModel = JsonConvert.DeserializeObject<DPPVATBankExpenditureNoteViewModel>(result.GetValueOrDefault("data").ToString());
+                }
+                return viewModel;
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }
