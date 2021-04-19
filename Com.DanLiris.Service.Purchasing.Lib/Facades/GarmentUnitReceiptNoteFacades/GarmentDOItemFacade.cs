@@ -118,7 +118,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
                 ListData.Add(new
                 {
-                    DOItemId= doItem.DOItemsId,
+                    doItem.DOItemsId,
                     URNId = urn.Id,
                     urn.URNNo,
                     doItem.POItemId,
