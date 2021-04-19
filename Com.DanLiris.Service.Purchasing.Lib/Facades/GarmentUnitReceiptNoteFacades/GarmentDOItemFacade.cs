@@ -109,7 +109,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     s.RemainingQuantity,
                     RONo = s.RO
                 }).ToList();
-            foreach(var item in data)
+            foreach (var item in data)
             {
                 var urn = URNs.FirstOrDefault(f => f.Id.Equals(item.URNId));
                 var urnItem = urnItems.FirstOrDefault(f => f.Id.Equals(item.URNItemId));
@@ -179,9 +179,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             GarmentDOItemsQuery = GarmentDOItemsQuery.Where(x => x.RemainingQuantity > 0 && (x.RO.Contains(Keyword) || x.POSerialNumber.Contains(Keyword)));
 
             var data = from doi in GarmentDOItemsQuery
-                       //join urni in GarmentUnitReceiptNoteItemsQuery on doi.URNItemId equals urni.Id
-                       //join urn in GarmentUnitReceiptNotesQuery on urni.URNId equals urn.Id
-                       //join epoi in GarmentExternalPurchaseOrderItemsQuery on doi.EPOItemId equals epoi.Id
+                           //join urni in GarmentUnitReceiptNoteItemsQuery on doi.URNItemId equals urni.Id
+                           //join urn in GarmentUnitReceiptNotesQuery on urni.URNId equals urn.Id
+                           //join epoi in GarmentExternalPurchaseOrderItemsQuery on doi.EPOItemId equals epoi.Id
                        select new
                        {
                            //DOItemsId = doi.Id,
