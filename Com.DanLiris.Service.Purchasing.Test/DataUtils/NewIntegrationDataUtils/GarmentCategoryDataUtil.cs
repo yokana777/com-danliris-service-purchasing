@@ -9,6 +9,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
 {
     public class GarmentCategoryDataUtil
     {
+
         public GarmentCategoryViewModel GetNewData()
         {
             long nowTicks = DateTimeOffset.Now.Ticks;
@@ -33,9 +34,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
             return result;
         }
 
+
+        public string GetResultFormatterOkString()
+        {
+            var result = GetResultFormatterOk();
+
+            return JsonConvert.SerializeObject(result);
+        }
+
         public Dictionary<string, object> GetMultipleResultFormatterOk()
         {
-            var data = new List<GarmentCategoryViewModel> { GetNewData() };
+            var data = new List<CategoryViewModel> { GetNewData() };
 
             Dictionary<string, object> result =
                 new ResultFormatter("1.0", General.OK_STATUS_CODE, General.OK_MESSAGE)
@@ -43,6 +52,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
 
             return result;
         }
+
 
         public string GetResultFormatterOkString()
         {

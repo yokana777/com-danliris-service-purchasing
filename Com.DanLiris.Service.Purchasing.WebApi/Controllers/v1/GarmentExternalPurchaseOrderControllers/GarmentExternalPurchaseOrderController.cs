@@ -565,5 +565,47 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
+
+        [HttpGet("unit-do/by-ro")]
+        public IActionResult UnitDOByRO(string keyword = null, string Filter = "{}")
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                var Data = facade.ReadItemForUnitDOByRO(keyword, Filter);
+
+                var newData = mapper.Map<List<GarmentExternalPurchaseOrderItemViewModel>>(Data);
+
+                List<object> listData = new List<object>();
+                listData.AddRange(
+                    newData.AsQueryable().Select(i => new
+                    {
+                        i.Id,
+                        i.RONo,
+                        i.Article,
+                    }).ToList()
+                );
+
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = listData,
+                    info = new Dictionary<string, object>
+                    {
+                        { "count", listData.Count },
+                    },
+                });
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
     }
 }

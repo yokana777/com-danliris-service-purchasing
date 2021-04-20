@@ -1166,7 +1166,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 Description = "Surat Perintah Bayar",
                 ReferenceNo = model.UPONo,
                 Status = "POSTED",
-                Items = new List<JournalTransactionItem>()
+                Items = new List<JournalTransactionItem>(),
+                Remark = $"{model.SupplierCode} - {model.SupplierName}"
             };
 
             var journalDebitItems = new List<JournalTransactionItem>();
@@ -1217,15 +1218,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     };
                 }
 
-                foreach (var urnItem in unitReceiptNote.Items)
+                var urnItemIds = item.Details.Select(element => element.URNItemId).ToList();
+                var unitReceiptNoteItems = unitReceiptNote.Items.Where(element => urnItemIds.Contains(element.Id)).ToList();
+                foreach (var detail in item.Details)
                 {
-                    var purchaseRequest = purchaseRequests.FirstOrDefault(entity => entity.Id == urnItem.PRId);
+                    var urnItem = unitReceiptNoteItems.FirstOrDefault(element => element.Id == detail.URNItemId);
+                    var purchaseRequest = purchaseRequests.FirstOrDefault(entity => entity.Id == detail.PRId);
                     var externalPurchaseOrder = externalPurchaseOrders.FirstOrDefault(entity => entity.Id == urnItem.EPOId);
 
                     var currency = await _currencyProvider.GetCurrencyByCurrencyCode(externalPurchaseOrder.CurrencyCode);
                     var currencyRate = currency != null ? (decimal)currency.Rate.GetValueOrDefault() : (decimal)externalPurchaseOrder.CurrencyRate;
 
-                    var grandTotal = Convert.ToDouble(urnItem.ReceiptQuantity * urnItem.PricePerDealUnit * (double)currencyRate);
+                    var grandTotal = Convert.ToDouble(detail.ReceiptQuantity * detail.PricePerDealUnit * (double)currencyRate);
 
                     int.TryParse(purchaseRequest.CategoryId, out var categoryId);
                     var category = categories.FirstOrDefault(entity => entity.Id == categoryId);
@@ -1275,7 +1279,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                         {
                             Code = $"{inVATCOA}.{division.COACode}.{unit.COACode}"
                         },
-                        Debit = (decimal)totalVAT
+                        Debit = (decimal)totalVAT,
+                        Remark = model.VatNo
                     });
                 }
             }

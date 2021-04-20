@@ -13,9 +13,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210415063836_AddFlagPositionGarmentDeliveryOrders")]
+    partial class AddFlagPositionGarmentDeliveryOrders
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1783,6 +1784,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("PaymentType");
 
+                    b.Property<int>("Position");
+
                     b.Property<string>("Remark");
 
                     b.Property<string>("ShipmentNo");
@@ -2291,7 +2294,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<DateTime>("CreatedUtc");
 
                     b.Property<string>("CurrencyCode")
-                        .HasMaxLength(20);
+                        .HasMaxLength(256);
 
                     b.Property<int>("CurrencyId");
 
@@ -2316,7 +2319,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(1000);
 
                     b.Property<string>("EPONo")
-                        .HasMaxLength(20);
+                        .HasMaxLength(255);
 
                     b.Property<string>("FreightCostBy")
                         .HasMaxLength(256);
@@ -2388,7 +2391,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(1000);
 
                     b.Property<string>("SupplierCode")
-                        .HasMaxLength(25);
+                        .HasMaxLength(255);
 
                     b.Property<int>("SupplierId")
                         .HasMaxLength(255);
@@ -2449,14 +2452,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<int>("DealUomId");
 
                     b.Property<string>("DealUomUnit")
-                        .HasMaxLength(50);
+                        .HasMaxLength(4000);
 
                     b.Property<double>("DefaultQuantity");
 
                     b.Property<int>("DefaultUomId");
 
                     b.Property<string>("DefaultUomUnit")
-                        .HasMaxLength(50);
+                        .HasMaxLength(4000);
 
                     b.Property<string>("DeletedAgent")
                         .IsRequired()
@@ -2492,20 +2495,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<int>("POId");
 
                     b.Property<string>("PONo")
-                        .HasMaxLength(20);
+                        .HasMaxLength(255);
 
                     b.Property<string>("PO_SerialNumber")
-                        .HasMaxLength(20);
+                        .HasMaxLength(255);
 
                     b.Property<int>("PRId");
 
                     b.Property<string>("PRNo")
-                        .HasMaxLength(20);
+                        .HasMaxLength(255);
 
                     b.Property<double>("PricePerDealUnit");
 
                     b.Property<string>("ProductCode")
-                        .HasMaxLength(20);
+                        .HasMaxLength(255);
 
                     b.Property<int>("ProductId");
 
@@ -2513,7 +2516,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(1000);
 
                     b.Property<string>("RONo")
-                        .HasMaxLength(20);
+                        .HasMaxLength(255);
 
                     b.Property<double>("ReceiptQuantity");
 
@@ -2525,7 +2528,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<int>("SmallUomId");
 
                     b.Property<string>("SmallUomUnit")
-                        .HasMaxLength(50);
+                        .HasMaxLength(4000);
 
                     b.Property<long?>("UENItemId");
 
