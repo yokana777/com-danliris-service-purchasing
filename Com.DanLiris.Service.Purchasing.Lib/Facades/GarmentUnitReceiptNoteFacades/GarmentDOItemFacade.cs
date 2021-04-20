@@ -50,35 +50,45 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
             long unitId = 0;
             long storageId = 0;
+            long doItemsId = 0;
             bool hasUnitFilter = FilterDictionary.ContainsKey("UnitId") && long.TryParse(FilterDictionary["UnitId"], out unitId);
             bool hasStorageFilter = FilterDictionary.ContainsKey("StorageId") && long.TryParse(FilterDictionary["StorageId"], out storageId);
             bool hasRONoFilter = FilterDictionary.ContainsKey("RONo");
             bool hasPOSerialNumberFilter = FilterDictionary.ContainsKey("POSerialNumber");
             string RONo = hasRONoFilter ? (FilterDictionary["RONo"] ?? "").Trim() : "";
             string POSerialNumber = hasPOSerialNumberFilter ? (FilterDictionary["POSerialNumber"] ?? "").Trim() : "";
+            bool hasDOItemIdFilter = FilterDictionary.ContainsKey("DOItemsId") && long.TryParse(FilterDictionary["DOItemsId"], out doItemsId);
 
-            if (hasUnitFilter)
+            if (hasDOItemIdFilter)
             {
-                GarmentDOItemsQuery = GarmentDOItemsQuery.Where(x => x.UnitId == unitId);
+                GarmentDOItemsQuery = GarmentDOItemsQuery.Where(x => x.Id == doItemsId);
             }
-            if (hasStorageFilter)
+            else
             {
-                GarmentDOItemsQuery = GarmentDOItemsQuery.Where(x => x.StorageId == storageId);
+                if (hasUnitFilter)
+                {
+                    GarmentDOItemsQuery = GarmentDOItemsQuery.Where(x => x.UnitId == unitId);
+                }
+                if (hasStorageFilter)
+                {
+                    GarmentDOItemsQuery = GarmentDOItemsQuery.Where(x => x.StorageId == storageId);
+                }
+                if (hasRONoFilter)
+                {
+                    GarmentDOItemsQuery = GarmentDOItemsQuery.Where(x => x.RO == RONo);
+                }
+                if (hasPOSerialNumberFilter)
+                {
+                    GarmentDOItemsQuery = GarmentDOItemsQuery.Where(x => x.POSerialNumber == POSerialNumber);
+                }
             }
-            if (hasRONoFilter)
-            {
-                GarmentDOItemsQuery = GarmentDOItemsQuery.Where(x => x.RO == RONo);
-            }
-            if (hasPOSerialNumberFilter)
-            {
-                GarmentDOItemsQuery = GarmentDOItemsQuery.Where(x => x.POSerialNumber == POSerialNumber);
-            }
+            
 
             List<object> ListData = new List<object>();
             var data = from doi in GarmentDOItemsQuery
                        join urni in GarmentUnitReceiptNoteItemsQuery on doi.URNItemId equals urni.Id
                        join urn in GarmentUnitReceiptNotesQuery on urni.URNId equals urn.Id
-                       //join epoi in GarmentExternalPurchaseOrderItemsQuery on doi.EPOItemId equals epoi.Id
+                       where doi.RemainingQuantity>0
                        select new
                        {
                            DOItemsId = doi.Id,
@@ -185,35 +195,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             GarmentDOItemsQuery = GarmentDOItemsQuery.Where(x => x.RemainingQuantity > 0 && (x.RO.Contains(Keyword) || x.POSerialNumber.Contains(Keyword)));
 
             var data = from doi in GarmentDOItemsQuery
-                           //join urni in GarmentUnitReceiptNoteItemsQuery on doi.URNItemId equals urni.Id
-                           //join urn in GarmentUnitReceiptNotesQuery on urni.URNId equals urn.Id
-                           //join epoi in GarmentExternalPurchaseOrderItemsQuery on doi.EPOItemId equals epoi.Id
+                       where doi.RemainingQuantity>0
+                       && (doi.RO.Contains(Keyword) || doi.POSerialNumber.Contains(Keyword))
                        select new
                        {
-                           //DOItemsId = doi.Id,
-                           //urn.URNNo,
-                           //urni.URNId,
                            doi.URNItemId,
                            RONo = doi.RO,
-                           //urni.DODetailId,
-                           //doi.EPOItemId,
-                           //doi.POItemId,
-                           //doi.PRItemId,
-                           //doi.ProductId,
                            doi.ProductName,
                            doi.ProductCode,
-                           //urni.ProductRemark,
-                           //doi.SmallQuantity,
-                           //doi.DesignColor,
-                           //doi.SmallUomId,
-                           //doi.SmallUomUnit,
                            doi.POSerialNumber,
-                           //urni.PricePerDealUnit,
-                           //urni.ReceiptCorrection,
-                           //urni.Conversion,
-                           //urni.CorrectionConversion,
-                           //epoi.Article,
-                           //doi.RemainingQuantity
+                           doi.RemainingQuantity,
+                           DOItemsId= doi.Id
                        };
 
             List<object> ListData = new List<object>(data.OrderBy(o => o.RONo).Take(size));
