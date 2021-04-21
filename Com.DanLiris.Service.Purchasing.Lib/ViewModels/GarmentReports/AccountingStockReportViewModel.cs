@@ -15,7 +15,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public string NoArticle { get; set; }
         public decimal? BeginningBalanceQty { get; set; }
         public string BeginningBalanceUom { get; set; }
-        public decimal? BeginningBalancePrice { get; set; }
+        public double? BeginningBalancePrice { get; set; }
         public decimal? ReceiptCorrectionQty { get; set; }
         public decimal? ReceiptPurchaseQty { get; set; }
         public decimal? ReceiptProcessQty { get; set; }
@@ -51,7 +51,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public double? ExpendKon1APrice { get; set; }
         public double? ExpendKon1BPrice { get; set; }
         public decimal? EndingBalanceQty { get; set; }
-        public decimal? EndingBalancePrice { get; set; }
+        public double? EndingBalancePrice { get; set; }
     }
 
     public class AccountingStockTempViewModel

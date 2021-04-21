@@ -22,7 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
         public string satuanbeli { get; set; }
         public double jumlahterima { get; set; }
         public string satuanterima { get; set; }
-        public double jumlah { get; set; }
+        public decimal jumlah { get; set; }
         public string tipepembayaran { get; set; }
         public string Jenis { get; set; }
     }
