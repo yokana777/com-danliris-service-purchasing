@@ -616,7 +616,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                              VAT = c.Vat,
                              TotalPaid = c.TotalPaid,
                              InvoiceNumber = c.InvoiceNo,
-                             DivisionCode = c.DivisionCode
+                             DivisionCode = c.DivisionCode,
+                             TotalDPP = c.TotalPaid - c.Vat,
+                             TotalPPN = c.Vat,
                          }
                       );
             }
