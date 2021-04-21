@@ -1172,5 +1172,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 
             return Tuple.Create(Data, TotalData, OrderDictionary);
         }
+
+        public List<GarmentExternalPurchaseOrderItem> ReadItemForUnitDOByRO(string Keyword = null, string Filter = "{}")
+        {
+            //var Query = this.dbSet.Where(entity => entity.IsPosted && !entity.IsClosed && !entity.IsCanceled).Select(entity => new { entity.Id});
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+
+            string RONo = (FilterDictionary["RONo"] ?? "").Trim();
+            //IQueryable<GarmentExternalPurchaseOrderItem> QueryItem = dbContext.GarmentExternalPurchaseOrderItems.Where(entity=>entity.RONo==RONo ); //CreatedUtc > DateTime(2018, 12, 31)
+
+            var QueryItem = (from i in dbContext.GarmentExternalPurchaseOrderItems
+                             join b in this.dbSet on i.GarmentEPOId equals b.Id
+                             where i.RONo == RONo
+                             && b.IsPosted && !b.IsClosed && !b.IsCanceled
+                             select new GarmentExternalPurchaseOrderItem
+                             {
+                                 Id = i.Id,
+                                 GarmentEPOId = i.GarmentEPOId,
+                                 RONo = i.RONo,
+                                 Article = i.Article
+                             });
+
+            return QueryItem.ToList();
+        }
     }
 }
