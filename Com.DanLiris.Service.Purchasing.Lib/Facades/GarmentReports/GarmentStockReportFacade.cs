@@ -418,8 +418,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              UnitRequestCode = data.FirstOrDefault().UnitRequestCode
                          }).ToList();
 
-            
-            return stock;
+            foreach(var i in stock)
+            {
+                i.BeginningBalanceQty = i.BeginningBalanceQty > 0 ? i.BeginningBalanceQty : 0;
+                i.EndingBalanceQty = i.EndingBalanceQty > 0 ? i.EndingBalanceQty : 0;
+            }
+
+            return stock.Where(x => (x.ProductCode != "EMB001") && (x.ProductCode != "WSH001") && (x.ProductCode != "PRC001") && (x.ProductCode != "APL001") && (x.ProductCode != "QLT001") && (x.ProductCode != "SMT001") && (x.ProductCode != "GMT001") && (x.ProductCode != "PRN001") && (x.ProductCode != "SMP001")).ToList(); ;
             //return SaldoAwal;
 
         }
@@ -429,6 +434,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             //var Query = GetStockQuery(tipebarang, unitcode, dateFrom, dateTo, offset);
             //Query = Query.OrderByDescending(x => x.SupplierName).ThenBy(x => x.Dono);
             List<GarmentStockReportViewModel> Data = GetStockQuery(tipebarang, unitcode, dateFrom, dateTo, offset).ToList();
+            Data = Data.Where(x => (x.BeginningBalanceQty > 0) || (x.EndingBalanceQty > 0) || (x.ReceiptCorrectionQty > 0) || (x.ReceiptQty > 0) || (x.ExpendQty > 0)).ToList();
             Data = Data.OrderBy(x => x.ProductCode).ThenBy(x => x.PlanPo).ToList();
             //int TotalData = Data.Count();
             return Tuple.Create(Data, Data.Count());
@@ -437,6 +443,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
         public MemoryStream GenerateExcelStockReport(string ctg, string categoryname, string unitname, string unitcode, DateTime? datefrom, DateTime? dateto, int offset)
         {
             var data = GetStockQuery(ctg, unitcode, datefrom, dateto, offset);
+            data = data.Where(x => (x.BeginningBalanceQty != 0) || (x.EndingBalanceQty != 0) || (x.ReceiptCorrectionQty > 0) || (x.ReceiptQty > 0) || (x.ExpendQty > 0)).ToList();
             var Query = data.OrderBy(x => x.ProductCode).ThenBy(x => x.PlanPo).ToList();
             DataTable result = new DataTable();
             var headers = new string[] { "No","Kode Barang", "No RO", "Plan PO", "Artikel", "Nama Barang","Keterangan Barang", "Buyer","Saldo Awal","Saldo Awal2", "Penerimaan", "Penerimaan1", "Penerimaan2","Pengeluaran","Pengeluaran1", "Saldo Akhir", "Saldo Akhir1", "Asal" }; 
