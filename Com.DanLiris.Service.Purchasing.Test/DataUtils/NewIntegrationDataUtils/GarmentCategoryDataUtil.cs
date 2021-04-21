@@ -9,14 +9,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
 {
     public class GarmentCategoryDataUtil
     {
-        public CategoryViewModel GetNewData()
+
+        public GarmentCategoryViewModel GetNewData()
         {
             long nowTicks = DateTimeOffset.Now.Ticks;
 
-            var data = new CategoryViewModel
+            var data = new GarmentCategoryViewModel
             {
-                Code = $"CategoryCode{nowTicks}",
-                Name= $"CategoryName{nowTicks}",
+                Code = $"Code{nowTicks}",
+                CodeRequirement = $"CodeRequirement{nowTicks}",
+                Name = $"Name{nowTicks}",
             };
             return data;
         }
@@ -31,6 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
 
             return result;
         }
+
 
         public string GetResultFormatterOkString()
         {
@@ -48,6 +51,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
                 .Ok(data);
 
             return result;
+        }
+
+
+        public string GetResultFormatterOkString()
+        {
+            var result = GetResultFormatterOk();
+
+            return JsonConvert.SerializeObject(result);
         }
 
         public string GetMultipleResultFormatterOkString()
