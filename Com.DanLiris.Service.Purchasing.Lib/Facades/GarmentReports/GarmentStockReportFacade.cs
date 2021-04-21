@@ -317,7 +317,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             var pengeluaranunitdeliveryorderItemIds = pengeluaranUnitExpenditureNoteItems.Select(x => x.UnitDOItemId);
             var pengeluaranunitdeliveryorderitems = dbContext.GarmentUnitDeliveryOrderItems.Where(x => pengeluaranunitdeliveryorderItemIds.Contains(x.Id)).Select(x => new { x.URNItemId, x.Id }).ToList();
             var pengeluaranunitreceiptnoteitemslIds = pengeluaranunitdeliveryorderitems.Select(x => x.URNItemId).ToList();
-            var pengeluaranunitreceiptnoteitems = dbContext.GarmentUnitReceiptNoteItems.Where(x => pengeluaranunitreceiptnoteitemslIds.Contains(x.Id)).Select(x => new { x.EPOItemId, x.Id }).ToList();
+            var pengeluaranunitreceiptnoteitems = dbContext.GarmentUnitReceiptNoteItems.IgnoreQueryFilters().Where(x => pengeluaranunitreceiptnoteitemslIds.Contains(x.Id)).Select(x => new { x.EPOItemId, x.Id }).ToList();
             //var sapengeluarandeliveryorderdetails = dbContext.GarmentDeliveryOrderDetails.Where(x => sapengeluarandeliveryorderdetailIds.Contains(x.Id)).Select(s => new { s.CodeRequirment, s.Id, s.DOQuantity }).ToList();
             var pengeluaranexternalpurchaseorderitemIds = pengeluaranunitreceiptnoteitems.Select(x => x.EPOItemId).ToList();
             var pengeluaranexternalpurchaseorderitems = dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters().Where(x => pengeluaranexternalpurchaseorderitemIds.Contains(x.Id)).Select(s => new { s.GarmentEPOId, s.Id }).ToList();
