@@ -1445,7 +1445,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                              satuanbeli = a.URNType == "PEMBELIAN" ? e.DealUomUnit : a.URNType == "PROSES" ? b.UomUnit : b.UomUnit,
                              jumlahterima = Math.Round(decimal.ToDouble(b.ReceiptQuantity) * decimal.ToDouble(b.Conversion), 2),
                              satuanterima = b.SmallUomUnit,
-                             jumlah = ((b.PricePerDealUnit / (b.Conversion == 0 ? 1 : b.Conversion) ) * (decimal)b.DOCurrencyRate ) * ( b.ReceiptQuantity * b.Conversion ),
+                             jumlah = ((b.PricePerDealUnit / (b.Conversion == 0 ? 1 : b.Conversion) ) * Convert.ToDecimal(b.DOCurrencyRate) ) * ( b.ReceiptQuantity * b.Conversion ),
                              asal = a.URNType == "PROSES" ? a.URNType : a.URNType == "PEMBELIAN" ? "Pembelian Eksternal" : gg.UnitSenderName,
                              Jenis = a.URNType,
                              tipepembayaran = f.PaymentMethod == "FREE FROM BUYER" || f.PaymentMethod == "CMT" || f.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL"
