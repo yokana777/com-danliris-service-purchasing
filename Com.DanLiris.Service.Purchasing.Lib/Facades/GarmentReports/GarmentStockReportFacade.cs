@@ -45,9 +45,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                join b in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on (long)a.EPOItemId equals b.Id
                                join c in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on b.GarmentEPOId equals c.Id
                                join d in dbContext.GarmentInternalPurchaseOrders on b.POId equals d.Id
+                               join e in dbContext.GarmentUnitReceiptNoteItems on (long)a.EPOItemId equals e.Id
+                               join f in dbContext.GarmentUnitReceiptNotes on e.URNId equals f.Id
                                where a.CreateDate == lastdate
-
-                               group new { a, b, c, d } by new { b.ProductCode, b.ProductName, b.PO_SerialNumber } into data
+                               && f.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? f.UnitCode : unitcode)
+                               group new { a, b, c, d, e, f } by new { b.ProductCode, b.ProductName, b.PO_SerialNumber } into data
 
                                select new GarmentStockReportViewModel
                                {
