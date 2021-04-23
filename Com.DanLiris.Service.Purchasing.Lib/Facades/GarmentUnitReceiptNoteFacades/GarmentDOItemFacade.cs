@@ -42,9 +42,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
         public List<object> ReadForUnitDO(string Keyword = null, string Filter = "{}")
         {
-            IQueryable<GarmentDOItems> GarmentDOItemsQuery = dbSetGarmentDOItems;
+            var GarmentDOItemsQuery = dbSetGarmentDOItems.Where(entity=>entity.RemainingQuantity>0).Select(a=> new { a.Id, a.EPOItemId, a.URNItemId, a.UnitId, a.StorageId, a.RO, a.POSerialNumber});
             IQueryable<GarmentUnitReceiptNoteItem> GarmentUnitReceiptNoteItemsQuery = dbSetGarmentUnitReceiptNoteItem;
-            IQueryable<GarmentUnitReceiptNote> GarmentUnitReceiptNotesQuery = dbSetGarmentUnitReceiptNote;
+            //IQueryable<GarmentUnitReceiptNote> GarmentUnitReceiptNotesQuery = dbSetGarmentUnitReceiptNote;
             //IQueryable<GarmentExternalPurchaseOrderItem> GarmentExternalPurchaseOrderItemsQuery = dbSetGarmentExternalPurchaseOrderItem;
 
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
@@ -87,8 +87,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             List<object> ListData = new List<object>();
             var data = from doi in GarmentDOItemsQuery
                        join urni in GarmentUnitReceiptNoteItemsQuery on doi.URNItemId equals urni.Id
-                       join urn in GarmentUnitReceiptNotesQuery on urni.URNId equals urn.Id
-                       where doi.RemainingQuantity>0
                        select new
                        {
                            DOItemsId = doi.Id,
@@ -96,15 +94,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                            doi.URNItemId,
                            doi.EPOItemId,
                        };
-            var urnIds= data.Select(s => s.URNId).Distinct().ToList();
+            var urnIds= data.Select(s => s.URNId).ToList().Distinct().ToList();
             var URNs = dbSetGarmentUnitReceiptNote.Where(u => urnIds.Contains(u.Id))
                 .Select(s => new { s.Id, s.URNNo}).ToList();
-            var urnItemIds = data.Select(s => s.URNItemId).Distinct().ToList();
+            var urnItemIds = data.Select(s => s.URNItemId).ToList().Distinct().ToList();
             var urnItems = dbSetGarmentUnitReceiptNoteItem.Where(w => urnItemIds.Contains(w.Id))
                 .Select(s => new { s.Id, s.DODetailId, s.ProductRemark, s.PricePerDealUnit, s.ReceiptCorrection, s.CorrectionConversion }).ToList();
-            var epoItemIds = data.Select(s => s.EPOItemId).Distinct().ToList();
+            var epoItemIds = data.Select(s => s.EPOItemId).ToList().Distinct().ToList();
             var epoItems = dbSetGarmentExternalPurchaseOrderItem.Where(w => epoItemIds.Contains(w.Id))
-                .Select(s => new { s.Id, s.Article }).ToList();
+                .Select(s => new { s.Id, s.Article }).ToList().ToList();
             var DOItemIds = data.Select(s => s.DOItemsId).Distinct().ToList();
             var DOItems = dbSetGarmentDOItems.Where(w => DOItemIds.Contains(w.Id))
                 .Select(s => new

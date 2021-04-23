@@ -28,10 +28,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrde
         [MaxLength(20)]
         public string ProductCode { get; set; }
 
-        [MaxLength(1000)]
+        [MaxLength(50)]
         public string ProductName { get; set; }
 
-        [MaxLength(1000)]
+        [MaxLength(255)]
         public string Article { get; set; }
         public double DefaultQuantity { get; set; }
 
