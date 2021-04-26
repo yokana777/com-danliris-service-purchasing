@@ -62,7 +62,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                join b in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on (long)a.EPOItemId equals b.Id
                                join c in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on b.GarmentEPOId equals c.Id
                                join d in dbContext.GarmentInternalPurchaseOrders on b.POId equals d.Id
-                               join e in dbContext.GarmentUnitReceiptNoteItems on (long)a.EPOItemId equals e.Id
+                               join e in dbContext.GarmentUnitReceiptNoteItems on (long)a.EPOItemId equals e.EPOItemId
                                join f in dbContext.GarmentUnitReceiptNotes on e.URNId equals f.Id
                                where a.CreateDate == lastdate
                                && f.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? f.UnitCode : unitcode)
@@ -120,8 +120,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             List<AccountingStockReportViewModel> penerimaan = new List<AccountingStockReportViewModel>();
             List<AccountingStockReportViewModel> pengeluaran = new List<AccountingStockReportViewModel>();
+            List<AccountingStockReportViewModel> koreksi = new List<AccountingStockReportViewModel>();
             List<AccountingStockReportViewModel> penerimaanSA = new List<AccountingStockReportViewModel>();
             List<AccountingStockReportViewModel> pengeluaranSA = new List<AccountingStockReportViewModel>();
+            List<AccountingStockReportViewModel> koreksiSA = new List<AccountingStockReportViewModel>();
             #region SaldoAwal
             var IdSATerima = (from a in dbContext.GarmentUnitReceiptNotes
                               join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
@@ -299,7 +301,101 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 });
             }
 
-            var SAwal = BalaceStock.Concat(penerimaanSA).Concat(pengeluaranSA).ToList();
+            var IdSAKoreksi = (from a in dbContext.GarmentUnitReceiptNotes
+                             join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+                             join c in dbContext.GarmentReceiptCorrectionItems on b.Id equals c.URNItemId
+                             where categories1.Contains(b.ProductName)
+                              && a.IsDeleted == false && b.IsDeleted == false
+                              &&
+                              a.CreatedUtc.AddHours(offset).Date > lastdate
+                              && a.CreatedUtc.AddHours(offset).Date < DateFrom.Date
+                              && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
+                               select new
+                             {
+                                 UrnId = a.Id,
+                                 UrnItemId = b.Id,
+                                 RCorrItemId = c.Id
+                             }).ToList().Distinct();
+
+            var sakoreksiunitreceiptnoteids = IdSAKoreksi.Select(x => x.UrnId).ToList();
+            var sakoreksiunitreceiptnotes = dbContext.GarmentUnitReceiptNotes.Where(x => sakoreksiunitreceiptnoteids.Contains(x.Id)).Select(s => new { s.ReceiptDate, s.URNType, s.UnitCode, s.UENNo, s.Id }).ToList();
+            var sakoreksiunitreceiptnoteItemIds = IdSATerima.Select(x => x.UrnItemId).ToList();
+            var sakoreksiuntreceiptnoteItems = dbContext.GarmentUnitReceiptNoteItems.Where(x => sakoreksiunitreceiptnoteItemIds.Contains(x.Id)).Select(s => new {s.EPOItemId, s.UENItemId, s.ProductCode, s.ProductName, s.RONo, s.SmallUomUnit, s.POSerialNumber, s.ReceiptQuantity, s.DOCurrencyRate, s.PricePerDealUnit, s.Id, s.SmallQuantity, s.Conversion }).ToList();
+            var sakoreksiUnitExpenditureNoteItemIds = sakoreksiuntreceiptnoteItems.Select(x => x.UENItemId).ToList();
+            var sakoreksiUnitExpenditureNoteItems = dbContext.GarmentUnitExpenditureNoteItems.Where(x => sakoreksiUnitExpenditureNoteItemIds.Contains(x.Id)).Select(s => new { s.UENId, s.Quantity, s.PricePerDealUnit, s.Id, s.Conversion }).ToList();
+            var sakoreksiUnitExpenditureNoteIds = sakoreksiUnitExpenditureNoteItems.Select(x => x.UENId).ToList();
+            var sakoreksiUnitExpenditureNotes = dbContext.GarmentUnitExpenditureNotes.Where(x => sakoreksiUnitExpenditureNoteIds.Contains(x.Id)).Select(s => new { s.UnitSenderCode, s.UnitRequestName, s.ExpenditureTo, s.Id, s.UENNo }).ToList();
+            var sakoreksiExternalPurchaseOrderItemIds = sakoreksiuntreceiptnoteItems.Select(x => x.EPOItemId).ToList();
+
+            var sakoreksipurchaserequestroes = sakoreksiuntreceiptnoteItems.Select(x => x.RONo).ToList();
+            var sakoreksipurchaserequestros = dbContext.GarmentPurchaseRequests.Where(x => sakoreksipurchaserequestroes.Contains(x.RONo)).Select(s => new { s.RONo, s.BuyerCode, s.Article }).ToList();
+            var sakoreksireceiptcorrectionids = IdSAKoreksi.Select(x=>x.RCorrItemId).ToList();
+            var sakoreksireceiptcorrections = dbContext.GarmentReceiptCorrectionItems.Where(x => sakoreksireceiptcorrectionids.Contains(x.Id)).Select(s => new { s.SmallQuantity, s.Quantity, s.Conversion, s.PricePerDealUnit, s.Id }).ToList();
+
+            foreach (var item in IdSAKoreksi)
+            {
+                var sakoreksiunitreceiptnote = sakoreksiunitreceiptnotes.FirstOrDefault(x => x.Id == item.UrnId);
+                var sakoreksiuntreceiptnoteItem = sakoreksiuntreceiptnoteItems.FirstOrDefault(x => x.Id == item.UrnItemId);
+                var sakoreksiUnitExpenditureNoteItem = sakoreksiUnitExpenditureNoteItems.FirstOrDefault(x => x.Id == sakoreksiuntreceiptnoteItem.UENItemId);
+                var sakoreksiUnitExpenditureNote = sakoreksiUnitExpenditureNoteItem != null ? sakoreksiUnitExpenditureNotes.FirstOrDefault(x => x.Id == sakoreksiUnitExpenditureNoteItem.UENId) : null;
+
+                var sakoreksipurchaserequestro = sakoreksipurchaserequestros.FirstOrDefault(x => x.RONo == sakoreksiuntreceiptnoteItem.RONo);
+                var sakoreksireceiptcorrection = sakoreksireceiptcorrections.FirstOrDefault(x => x.Id == item.RCorrItemId);
+
+                koreksiSA.Add(new AccountingStockReportViewModel
+                {
+                    ProductCode = sakoreksiuntreceiptnoteItem.ProductCode,
+                    ProductName = sakoreksiuntreceiptnoteItem.ProductName,
+                    RO = sakoreksiuntreceiptnoteItem.RONo,
+                    Buyer = sakoreksipurchaserequestro == null ? "" : sakoreksipurchaserequestro.BuyerCode,
+                    PlanPo = sakoreksiuntreceiptnoteItem.POSerialNumber,
+                    NoArticle = sakoreksipurchaserequestro == null ? "" : sakoreksipurchaserequestro.Article,
+                    BeginningBalanceQty = 0,
+                    BeginningBalanceUom = sakoreksiuntreceiptnoteItem.SmallUomUnit,
+                    BeginningBalancePrice = 0,
+                    ReceiptCorrectionQty = sakoreksireceiptcorrection != null ? (decimal)sakoreksireceiptcorrection.SmallQuantity : 0,
+                    ReceiptPurchaseQty = 0,
+                    ReceiptProcessQty = 0,
+                    ReceiptKon2AQty = 0,
+                    ReceiptKon2BQty = 0,
+                    ReceiptKon2CQty = 0,
+                    ReceiptKon1AQty = 0,
+                    ReceiptKon1BQty = 0,
+                    ReceiptCorrectionPrice = sakoreksireceiptcorrection != null ? Math.Round((((decimal)sakoreksireceiptcorrection.PricePerDealUnit / ((decimal)sakoreksireceiptcorrection.Conversion == 0 ? 1 : (decimal)sakoreksireceiptcorrection.Conversion)) * (decimal)sakoreksiuntreceiptnoteItem.DOCurrencyRate) * ((decimal)sakoreksireceiptcorrection.SmallQuantity), 2) : 0,
+                    ReceiptPurchasePrice = 0,
+                    ReceiptProcessPrice = 0,
+                    ReceiptKon2APrice = 0,
+                    ReceiptKon2BPrice = 0,
+                    ReceiptKon2CPrice = 0,
+                    ReceiptKon1APrice = 0,
+                    ReceiptKon1BPrice = 0,
+                    ExpendReturQty = 0,
+                    ExpendRestQty = 0,
+                    ExpendProcessQty = 0,
+                    ExpendSampleQty = 0,
+                    ExpendKon2AQty = 0,
+                    ExpendKon2BQty = 0,
+                    ExpendKon2CQty = 0,
+                    ExpendKon1AQty = 0,
+                    ExpendKon1BQty = 0,
+                    ExpendReturPrice = 0,
+                    ExpendRestPrice = 0,
+                    ExpendProcessPrice = 0,
+                    ExpendSamplePrice = 0,
+                    ExpendKon2APrice = 0,
+                    ExpendKon2BPrice = 0,
+                    ExpendKon2CPrice = 0,
+                    ExpendKon1APrice = 0,
+                    ExpendKon1BPrice = 0,
+                    EndingBalanceQty = 0,
+                    EndingBalancePrice = 0,
+                    POId = 0
+                });
+
+            }
+
+
+            var SAwal = BalaceStock.Concat(penerimaanSA).Concat(pengeluaranSA).Concat(koreksiSA).ToList();
             var SaldoAwal = (from a in SAwal
                              group a by new { a.PlanPo, a.ProductCode } into data
                              select new AccountingStockReportViewModel
@@ -354,10 +450,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             #endregion
             var IdTerima = (from a in dbContext.GarmentUnitReceiptNotes
                             join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
-                            join c in dbContext.GarmentUnitExpenditureNoteItems on b.UENItemId equals c.Id into UE
-                            from ww in UE.DefaultIfEmpty()
-                            join r in dbContext.GarmentUnitExpenditureNotes on ww.UENId equals r.Id into UEN
-                            from dd in UEN.DefaultIfEmpty()
+                            //join c in dbContext.GarmentUnitExpenditureNoteItems on b.UENItemId equals c.Id into UE
+                            //from ww in UE.DefaultIfEmpty()
+                            //join r in dbContext.GarmentUnitExpenditureNotes on ww.UENId equals r.Id into UEN
+                            //from dd in UEN.DefaultIfEmpty()
                             where
                             categories1.Contains(b.ProductName)
                             && a.IsDeleted == false && b.IsDeleted == false
@@ -369,28 +465,28 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             {
                                 UrnId = a.Id,
                                 UrnItemId = b.Id,
-                                UENItemsId = ww == null ? 0 : ww.Id,
-                                UENId = dd == null ? 0 : dd.Id,
+                                //UENItemsId = ww == null ? 0 : ww.Id,
+                                //UENId = dd == null ? 0 : dd.Id,
                                 EPOItemId = b.EPOItemId,
                                 a.UnitCode
                             }).ToList().Distinct();
             var penerimaanunitreceiptnoteids = IdTerima.Select(x => x.UrnId).ToList();
             var penerimaanunitreceiptnotes = dbContext.GarmentUnitReceiptNotes.Where(x => penerimaanunitreceiptnoteids.Contains(x.Id)).Select(s => new { s.ReceiptDate, s.URNType, s.UnitCode, s.UENNo, s.Id }).ToList();
             var penerimaanunitreceiptnoteItemIds = IdTerima.Select(x => x.UrnItemId).ToList();
-            var penerimaanuntreceiptnoteItems = dbContext.GarmentUnitReceiptNoteItems.Where(x => penerimaanunitreceiptnoteItemIds.Contains(x.Id)).Select(s => new { s.ProductCode, s.ProductName, s.RONo, s.SmallUomUnit, s.POSerialNumber, s.ReceiptQuantity, s.DOCurrencyRate, s.PricePerDealUnit, s.Id, s.SmallQuantity, s.Conversion }).ToList();
+            var penerimaanuntreceiptnoteItems = dbContext.GarmentUnitReceiptNoteItems.Where(x => penerimaanunitreceiptnoteItemIds.Contains(x.Id)).Select(s => new { s.UENItemId, s.ProductCode, s.ProductName, s.RONo, s.SmallUomUnit, s.POSerialNumber, s.ReceiptQuantity, s.DOCurrencyRate, s.PricePerDealUnit, s.Id, s.SmallQuantity, s.Conversion }).ToList();
             var penerimaanpurchaserequestro = penerimaanuntreceiptnoteItems.Select(x => x.RONo).ToList();
             var penerimaanpurchaserequestros = dbContext.GarmentPurchaseRequests.Where(x => penerimaanpurchaserequestro.Contains(x.RONo)).Select(s => new { s.Article, s.RONo, s.BuyerCode }).ToList();
-            var penerimaanUnitExpenditureNoteItemIds = IdTerima.Select(x => x.UENItemsId).ToList();
-            var penerimaanUnitExpenditureNoteItems = dbContext.GarmentUnitExpenditureNoteItems.Where(x => penerimaanUnitExpenditureNoteItemIds.Contains(x.Id)).Select(s => new { s.Quantity, s.PricePerDealUnit, s.Id }).ToList();
-            var penerimaanUnitExpenditureNoteIds = IdTerima.Select(x => x.UENId).ToList();
+            var penerimaanUnitExpenditureNoteItemIds = penerimaanuntreceiptnoteItems.Select(x => x.UENItemId).ToList();
+            var penerimaanUnitExpenditureNoteItems = dbContext.GarmentUnitExpenditureNoteItems.Where(x => penerimaanUnitExpenditureNoteItemIds.Contains(x.Id)).Select(s => new { s.UENId, s.Quantity, s.PricePerDealUnit, s.Id }).ToList();
+            var penerimaanUnitExpenditureNoteIds = penerimaanUnitExpenditureNoteItems.Select(x => x.UENId).ToList();
             var penerimaanUnitExpenditureNotes = dbContext.GarmentUnitExpenditureNotes.Where(x => penerimaanUnitExpenditureNoteIds.Contains(x.Id)).Select(s => new { s.UnitSenderCode, s.UnitRequestName, s.ExpenditureTo, s.Id, s.UENNo }).ToList();
             var penerimaanExternalPurchaseOrderItemIds = IdTerima.Select(x => x.EPOItemId).ToList();
             foreach (var item in IdTerima) {
                 var penerimaanunitreceiptnote = penerimaanunitreceiptnotes.FirstOrDefault(x => x.Id == item.UrnId);
                 var penerimaanuntreceiptnoteItem = penerimaanuntreceiptnoteItems.FirstOrDefault(x => x.Id == item.UrnItemId);
                 var penerimaanpurchaserequestroes = penerimaanpurchaserequestros.FirstOrDefault(x => x.RONo == penerimaanuntreceiptnoteItem.RONo);
-                var penerimaanUnitExpenditureNoteItem = penerimaanUnitExpenditureNoteItems.FirstOrDefault(x => x.Id == item.UENItemsId);
-                var penerimaanUnitExpenditureNote = penerimaanUnitExpenditureNotes.FirstOrDefault(x => x.Id == item.UENId);
+                var penerimaanUnitExpenditureNoteItem = penerimaanUnitExpenditureNoteItems.FirstOrDefault(x => x.Id == penerimaanuntreceiptnoteItem.UENItemId);
+                var penerimaanUnitExpenditureNote = penerimaanUnitExpenditureNoteItem != null ? penerimaanUnitExpenditureNotes.FirstOrDefault(x => x.Id == penerimaanUnitExpenditureNoteItem.UENId) : null;
 
                 penerimaan.Add(new AccountingStockReportViewModel
                 {
@@ -447,8 +543,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
                                  where categories1.Contains(b.ProductName)
                                      && a.IsDeleted == false && b.IsDeleted == false
-                                     && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
-                                     && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+                                     && a.CreatedUtc.Date >= DateFrom.Date
+                                     && a.CreatedUtc.Date <= DateTo.Date
                                      && a.UnitSenderCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitSenderCode : unitcode)
 
                                  select new
@@ -519,7 +615,97 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 });
             }
 
-            var SAkhir = penerimaan.Concat(pengeluaran).ToList();
+            var IdKoreksi = (from a in dbContext.GarmentUnitReceiptNotes
+                               join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+                               join c in dbContext.GarmentReceiptCorrectionItems on b.Id equals c.URNItemId
+                               where categories1.Contains(b.ProductName)
+                                && a.IsDeleted == false && b.IsDeleted == false
+                                && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
+                                && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+                                && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
+                             select new
+                               {
+                                   UrnId = a.Id,
+                                   UrnItemId = b.Id,
+                                   RCorrItemId = c.Id
+                               }).ToList().Distinct();
+
+            var koreksiunitreceiptnoteids = IdKoreksi.Select(x => x.UrnId).ToList();
+            var koreksiunitreceiptnotes = dbContext.GarmentUnitReceiptNotes.Where(x => koreksiunitreceiptnoteids.Contains(x.Id)).Select(s => new { s.ReceiptDate, s.URNType, s.UnitCode, s.UENNo, s.Id }).ToList();
+            var koreksiunitreceiptnoteItemIds = IdKoreksi.Select(x => x.UrnItemId).ToList();
+            var koreksiuntreceiptnoteItems = dbContext.GarmentUnitReceiptNoteItems.Where(x => koreksiunitreceiptnoteItemIds.Contains(x.Id)).Select(s => new { s.UENItemId, s.ProductCode, s.ProductName, s.RONo, s.SmallUomUnit, s.POSerialNumber, s.ReceiptQuantity, s.DOCurrencyRate, s.PricePerDealUnit, s.Id, s.SmallQuantity, s.Conversion }).ToList();
+            var koreksipurchaserequestro = koreksiuntreceiptnoteItems.Select(x => x.RONo).ToList();
+            var koreksipurchaserequestros = dbContext.GarmentPurchaseRequests.Where(x => koreksipurchaserequestro.Contains(x.RONo)).Select(s => new { s.Article, s.RONo, s.BuyerCode }).ToList();
+            var koreksiUnitExpenditureNoteItemIds = koreksiuntreceiptnoteItems.Select(x => x.UENItemId).ToList();
+            var koreksiUnitExpenditureNoteItems = dbContext.GarmentUnitExpenditureNoteItems.Where(x => koreksiUnitExpenditureNoteItemIds.Contains(x.Id)).Select(s => new { s.UENId, s.Quantity, s.PricePerDealUnit, s.Id }).ToList();
+            var koreksiUnitExpenditureNoteIds = koreksiUnitExpenditureNoteItems.Select(x => x.UENId).ToList();
+            var koreksiUnitExpenditureNotes = dbContext.GarmentUnitExpenditureNotes.Where(x => koreksiUnitExpenditureNoteIds.Contains(x.Id)).Select(s => new { s.UnitSenderCode, s.UnitRequestName, s.ExpenditureTo, s.Id, s.UENNo }).ToList();
+            //var koreksiExternalPurchaseOrderItemIds = IdKoreksi.Select(x => x.EPOItemId).ToList();
+            var koreksiReceiptCorrectionItemIds = IdKoreksi.Select(x => x.RCorrItemId).ToList();
+            var koreksiReceiptCorrectionItems = dbContext.GarmentReceiptCorrectionItems.Where(x=> koreksiReceiptCorrectionItemIds.Contains(x.Id)).Select(x=> new { x.SmallQuantity, x.Id, x.PricePerDealUnit, x.Conversion });
+            foreach (var item in IdKoreksi)
+            {
+                var koreksiunitreceiptnote = koreksiunitreceiptnotes.FirstOrDefault(x => x.Id == item.UrnId);
+                var koreksiuntreceiptnoteItem = koreksiuntreceiptnoteItems.FirstOrDefault(x => x.Id == item.UrnItemId);
+                var koreksipurchaserequestroes = penerimaanpurchaserequestros.FirstOrDefault(x => x.RONo == koreksiuntreceiptnoteItem.RONo);
+                var koreksiUnitExpenditureNoteItem = koreksiUnitExpenditureNoteItems.FirstOrDefault(x => x.Id == koreksiuntreceiptnoteItem.UENItemId);
+                var koreksiUnitExpenditureNote = koreksiUnitExpenditureNoteItems != null ? koreksiUnitExpenditureNotes.FirstOrDefault(x => x.Id == koreksiUnitExpenditureNoteItem.UENId) : null;
+                var koreksiReceiptCorrectionItem = koreksiReceiptCorrectionItems.FirstOrDefault(x=>x.Id == item.RCorrItemId);
+
+                koreksi.Add(new AccountingStockReportViewModel
+                {
+                    ProductCode = koreksiuntreceiptnoteItem.ProductCode,
+                    ProductName = koreksiuntreceiptnoteItem.ProductName,
+                    RO = koreksiuntreceiptnoteItem.RONo,
+                    Buyer = koreksipurchaserequestroes == null ? "" : koreksipurchaserequestroes.BuyerCode,
+                    PlanPo = koreksiuntreceiptnoteItem.POSerialNumber,
+                    NoArticle = koreksipurchaserequestroes == null ? "" : koreksipurchaserequestroes.Article,
+                    BeginningBalanceQty = 0,
+                    BeginningBalanceUom = koreksiuntreceiptnoteItem.SmallUomUnit,
+                    BeginningBalancePrice = 0,
+                    ReceiptCorrectionQty = koreksiReceiptCorrectionItem != null ? (decimal)koreksiReceiptCorrectionItem.SmallQuantity : 0,
+                    ReceiptPurchaseQty = 0,
+                    ReceiptProcessQty = 0,
+                    ReceiptKon2AQty = 0,
+                    ReceiptKon2BQty = 0,
+                    ReceiptKon2CQty = 0,
+                    ReceiptKon1AQty = 0,
+                    ReceiptKon1BQty = 0,
+                    ReceiptCorrectionPrice = koreksiReceiptCorrectionItem != null ? Math.Round((((decimal)koreksiReceiptCorrectionItem.PricePerDealUnit / ((decimal)koreksiReceiptCorrectionItem.Conversion == 0 ? 1 : (decimal)koreksiReceiptCorrectionItem.Conversion)) * (decimal)koreksiuntreceiptnoteItem.DOCurrencyRate) * ((decimal)koreksiReceiptCorrectionItem.SmallQuantity), 2) : 0,
+                    ReceiptPurchasePrice = 0,
+                    ReceiptProcessPrice = 0,
+                    ReceiptKon2APrice = 0,
+                    ReceiptKon2BPrice = 0,
+                    ReceiptKon2CPrice = 0,
+                    ReceiptKon1APrice = 0,
+                    ReceiptKon1BPrice = 0,
+                    ExpendReturQty = 0,
+                    ExpendRestQty = 0,
+                    ExpendProcessQty = 0,
+                    ExpendSampleQty = 0,
+                    ExpendKon2AQty = 0,
+                    ExpendKon2BQty = 0,
+                    ExpendKon2CQty = 0,
+                    ExpendKon1AQty = 0,
+                    ExpendKon1BQty = 0,
+                    ExpendReturPrice = 0,
+                    ExpendRestPrice = 0,
+                    ExpendProcessPrice = 0,
+                    ExpendSamplePrice = 0,
+                    ExpendKon2APrice = 0,
+                    ExpendKon2BPrice = 0,
+                    ExpendKon2CPrice = 0,
+                    ExpendKon1APrice = 0,
+                    ExpendKon1BPrice = 0,
+                    EndingBalanceQty = 0,
+                    EndingBalancePrice = 0,
+                    POId = 0
+                });
+
+            }
+
+
+            var SAkhir = penerimaan.Concat(pengeluaran).Concat(koreksi).ToList();
             var SaldoAkhir = (from a in SAkhir
                              group a by new { a.PlanPo, a.ProductCode } into data
                              select new AccountingStockReportViewModel
@@ -630,9 +816,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             foreach(var i in SaldoAkhirs)
             {
                 i.BeginningBalanceQty = i.BeginningBalanceQty > 0 ? i.BeginningBalanceQty : 0;
-                i.BeginningBalancePrice = i.BeginningBalanceQty > 0 ? i.BeginningBalancePrice : 0;
+                i.BeginningBalancePrice = (i.BeginningBalanceQty > 0 && i.BeginningBalancePrice > 0) ? i.BeginningBalancePrice : 0;
                 i.EndingBalanceQty = i.EndingBalanceQty > 0 ? i.EndingBalanceQty : 0;                               
-                i.EndingBalancePrice = i.EndingBalanceQty > 0 ? i.EndingBalancePrice : 0;
+                i.EndingBalancePrice = (i.EndingBalanceQty > 0 && i.EndingBalancePrice > 0) ? i.EndingBalancePrice : 0;
             }
 
             return SaldoAkhirs.Where(x => (x.ProductCode != "EMB001") && (x.ProductCode != "WSH001") && (x.ProductCode != "PRC001") && (x.ProductCode != "APL001") && (x.ProductCode != "QLT001") && (x.ProductCode != "SMT001") && (x.ProductCode != "GMT001") && (x.ProductCode != "PRN001") && (x.ProductCode != "SMP001")).ToList();
@@ -690,7 +876,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             double? EndingQty = Query.Sum(x => Convert.ToDouble(x.EndingBalanceQty));
             double? EndingTotal = Query.Sum(x => Convert.ToDouble(x.EndingBalancePrice));
             DataTable result = new DataTable();
-            var headers = new string[] { "No", "Kode", "Nama Barang", "RO", "Buyer", "PlanPO", "No Artikel", "Saldo Awal", "Saldo Awal1", "Saldo Awal2", "P E M A S U K A N", "P E M B E L I A N1", "P E M B E L I A N2", "P E M B E L I A N3", "P E M B E L I A N4", "P E M B E L I A N5", "P E M B E L I A N6", "P E M B E L I A N7", "P E M B E L I A N8", "P E M B E L I A N9", "P E M B E L I A N10", "P E M B E L I A N11", "P E M B E L I A N12", "P E M B E L I A N13", "P E M B E L I A N14", "P E M B E L I A N15", "P E N G E L U A R A N", "P E N G E L U A R A N1", "P E N G E L U A R A N2", "P E N G E L U A R A N3", "P E N G E L U A R A N4", "P E N G E L U A R A N5", "P E N G E L U A R A N6", "P E N G E L U A R A N7", "P E N G E L U A R A N8", "P E N G E L U A R A N9", "P E N G E L U A R A N10", "P E N G E L U A R A N11", "P E N G E L U A R A N12", "P E N G E L U A R A N13", "P E N G E L U A R A N14", "P E N G E L U A R A N15", "P E N G E L U A R A N16", "P E N G E L U A R A N17", "Saldo Akhir", "Saldo Akhir 1" };
+            var headers = new string[] { "No", "Kode", "No RO", "PlanPO", "No Artikel", "Nama Barang", "Buyer", "Saldo Awal", "Saldo Awal1", "Saldo Awal2", "P E M A S U K A N", "P E M B E L I A N1", "P E M B E L I A N2", "P E M B E L I A N3", "P E M B E L I A N4", "P E M B E L I A N5", "P E M B E L I A N6", "P E M B E L I A N7", "P E M B E L I A N8", "P E M B E L I A N9", "P E M B E L I A N10", "P E M B E L I A N11", "P E M B E L I A N12", "P E M B E L I A N13", "P E M B E L I A N14", "P E M B E L I A N15", "P E N G E L U A R A N", "P E N G E L U A R A N1", "P E N G E L U A R A N2", "P E N G E L U A R A N3", "P E N G E L U A R A N4", "P E N G E L U A R A N5", "P E N G E L U A R A N6", "P E N G E L U A R A N7", "P E N G E L U A R A N8", "P E N G E L U A R A N9", "P E N G E L U A R A N10", "P E N G E L U A R A N11", "P E N G E L U A R A N12", "P E N G E L U A R A N13", "P E N G E L U A R A N14", "P E N G E L U A R A N15", "P E N G E L U A R A N16", "P E N G E L U A R A N17", "Saldo Akhir", "Saldo Akhir 1" };
             var headers2 = new string[] { "Koreksi", "Pembelian", "Proses", "KONFEKSI 2A", "KONFEKSI 2B", "KONFEKSI 2C/EX.K4", "KONFEKSI 1A/EX.K3",  "KONFEKSI 1B", "Retur", "Sisa", "Proses", "Sample", "KONFEKSI 2A", "KONFEKSI 2B", "KONFEKSI 2C/EX.K4", "KONFEKSI 1A/EX. K3", "KONFEKSI 1B" };
             var subheaders = new string[] { "Jumlah", "Sat", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp" };
             for (int i = 0; i < 7; i++)
@@ -720,7 +906,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 var ReceiptKon1APrice = unitcode == "C1A" ? 0 : item.ReceiptKon1APrice;
                 var ReceiptCorrection = item.ReceiptCorrectionPrice;
 
-                result.Rows.Add(index++, item.ProductCode, item.ProductName, item.RO, item.Buyer, item.PlanPo, item.NoArticle,
+                result.Rows.Add(index++, item.ProductCode, item.RO, item.PlanPo, item.NoArticle, item.ProductName, item.Buyer,
                     Convert.ToDouble(item.BeginningBalanceQty), item.BeginningBalanceUom,
                     Convert.ToDouble(item.BeginningBalancePrice),
                     Convert.ToDouble(item.ReceiptCorrectionQty),

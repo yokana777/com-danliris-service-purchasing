@@ -1421,7 +1421,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                          join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
                          join e in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals e.Id
                          join f in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on e.GarmentEPOId equals f.Id
-                         join c in dbContext.GarmentInternalPurchaseOrders on e.POId equals c.Id
+                         join c in dbContext.GarmentInternalPurchaseOrders on e.POId equals c.Id into PO
+                         from cc in PO.DefaultIfEmpty()
                          join g in dbContext.GarmentUnitExpenditureNotes on a.UENId equals g.Id into uen
                          from gg in uen.DefaultIfEmpty()
                          where a.IsDeleted == false
@@ -1438,7 +1439,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                              keterangan = b.ProductRemark,
                              noro = b.RONo,
                              artikel = e.Article,
-                             kdbuyer = c.BuyerCode,
+                             kdbuyer = cc != null ? cc.BuyerCode : "-",
                              nobukti = a.URNNo,
                              tanggal = a.CreatedUtc,
                              jumlahbeli = a.URNType == "PEMBELIAN" ? decimal.ToDouble(b.ReceiptQuantity) : a.URNType == "PROSES" ? decimal.ToDouble(b.ReceiptQuantity) : decimal.ToDouble(b.ReceiptQuantity),
