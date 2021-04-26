@@ -53,7 +53,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookRepor
 
         public ReportDto GetReport(string billNo, string paymentBill, string garmentCategory, DateTimeOffset startDate, DateTimeOffset endDate, bool isForeignCurrency, bool isImportSupplier)
         {
-            //override timeout
             _dbContext.Database.SetCommandTimeout(18000);
             var query = from garmentDeliveryOrders in _dbContext.GarmentDeliveryOrders.AsQueryable()
 
