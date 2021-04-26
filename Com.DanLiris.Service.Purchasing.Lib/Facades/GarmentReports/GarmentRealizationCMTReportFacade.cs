@@ -149,7 +149,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 a.Count = dup.Count;
             }
 
-            Pageable<GarmentRealizationCMTReportViewModel> pageable = new Pageable<GarmentRealizationCMTReportViewModel>(Query, page - 1, size);
+            Pageable<GarmentRealizationCMTReportViewModel> pageable = new Pageable<GarmentRealizationCMTReportViewModel>(Query.OrderBy(o => o.Count).ThenBy(o => o.InvoiceNo).ThenBy(o => o.ExpenditureGoodNo), page - 1, size);
             List<GarmentRealizationCMTReportViewModel> Data = pageable.Data.ToList<GarmentRealizationCMTReportViewModel>();
             int TotalData = pageable.TotalCount;
 
@@ -212,7 +212,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     }
                     a.Count = dup.Count;
                 }
-                Query = q.AsQueryable();
+                Query = q.AsQueryable().OrderBy(o => o.Count).ThenBy(o => o.InvoiceNo).ThenBy(o => o.ExpenditureGoodNo);
                 foreach (var item in Query)
                 {
                     result.Rows.Add(item.Count, item.InvoiceNo, item.ExpenditureGoodNo, item.RONo, item.Article, item.UnitQty, item.EGAmountIDR, item.UENNo, item.ProductRemark, item.Quantity, item.EAmountVLS,

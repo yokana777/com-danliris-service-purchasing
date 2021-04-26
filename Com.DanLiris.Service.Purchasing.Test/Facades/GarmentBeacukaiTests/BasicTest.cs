@@ -72,7 +72,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentBeacukaiTests
 				.Setup(x => x.GetAsync(It.IsAny<string>()))
 				.ReturnsAsync(message);
             HttpClientService
-               .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-suppliers"))))
+               .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-suppliers/byCodes"))))
                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentSupplierDataUtil().GetMultipleResultFormatterOkString()) });
 
             var serviceProvider = new Mock<IServiceProvider>();
