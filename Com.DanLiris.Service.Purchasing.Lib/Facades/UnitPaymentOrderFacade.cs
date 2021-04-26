@@ -1442,7 +1442,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                              supplier = G.Key.SupplierCode + " - " + G.Key.SupplierName,
                              amountspb = Math.Round(G.Sum(c => c.Total), 2),
                              amountppn = G.Key.UseVat == false ? 0 : Math.Round((G.Sum(c => c.Total) / 10), 2),
-                             amountpph = G.Key.UseIncomeTax == false ? 0 : Math.Round((G.Sum(c => c.Total) / (G.Key.IncomeTaxRate / 100)), 2),
+                             amountpph = G.Key.UseIncomeTax == false ? 0 : Math.Round((G.Sum(c => c.Total) * (G.Key.IncomeTaxRate / 100)), 2),
                          });
             return Query;
         }
