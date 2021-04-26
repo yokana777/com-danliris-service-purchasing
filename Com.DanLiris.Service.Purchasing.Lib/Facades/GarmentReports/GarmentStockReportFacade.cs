@@ -45,41 +45,47 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                join b in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on (long)a.EPOItemId equals b.Id
                                join c in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on b.GarmentEPOId equals c.Id
                                join d in dbContext.GarmentInternalPurchaseOrders on b.POId equals d.Id
-                               join e in dbContext.GarmentUnitReceiptNoteItems on (long)a.EPOItemId equals e.Id
+                               join e in dbContext.GarmentUnitReceiptNoteItems on (long)a.EPOItemId equals e.EPOItemId
                                join f in dbContext.GarmentUnitReceiptNotes on e.URNId equals f.Id
                                where a.CreateDate == lastdate
                                && f.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? f.UnitCode : unitcode)
+                               //&& e.POSerialNumber == "PM17200220"
                                group new { a, b, c, d, e, f } by new { b.ProductCode, b.ProductName, b.PO_SerialNumber } into data
 
                                select new GarmentStockReportViewModel
                                {
-                                  BeginningBalanceQty = (decimal)data.Sum(x=>x.a.CloseStock),
-                                  BeginningBalanceUom = data.FirstOrDefault().b.SmallUomUnit,
-                                  Buyer = data.FirstOrDefault().d.BuyerCode,
-                                  EndingBalanceQty = 0,
-                                  EndingUom = data.FirstOrDefault().b.SmallUomUnit,
-                                  ExpandUom = data.FirstOrDefault().b.SmallUomUnit,
-                                  ExpendQty = 0,
-                                  NoArticle = data.FirstOrDefault().a.ArticleNo,
-                                  PaymentMethod = data.FirstOrDefault().c.PaymentMethod,
-                                  PlanPo = data.Key.PO_SerialNumber,
-                                  POId = data.FirstOrDefault().b.POId,
-                                  ProductCode = data.Key.ProductCode,
-                                  ProductName = data.Key.ProductName,
-                                  ProductRemark = data.FirstOrDefault().b.Remark,
-                                  ReceiptCorrectionQty = 0,
-                                  ReceiptQty = 0,
-                                  ReceiptUom = data.FirstOrDefault().b.SmallUomUnit,
-                                  RO = data.FirstOrDefault().b.RONo,
-                                  UNitCode = "",
-                                  UnitSenderCode = "",
-                                  UnitRequestCode = ""
+                                   BeginningBalanceQty = (decimal)data.Sum(x => x.a.CloseStock),
+                                   BeginningBalanceUom = data.FirstOrDefault().b.SmallUomUnit,
+                                   Buyer = data.FirstOrDefault().d.BuyerCode,
+                                   EndingBalanceQty = 0,
+                                   EndingUom = data.FirstOrDefault().b.SmallUomUnit,
+                                   ExpandUom = data.FirstOrDefault().b.SmallUomUnit,
+                                   ExpendQty = 0,
+                                   NoArticle = data.FirstOrDefault().a.ArticleNo,
+                                   PaymentMethod = data.FirstOrDefault().c.PaymentMethod,
+                                   PlanPo = data.Key.PO_SerialNumber,
+                                   POId = data.FirstOrDefault().e.Id,
+                                   ProductCode = data.Key.ProductCode,
+                                   ProductName = data.Key.ProductName,
+                                   ProductRemark = data.FirstOrDefault().b.Remark,
+                                   ReceiptCorrectionQty = 0,
+                                   ReceiptQty = 0,
+                                   ReceiptUom = data.FirstOrDefault().b.SmallUomUnit,
+                                   RO = data.FirstOrDefault().b.RONo,
+                                   UNitCode = "",
+                                   UnitSenderCode = "",
+                                   UnitRequestCode = ""
                                }).ToList();
+
+            //var Coba = BalaceStock.Where(x => x.PlanPo == "PM17200220");
+            //var BalaceStock = new List<GarmentStockReportViewModel>();
 
             List<GarmentStockReportViewModel> penerimaan = new List<GarmentStockReportViewModel>();
             List<GarmentStockReportViewModel> pengeluaran = new List<GarmentStockReportViewModel>();
+            List<GarmentStockReportViewModel> koreksi = new List<GarmentStockReportViewModel>();
             List<GarmentStockReportViewModel> penerimaanSA = new List<GarmentStockReportViewModel>();
             List<GarmentStockReportViewModel> pengeluaranSA = new List<GarmentStockReportViewModel>();
+            List<GarmentStockReportViewModel> koreksiSA = new List<GarmentStockReportViewModel>();
 
             #region SaldoAwal
             var IdSATerima = (from a in dbContext.GarmentUnitReceiptNotes
@@ -212,7 +218,76 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     UnitRequestCode = ""
                 });
             }
-            var SAwal = BalaceStock.Concat(penerimaanSA).Concat(pengeluaranSA).ToList();
+
+            var IdSAKoreksi = (from a in dbContext.GarmentUnitReceiptNotes
+                               join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+                               join c in dbContext.GarmentReceiptCorrectionItems on b.Id equals c.URNItemId
+                               where categories1.Contains(b.ProductName)
+                               && a.IsDeleted == false && b.IsDeleted == false
+                               &&
+                               a.CreatedUtc.AddHours(offset).Date > lastdate
+                               && a.CreatedUtc.AddHours(offset).Date < DateFrom.Date
+                               && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
+                               select new
+                               {
+                                   UrnId = a.Id,
+                                   UrnItemId = b.Id,
+                                   RCorrItemId = c.Id
+                               }).ToList().Distinct();
+
+            var sakoreksiunitreceiptnoteids = IdSAKoreksi.Select(x => x.UrnId).ToList();
+            var sakoreksiunitreceiptnotes = dbContext.GarmentUnitReceiptNotes.Where(x => sakoreksiunitreceiptnoteids.Contains(x.Id)).Select(s => new { s.ReceiptDate, s.URNType, s.UnitCode, s.UENNo, s.Id }).ToList();
+            var sakoreksiunitreceiptnoteItemIds = IdSATerima.Select(x => x.UrnItemId).ToList();
+            var sakoreksiuntreceiptnoteItems = dbContext.GarmentUnitReceiptNoteItems.Where(x => sakoreksiunitreceiptnoteItemIds.Contains(x.Id)).Select(s => new { s.ProductCode, s.ProductName, s.RONo, s.SmallUomUnit, s.POSerialNumber, s.ReceiptQuantity, s.DOCurrencyRate, s.PricePerDealUnit, s.Id, s.SmallQuantity, s.Conversion, s.ProductRemark, s.EPOItemId }).ToList();
+            //var sapenerimaandeliveryorderdetailIds = IdSATerima.Select(x => x.DoDetailId).ToList();
+            //var sapenerimaandeliveryorderdetails = dbContext.GarmentDeliveryOrderDetails.Where(x => sapenerimaandeliveryorderdetailIds.Contains(x.Id)).Select(s => new { s.CodeRequirment, s.Id, s.DOQuantity }).ToList();
+            var sakoreksiExternalPurchaseOrderItemIds = sakoreksiuntreceiptnoteItems.Select(x => x.EPOItemId).ToList();
+            var sapkoreksiExternalPurchaseOrderItems = dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters().Where(x => sakoreksiExternalPurchaseOrderItemIds.Contains(x.Id)).Select(s => new { s.GarmentEPOId, s.Id, s.PO_SerialNumber }).ToList();
+            var sakoreksiExternalPurchaseOrderIds = sapkoreksiExternalPurchaseOrderItems.Select(x => x.GarmentEPOId).ToList();
+            var sakoreksiExternalPurchaseOrders = dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters().Where(x => sakoreksiExternalPurchaseOrderIds.Contains(x.Id)).Select(s => new { s.Id, s.PaymentMethod }).ToList();
+            var sakoreksipurchaserequestros = sakoreksiuntreceiptnoteItems.Select(x => x.RONo).ToList();
+            var sakoreksipurchaserequests = dbContext.GarmentPurchaseRequests.Where(x => sakoreksipurchaserequestros.Contains(x.RONo)).Select(x => new { x.BuyerCode, x.Article, x.RONo }).ToList();
+            var sakoreksireceiptcorritemids = IdSAKoreksi.Select(x => x.RCorrItemId).ToList();
+            var sakoreksireceiptcorritems = dbContext.GarmentReceiptCorrectionItems.Where(x=> sakoreksireceiptcorritemids.Contains(x.Id)).Select(x=> new { x.Id, x.SmallQuantity, x.Conversion, x.Quantity, x.PricePerDealUnit });
+            //var sapenerimaanintrenalpurchaseorders = dbContext.GarmentInternalPurchaseOrders.Where(x => sapenerimaanintrenalpurchaseorderIds.Contains(x.Id)).Select(s => new { s.BuyerCode, s.Article, s.Id }).ToList();
+
+            foreach (var item in IdSAKoreksi)
+            {
+                var sakoreksiunitreceiptnote = sakoreksiunitreceiptnotes.FirstOrDefault(x => x.Id == item.UrnId);
+                var sakoreksiuntreceiptnoteItem = sakoreksiuntreceiptnoteItems.FirstOrDefault(x => x.Id == item.UrnItemId);
+                //var sapenerimaandeliveryorderdetail = sapenerimaandeliveryorderdetails.FirstOrDefault(x => x.Id == item.DoDetailId);
+                var sakoreksiExternalPurchaseOrderitem = sapkoreksiExternalPurchaseOrderItems.FirstOrDefault(x => x.Id == sakoreksiuntreceiptnoteItem.EPOItemId);
+                var sakoreksiExternalPurchaseOrder = sakoreksiExternalPurchaseOrders.FirstOrDefault(x => x.Id == sakoreksiExternalPurchaseOrderitem.GarmentEPOId);
+                var sakoreksipurchaserequest = sakoreksipurchaserequests.FirstOrDefault(x => x.RONo == sakoreksiuntreceiptnoteItem.RONo);
+                var sakoreksireceiptcorritem = sakoreksireceiptcorritems.FirstOrDefault(x => x.Id == item.RCorrItemId);
+
+                koreksiSA.Add(new GarmentStockReportViewModel
+                {
+                    BeginningBalanceQty = 0,
+                    BeginningBalanceUom = sakoreksiuntreceiptnoteItem.SmallUomUnit,
+                    Buyer = sakoreksipurchaserequest == null ? "" : sakoreksipurchaserequest.BuyerCode,
+                    EndingBalanceQty = 0,
+                    EndingUom = sakoreksiuntreceiptnoteItem.SmallUomUnit,
+                    ExpandUom = sakoreksiuntreceiptnoteItem.SmallUomUnit,
+                    ExpendQty = 0,
+                    NoArticle = sakoreksipurchaserequest == null ? "" : sakoreksipurchaserequest.Article,
+                    PaymentMethod = sakoreksiExternalPurchaseOrder == null ? "" : sakoreksiExternalPurchaseOrder.PaymentMethod,
+                    PlanPo = sakoreksiuntreceiptnoteItem.POSerialNumber,
+                    //POId = sapenerimaanintrenalpurchaseorder.Id,
+                    ProductCode = sakoreksiuntreceiptnoteItem.ProductCode,
+                    ProductName = sakoreksiuntreceiptnoteItem.ProductName,
+                    ProductRemark = sakoreksiuntreceiptnoteItem.ProductRemark,
+                    ReceiptCorrectionQty = 0,
+                    ReceiptQty = sakoreksireceiptcorritem == null ? 0 : (decimal)sakoreksireceiptcorritem.SmallQuantity,
+                    ReceiptUom = sakoreksiuntreceiptnoteItem.SmallUomUnit,
+                    RO = sakoreksiuntreceiptnoteItem.RONo,
+                    UNitCode = "",
+                    UnitSenderCode = "",
+                    UnitRequestCode = ""
+                });
+            }
+
+            var SAwal = BalaceStock.Concat(penerimaanSA).Concat(pengeluaranSA).Concat(koreksiSA).ToList();
 
             var SaldoAwal = (from a in SAwal
                             group a by new { a.ProductCode, a.PlanPo } into data
@@ -303,9 +378,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             var IdPengeluaran = (from a in dbContext.GarmentUnitExpenditureNotes
                                  join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
                                  where categories1.Contains(b.ProductName)
-                                   && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
-                                     && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+                                   && a.CreatedUtc.Date >= DateFrom.Date
+                                     && a.CreatedUtc.Date <= DateTo.Date
                                      && a.UnitSenderCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitSenderCode : unitcode)
+                                     && a.IsDeleted == false && b.IsDeleted == false
 
                                  select new
                                  {
@@ -363,7 +439,73 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             }
 
-            var SAkhir = penerimaan.Concat(pengeluaran).ToList();
+            var IdKoreksi = (from a in dbContext.GarmentUnitReceiptNotes
+                               join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+                               join c in dbContext.GarmentReceiptCorrectionItems on b.Id equals c.URNItemId
+                               where categories1.Contains(b.ProductName)
+                                && a.IsDeleted == false && b.IsDeleted == false
+                                && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
+                                && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+                                && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
+                               select new
+                               {
+                                   UrnId = a.Id,
+                                   UrnItemId = b.Id,
+                                   RCorrItemId = c.Id
+                               }).ToList().Distinct();
+
+            var koreksiunitreceiptnoteids = IdKoreksi.Select(x => x.UrnId).ToList();
+            var koreksiunitreceiptnotes = dbContext.GarmentUnitReceiptNotes.Where(x => koreksiunitreceiptnoteids.Contains(x.Id)).Select(s => new { s.ReceiptDate, s.URNType, s.UnitCode, s.UENNo, s.Id }).ToList();
+            var koreksiunitreceiptnoteItemIds = IdKoreksi.Select(x => x.UrnItemId).ToList();
+            var koreksiuntreceiptnoteItems = dbContext.GarmentUnitReceiptNoteItems.Where(x => koreksiunitreceiptnoteItemIds.Contains(x.Id)).Select(s => new { s.ProductCode, s.ProductName, s.RONo, s.SmallUomUnit, s.POSerialNumber, s.ReceiptQuantity, s.DOCurrencyRate, s.PricePerDealUnit, s.Id, s.SmallQuantity, s.Conversion, s.ProductRemark, s.EPOItemId }).ToList();
+            //var sapenerimaandeliveryorderdetailIds = IdSATerima.Select(x => x.DoDetailId).ToList();
+            //var sapenerimaandeliveryorderdetails = dbContext.GarmentDeliveryOrderDetails.Where(x => sapenerimaandeliveryorderdetailIds.Contains(x.Id)).Select(s => new { s.CodeRequirment, s.Id, s.DOQuantity }).ToList();
+            var koreksiExternalPurchaseOrderItemIds = koreksiuntreceiptnoteItems.Select(x => x.EPOItemId).ToList();
+            var koreksiExternalPurchaseOrderItems = dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters().Where(x => koreksiExternalPurchaseOrderItemIds.Contains(x.Id)).Select(s => new { s.GarmentEPOId, s.Id, s.PO_SerialNumber }).ToList();
+            var koreksiExternalPurchaseOrderIds = koreksiExternalPurchaseOrderItems.Select(x => x.GarmentEPOId).ToList();
+            var koreksiExternalPurchaseOrders = dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters().Where(x => koreksiExternalPurchaseOrderIds.Contains(x.Id)).Select(s => new { s.Id, s.PaymentMethod }).ToList();
+            var koreksipurchaserequestros = koreksiuntreceiptnoteItems.Select(x => x.RONo).ToList();
+            var koreksipurchaserequests = dbContext.GarmentPurchaseRequests.Where(x => koreksipurchaserequestros.Contains(x.RONo)).Select(x => new { x.BuyerCode, x.Article, x.RONo }).ToList();
+            var koreksireceiptcorritemids = IdKoreksi.Select(x => x.RCorrItemId).ToList();
+            var koreksireceiptcorritems = dbContext.GarmentReceiptCorrectionItems.Where(x => koreksireceiptcorritemids.Contains(x.Id)).Select(x => new { x.Id, x.SmallQuantity, x.Conversion, x.Quantity, x.PricePerDealUnit });
+            //var sapenerimaanintrenalpurchaseorders = dbContext.GarmentInternalPurchaseOrders.Where(x => sapenerimaanintrenalpurchaseorderIds.Contains(x.Id)).Select(s => new { s.BuyerCode, s.Article, s.Id }).ToList();
+
+            foreach (var item in IdKoreksi)
+            {
+                var koreksiunitreceiptnote = koreksiunitreceiptnotes.FirstOrDefault(x => x.Id == item.UrnId);
+                var koreksiuntreceiptnoteItem = koreksiuntreceiptnoteItems.FirstOrDefault(x => x.Id == item.UrnItemId);
+                //var sapenerimaandeliveryorderdetail = sapenerimaandeliveryorderdetails.FirstOrDefault(x => x.Id == item.DoDetailId);
+                var koreksiExternalPurchaseOrderitem = koreksiExternalPurchaseOrderItems.FirstOrDefault(x => x.Id == koreksiuntreceiptnoteItem.EPOItemId);
+                var koreksiExternalPurchaseOrder = koreksiExternalPurchaseOrders.FirstOrDefault(x => x.Id == koreksiExternalPurchaseOrderitem.GarmentEPOId);
+                var koreksipurchaserequest = koreksipurchaserequests.FirstOrDefault(x => x.RONo == koreksiuntreceiptnoteItem.RONo);
+                var koreksireceiptcorritem = koreksireceiptcorritems.FirstOrDefault(x => x.Id == item.RCorrItemId);
+
+                koreksiSA.Add(new GarmentStockReportViewModel
+                {
+                    BeginningBalanceQty = 0,
+                    BeginningBalanceUom = koreksiuntreceiptnoteItem.SmallUomUnit,
+                    Buyer = koreksipurchaserequest == null ? "" : koreksipurchaserequest.BuyerCode,
+                    EndingBalanceQty = 0,
+                    EndingUom = koreksiuntreceiptnoteItem.SmallUomUnit,
+                    ExpandUom = koreksiuntreceiptnoteItem.SmallUomUnit,
+                    ExpendQty = 0,
+                    NoArticle = koreksipurchaserequest == null ? "" : koreksipurchaserequest.Article,
+                    PaymentMethod = koreksiExternalPurchaseOrder == null ? "" : koreksiExternalPurchaseOrder.PaymentMethod,
+                    PlanPo = koreksiuntreceiptnoteItem.POSerialNumber,
+                    ProductCode = koreksiuntreceiptnoteItem.ProductCode,
+                    ProductName = koreksiuntreceiptnoteItem.ProductName,
+                    ProductRemark = koreksiuntreceiptnoteItem.ProductRemark,
+                    ReceiptCorrectionQty = 0,
+                    ReceiptQty = koreksireceiptcorritem == null ? 0 : (decimal)koreksireceiptcorritem.SmallQuantity,
+                    ReceiptUom = koreksiuntreceiptnoteItem.SmallUomUnit,
+                    RO = koreksiuntreceiptnoteItem.RONo,
+                    UNitCode = "",
+                    UnitSenderCode = "",
+                    UnitRequestCode = ""
+                });
+            }
+
+            var SAkhir = penerimaan.Concat(pengeluaran).Concat(koreksi).ToList();
             var SaldoAkhir = (from a in SAkhir
                               group a by new { a.PlanPo, a.ProductCode } into data
                               select new GarmentStockReportViewModel
@@ -419,6 +561,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              UnitSenderCode = data.FirstOrDefault().UnitSenderCode,
                              UnitRequestCode = data.FirstOrDefault().UnitRequestCode
                          }).ToList();
+
+
 
             foreach(var i in stock)
             {
@@ -612,5 +756,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 return viewModel;
             }
         }
+
+
     }
 }
