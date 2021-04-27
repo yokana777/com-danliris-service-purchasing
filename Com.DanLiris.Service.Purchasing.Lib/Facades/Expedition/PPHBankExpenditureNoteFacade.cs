@@ -568,7 +568,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 Nominal = model.TotalIncomeTax,
                 CurrencyRate= model.CurrencyRate.GetValueOrDefault(),
                 ReferenceNo = model.No,
-                ReferenceType = "Bayar Hutang",
+                ReferenceType = "Bayar PPh",
                 //Remark = model.Currency != "IDR" ? $"Pembayaran atas {model.BankCurrencyCode} dengan nominal {string.Format("{0:n}", model.GrandTotal)} dan kurs {model.CurrencyCode}" : "",
                 SourceType = "Operasional",
                 Status = "OUT",
