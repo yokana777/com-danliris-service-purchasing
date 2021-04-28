@@ -713,6 +713,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                         entity.GPOId
                     }).ToList();
 
+                var deliveryOrderIds = garmentInvoiceItems.Select(element => element.DeliveryOrderId).ToList();
+                //var deliveryOrders = dbContext.GarmentDeliveryOrders.Where(entity => deliveryOrderIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.DONo, entity.PaymentBill, entity.BillNo }).ToList();
+
+                var corrections = dbContext.GarmentCorrectionNotes.Where(entity => deliveryOrderIds.Contains(entity.DOId)).Select(entity => new { entity.Id, entity.TotalCorrection, entity.CorrectionType, entity.DOId });
+                var correctionIds = corrections.Select(element => element.Id).ToList();
+                var correctionItems = dbContext.GarmentCorrectionNoteItems.Where(entity => correctionIds.Contains(entity.GCorrectionId)).Select(entity => new { entity.Id, entity.PricePerDealUnitAfter, entity.Quantity, entity.GCorrectionId });
+
                 foreach (var internalNote in internalNotes)
                 {
                     var internalNoteInvoiceIds = internalNoteItems.Select(item => item.InvoiceId).ToList();
@@ -734,6 +741,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                         var selectedDeliveryOrders = deliveryOrders.Where(element => selectedDeliveryOrderIds.Contains(element.Id)).ToList();
                         var productNames = string.Join("\n", invoiceDetails.Select(element => $"- {element.ProductName}").Distinct());
                         int.TryParse(internalPurchaseOrderItem.CategoryId, out var categoryId);
+                        var selectedCorrections = corrections.Where(element => selectedDeliveryOrderIds.Contains(element.DOId)).ToList();
+
+                        var correctionAmount = selectedCorrections.Sum(element =>
+                        {
+                            var selectedCorrectionItems = correctionItems.Where(item => item.GCorrectionId == element.Id);
+
+                            var total = 0.0;
+                            if (element.CorrectionType.ToUpper() == "RETUR")
+                                total = (double)selectedCorrectionItems.Sum(item => item.PricePerDealUnitAfter * item.Quantity);
+                            else
+                                total = (double)element.TotalCorrection;
+
+                            return total;
+                        });
                         return new InternalNoteInvoiceDto(s.InvoiceNo,
                             s.InvoiceDate,
                             //string.Join("\n", invoiceDetails.Select(element => $"- {element.ProductName}").Distinct()),
@@ -750,7 +771,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                             s.IsPayVat,
                             s.UseIncomeTax,
                             s.IsPayTax,
-                            s.IncomeTaxRate);
+                            s.IncomeTaxRate, correctionAmount);
 
                     }).ToList();
 
