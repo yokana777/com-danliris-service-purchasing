@@ -474,7 +474,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                             )
                         .ToList(),
                 })
-                .Where(m => m.Items.Count > 0);
+                .Where(m => m.Items.Count() > 0);
 
             var IPOModels = new List<GarmentInternalPurchaseOrder>();
 
@@ -1735,6 +1735,124 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             {
                 throw new Exception(string.Concat("Error from '", GarmentPreSalesContractUri, "' : ", (string)result.GetValueOrDefault("error") ?? "- ", ". Message : ", (string)result.GetValueOrDefault("message") ?? "- ", ". Status : ", response.StatusCode, "."));
             }
+        }
+
+        public List<GarmentInternalPurchaseOrder> ReadByTagsOptimized(string tags, DateTimeOffset shipmentDateFrom, DateTimeOffset shipmentDateTo)
+        {
+            IQueryable<GarmentPurchaseRequest> Models = this.dbSet.AsNoTracking().AsQueryable();
+
+            if (shipmentDateFrom != DateTimeOffset.MinValue && shipmentDateTo != DateTimeOffset.MinValue)
+            {
+                Models = Models.Where(m => m.ShipmentDate >= shipmentDateFrom && m.ShipmentDate <= shipmentDateTo);
+            }
+
+            string[] stringKeywords = new string[3];
+
+            if (tags != null)
+            {
+                List<string> Keywords = new List<string>();
+
+                if (tags.Contains("#"))
+                {
+                    Keywords = tags.Split("#").ToList();
+                    Keywords.RemoveAt(0);
+                    Keywords = Keywords.Take(stringKeywords.Length).ToList();
+                }
+                else
+                {
+                    Keywords.Add(tags);
+                }
+
+                for (int n = 0; n < Keywords.Count; n++)
+                {
+                    stringKeywords[n] = Keywords[n].Trim().ToLower();
+                }
+            }
+
+            Models = Models
+                .Where(m =>
+                    (string.IsNullOrWhiteSpace(stringKeywords[0]) || m.UnitName.ToLower().Contains(stringKeywords[0])) &&
+                    (string.IsNullOrWhiteSpace(stringKeywords[1]) || m.BuyerName.ToLower().Contains(stringKeywords[1])) &&
+                    m.IsUsed == false &&
+                    m.IsValidated == true
+                    )
+                .Select(m => new GarmentPurchaseRequest
+                {
+                    Id = m.Id,
+                    Date = m.Date,
+                    PRNo = m.PRNo,
+                    RONo = m.RONo,
+                    BuyerId = m.BuyerId,
+                    BuyerCode = m.BuyerCode,
+                    BuyerName = m.BuyerName,
+                    Article = m.Article,
+                    ExpectedDeliveryDate = m.ExpectedDeliveryDate,
+                    ShipmentDate = m.ShipmentDate,
+                    UnitId = m.UnitId,
+                    UnitCode = m.UnitCode,
+                    UnitName = m.UnitName,
+                    Items = m.Items
+                        .Where(i =>
+                            i.IsUsed == false &&
+                            (string.IsNullOrWhiteSpace(stringKeywords[2]) || i.CategoryName.ToLower().Contains(stringKeywords[2]))
+                            ).ToList(),
+                });
+
+
+            var IPOModels = new List<GarmentInternalPurchaseOrder>();
+
+            var data = Models.ToList();
+
+            foreach (var model in data)
+            {
+                if (model.Items.Count() > 0)
+                {
+                    foreach (var item in model.Items)
+                    {
+                        var IPOModel = new GarmentInternalPurchaseOrder
+                        {
+                            PRId = model.Id,
+                            PRDate = model.Date,
+                            PRNo = model.PRNo,
+                            RONo = model.RONo,
+                            BuyerId = model.BuyerId,
+                            BuyerCode = model.BuyerCode,
+                            BuyerName = model.BuyerName,
+                            Article = model.Article,
+                            ExpectedDeliveryDate = model.ExpectedDeliveryDate,
+                            ShipmentDate = model.ShipmentDate,
+                            UnitId = model.UnitId,
+                            UnitCode = model.UnitCode,
+                            UnitName = model.UnitName,
+                            //IsPosted = false,
+                            //IsClosed = false,
+                            //Remark = "",
+                            Items = new List<GarmentInternalPurchaseOrderItem>
+                            {
+                                new GarmentInternalPurchaseOrderItem
+                                {
+                                    GPRItemId = item.Id,
+                                    PO_SerialNumber = item.PO_SerialNumber,
+                                    ProductId = item.ProductId,
+                                    ProductCode = item.ProductCode,
+                                    ProductName = item.ProductName,
+                                    Quantity = item.Quantity,
+                                    BudgetPrice = item.BudgetPrice,
+                                    UomId = item.UomId,
+                                    UomUnit = item.UomUnit,
+                                    CategoryId = item.CategoryId,
+                                    CategoryName = item.CategoryName,
+                                    ProductRemark = item.ProductRemark,
+                                    //Status = "PO Internal belum diorder"
+                                }
+                            }
+                        };
+                        IPOModels.Add(IPOModel);
+                    }
+                }
+            }
+
+            return IPOModels;
         }
     }
 
