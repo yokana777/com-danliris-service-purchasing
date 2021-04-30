@@ -229,7 +229,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             List<GarmentDeliveryOrderItem> item = new List<GarmentDeliveryOrderItem>(model.Items);
             List<GarmentDeliveryOrderDetail> detail = new List<GarmentDeliveryOrderDetail>(item[0].Details);
 
-            model.Items.Add(new GarmentDeliveryOrderItem
+            model.Items = model.Items.Concat(new[] { new GarmentDeliveryOrderItem
             {
                 EPOId = 1,
                 EPONo = "test",
@@ -251,7 +251,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                                 CodeRequirment = "test",
                             }
                         }
-            });
+            }});
 
             var Response = await facade.Update((int)model.Id, viewModel, model, USERNAME);
             Assert.NotEqual(0, Response);
@@ -327,7 +327,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             List<GarmentDeliveryOrderItem> item = new List<GarmentDeliveryOrderItem>(model.Items);
             List<GarmentDeliveryOrderDetail> detail = new List<GarmentDeliveryOrderDetail>(item[0].Details);
 
-            model.Items.Add(new GarmentDeliveryOrderItem
+            model.Items = model.Items.Concat(new[] { new GarmentDeliveryOrderItem
             {
                 EPOId = 1,
                 EPONo = "test",
@@ -348,7 +348,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                                 EPOItemId = detail[0].EPOItemId,
                             }
                         }
-            });
+            }});
 
             var Response = await facade.Update((int)model.Id, viewModel, model, USERNAME);
             Assert.NotEqual(0, Response);
@@ -423,7 +423,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             List<GarmentDeliveryOrderItem> item = new List<GarmentDeliveryOrderItem>(model.Items);
             List<GarmentDeliveryOrderDetail> detail = new List<GarmentDeliveryOrderDetail>(item[0].Details);
 
-            model.Items.Add(new GarmentDeliveryOrderItem
+            model.Items = model.Items.Concat(new[] { new GarmentDeliveryOrderItem
             {
                 EPOId = 1,
                 EPONo = "test",
@@ -444,7 +444,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
                                 EPOItemId = detail[0].EPOItemId,
                             }
                         }
-            });
+            }});
 
             var Response = await facade.Update((int)model.Id, viewModel, model, USERNAME);
             Assert.NotEqual(0, Response);
