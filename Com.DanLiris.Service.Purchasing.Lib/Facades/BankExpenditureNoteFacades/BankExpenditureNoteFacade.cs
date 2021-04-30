@@ -558,7 +558,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             {
                 Query = (from a in dbContext.BankExpenditureNotes
                          join b in dbContext.BankExpenditureNoteDetails on a.Id equals b.BankExpenditureNoteId
-                         join c in dbContext.PurchasingDocumentExpeditions on a.DocumentNo equals c.BankExpenditureNoteNo
+                         join c in dbContext.PurchasingDocumentExpeditions on new { BankExpenditureNoteNo = b.BankExpenditureNote.DocumentNo, b.UnitPaymentOrderNo } equals new { c.BankExpenditureNoteNo, c.UnitPaymentOrderNo }
                          //where c.InvoiceNo == (InvoiceNo ?? c.InvoiceNo)
                          //   && c.SupplierCode == (SupplierCode ?? c.SupplierCode)
                          //   && c.UnitPaymentOrderNo == (UnitPaymentOrderNo ?? c.UnitPaymentOrderNo)
@@ -592,7 +592,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             {
                 Query = (from a in dbContext.BankExpenditureNotes
                          join b in dbContext.BankExpenditureNoteDetails on a.Id equals b.BankExpenditureNoteId
-                         join c in dbContext.PurchasingDocumentExpeditions on a.DocumentNo equals c.BankExpenditureNoteNo
+                         join c in dbContext.PurchasingDocumentExpeditions on new { BankExpenditureNoteNo = b.BankExpenditureNote.DocumentNo, b.UnitPaymentOrderNo } equals new { c.BankExpenditureNoteNo, c.UnitPaymentOrderNo }
                          //where c.InvoiceNo == (InvoiceNo ?? c.InvoiceNo)
                          //   && c.SupplierCode == (SupplierCode ?? c.SupplierCode)
                          //   && c.UnitPaymentOrderNo == (UnitPaymentOrderNo ?? c.UnitPaymentOrderNo)
@@ -626,7 +626,31 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             }
 
             Query = Query.Where(entity => entity.Date >= DateFrom && entity.Date <= DateTo);
-
+            // override duplicate 
+            Query = Query.GroupBy(
+                key => new { key.BankName, key.CategoryName, key.Currency,key.Date, key.DivisionCode,key.DivisionName,key.DocumentNo,key.DPP,key.InvoiceNumber,key.PaymentMethod,key.SupplierCode,key.SupplierName,key.TotalDPP,key.TotalPaid,key.TotalPPN,key.VAT,key.UnitPaymentOrderNo},
+                value => value,
+                (key, value) => new BankExpenditureNoteReportViewModel
+                {
+                    DocumentNo = key.DocumentNo,
+                    Currency = key.Currency,
+                    Date = key.Date,
+                    SupplierCode = key.SupplierCode,
+                    SupplierName = key.SupplierName,
+                    CategoryName = key.CategoryName == null ? "-" : key.CategoryName,
+                    DivisionName = key.DivisionName,
+                    PaymentMethod = key.PaymentMethod,
+                    UnitPaymentOrderNo = key.UnitPaymentOrderNo,
+                    BankName = key.BankName,
+                    DPP = key.DPP,
+                    VAT = key.VAT,
+                    TotalPaid = key.TotalPaid,
+                    InvoiceNumber = key.InvoiceNumber,
+                    DivisionCode = key.DivisionCode,
+                    TotalDPP = key.TotalDPP,
+                    TotalPPN = key.TotalPPN
+                }
+                );
             if (!string.IsNullOrWhiteSpace(DocumentNo))
                 Query = Query.Where(entity => entity.DocumentNo == DocumentNo);
 
