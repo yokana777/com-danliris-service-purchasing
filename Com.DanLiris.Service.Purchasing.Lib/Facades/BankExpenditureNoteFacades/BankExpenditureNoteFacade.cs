@@ -78,6 +78,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     BankCurrencyCode = s.BankCurrencyCode,
                     CurrencyRate = s.CurrencyRate,
                     IsPosted = s.IsPosted,
+                    Date = s.Date,
                     Details = s.Details.Where(x => x.BankExpenditureNoteId == s.Id).Select(a => new BankExpenditureNoteDetailModel
                     {
                         SupplierName = a.SupplierName,
@@ -116,6 +117,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                    s.GrandTotal,
                    s.BankCurrencyCode,
                    s.IsPosted,
+                   s.Date,
                    Details = s.Details.Select(sl => new { sl.SupplierName, sl.UnitPaymentOrderNo, sl.Items }).ToList(),
                }).ToList()
             );
@@ -556,7 +558,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             {
                 Query = (from a in dbContext.BankExpenditureNotes
                          join b in dbContext.BankExpenditureNoteDetails on a.Id equals b.BankExpenditureNoteId
-                         join c in dbContext.PurchasingDocumentExpeditions on b.UnitPaymentOrderNo equals c.UnitPaymentOrderNo
+                         join c in dbContext.PurchasingDocumentExpeditions on a.DocumentNo equals c.BankExpenditureNoteNo
                          //where c.InvoiceNo == (InvoiceNo ?? c.InvoiceNo)
                          //   && c.SupplierCode == (SupplierCode ?? c.SupplierCode)
                          //   && c.UnitPaymentOrderNo == (UnitPaymentOrderNo ?? c.UnitPaymentOrderNo)
@@ -590,7 +592,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             {
                 Query = (from a in dbContext.BankExpenditureNotes
                          join b in dbContext.BankExpenditureNoteDetails on a.Id equals b.BankExpenditureNoteId
-                         join c in dbContext.PurchasingDocumentExpeditions on b.UnitPaymentOrderNo equals c.UnitPaymentOrderNo
+                         join c in dbContext.PurchasingDocumentExpeditions on a.DocumentNo equals c.BankExpenditureNoteNo
                          //where c.InvoiceNo == (InvoiceNo ?? c.InvoiceNo)
                          //   && c.SupplierCode == (SupplierCode ?? c.SupplierCode)
                          //   && c.UnitPaymentOrderNo == (UnitPaymentOrderNo ?? c.UnitPaymentOrderNo)
