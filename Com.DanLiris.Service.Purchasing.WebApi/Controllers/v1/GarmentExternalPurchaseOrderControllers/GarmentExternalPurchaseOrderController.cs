@@ -482,7 +482,61 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
+        [HttpGet("by-epo-no-str")]
+        public IActionResult ByEPONOCurrencyCode(string keyword = null, string Filter = "{}", int supplierId = 0, string currencyCode = null, int page = 1, int size = 10)
+        {
 
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                var Data = facade.ReadItemByEPONoSimply(keyword, Filter, supplierId, currencyCode);
+
+                var viewModel = mapper.Map<List<GarmentExternalPurchaseOrderViewModel>>(Data.Item1);
+
+                List<object> listData = new List<object>();
+                listData.AddRange(
+                    viewModel.AsQueryable().Select(s => new
+                    {
+                        s.Id,
+                        s.Category,
+                        s.OrderDate,
+                        s.EPONo,
+                        s.Supplier,
+                        s.IsOverBudget,
+                        s.IsApproved,
+                        Items = s.Items.Select(i => new
+                        {
+                            i.PRNo,
+                        }),
+                        s.CreatedBy,
+                        s.IsPosted,
+                        s.LastModifiedUtc
+                    }).ToList()
+                );
+
+                var info = new Dictionary<string, object>
+                    {
+                        { "count", listData.Count },
+                        { "total", Data.Item2 },
+                        { "order", Data.Item3 },
+                        { "page", page },
+                        { "size", size }
+                    };
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(listData, info);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
         [HttpGet("by-epo-no")]
         public IActionResult ByEPONO(string keyword = null, string Filter = "{}",int supplierId = 0, int currencyId=0,int page=1, int size=10)
         {

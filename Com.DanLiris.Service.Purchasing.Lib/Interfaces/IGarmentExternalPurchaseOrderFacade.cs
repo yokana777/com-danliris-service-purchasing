@@ -34,6 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Tuple<List<GarmentExternalPurchaseOrder>, int, Dictionary<string, string>> ReadItemByEPONoSimply(string EPONo = null, string Filter = "{}",int supplierId=0, int currencyId=0, int Page=1, int Size=10);
         Tuple<List<GarmentExternalPurchaseOrderItem>, int, Dictionary<string, string>> ReadItemByPOSerialNumberLoader(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
         Tuple<List<GarmentExternalPurchaseOrderItem>, int, Dictionary<string, string>> ReadItemByROLoader(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
+        Tuple<List<GarmentExternalPurchaseOrder>, int, Dictionary<string, string>> ReadItemByEPONoSimply(string EPONo = null, string Filter = "{}", int supplierId = 0, string currencyCode = null, int Page = 1, int Size = 10);
 
         List<GarmentExternalPurchaseOrderItem> ReadItemForUnitDOByRO(string Keyword = null, string Filter = "{}");
     }
