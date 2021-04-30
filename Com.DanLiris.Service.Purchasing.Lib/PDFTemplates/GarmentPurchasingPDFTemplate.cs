@@ -444,12 +444,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellLeftNoBorder.Phrase = new Phrase(viewModel.PaymentDueDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font);
             tableNote.AddCell(cellLeftNoBorder);
 
-            cellLeftNoBorder.Phrase = new Phrase("Bank", normal_font);
-            tableNote.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
-            tableNote.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase(viewModel.Bank, normal_font);
-            tableNote.AddCell(cellLeftNoBorder);
+            //cellLeftNoBorder.Phrase = new Phrase("Bank", normal_font);
+            //tableNote.AddCell(cellLeftNoBorder);
+            //cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
+            //tableNote.AddCell(cellLeftNoBorder);
+            //cellLeftNoBorder.Phrase = new Phrase(viewModel.Bank, normal_font);
+            //tableNote.AddCell(cellLeftNoBorder);
 
             cellLeftNoBorder.Phrase = new Phrase("Keterangan", normal_font);
             tableNote.AddCell(cellLeftNoBorder);

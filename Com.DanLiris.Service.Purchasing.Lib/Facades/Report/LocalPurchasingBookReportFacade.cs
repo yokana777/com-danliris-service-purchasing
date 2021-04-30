@@ -494,7 +494,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             if (isValas)
             {
                 query = query.Where(urn => urn.CurrencyCode != IDRCurrencyCode);
-
             }
             else
             {
@@ -544,8 +543,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 //var unitPaymentOrder = unitPaymentOrders.FirstOrDefault(f => f.URNId.Equals(urnItem.URNId));
                 //var epoItem = epoItems.FirstOrDefault(f => f.epoDetailIds.Contains(urnItem.EPODetailId));
                 //var epoDetail = epoItem.Details.FirstOrDefault(f => f.Id.Equals(urnItem.EPODetailId));
-                var selectedCurrencies = currencies.Where(element => element.Code == item.CurrencyCode).ToList();
-                var currency = selectedCurrencies.OrderBy(entity => (entity.Date - item.ReceiptDate).Duration()).FirstOrDefault();
+                //var selectedCurrencies = currencies.Where(element => element.Code == item.CurrencyCode).ToList();
+                //var currency = selectedCurrencies.OrderBy(entity => (entity.Date - item.ReceiptDate).Duration()).FirstOrDefault();
+                var currency = currencies.Where(entity=> entity.Code == item.CurrencyCode && entity.Date <= item.ReceiptDate).OrderByDescending(entity=> Math.Abs((entity.Date - item.ReceiptDate).TotalDays)).FirstOrDefault();
+
 
                 int.TryParse(item.UnitId, out var unitId);
                 var unit = units.FirstOrDefault(element => element.Id == unitId);
