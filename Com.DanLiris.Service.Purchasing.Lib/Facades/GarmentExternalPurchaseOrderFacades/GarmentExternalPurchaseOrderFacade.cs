@@ -1173,6 +1173,77 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             return Tuple.Create(Data, TotalData, OrderDictionary);
         }
 
+        public Tuple<List<GarmentExternalPurchaseOrderItem>, int, Dictionary<string, string>> ReadItemByPOSerialNumberLoader(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+        {
+            IQueryable<GarmentExternalPurchaseOrder> Query = this.dbSet.Where(m => m.IsPosted == true && m.IsClosed == false && m.IsDeleted == false && m.IsCanceled == false);
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "PO_SerialNumber"
+            };
+
+            IQueryable<GarmentExternalPurchaseOrderItem> QueryItem = dbContext.GarmentExternalPurchaseOrderItems;
+
+            QueryItem = QueryHelper<GarmentExternalPurchaseOrderItem>.ConfigureSearch(QueryItem, searchAttributes, Keyword);
+
+            QueryItem = (from i in QueryItem
+                         join b in Query on i.GarmentEPOId equals b.Id
+                         select new GarmentExternalPurchaseOrderItem
+                         {
+                             Id = i.Id,
+                             PO_SerialNumber = i.PO_SerialNumber,
+                             ProductCode = i.ProductCode,
+                             ProductId = i.ProductId,
+                             ProductName = i.ProductName,
+                             Remark = i.Remark
+                         });
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            QueryItem = QueryHelper<GarmentExternalPurchaseOrderItem>.ConfigureFilter(QueryItem, FilterDictionary);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            QueryItem = QueryHelper<GarmentExternalPurchaseOrderItem>.ConfigureOrder(QueryItem, OrderDictionary);
+
+            Pageable<GarmentExternalPurchaseOrderItem> pageable = new Pageable<GarmentExternalPurchaseOrderItem>(QueryItem, Page - 1, Size);
+            List<GarmentExternalPurchaseOrderItem> Data = pageable.Data.ToList<GarmentExternalPurchaseOrderItem>();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData, OrderDictionary);
+        }
+
+        public Tuple<List<GarmentExternalPurchaseOrderItem>, int, Dictionary<string, string>> ReadItemByROLoader(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+        {
+            IQueryable<GarmentExternalPurchaseOrder> Query = this.dbSet.Where(m => m.IsPosted == true && m.IsClosed == false && m.IsDeleted == false && m.IsCanceled == false);
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "RONo"
+            };
+
+            IQueryable<GarmentExternalPurchaseOrderItem> QueryItem = dbContext.GarmentExternalPurchaseOrderItems;
+
+            QueryItem = QueryHelper<GarmentExternalPurchaseOrderItem>.ConfigureSearch(QueryItem, searchAttributes, Keyword);
+
+            QueryItem = (from i in QueryItem
+                         join b in Query on i.GarmentEPOId equals b.Id
+                         select new GarmentExternalPurchaseOrderItem
+                         {
+                             Id = i.Id,
+                             RONo = i.RONo,
+                         });
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            QueryItem = QueryHelper<GarmentExternalPurchaseOrderItem>.ConfigureFilter(QueryItem, FilterDictionary);
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            QueryItem = QueryHelper<GarmentExternalPurchaseOrderItem>.ConfigureOrder(QueryItem, OrderDictionary);
+
+            Pageable<GarmentExternalPurchaseOrderItem> pageable = new Pageable<GarmentExternalPurchaseOrderItem>(QueryItem, Page - 1, Size);
+            List<GarmentExternalPurchaseOrderItem> Data = pageable.Data.ToList<GarmentExternalPurchaseOrderItem>();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData, OrderDictionary);
+        }
         public List<GarmentExternalPurchaseOrderItem> ReadItemForUnitDOByRO(string Keyword = null, string Filter = "{}")
         {
             //var Query = this.dbSet.Where(entity => entity.IsPosted && !entity.IsClosed && !entity.IsCanceled).Select(entity => new { entity.Id});
