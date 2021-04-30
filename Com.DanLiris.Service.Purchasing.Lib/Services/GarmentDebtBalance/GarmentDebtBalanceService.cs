@@ -75,7 +75,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance
                     var deliveryOrderItems = _dbContext.GarmentDeliveryOrderItems.Where(entity => epoIds.Contains(entity.EPOId)).Select(element => new { element.Id, element.GarmentDOId, element.EPOId }).ToList();
                     var deliveryOrderItemIds = deliveryOrderItems.Select(element => element.Id).ToList();
                     var deliveryOrderIds = deliveryOrderItems.Select(element => element.GarmentDOId).ToList();
-                    var deliveryOrders = _dbContext.GarmentDeliveryOrders.Where(entity => deliveryOrderIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.DONo, entity.BillNo, entity.PaymentBill, entity.SupplierCode, entity.SupplierName, entity.DOCurrencyCode }).ToList();
+                    var deliveryOrders = _dbContext.GarmentDeliveryOrders.Where(entity => deliveryOrderIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.DONo, entity.BillNo, entity.PaymentBill, entity.SupplierCode, entity.SupplierName, entity.DOCurrencyCode, entity.DOCurrencyRate, entity.TotalAmount }).ToList();
                     var deliveryOrderDetails = _dbContext.GarmentDeliveryOrderDetails.Where(entity => deliveryOrderItemIds.Contains(entity.GarmentDOItemId)).Select(entity => new { entity.Id, entity.GarmentDOItemId }).ToList();
                     var deliveryOrderDetailIds = deliveryOrderDetails.Select(element => element.Id).ToList();
                     var customsDocumentItems = _dbContext.GarmentBeacukaiItems.Where(entity => deliveryOrderIds.Contains(entity.GarmentDOId)).Select(entity => new { entity.Id, entity.GarmentDOId }).ToList();
@@ -95,6 +95,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance
 
                         foreach (var dispositionDeliveryOrder in dispositionDeliveryOrders)
                         {
+                            var purchasingAmount = dispositionDeliveryOrder.TotalAmount;
+
+                            var currencyRate = dispositionDeliveryOrder.DOCurrencyRate.GetValueOrDefault();
+                            if (currencyRate <= 0 )
+                            {
+                                currencyRate = 1;
+                            }
+
                             if (customsDocumentItems.Any(element => element.GarmentDOId == dispositionDeliveryOrder.Id))
                             {
                                 var internalNoteNo = "";
@@ -106,7 +114,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance
                                     internalNoteNo = internalNote.INNo;
 
                                 }
-                                dto.MemoDetails.Add(new MemoDetail((int)dispositionDeliveryOrder.Id, dispositionDeliveryOrder.DONo, dispositionDeliveryOrder.SupplierCode, dispositionDeliveryOrder.SupplierName, internalNoteNo, dispositionDeliveryOrder.BillNo, dispositionDeliveryOrder.PaymentBill, dispositionDeliveryOrder.DOCurrencyCode));
+                                dto.MemoDetails.Add(new MemoDetail((int)dispositionDeliveryOrder.Id, dispositionDeliveryOrder.DONo, dispositionDeliveryOrder.SupplierCode, dispositionDeliveryOrder.SupplierName, internalNoteNo, dispositionDeliveryOrder.BillNo, dispositionDeliveryOrder.PaymentBill, dispositionDeliveryOrder.DOCurrencyCode, currencyRate, dispositionDeliveryOrder.TotalAmount));
                             }
                         }
                         result.Add(dto);
