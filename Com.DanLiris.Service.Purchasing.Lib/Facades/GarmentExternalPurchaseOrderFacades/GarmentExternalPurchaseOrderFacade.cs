@@ -1173,6 +1173,64 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             return Tuple.Create(Data, TotalData, OrderDictionary);
         }
 
+        public Tuple<List<GarmentExternalPurchaseOrder>, int, Dictionary<string, string>> ReadItemByEPONoSimply(string EPONo = null, string Filter = "{}", int supplierId = 0, string currencyCode = null, int Page = 1, int Size = 10)
+        {
+            IQueryable<GarmentExternalPurchaseOrder> Query = this.dbSet.Include(s => s.Items).Where(m => m.IsPosted && m.IsClosed == false && m.IsDeleted == false && m.IsCanceled == false && m.IsDispositionPaidCreatedAll == false && m.Items.Any(t => t.IsDispositionCreatedAll == false)); ;
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "EPONo"
+            };
+
+            Query = QueryHelper<GarmentExternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, EPONo);
+
+            if(!string.IsNullOrEmpty(currencyCode))
+            {
+                Query = Query.Where(s => s.CurrencyCode == currencyCode);
+            }
+
+            Query = Query.Select(s => new GarmentExternalPurchaseOrder
+            {
+                Id = s.Id,
+                UId = s.UId,
+                IsPosted = s.IsPosted,
+                SupplierId = s.SupplierId,
+                SupplierName = s.SupplierName,
+                SupplierCode = s.SupplierCode,
+                Category = s.Category,
+                PaymentType = s.PaymentType,
+                CurrencyId = s.CurrencyId,
+                OrderDate = s.OrderDate,
+                EPONo = s.EPONo,
+                SupplierImport = s.SupplierImport,
+                IsOverBudget = s.IsOverBudget,
+                IsApproved = s.IsApproved,
+                Items = s.Items.Select(a => new GarmentExternalPurchaseOrderItem
+                {
+                    PRNo = a.PRNo,
+                    PRId = a.PRId
+                }).ToList(),
+                CreatedBy = s.CreatedBy,
+                LastModifiedUtc = s.LastModifiedUtc
+            });
+
+
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<GarmentExternalPurchaseOrder>.ConfigureFilter(Query, FilterDictionary);
+
+            //Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            //Query = QueryHelper<GarmentExternalPurchaseOrder>.ConfigureOrder(Query, OrderDictionary);
+
+            Dictionary<string, string> OrderDictionary = new Dictionary<string, string>();
+            Query = QueryHelper<GarmentExternalPurchaseOrder>.ConfigureOrder(Query, OrderDictionary);
+
+            Pageable<GarmentExternalPurchaseOrder> pageable = new Pageable<GarmentExternalPurchaseOrder>(Query, Page - 1, Size);
+            List<GarmentExternalPurchaseOrder> Data = pageable.Data.ToList<GarmentExternalPurchaseOrder>();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData, OrderDictionary);
+        }
+
         public Tuple<List<GarmentExternalPurchaseOrderItem>, int, Dictionary<string, string>> ReadItemByPOSerialNumberLoader(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
             IQueryable<GarmentExternalPurchaseOrder> Query = this.dbSet.Where(m => m.IsPosted == true && m.IsClosed == false && m.IsDeleted == false && m.IsCanceled == false);
