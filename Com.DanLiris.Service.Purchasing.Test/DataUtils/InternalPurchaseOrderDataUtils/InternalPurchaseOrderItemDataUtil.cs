@@ -10,8 +10,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDa
 {
     public class InternalPurchaseOrderItemDataUtil
     {
-        private InternalPurchaseOrderDataUtil internalPurchaseOrderDataUtil;
-        private PurchaseRequestDataUtil purchaserequestDataUtil;
+        //private InternalPurchaseOrderDataUtil internalPurchaseOrderDataUtil;
+        //private PurchaseRequestDataUtil purchaserequestDataUtil;
 
         public InternalPurchaseOrderItem GetNewData(List<PurchaseRequestItem> purchaseRequestItem) => new InternalPurchaseOrderItem
         {

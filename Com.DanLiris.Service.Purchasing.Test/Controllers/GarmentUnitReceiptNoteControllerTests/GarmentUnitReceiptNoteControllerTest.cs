@@ -31,6 +31,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
                 return new GarmentUnitReceiptNoteViewModel
                 {
                     UId = null,
+                    DRId=It.IsAny<string>(),
+                    DRNo= It.IsAny<string>(),
                     Items = new List<GarmentUnitReceiptNoteItemViewModel>
                     {
                         new GarmentUnitReceiptNoteItemViewModel()
@@ -49,6 +51,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
                     {
                         new GarmentUnitReceiptNoteItem()
                     }
+                };
+            }
+        }
+
+        private GarmentDOItems DOItemsModel
+        {
+            get
+            {
+                return new GarmentDOItems
+                {
+                    
                 };
             }
         }
@@ -206,6 +219,34 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
         }
 
         [Fact]
+        public void Should_Success_Get_Data_DOItems_By_Id()
+        {
+            var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
+            mockFacade.Setup(x => x.ReadDOItemsByURNItemId(It.IsAny<int>()))
+                .Returns(DOItemsModel);
+
+            var mockMapper = new Mock<IMapper>();
+
+            GarmentUnitReceiptNoteController controller = GetController(mockFacade, null, mockMapper);
+            var response = controller.GetDOItems(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_Data_DOItems_By_Id()
+        {
+            var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
+            mockFacade.Setup(x => x.ReadDOItemsByURNItemId(It.IsAny<int>()))
+                .Returns((GarmentDOItems)null);
+
+            var mockMapper = new Mock<IMapper>();
+
+            GarmentUnitReceiptNoteController controller = GetController(mockFacade, null, mockMapper);
+            var response = controller.GetDOItems(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
         public void Should_Success_Get_PDF_By_Id()
         {
             var Model = this.Model;
@@ -224,7 +265,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
             controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
 
             var response = controller.Get(It.IsAny<int>());
-            Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
+            Assert.NotNull(response.GetType().GetProperty("FileStream"));
         }
 
         [Fact]
@@ -420,6 +461,263 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
 
             GarmentUnitReceiptNoteController controller = new GarmentUnitReceiptNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
             var response = controller.GetForUnitDOHeader();
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_Get_For_URNItem()
+        {
+            var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
+            mockFacade.Setup(x => x.ReadURNItem(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
+                .Returns(new ReadResponse<object>(new List<object>(), 0, new Dictionary<string, string>()));
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<GarmentUnitReceiptNoteViewModel>>(It.IsAny<List<GarmentUnitReceiptNote>>()))
+                .Returns(new List<GarmentUnitReceiptNoteViewModel> { ViewModel });
+
+            GarmentUnitReceiptNoteController controller = GetController(mockFacade, null, mockMapper);
+            var response = controller.GetURNItem();
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_For_URNItem()
+        {
+            var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
+
+            mockFacade.Setup(x => x.ReadURNItem(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
+                .Returns(new ReadResponse<object>(new List<object>(), 0, new Dictionary<string, string>()));
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<GarmentUnitReceiptNoteViewModel>>(It.IsAny<List<GarmentUnitReceiptNote>>()))
+                .Returns(new List<GarmentUnitReceiptNoteViewModel> { ViewModel });
+
+            GarmentUnitReceiptNoteController controller = new GarmentUnitReceiptNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            var response = controller.GetURNItem();
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        #region Laporan FLow Penerimaan 
+
+        [Fact]
+        public void Should_Success_Get_Report_Flow()
+        {
+            var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
+
+            mockFacade.Setup(x => x.GetReportFlow(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(Tuple.Create(new List<FlowDetailPenerimaanViewModels>(), 5));
+
+            var mockMapper = new Mock<IMapper>();
+
+            GarmentUnitReceiptNoteController controller = GetController(mockFacade, null, mockMapper);
+            var response = controller.GetReportDO(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>());
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_Report_All()
+        {
+            var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
+
+            var mockMapper = new Mock<IMapper>();
+
+
+            GarmentUnitReceiptNoteController controller = GetController(mockFacade, null, mockMapper);
+            var response = controller.GetReportDO(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_Xls_All()
+        {
+            var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
+
+            var mockMapper = new Mock<IMapper>();
+
+            GarmentUnitReceiptNoteController controller = new GarmentUnitReceiptNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+
+            var response = controller.GetXls(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+
+        }
+
+
+        [Fact]
+        public void Should_Success_Get_Xls_DO()
+        {
+            var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
+            mockFacade.Setup(x => x.GenerateExcelLow(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>()))
+                .Returns(new MemoryStream());
+
+            var mockMapper = new Mock<IMapper>();
+            //mockMapper.Setup(x => x.Map<List<GarmentDeliveryOrderReportViewModel>>(It.IsAny<List<GarmentDeliveryOrder>>()))
+            //    .Returns(new List<GarmentDeliveryOrderReportViewModel> { ViewModel });
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            GarmentUnitReceiptNoteController controller = new GarmentUnitReceiptNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetXls(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>());
+            Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.GetType().GetProperty("ContentType").GetValue(response, null));
+
+        }
+
+
+
+        #endregion
+
+        [Fact]
+        public void Should_Success_Get_By_RO()
+        {
+            var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
+            mockFacade.Setup(x => x.ReadItemByRO(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(new List<object>());
+
+            var mockMapper = new Mock<IMapper>();
+
+            GarmentUnitReceiptNoteController controller = GetController(mockFacade, null, mockMapper);
+            var response = controller.GetByRO();
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_By_RO()
+        {
+            var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
+            mockFacade.Setup(x => x.ReadItemByRO(It.IsAny<string>(), It.IsAny<string>()))
+                .Throws(new Exception(""));
+
+            var mockMapper = new Mock<IMapper>();
+
+            GarmentUnitReceiptNoteController controller = new GarmentUnitReceiptNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            var response = controller.GetByRO();
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Succces_Get_Monitoring_IN()
+        {
+            var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
+            mockFacade.Setup(x => x.GetReportIN(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(Tuple.Create(new List<GarmentUnitReceiptNoteINReportViewModel>(), 25));
+
+            var mockMapper = new Mock<IMapper>();
+
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            GarmentUnitReceiptNoteController controller = new GarmentUnitReceiptNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            var response = controller.GetMonitoringIN(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>());
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_Monitoring_IN()
+        {
+            var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
+            mockFacade.Setup(x => x.GetReportIN(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(Tuple.Create(new List<GarmentUnitReceiptNoteINReportViewModel>(), 25));
+
+            var mockMapper = new Mock<IMapper>();
+
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            GarmentUnitReceiptNoteController controller = new GarmentUnitReceiptNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            var response = controller.GetMonitoringIN(null, null, null, 0, 0, null);
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+        [Fact]
+        public void Should_Success_Get_Xls_Report_In()
+        {
+            var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
+            mockFacade.Setup(x => x.GenerateExcelMonIN(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(new MemoryStream());
+
+            var mockMapper = new Mock<IMapper>();
+
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            GarmentUnitReceiptNoteController controller = new GarmentUnitReceiptNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetXlsMonIn(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>());
+            Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.GetType().GetProperty("ContentType").GetValue(response, null));
+        }
+
+        [Fact]
+        public void Should_Error_Get_Xls_Report_In()
+        {
+            var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
+
+
+            var mockMapper = new Mock<IMapper>();
+
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            GarmentUnitReceiptNoteController controller = new GarmentUnitReceiptNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+            //controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetXlsMonIn(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
     }

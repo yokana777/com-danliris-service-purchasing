@@ -27,10 +27,38 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDa
             this.facade = facade;
             //this.client = client;
         }
-   
+
         public async Task<InternalPurchaseOrder> GetNewData(string user)
         {
             PurchaseRequest purchaseRequest = await purchaserequestDataUtil.GetTestDataPosted(user);
+
+            return new InternalPurchaseOrder
+            {
+                IsoNo = "",
+                PRId = purchaseRequest.Id.ToString(),
+                PRNo = purchaseRequest.No,
+                PRDate = purchaseRequest.Date,
+                ExpectedDeliveryDate = purchaseRequest.ExpectedDeliveryDate,
+                BudgetId = purchaseRequest.BudgetId,
+                BudgetCode = purchaseRequest.BudgetCode,
+                BudgetName = purchaseRequest.BudgetName,
+                UnitId = purchaseRequest.UnitId,
+                UnitCode = purchaseRequest.UnitCode,
+                UnitName = purchaseRequest.UnitName,
+                DivisionId = purchaseRequest.DivisionId,
+                DivisionCode = purchaseRequest.DivisionCode,
+                DivisionName = purchaseRequest.DivisionName,
+                CategoryId = purchaseRequest.CategoryId,
+                CategoryCode = purchaseRequest.CategoryCode,
+                CategoryName = purchaseRequest.CategoryName,
+                Remark = purchaseRequest.Remark,
+                Items = new List<InternalPurchaseOrderItem> { internalPurchaseOrderItemDataUtil.GetNewData(purchaseRequest.Items.ToList()) }
+            };
+        }
+
+        public async Task<InternalPurchaseOrder> GetNewHavingStockData(string user)
+        {
+            PurchaseRequest purchaseRequest = await purchaserequestDataUtil.GetTestHavingStockDataPosted(user);
 
             return new InternalPurchaseOrder
             {
@@ -102,26 +130,36 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDa
 
             return internalPurchaseOrder;
         }
-		public async Task<InternalPurchaseOrder> GetTestData2(string user)
-		{
-			InternalPurchaseOrder internalPurchaseOrder = await GetNewData(user);
-			
-			await facade.Create(internalPurchaseOrder, user);
-			internalPurchaseOrder.CreatedUtc = internalPurchaseOrder.CreatedUtc.AddDays(10);
-			await facade.Update(Convert.ToInt32( internalPurchaseOrder.Id),internalPurchaseOrder, user);
 
-			return internalPurchaseOrder;
-		}
-		public async Task<InternalPurchaseOrder> GetTestData3(string user)
-		{
-			InternalPurchaseOrder internalPurchaseOrder = await GetNewData(user);
+        public async Task<InternalPurchaseOrder> GetTestHavingStockData(string user)
+        {
+            InternalPurchaseOrder internalPurchaseOrder = await GetNewHavingStockData(user);
 
-			await facade.Create(internalPurchaseOrder, user);
-			internalPurchaseOrder.CreatedUtc = internalPurchaseOrder.CreatedUtc.AddDays(16);
-			await facade.Update(Convert.ToInt32(internalPurchaseOrder.Id), internalPurchaseOrder, user);
+            await facade.Create(internalPurchaseOrder, user);
 
-			return internalPurchaseOrder;
-		}
+            return internalPurchaseOrder;
+        }
+
+        public async Task<InternalPurchaseOrder> GetTestData2(string user)
+        {
+            InternalPurchaseOrder internalPurchaseOrder = await GetNewData(user);
+
+            await facade.Create(internalPurchaseOrder, user);
+            internalPurchaseOrder.CreatedUtc = internalPurchaseOrder.CreatedUtc.AddDays(10);
+            await facade.Update(Convert.ToInt32(internalPurchaseOrder.Id), internalPurchaseOrder, user);
+
+            return internalPurchaseOrder;
+        }
+        public async Task<InternalPurchaseOrder> GetTestData3(string user)
+        {
+            InternalPurchaseOrder internalPurchaseOrder = await GetNewData(user);
+
+            await facade.Create(internalPurchaseOrder, user);
+            internalPurchaseOrder.CreatedUtc = internalPurchaseOrder.CreatedUtc.AddDays(16);
+            await facade.Update(Convert.ToInt32(internalPurchaseOrder.Id), internalPurchaseOrder, user);
+
+            return internalPurchaseOrder;
+        }
 
         public async Task<InternalPurchaseOrder> GetTestData4(string user)
         {
@@ -156,5 +194,55 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDa
 
         //    return viewModel;
         //}
+
+        public InternalPurchaseOrderFulFillment GetNewFulfillmentData(string user)
+        {
+            return new InternalPurchaseOrderFulFillment
+            {
+                DeliveryOrderDate = DateTimeOffset.UtcNow,
+                DeliveryOrderDeliveredQuantity = 1,
+                Corrections = new List<InternalPurchaseOrderCorrection>()
+                {
+                    new InternalPurchaseOrderCorrection()
+                    {
+                        CorrectionDate = DateTimeOffset.UtcNow,
+                        CorrectionNo = "np",
+                        CorrectionQuantity = 1,
+                        CorrectionPriceTotal = 1,
+                        CorrectionRemark = "remark",
+                        UnitPaymentCorrectionId = 1,
+                        UnitPaymentCorrectionItemId = 1
+                    }
+                },
+                DeliveryOrderDetailId = 1,
+                DeliveryOrderId = 1,
+                DeliveryOrderNo = "no",
+                DeliveryOrderItemId = 1,
+                InterNoteDate = DateTimeOffset.UtcNow,
+                InterNoteDueDate = DateTimeOffset.UtcNow,
+                InterNoteNo = "no",
+                InterNoteValue = 1,
+                InvoiceDate = DateTimeOffset.UtcNow,
+                InvoiceNo = "np",
+                SupplierDODate = DateTimeOffset.UtcNow,
+                UnitPaymentOrderDetailId = 1,
+                UnitPaymentOrderId = 1,
+                UnitPaymentOrderItemId = 1,
+                UnitReceiptNoteDate = DateTimeOffset.UtcNow,
+                UnitReceiptNoteDeliveredQuantity = 1,
+                UnitReceiptNoteId = 1,
+                UnitReceiptNoteItemId = 1,
+                UnitReceiptNoteNo = "np",
+                UnitReceiptNoteUom = "uom",
+                UnitReceiptNoteUomId = "1",
+                UnitPaymentOrderUseVat = true,
+                UnitPaymentOrderUseIncomeTax = true,
+                UnitPaymentOrderIncomeTaxDate = DateTimeOffset.UtcNow,
+                UnitPaymentOrderIncomeTaxNo = "no",
+                UnitPaymentOrderIncomeTaxRate = 1,
+                UnitPaymentOrderVatDate = DateTimeOffset.UtcNow,
+                UnitPaymentOrderVatNo = "no"
+            };
+        }
     }
 }

@@ -20,7 +20,7 @@ using System.Globalization;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 {
-    public class InternalPurchaseOrderFacade 
+    public class InternalPurchaseOrderFacade
     {
         #region Dummy Data
         private List<InternalPurchaseOrder> DUMMY_DATA = new List<InternalPurchaseOrder>()
@@ -233,8 +233,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                     UnitName = s.UnitName,
                     DivisionName = s.DivisionName,
                     CategoryName = s.CategoryName,
-                    CategoryCode=s.CategoryCode,
-                    CategoryId=s.CategoryId,
+                    CategoryCode = s.CategoryCode,
+                    CategoryId = s.CategoryId,
                     IsPosted = s.IsPosted,
                     CreatedBy = s.CreatedBy,
                     PRDate = s.PRDate,
@@ -309,6 +309,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                 {
                     EntityExtension.FlagForCreate(m, user, "Facade");
                     m.PONo = await this.GeneratePONo(m);
+                    PurchaseRequest purchaseRequest = this.dbContext.PurchaseRequests.FirstOrDefault(s => s.Id.ToString() == m.PRId);
+                    purchaseRequest.IsUsed = true;
                     foreach (var item in m.Items)
                     {
                         item.Status = "PO Internal belum diorder";
@@ -350,7 +352,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                 CreatedBy = s.CreatedBy,
                 PRDate = s.PRDate,
                 LastModifiedUtc = s.LastModifiedUtc,
-                PRId= s.PRId,
+                PRId = s.PRId,
                 Remark = s.Remark,
                 Items = s.Items
                     .Select(
@@ -467,6 +469,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                         .SingleOrDefault(pr => pr.Id == id && !pr.IsDeleted);
                     EntityExtension.FlagForDelete(m, user, "Facade");
 
+                    PurchaseRequest purchaseReq = dbContext.PurchaseRequests.FirstOrDefault(a => a.Id.ToString() == m.PRId);
+
+                    purchaseReq.IsUsed = false;
+
                     foreach (var item in m.Items)
                     {
                         var n = this.dbContext.InternalPurchaseOrderItems
@@ -494,12 +500,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
         public InternalPurchaseOrder ReadByIdforSplit(int id)
         {
-            var modelTemp =  this.dbSet.Where(p => p.Id == id)
+            var modelTemp = this.dbSet.Where(p => p.Id == id)
                 .Include(p => p.Items)
                 .FirstOrDefault();
             var prNoChange = this.dbSet.Where(p => p.PRNo == modelTemp.PRNo)
                 .Select(s => new InternalPurchaseOrderViewModel
-                { poNo = s.PONo
+                {
+                    poNo = s.PONo
                 })
                 .OrderByDescending(p => p.poNo)
                 .FirstOrDefault();
@@ -579,7 +586,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
 
             var Query = (from a in dbContext.InternalPurchaseOrders
-                         join i in dbContext.InternalPurchaseOrderItems on a.Id equals i.POId 
+                         join i in dbContext.InternalPurchaseOrderItems on a.Id equals i.POId
                          where a.IsDeleted == false
                              && i.IsDeleted == false
                              && a.UnitId == (string.IsNullOrWhiteSpace(unitId) ? a.UnitId : unitId)
@@ -587,7 +594,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              && a.CreatedBy == (string.IsNullOrWhiteSpace(staff) ? a.CreatedBy : staff)
                              && a.PRDate.AddHours(offset).Date >= DateFrom.Date
                              && a.PRDate.AddHours(offset).Date <= DateTo.Date
-                             && i.Quantity>0
+                             && i.Quantity > 0
                          select new InternalPurchaseOrderReportViewModel
                          {
                              prNo = a.PRNo,
@@ -599,7 +606,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              productName = i.ProductName,
                              uom = i.UomUnit,
                              quantity = i.Quantity,
-                             staff=a.CreatedBy,
+                             staff = a.CreatedBy,
                              LastModifiedUtc = i.LastModifiedUtc
                          });
             return Query;
@@ -607,14 +614,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
         public Tuple<List<InternalPurchaseOrderReportViewModel>, int> GetReport(string unitId, string categoryId, string staff, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
         {
-            var Query = GetReportQuery( unitId, categoryId, staff,  dateFrom, dateTo, offset);
+            var Query = GetReportQuery(unitId, categoryId, staff, dateFrom, dateTo, offset);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             if (OrderDictionary.Count.Equals(0))
             {
                 Query = Query.OrderByDescending(b => b.LastModifiedUtc);
             }
-            
+
 
             Pageable<InternalPurchaseOrderReportViewModel> pageable = new Pageable<InternalPurchaseOrderReportViewModel>(Query, page - 1, size);
             List<InternalPurchaseOrderReportViewModel> Data = pageable.Data.ToList<InternalPurchaseOrderReportViewModel>();
@@ -625,7 +632,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
 
         public MemoryStream GenerateExcel(string unitId, string categoryId, string staff, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
-            var Query = GetReportQuery(unitId, categoryId, staff,  dateFrom, dateTo, offset);
+            var Query = GetReportQuery(unitId, categoryId, staff, dateFrom, dateTo, offset);
             Query = Query.OrderByDescending(b => b.LastModifiedUtc);
             DataTable result = new DataTable();
             result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
@@ -640,7 +647,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             result.Columns.Add(new DataColumn() { ColumnName = "Status", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Staff", DataType = typeof(String) });
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add( "", "", "", "", "", 0, "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", 0, "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
             else
             {
                 int index = 0;
@@ -649,7 +656,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                     index++;
                     string date = item.prDate == null ? "-" : item.prDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     string poDate = item.expectedDeliveryDatePO == new DateTime(1970, 1, 1) ? "-" : item.expectedDeliveryDatePO.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    result.Rows.Add(index,date, item.prNo, item.category, item.productName,item.quantity, item.uom, poDate, item.unit, item.poStatus, item.staff);
+                    result.Rows.Add(index, date, item.prNo, item.category, item.productName, item.quantity, item.uom, poDate, item.unit, item.poStatus, item.staff);
                 }
             }
 
@@ -723,7 +730,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             result.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Staff", DataType = typeof(String) });
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", 0, "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", 0, 0, "", ""); // to allow column name to be generated properly for empty data as template
             else
             {
                 int index = 0;
@@ -926,6 +933,156 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                              prNo = a.PRNo
                          });
             return Query.ToArray().Count();
+        }
+
+        public async Task<int> CreateFulfillmentAsync(InternalPurchaseOrderFulFillment model, string user)
+        {
+
+            int Created;
+            try
+            {
+                EntityExtension.FlagForCreate(model, user, "Facade");
+
+                foreach (var item in model.Corrections)
+                {
+                    EntityExtension.FlagForCreate(item, user, "Facade");
+                }
+
+                this.dbContext.InternalPurchaseOrderFulfillments.Add(model);
+                Created = await dbContext.SaveChangesAsync();
+
+            }
+            catch (Exception e)
+            {
+                while (e.InnerException != null) e = e.InnerException;
+                throw e;
+            }
+
+
+            return Created;
+        }
+
+        public async Task<int> UpdateFulfillmentAsync(long id, InternalPurchaseOrderFulFillment model, string user)
+        {
+            int Updated = 0;
+
+            try
+            {
+                var m = this.dbContext.InternalPurchaseOrderFulfillments.SingleOrDefault(pr => pr.Id == id);
+
+                if (m != null)
+                {
+                    EntityExtension.FlagForUpdate(m, user, "Facade");
+                    m.DeliveryOrderDate = model.DeliveryOrderDate;
+                    m.DeliveryOrderDeliveredQuantity = model.DeliveryOrderDeliveredQuantity;
+                    m.DeliveryOrderDetailId = model.DeliveryOrderDetailId;
+                    m.DeliveryOrderId = model.DeliveryOrderId;
+                    m.DeliveryOrderItemId = model.DeliveryOrderItemId;
+                    m.DeliveryOrderNo = model.DeliveryOrderNo;
+                    m.InterNoteDate = model.InterNoteDate;
+                    m.InterNoteDueDate = model.InterNoteDueDate;
+                    m.InterNoteNo = model.InterNoteNo;
+                    m.InterNoteValue = model.InterNoteValue;
+                    m.InvoiceDate = model.InvoiceDate;
+                    m.InvoiceNo = model.InvoiceNo;
+                    m.POItemId = model.POItemId;
+                    m.SupplierDODate = model.SupplierDODate;
+                    m.UnitPaymentOrderDetailId = model.UnitPaymentOrderDetailId;
+                    m.UnitPaymentOrderId = model.UnitPaymentOrderId;
+                    m.UnitPaymentOrderItemId = model.UnitPaymentOrderItemId;
+                    m.UnitReceiptNoteDate = model.UnitReceiptNoteDate;
+                    m.UnitReceiptNoteDeliveredQuantity = model.UnitReceiptNoteDeliveredQuantity;
+                    m.UnitReceiptNoteId = model.UnitReceiptNoteId;
+                    m.UnitReceiptNoteItemId = model.UnitReceiptNoteItemId;
+                    m.UnitReceiptNoteNo = model.UnitReceiptNoteNo;
+                    m.UnitReceiptNoteUom = model.UnitReceiptNoteUom;
+                    m.UnitReceiptNoteUomId = model.UnitReceiptNoteUomId;
+                    m.UnitPaymentOrderIncomeTaxDate = model.UnitPaymentOrderIncomeTaxDate;
+                    m.UnitPaymentOrderIncomeTaxNo = model.UnitPaymentOrderIncomeTaxNo;
+                    m.UnitPaymentOrderIncomeTaxRate = model.UnitPaymentOrderIncomeTaxRate;
+                    m.UnitPaymentOrderUseIncomeTax = model.UnitPaymentOrderUseIncomeTax;
+                    m.UnitPaymentOrderUseVat = model.UnitPaymentOrderUseVat;
+                    m.UnitPaymentOrderVatDate = model.UnitPaymentOrderVatDate;
+                    m.UnitPaymentOrderVatNo = model.UnitPaymentOrderVatNo;
+
+                    var updatedCorrections = model.Corrections.Where(x => m.Corrections.Any(y => y.Id == x.Id));
+                    var addedCorrections = model.Corrections.Where(x => !m.Corrections.Any(y => y.Id == x.Id));
+                    var deletedCorrections = m.Corrections.Where(x => !model.Corrections.Any(y => y.Id == x.Id));
+
+                    foreach (var item in updatedCorrections)
+                    {
+                        var dbCorrection = dbContext.InternalPurchaseOrderCorrections.FirstOrDefault(x => x.Id == item.Id);
+                        EntityExtension.FlagForUpdate(dbCorrection, user, "Facade");
+                        dbCorrection.CorrectionDate = item.CorrectionDate;
+                        dbCorrection.CorrectionNo = item.CorrectionNo;
+                        dbCorrection.CorrectionPriceTotal = item.CorrectionPriceTotal;
+                        dbCorrection.CorrectionQuantity = item.CorrectionQuantity;
+                        dbCorrection.CorrectionRemark = item.CorrectionRemark;
+                        dbCorrection.UnitPaymentCorrectionId = item.UnitPaymentCorrectionId;
+                        dbCorrection.UnitPaymentCorrectionItemId = item.UnitPaymentCorrectionItemId;
+                    }
+
+                    foreach (var item in addedCorrections)
+                    {
+                        item.InternalPurchaseOrderFulFillment = m;
+                        EntityExtension.FlagForCreate(item, user, "Facade");
+                        dbContext.InternalPurchaseOrderCorrections.Add(item);
+
+                    }
+
+                    foreach(var item in deletedCorrections)
+                    {
+                        EntityExtension.FlagForDelete(item, user, "Facade");
+                    }
+
+                    Updated = await dbContext.SaveChangesAsync();
+
+                }
+                else
+                {
+
+                    throw new Exception("Error while updating data");
+                }
+            }
+            catch (Exception e)
+            {
+                while (e.InnerException != null) e = e.InnerException;
+                throw e;
+            }
+
+
+            return Updated;
+        }
+
+        public int DeleteFulfillment(long id, string user)
+        {
+            int Deleted = 0;
+
+            try
+            {
+                var m = this.dbContext.InternalPurchaseOrderFulfillments
+                    .Include(d => d.Corrections)
+                    .SingleOrDefault(pr => pr.Id == id);
+                EntityExtension.FlagForDelete(m, user, "Facade");
+
+                foreach (var item in m.Corrections)
+                {
+
+                    EntityExtension.FlagForDelete(item, user, "Facade");
+                }
+
+                Deleted = dbContext.SaveChanges();
+
+
+            }
+            catch (Exception e)
+            {
+                while (e.InnerException != null) e = e.InnerException;
+                throw e;
+            }
+
+
+            return Deleted;
         }
     }
 }

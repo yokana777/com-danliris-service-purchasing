@@ -25,6 +25,14 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInventoryModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitExpenditureNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentReceiptCorrectionModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPOMasterDistributionModels;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentSupplierBalanceDebtModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.BalanceStockModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentStockOpnameModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.BudgetCashflowWorstCaseModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseModel;
+//using Com.DanLiris.Service.Purchasing.Lib.Models.ImportValueModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib
 {
@@ -32,6 +40,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib
     {
         public PurchasingDbContext(DbContextOptions<PurchasingDbContext> options) : base(options)
         {
+            if (Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
+                Database.SetCommandTimeout(1000 * 60 * 20);
         }
 
         public DbSet<PurchasingDocumentExpedition> PurchasingDocumentExpeditions { get; set; }
@@ -45,6 +55,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib
 
         public DbSet<InternalPurchaseOrder> InternalPurchaseOrders { get; set; }
         public DbSet<InternalPurchaseOrderItem> InternalPurchaseOrderItems { get; set; }
+        public DbSet<InternalPurchaseOrderFulFillment> InternalPurchaseOrderFulfillments { get; set; }
+        public DbSet<InternalPurchaseOrderCorrection> InternalPurchaseOrderCorrections { get; set; }
 
         public DbSet<ExternalPurchaseOrder> ExternalPurchaseOrders { get; set; }
         public DbSet<ExternalPurchaseOrderItem> ExternalPurchaseOrderItems { get; set; }
@@ -99,6 +111,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib
 
         public DbSet<GarmentUnitReceiptNote> GarmentUnitReceiptNotes { get; set; }
         public DbSet<GarmentUnitReceiptNoteItem> GarmentUnitReceiptNoteItems { get; set; }
+        public DbSet<GarmentDOItems> GarmentDOItems { get; set; }
 
         public DbSet<GarmentInventoryDocument> GarmentInventoryDocuments { get; set; }
         public DbSet<GarmentInventoryDocumentItem> GarmentInventoryDocumentItems { get; set; }
@@ -108,6 +121,31 @@ namespace Com.DanLiris.Service.Purchasing.Lib
         public DbSet<GarmentUnitDeliveryOrderItem> GarmentUnitDeliveryOrderItems { get; set; }
         public DbSet<GarmentUnitExpenditureNote> GarmentUnitExpenditureNotes { get; set; }
         public DbSet<GarmentUnitExpenditureNoteItem> GarmentUnitExpenditureNoteItems { get; set; }
+
+        public DbSet<GarmentReceiptCorrection> GarmentReceiptCorrections { get; set; }
+        public DbSet<GarmentReceiptCorrectionItem> GarmentReceiptCorrectionItems { get; set; }
+
+        public DbSet<GarmentPOMasterDistribution> GarmentPOMasterDistributions { get; set; }
+        public DbSet<GarmentPOMasterDistributionItem> GarmentPOMasterDistributionItems { get; set; }
+        public DbSet<GarmentPOMasterDistributionDetail> GarmentPOMasterDistributionDetails { get; set; }
+
+        public DbSet<GarmentSupplierBalanceDebt> GarmentSupplierBalanceDebts { get; set; }
+        public DbSet<GarmentSupplierBalanceDebtItem> GarmentSupplierBalanceDebtItems { get; set; }
+
+        public DbSet<GarmentStockOpname> GarmentStockOpnames { get; set; }
+        public DbSet<GarmentStockOpnameItem> GarmentStockOpnameItems { get; set; }
+
+        public DbSet<BalanceStock> BalanceStocks { get; set; }
+
+        public DbSet<BudgetCashflowWorstCase> BudgetCashflowWorstCases { get; set; }
+        public DbSet<BudgetCashflowWorstCaseItem> BudgetCashflowWorstCaseItems { get; set; }
+
+        public DbSet<GarmentDispositionPurchase> GarmentDispositionPurchases { get; set; }
+        public DbSet<GarmentDispositionPurchaseItem> GarmentDispositionPurchaseItems { get; set; }
+        public DbSet<GarmentDispositionPurchaseDetail> GarmentDispositionPurchaseDetailss { get; set; }
+
+        //public DbSet<ImportValue> ImportValues { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -119,6 +157,134 @@ namespace Com.DanLiris.Service.Purchasing.Lib
             {
                 relationship.DeleteBehavior = DeleteBehavior.Restrict;
             }
+
+            modelBuilder.Entity<GarmentPurchaseRequest>()
+                .HasIndex(i => i.PRNo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<GarmentPurchaseRequest>()
+                .HasIndex(i => i.RONo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<GarmentExternalPurchaseOrder>()
+                .HasIndex(i => i.EPONo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<GarmentInternNote>()
+                .HasIndex(i => i.INNo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<GarmentUnitReceiptNote>()
+                .HasIndex(i => i.URNNo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-04 00:00:00.0000000')");
+
+            modelBuilder.Entity<GarmentReceiptCorrection>()
+                .HasIndex(i => i.CorrectionNo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<GarmentUnitDeliveryOrder>()
+                .HasIndex(i => i.UnitDONo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<GarmentUnitExpenditureNote>()
+                .HasIndex(i => i.UENNo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<GarmentCorrectionNote>()
+                .HasIndex(i => i.CorrectionNo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
+
+            #region Purchasing
+
+            modelBuilder.Entity<PurchaseRequest>()
+                .HasIndex(i => i.No)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2020-02-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<ExternalPurchaseOrder>()
+                .HasIndex(i => i.EPONo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2020-02-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<UnitReceiptNote>()
+                .HasIndex(i => i.URNNo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2020-02-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<UnitPaymentOrder>()
+                .HasIndex(i => i.UPONo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2020-02-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<UnitPaymentCorrectionNote>()
+                .HasIndex(i => i.UPCNo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2020-02-01 00:00:00.0000000')");
+
+            modelBuilder.Entity<GarmentDispositionPurchase>()
+                .HasIndex(i => i.DispositionNo)
+                .IsUnique()
+                .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2020-02-01 00:00:00.0000000')");
+            #endregion
+
+            #region indexes
+            modelBuilder.Entity<GarmentInternNote>()
+                .HasIndex(i => new { i.INDate, i.CurrencyId, i.CurrencyCode, i.SupplierId });
+
+            modelBuilder.Entity<GarmentInvoice>()
+                .HasIndex(i => new { i.CurrencyId, i.IncomeTaxId, i.SupplierId, i.InvoiceDate, i.IncomeTaxDate });
+
+            modelBuilder.Entity<GarmentInvoiceItem>()
+                .HasIndex(i => new { i.ArrivalDate, i.DeliveryOrderId, i.DeliveryOrderNo, i.InvoiceId });
+
+            modelBuilder.Entity<GarmentInvoiceDetail>()
+                .HasIndex(i => new { i.EPOId, i.IPOId, i.PRItemId, i.DODetailId, i.ProductId, i.UomId });
+
+            modelBuilder.Entity<GarmentDeliveryOrder>()
+                .HasIndex(i => new { i.ArrivalDate, i.CustomsId, i.DOCurrencyId, i.DODate, i.IncomeTaxId, i.SupplierId });
+
+            modelBuilder.Entity<GarmentDeliveryOrderItem>()
+                .HasIndex(i => new { i.CurrencyId, i.EPOId, i.GarmentDOId });
+
+            modelBuilder.Entity<GarmentDeliveryOrderDetail>()
+                .HasIndex(i => new { i.POId, i.PRId, i.ProductId });
+
+            modelBuilder.Entity<GarmentExternalPurchaseOrder>()
+                .HasIndex(i => new { i.CurrencyId, i.IncomeTaxId, i.SupplierId, i.UENId });
+
+            modelBuilder.Entity<GarmentExternalPurchaseOrderItem>()
+                .HasIndex(i => new { i.POId, i.PRId });
+
+            modelBuilder.Entity<GarmentInternalPurchaseOrderItem>()
+               .HasIndex(i => new { i.CategoryId, i.GPOId, i.ProductId });
+            #endregion
+            #region BalanceStock
+            //modelBuilder.Entity<BalanceStock>()
+            //    .HasIndex(i => i.BalanceStockId)
+            //    .IsUnique()
+            //    .HasFilter("[IsDeleted]=(0) AND [CreatedUtc]>CONVERT([datetime2],'2019-10-01 00:00:00.0000000')");
+            modelBuilder.Entity<BalanceStock>()
+                .Property(i => i.OpenPrice)
+                .HasColumnType("Money");
+            modelBuilder.Entity<BalanceStock>()
+                .Property(i => i.DebitPrice)
+                .HasColumnType("Money");
+            modelBuilder.Entity<BalanceStock>()
+                .Property(i => i.CreditPrice)
+                .HasColumnType("Money");
+            modelBuilder.Entity<BalanceStock>()
+                .Property(i => i.ClosePrice)
+                .HasColumnType("Money");
+            #endregion
         }
     }
 }

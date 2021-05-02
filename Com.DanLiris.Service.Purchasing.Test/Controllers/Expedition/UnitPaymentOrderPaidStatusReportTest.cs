@@ -24,7 +24,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
         public void Should_Success_Get_Report()
         {
             Mock<IUnitPaymentOrderPaidStatusReportFacade> mockFacade = new Mock<IUnitPaymentOrderPaidStatusReportFacade>();
-            mockFacade.Setup(p => p.GetReport(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTimeOffset?>(), It.IsAny<DateTimeOffset?>(), It.IsAny<int>()))
+            mockFacade.Setup(p => p.GetReport(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTimeOffset?>(), It.IsAny<DateTimeOffset?>(), It.IsAny<DateTimeOffset?>(), It.IsAny<DateTimeOffset?>(), It.IsAny<int>()))
                 .Returns(new ReadResponse<object>(new List<object>(), 0, new Dictionary<string, string>()));
 
             UnitPaymentOrderPaidStatusReportController controller = new UnitPaymentOrderPaidStatusReportController(mockFacade.Object);
@@ -35,7 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
 
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "1";
 
-            var response = controller.Get(1, 1, null, null, null, null, null, null, null);
+            var response = controller.Get(1, 1, null, null, null, null, null, null, null, null, null, null, null);
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
     }

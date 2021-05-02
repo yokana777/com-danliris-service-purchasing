@@ -87,7 +87,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
             PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             await _dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.Read();
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
@@ -105,11 +105,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
             PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var modelLocalSupplier = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var ResponseLocalSupplier = await facade.Create(modelLocalSupplier, USERNAME, 7);
-            Assert.NotEqual(ResponseLocalSupplier, 0);
+            Assert.NotEqual(0, ResponseLocalSupplier);
 
             var modelImportSupplier = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
             var ResponseImportSupplier = await facade.Create(modelImportSupplier, USERNAME, 7);
-            Assert.NotEqual(ResponseImportSupplier, 0);
+            Assert.NotEqual(0, ResponseImportSupplier);
+
+            var modelDivisionGarment = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            modelDivisionGarment.DivisionName = "GARMENT";
+            var ResponseDivisionGarment= await facade.Create(modelDivisionGarment, USERNAME, 7);
+            Assert.NotEqual(0, ResponseLocalSupplier);
         }
 
         [Fact]
@@ -124,7 +129,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
             //model.Items.Clear();
             modelItem.EPONo = "test";
             var ResponseAdd1 = await facade.Update((int)model.Id, model, USERNAME);
-            Assert.NotEqual(ResponseAdd1, 0);
+            Assert.NotEqual(0, ResponseAdd1);
 
             var dispoItem =
                     new PurchasingDispositionItem
@@ -182,23 +187,23 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
 
             model.Items.First().Details.Add(dispoDetail);
             var ResponseAddDetail = await facade.Update((int)model.Id, model, USERNAME);
-            Assert.NotEqual(ResponseAddDetail, 0);
+            Assert.NotEqual(0, ResponseAddDetail);
 
             var ResponseAddDetail2 = await facade.Update((int)model.Id, model, USERNAME);
-            Assert.NotEqual(ResponseAddDetail2, 0);
+            Assert.NotEqual(0, ResponseAddDetail2);
 
             model.Items.First().Details.Remove(modelDetail);
             var ResponseAddDetail1 = await facade.Update((int)model.Id, model, USERNAME);
-            Assert.NotEqual(ResponseAddDetail1, 0);
+            Assert.NotEqual(0, ResponseAddDetail1);
 
             model.Items.Add(dispoItem);
             var ResponseAdd = await facade.Update((int)model.Id, model, USERNAME);
-            Assert.NotEqual(ResponseAdd, 0);
+            Assert.NotEqual(0, ResponseAdd);
 
 
             model.Items.Remove(modelItem);
             var ResponseAdd2 = await facade.Update((int)model.Id, model, USERNAME);
-            Assert.NotEqual(ResponseAdd2, 0);
+            Assert.NotEqual(0, ResponseAdd2);
 
         }
 
@@ -243,11 +248,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
         }
 
         [Fact]
-        public async Task Should_Error_Delete_Data()
+        //public async Task Should_Error_Delete_Data()
+        //{
+        //    PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+
+        //    Exception e = await Assert.ThrowsAsync<Exception>(async () => facade.Delete(0, USERNAME));
+        //    Assert.NotNull(e.Message);
+        //}
+
+        public void Should_Error_Delete_Data()
         {
             PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
 
-            Exception e = await Assert.ThrowsAsync<Exception>(async () => facade.Delete(0, USERNAME));
+            //Exception e = await Assert.ThrowsAsync<Exception>(async () => facade.Delete(0, USERNAME));
+            Exception e = Assert.Throws<Exception>(() => facade.Delete(0, USERNAME));
             Assert.NotNull(e.Message);
         }
 
@@ -304,7 +318,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
                 epoId = epo.EPOId; break;
             }
             var Response = facade.ReadDisposition(null, "{}", epoId);
-            Assert.NotEqual(Response.Count, 0);
+            Assert.NotEmpty(Response);
         }
 
         [Fact]
@@ -426,7 +440,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
                 }).ToList()
             }).ToList();
             var totalPaidPriceResponse = facade.GetTotalPaidPrice(data);
-            Assert.NotEqual(totalPaidPriceResponse.Count, 0);
+            Assert.NotEmpty(totalPaidPriceResponse);
         }
     }
 }

@@ -38,17 +38,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPCell cellLeftMerge = new PdfPCell() { Border = Rectangle.NO_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_TOP, Padding = 5 };
 
 
-            Document document = new Document(PageSize.A4, 30,30,30,30);
+            Document document = new Document(PageSize.A4, 30, 30, 30, 30);
             MemoryStream stream = new MemoryStream();
             PdfWriter writer = PdfWriter.GetInstance(document, stream);
             document.Open();
 
             string fmString = "FM-PB-00-06-011";
-            Paragraph fm = new Paragraph(fmString, bold_font4) { Alignment = Element.ALIGN_RIGHT};
+            Paragraph fm = new Paragraph(fmString, bold_font4) { Alignment = Element.ALIGN_RIGHT };
 
             string titleString = "DISPOSISI PEMBAYARAN";
             Paragraph title = new Paragraph(titleString, bold_font4) { Alignment = Element.ALIGN_CENTER };
-            
+
             document.Add(title);
             bold_font.SetStyle(Font.NORMAL);
 
@@ -58,17 +58,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             dispoNumber.SpacingAfter = 20f;
             document.Add(dispoNumber);
 
-            
+
 
             #region Identity
 
             PdfPTable tableIdentity = new PdfPTable(5);
-            tableIdentity.SetWidths(new float[] { 5f, 0.5f, 2f,7f,4f });
+            tableIdentity.SetWidths(new float[] { 5f, 0.5f, 2f, 7f, 4f });
 
             double dpp = 0;
             foreach (var item in viewModel.Items)
             {
-                foreach(var detail in item.Details)
+                foreach (var detail in item.Details)
                 {
                     dpp += detail.PaidPrice;
                 }
@@ -78,16 +78,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             string pph = "";
             double pphRate = 0;
 
-            foreach(var item in viewModel.Items)
+            foreach (var item in viewModel.Items)
             {
                 if (!item.UseVat)
                 {
-                    ppn = 0; 
+                    ppn = 0;
                 }
                 if (item.UseIncomeTax)
                 {
                     pph = item.IncomeTax.name;
-                    pphRate = dpp * (Convert.ToDouble(item.IncomeTax.rate)/100);
+                    pphRate = dpp * (Convert.ToDouble(item.IncomeTax.rate) / 100);
                 }
                 break;
             }
@@ -101,27 +101,31 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             double amount = dpp + ppn;
 
-            if(viewModel.IncomeTaxBy=="Dan Liris")
+            if (viewModel.IncomeTaxBy == "Dan Liris")
             {
                 amount = dpp + ppn + pphRate;
             }
+
+            var payingDisposition = Math.Round((paidToSupp + viewModel.PaymentCorrection + pphRate), 2, MidpointRounding.AwayFromZero);
             cellLeftNoBorder.SetLeading(13f, 0f);
             cellLeftNoBorder.Phrase = new Phrase("Mohon Disposisi Pembayaran", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase(viewModel.PaymentMethod , normal_font);
+            cellLeftNoBorder.Phrase = new Phrase(viewModel.PaymentMethod + "  " + viewModel.Currency.code + " " + $"{payingDisposition.ToString("N", new CultureInfo("id-ID"))}", normal_font);
+            cellLeftNoBorder.Colspan = 2;
             tableIdentity.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase( viewModel.Currency.code + " " +  $"{(paidToSupp + viewModel.PaymentCorrection + pphRate).ToString("N", new CultureInfo("id-ID")) }", normal_font);
-            tableIdentity.AddCell(cellLeftNoBorder);
+            //cellLeftNoBorder.Phrase = new Phrase( viewModel.Currency.code + " " +  $"{(paidToSupp + viewModel.PaymentCorrection + pphRate).ToString("N", new CultureInfo("id-ID")) }", normal_font);
+            //tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase("", normal_font);
+            cellLeftNoBorder.Colspan = 0;
             tableIdentity.AddCell(cellLeftNoBorder);
 
             cellLeftNoBorder.Phrase = new Phrase("Terbilang", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase($"{ NumberToTextIDN.terbilang(paidToSupp + viewModel.PaymentCorrection) }"+" " + viewModel.Currency.description.ToLower(), normal_font);
+            cellLeftNoBorder.Phrase = new Phrase($"{ NumberToTextIDN.terbilang(payingDisposition) }" + " " + viewModel.Currency.description.ToLower(), normal_font);
             cellLeftNoBorder.Colspan = 2;
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase("", normal_font);
@@ -197,14 +201,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableIdentity.AddCell(cellLeftNoBorder);
 
 
-            
+
             cellLeftNoBorder.Colspan = 0;
             cellLeftNoBorder.Phrase = new Phrase("Jumlah dibayar ke Supplier ", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Colspan = 2;
-            cellLeftNoBorder.Phrase = new Phrase(viewModel.Currency.code+"  " + $"{(paidToSupp).ToString("N", new CultureInfo("id-ID")) }", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase(viewModel.Currency.code + "  " + $"{(paidToSupp).ToString("N", new CultureInfo("id-ID")) }", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase("", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
@@ -232,7 +236,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellLeftNoBorder.Phrase = new Phrase("", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
 
-            PdfPCell cellSuppLeft = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER , HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
+            PdfPCell cellSuppLeft = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
             PdfPCell cellSuppMid = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.BOTTOM_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
             PdfPCell cellSuppRight = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
 
@@ -288,7 +292,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             #region Content
             PdfPTable tableContent = new PdfPTable(8);
-            tableContent.SetWidths(new float[] { 6f, 5f, 4f, 3f,  3f, 2.5f, 2f, 3.5f });
+            tableContent.SetWidths(new float[] { 6f, 5f, 4f, 3f, 3f, 2.5f, 2f, 3.5f });
 
             cellCenter.Phrase = new Phrase("Nama Barang", bold_font);
             tableContent.AddCell(cellCenter);
@@ -313,11 +317,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             double total = 0;
             double totalPurchase = 0;
+            
             foreach (PurchasingDispositionItemViewModel item in viewModel.Items)
             {
                 for (int indexItem = 0; indexItem < item.Details.Count; indexItem++)
                 {
                     PurchasingDispositionDetailViewModel detail = item.Details[indexItem];
+                    //var unitName = detail.Unit._id == "50" ? "WEAVING" : detail.Unit.name;
+                    var unitName = "";
+                    var unitId = detail.Unit._id;
+                    if (unitId == "50")
+                    {
+                        unitName = "WEAVING";
+                    }
+                    else if (unitId == "35")
+                    {
+                        unitName = "SPINNING 1";
+                    }
+                    else
+                    {
+                        unitName = detail.Unit.name ;
+                    }
                     cellLeft.Colspan = 0;
                     cellLeft.Phrase = new Phrase($"{detail.Product.name}", smaller_font);
                     tableContent.AddCell(cellLeft);
@@ -328,7 +348,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellCenter.Phrase = new Phrase($"{item.EPONo}", smaller_font);
                     tableContent.AddCell(cellCenter);
 
-                    cellCenter.Phrase = new Phrase($"{detail.Unit.name}", smaller_font);
+                    cellCenter.Phrase = new Phrase($"{unitName}", smaller_font);
                     tableContent.AddCell(cellCenter);
 
                     //cellCenter.Phrase = new Phrase($"{detail.Category.name}", smaller_font);
@@ -370,7 +390,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             //cellRightMerge.Phrase = new Phrase($"{total.ToString("N", new CultureInfo("id-ID"))}", smaller_font);
             //tableContent.AddCell(cellRightMerge);
 
-            
+
             PdfPCell cellContent = new PdfPCell(tableContent); // dont remove
             tableContent.ExtendLastRow = false;
             tableContent.SpacingAfter = 20f;
@@ -451,11 +471,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellLeftNoBorder.Phrase = new Phrase(viewModel.Remark, normal_font);
             tableNote.AddCell(cellLeftNoBorder);
 
+            var ppnPurchase = viewModel.VatValue > 0 ? (totalPurchase * 10 / 100) : 0;
+
+
             cellLeftNoBorder.Phrase = new Phrase("Total Pembelian", normal_font);
             tableNote.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableNote.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase($"{viewModel.Currency.code}" + " "+ $"{totalPurchase.ToString("N", new CultureInfo("id-ID"))}", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase($"{viewModel.Currency.code}" + " " + $"{(totalPurchase + ppnPurchase).ToString("N", new CultureInfo("id-ID"))}", normal_font);
             tableNote.AddCell(cellLeftNoBorder);
 
             PdfPCell cellNote = new PdfPCell(tableNote); // dont remove
@@ -466,8 +489,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             #region signature
             PdfPTable tableSignature = new PdfPTable(4);
+            tableSignature.SetWidths(new float[] { 4f, 4f, 4f, 4.1f });
 
             PdfPCell cellSignatureContent = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_CENTER };
+
+            cellSignatureContent.Phrase = new Phrase("", bold_font3);
+            tableSignature.AddCell(cellSignatureContent);
+            cellSignatureContent.Phrase = new Phrase("", bold_font3);
+            cellSignatureContent.Colspan = 2;
+            tableSignature.AddCell(cellSignatureContent);
+
+            cellSignatureContent.Colspan = 0;
+            cellSignatureContent.Phrase = new Phrase("Sukoharjo, " + viewModel.CreatedUtc.ToString("dd MMMM yyyy", new CultureInfo("id-ID")), bold_font3);
+            tableSignature.AddCell(cellSignatureContent);
+
             cellSignatureContent.Phrase = new Phrase("Menyetujui,", bold_font3);
             tableSignature.AddCell(cellSignatureContent);
             cellSignatureContent.Phrase = new Phrase("Mengetahui,", bold_font3);

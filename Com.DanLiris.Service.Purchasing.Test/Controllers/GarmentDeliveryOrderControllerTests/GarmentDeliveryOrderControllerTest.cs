@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
@@ -158,6 +159,94 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
 
             var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.Created, GetStatusCode(response));
+        }
+
+        [Fact]
+        public async Task Should_Success_Delete()
+        {
+            //Setup
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentDeliveryOrderViewModel>())).Verifiable();
+
+            var mapperMock = new Mock<IMapper>();
+
+            var facadeMock = new Mock<IGarmentDeliveryOrderFacade>();
+            facadeMock
+                .Setup(x => x.Delete(It.IsAny<int>(), It.IsAny<string>()))
+                .ReturnsAsync(1);
+
+            //Act
+            var controller = GetController(facadeMock, validateMock, mapperMock);
+            var response = await controller.Delete(1);
+
+            //Assert
+            Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_GetReportDetail()
+        {
+            //Setup
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentDeliveryOrderViewModel>())).Verifiable();
+
+            var mapperMock = new Mock<IMapper>();
+
+            var facadeMock = new Mock<IGarmentDeliveryOrderFacade>();
+            facadeMock
+                .Setup(x => x.GetAccuracyOfArrivalDetail(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>()))
+                .Returns(new List<AccuracyOfArrivalReportDetail>() { new AccuracyOfArrivalReportDetail()});
+
+            //Act
+            var controller = GetController(facadeMock, validateMock, mapperMock);
+            var response =  controller.GetReportDetail(null,null,null,null);
+
+            //Assert
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_GetReportDetail2()
+        {
+            //Setup
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentDeliveryOrderViewModel>())).Verifiable();
+
+            var mapperMock = new Mock<IMapper>();
+
+            var facadeMock = new Mock<IGarmentDeliveryOrderFacade>();
+            facadeMock
+                .Setup(x => x.GetReportDetailAccuracyofDelivery(It.IsAny<string>(),  It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(new Tuple<List<AccuracyOfArrivalReportViewModel>, int>(new List<AccuracyOfArrivalReportViewModel>(),1));
+
+            //Act
+            var controller = GetController(facadeMock, validateMock, mapperMock);
+            var response = controller.GetReportDetail2(null, null, null, null,null);
+
+            //Assert
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public async Task Should_Fail_Delete()
+        {
+            //Setup
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentDeliveryOrderViewModel>())).Verifiable();
+
+            var mapperMock = new Mock<IMapper>();
+
+            var facadeMock = new Mock<IGarmentDeliveryOrderFacade>();
+            facadeMock
+                .Setup(x => x.Delete(It.IsAny<int>(), It.IsAny<string>()))
+                .Throws(new Exception());
+
+            //Act
+            var controller = GetController(facadeMock, validateMock, mapperMock);
+            var response = await controller.Delete(1);
+
+            //Assert
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
         [Fact]
@@ -571,7 +660,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
 
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
             var response = controller.GetXlsArrivalHeader(null, null, null);
-            Assert.Equal(null, response.GetType().GetProperty("FileStream"));
+            Assert.Null(response.GetType().GetProperty("FileStream"));
         }
 
         //[Fact]
@@ -691,7 +780,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
             
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
             var response = controller.GetXlsArrivalDetail($"BuyerCode{nowTicksA}", null, null, null);
-            Assert.Equal(null, response.GetType().GetProperty("FileStream"));
+            Assert.Null(response.GetType().GetProperty("FileStream"));
         }
 
 
@@ -700,7 +789,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
         public void Should_Success_Get_Report_Data_Delivery_Header()
         {
             var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
-            mockFacade.Setup(x => x.GetReportHeaderAccuracyofDelivery( null, null, It.IsAny<int>()))
+            mockFacade.Setup(x => x.GetReportHeaderAccuracyofDelivery( null, null, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
                 .Returns(Tuple.Create(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival }, 25));
 
             var mockMapper = new Mock<IMapper>();
@@ -723,7 +812,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
             };
 
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-            var response = controller.GetReport2(null, null);
+            var response = controller.GetReport2(null, null, "", "");
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
 
@@ -731,7 +820,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
         public void Should_Error_Get_Report_Xls_Data_Header_AccuracyDelivery()
         {
             var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
-            mockFacade.Setup(x => x.GetReportHeaderAccuracyofDelivery(null, null, It.IsAny<int>()))
+            mockFacade.Setup(x => x.GetReportHeaderAccuracyofDelivery(null, null, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
                 .Returns(Tuple.Create(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival }, 25));
 
             var mockMapper = new Mock<IMapper>();
@@ -754,7 +843,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
             };
 
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-            var response = controller.GetXlsDeliveryHeader(null, null);
+            var response = controller.GetXlsDeliveryHeader(null, null, "", "");
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
@@ -762,7 +851,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
         public void Should_Success_Get_Report_Xls_Data_Header_AccuracyDelivery()
         {
             var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
-            mockFacade.Setup(x => x.GetReportHeaderAccuracyofDelivery(null, null, It.IsAny<int>()))
+            mockFacade.Setup(x => x.GetReportHeaderAccuracyofDelivery(null, null, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
                 .Returns(Tuple.Create(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival }, 25));
 
             var mockMapper = new Mock<IMapper>();
@@ -785,8 +874,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
             };
 
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-            var response = controller.GetXlsDeliveryHeader(null, null);
-            Assert.Equal(null, response.GetType().GetProperty("FileStream"));
+            var response = controller.GetXlsDeliveryHeader(null, null, "", "");
+            Assert.Null(response.GetType().GetProperty("FileStream"));
         }
 
         //[Fact]
@@ -830,7 +919,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
             string nowTicksA = $"{nowTicks}a";
 
             var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
-            mockFacade.Setup(x => x.GetReportDetailAccuracyofDelivery($"BuyerCode{nowTicksA}", null, null, It.IsAny<int>()))
+            mockFacade.Setup(x => x.GetReportDetailAccuracyofDelivery($"BuyerCode{nowTicksA}", null, null, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
                 .Returns(Tuple.Create(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival }, 25));
 
             var mockMapper = new Mock<IMapper>();
@@ -853,7 +942,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
             };
 
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-            var response = controller.GetXlsDeliveryDetail($"BuyerCode{nowTicksA}", null, null);
+            var response = controller.GetXlsDeliveryDetail($"BuyerCode{nowTicksA}", null, null, "", "");
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
@@ -864,7 +953,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
             string nowTicksA = $"{nowTicks}a";
 
             var mockFacade = new Mock<IGarmentDeliveryOrderFacade>();
-            mockFacade.Setup(x => x.GetReportDetailAccuracyofDelivery($"BuyerCode{nowTicksA}", null, null, It.IsAny<int>()))
+            mockFacade.Setup(x => x.GetReportDetailAccuracyofDelivery($"BuyerCode{nowTicksA}", null, null, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
                 .Returns(Tuple.Create(new List<AccuracyOfArrivalReportViewModel> { this.ViewModelAccuracyArrival }, 25));
 
             var mockMapper = new Mock<IMapper>();
@@ -887,8 +976,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDeliveryOrderC
             };
 
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-            var response = controller.GetXlsDeliveryDetail($"BuyerCode{nowTicksA}", null, null);
-            Assert.Equal(null, response.GetType().GetProperty("FileStream"));
+            var response = controller.GetXlsDeliveryDetail($"BuyerCode{nowTicksA}", null, null, "", "");
+            Assert.Null(response.GetType().GetProperty("FileStream"));
         }
         #region Report Delivery Order All
         [Fact]

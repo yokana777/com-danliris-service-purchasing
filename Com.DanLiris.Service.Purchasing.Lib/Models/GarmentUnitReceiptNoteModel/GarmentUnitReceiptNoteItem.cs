@@ -13,15 +13,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel
         [ForeignKey("URNId")]
         public virtual GarmentUnitReceiptNote GarmentUnitReceiptNote { get; set; }
 
+        public long UENItemId { get; set; }
+
         public long DODetailId { get; set; }
 
         public long EPOItemId { get; set; }
+        public string DRItemId { get; set; }
 
         public long PRId { get; set; }
         [MaxLength(255)]
         public string PRNo { get; set; }
         public long PRItemId { get; set; }
-
+		public string UId { get; set; }
         public long POId { get; set; }
         public long POItemId { get; set; }
         [MaxLength(1000)]
@@ -37,6 +40,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel
         [MaxLength(255)]
         public string RONo { get; set; }
 
+        [Column(TypeName = "decimal(20, 4)")]
         public decimal ReceiptQuantity { get; set; }
 
         public long UomId { get; set; }
@@ -53,6 +57,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel
 
         [Column(TypeName = "decimal(38, 20)")]
         public decimal Conversion { get; set; }
+        [Column(TypeName = "decimal(38, 20)")]
+        public decimal CorrectionConversion { get; set; }
 
         public decimal SmallQuantity { get; set; }
 
@@ -63,5 +69,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel
         public long SmallUomId { get; set; }
         [MaxLength(1000)]
         public string SmallUomUnit { get; set; }
+        public double DOCurrencyRate { get; set; }
     }
 }

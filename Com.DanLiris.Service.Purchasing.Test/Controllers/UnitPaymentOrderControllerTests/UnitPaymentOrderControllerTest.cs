@@ -58,12 +58,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
 
                 return new UnitPaymentOrderViewModel
                 {
+                    pibDate = new DateTimeOffset(),
+                    importDuty = 0,
+                    totalIncomeTaxAmount = 0,
+                    totalVatAmount = 0,
                     UId = null,
                     supplier = new SupplierViewModel
                     {
                         import = false
                     },
-                    items = items
+                    items = items,
+                    isPosted = false,
+                    position = 100,
                 };
             }
         }
@@ -113,6 +119,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
                     VatDate = new DateTimeOffset(),
 
                     Remark = null,
+
+                    IsPosted = false,
+                    Position = 100,
 
                     DueDate = new DateTimeOffset(), // ???
 
@@ -262,6 +271,58 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
         [Fact]
+        public void Should_Success_Get_Data_By_EPONo()
+        {
+            var Model = this.Model;
+            Model.Items = new List<UnitPaymentOrderItem>
+            {
+                new UnitPaymentOrderItem
+                {
+                    Details = new List<UnitPaymentOrderDetail>
+                    {
+                        new UnitPaymentOrderDetail()
+                    }
+                }
+            };
+            List<UnitPaymentOrder> paymentOrders = new List<UnitPaymentOrder>();
+            paymentOrders.Add(Model);
+            var mockFacade = new Mock<IUnitPaymentOrderFacade>();
+            mockFacade.Setup(x => x.ReadByEPONo(It.IsAny<string>()))
+                .Returns(paymentOrders);
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<UnitPaymentOrderViewModel>>(It.IsAny<List<UnitPaymentOrder>>()))
+                .Returns(new List<UnitPaymentOrderViewModel> { ViewModel });
+
+            UnitPaymentOrderController controller = new UnitPaymentOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "test";
+
+            var response = controller.GetEpo(It.IsAny<string>());
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_Data_By_EPONo()
+        {
+            var mockFacade = new Mock<IUnitPaymentOrderFacade>();
+            List<UnitPaymentOrder> paymentOrders = new List<UnitPaymentOrder>();
+            paymentOrders.Add(Model);
+            mockFacade.Setup(x => x.ReadByEPONo(It.IsAny<string>()))
+                .Returns(paymentOrders);
+
+            var mockMapper = new Mock<IMapper>();
+
+
+            UnitPaymentOrderController controller = new UnitPaymentOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            var response = controller.GetEpo(It.IsAny<string>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+        [Fact]
         public void Should_Success_Get_PDF_Data_By_Id()
         {
             var Model = this.Model;
@@ -305,9 +366,102 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
 
             var response = controller.Get(It.IsAny<int>());
-            Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
+            Assert.NotNull(response.GetType().GetProperty("FileStream"));
         }
 
+        [Fact]
+        public void Should_Success_Get_PDF_Data_By_Id_Except()
+        {
+            var Model = this.Model;
+            Model.Items = new List<UnitPaymentOrderItem>
+            {
+                new UnitPaymentOrderItem
+                {
+                    Details = new List<UnitPaymentOrderDetail>
+                    {
+                        new UnitPaymentOrderDetail()
+                    }
+                }
+            };
+
+            var mockFacade = new Mock<IUnitPaymentOrderFacade>();
+            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(Model);
+            mockFacade.Setup(x => x.GetUnitReceiptNote(It.IsAny<long>()))
+                .Returns(new Lib.Models.UnitReceiptNoteModel.UnitReceiptNote { UnitId="50", UnitName = "UnitName", ReceiptDate = DateTimeOffset.Now });
+            mockFacade.Setup(x => x.GetExternalPurchaseOrder(It.IsAny<string>()))
+                .Returns(new ExternalPurchaseOrder { PaymentDueDays = "0" });
+
+            var mockMapper = new Mock<IMapper>();
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+
+            UnitPaymentOrderController controller = new UnitPaymentOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+
+            var response = controller.Get(It.IsAny<int>());
+            Assert.NotNull(response.GetType().GetProperty("FileStream"));
+        }
+
+        [Fact]
+        public void Should_Success_Get_PDF_Data_By_Id_Except1()
+        {
+            var Model = this.Model;
+            Model.Items = new List<UnitPaymentOrderItem>
+            {
+                new UnitPaymentOrderItem
+                {
+                    Details = new List<UnitPaymentOrderDetail>
+                    {
+                        new UnitPaymentOrderDetail()
+                    }
+                }
+            };
+
+            var mockFacade = new Mock<IUnitPaymentOrderFacade>();
+            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(Model);
+            mockFacade.Setup(x => x.GetUnitReceiptNote(It.IsAny<long>()))
+                .Returns(new Lib.Models.UnitReceiptNoteModel.UnitReceiptNote { UnitId = "35", UnitName = "UnitName", ReceiptDate = DateTimeOffset.Now });
+            mockFacade.Setup(x => x.GetExternalPurchaseOrder(It.IsAny<string>()))
+                .Returns(new ExternalPurchaseOrder { PaymentDueDays = "0" });
+
+            var mockMapper = new Mock<IMapper>();
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+
+            UnitPaymentOrderController controller = new UnitPaymentOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+
+            var response = controller.Get(It.IsAny<int>());
+            Assert.NotNull(response.GetType().GetProperty("FileStream"));
+        }
 
         [Fact]
         public void Should_Success_Get_PDF_Data_By_Id_Kredit()
@@ -335,6 +489,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
 
             var mockMapper = new Mock<IMapper>();
 
+
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
             {
@@ -354,7 +509,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
 
             var response = controller.Get(It.IsAny<int>());
-            Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
+            Assert.NotNull(response.GetType().GetProperty("FileStream"));
         }
 
 
@@ -403,7 +558,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
 
             var response = controller.Get(It.IsAny<int>());
-            Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
+            Assert.NotNull(response.GetType().GetProperty("FileStream"));
         }
 
         [Fact]
@@ -585,6 +740,38 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
         }
 
         [Fact]
+        public void Should_Success_Get_Data_SpbForVerification()
+        {
+            var mockFacade = new Mock<IUnitPaymentOrderFacade>();
+
+            mockFacade.Setup(x => x.ReadSpbForVerification(1, 25, "{}", null, "{}"))
+                .Returns(Tuple.Create(new List<UnitPaymentOrder>(), 0, new Dictionary<string, string>()));
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<UnitPaymentOrderViewModel>>(It.IsAny<List<UnitPaymentOrder>>()))
+                .Returns(new List<UnitPaymentOrderViewModel> { ViewModel });
+
+            UnitPaymentOrderController controller = new UnitPaymentOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            var response = controller.GetSpbForVerification(1, 25, "{}", null, "{}");
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_Data_SpbForVerification()
+        {
+            var mockFacade = new Mock<IUnitPaymentOrderFacade>();
+
+            mockFacade.Setup(x => x.ReadSpbForVerification(1, 25, "{}", null, "{}"))
+                .Returns(Tuple.Create(new List<UnitPaymentOrder>(), 0, new Dictionary<string, string>()));
+
+            var mockMapper = new Mock<IMapper>();
+
+            UnitPaymentOrderController controller = new UnitPaymentOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            var response = controller.GetSpbForVerification(1, 25, "{}", null, "{}");
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
         public void Should_Success_Get_Data_By_Position()
         {
             var mockFacade = new Mock<IUnitPaymentOrderFacade>();
@@ -691,6 +878,83 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
 
         }
-        #endregion 
+        #endregion
+
+        #region Monitoring Tax All 
+        [Fact]
+        public void Should_Success_Get_Tax_Report_All()
+        {
+            var mockFacade = new Mock<IUnitPaymentOrderFacade>();
+            mockFacade.Setup(x => x.GetReportTax(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(Tuple.Create(new List<UnitPaymentOrderTaxReportViewModel>(), 5));
+
+            var mockMapper = new Mock<IMapper>();
+
+            UnitPaymentOrderController controller = GetController(mockFacade, null, mockMapper);
+            var response = controller.GetReportTax(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>());
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_Tax_Report_All()
+        {
+            var mockFacade = new Mock<IUnitPaymentOrderFacade>();
+
+            var mockMapper = new Mock<IMapper>();
+
+
+            UnitPaymentOrderController controller = GetController(mockFacade, null, mockMapper);
+            var response = controller.GetReportTax(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+
+
+        [Fact]
+        public void Should_Success_Get_Tax_Xls_All()
+        {
+            var mockFacade = new Mock<IUnitPaymentOrderFacade>();
+            mockFacade.Setup(x => x.GenerateExcelTax(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>()))
+                .Returns(new MemoryStream());
+
+            var mockMapper = new Mock<IMapper>();
+            //mockMapper.Setup(x => x.Map<List<GarmentDeliveryOrderReportViewModel>>(It.IsAny<List<GarmentDeliveryOrder>>()))
+            //    .Returns(new List<GarmentDeliveryOrderReportViewModel> { ViewModel });
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+            UnitPaymentOrderController controller = new UnitPaymentOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            var response = controller.GetXlsTax(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>());
+            Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.GetType().GetProperty("ContentType").GetValue(response, null));
+
+        }
+
+        [Fact]
+        public void Should_Error_Get_Tax_Xls_All()
+        {
+            var mockFacade = new Mock<IUnitPaymentOrderFacade>();
+
+            var mockMapper = new Mock<IMapper>();
+
+            UnitPaymentOrderController controller = new UnitPaymentOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+
+            var response = controller.GetXlsTax(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<DateTime>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+
+        }
+        #endregion
     }
 }

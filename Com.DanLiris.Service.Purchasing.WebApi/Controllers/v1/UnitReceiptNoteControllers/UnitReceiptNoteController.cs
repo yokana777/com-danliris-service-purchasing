@@ -147,7 +147,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
                     }
                 }
             }
-            
+
             UnitReceiptNote m = _mapper.Map<UnitReceiptNote>(vm);
 
             IValidateService validateService = (IValidateService)_serviceProvider.GetService(typeof(IValidateService));
@@ -229,9 +229,43 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
 
                 return NoContent();
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpGet("correction-note/{urnNo}")]
+        public async Task<IActionResult> GetCreditorAccountByURNNo([FromRoute] string urnNo)
+        {
+            identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+            try
+            {
+                var creditorAccount = await _facade.GetCreditorAccountDataByURNNo(urnNo);
+                if (creditorAccount == null)
+                {
+                    throw new Exception("Invalid No");
+                }
+
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = creditorAccount,
+                });
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
     }

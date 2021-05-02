@@ -6,7 +6,6 @@ using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNoteViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewModel;
-using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorrectionNoteController;
 using Com.Moonlay.NetCore.Lib.Service;
@@ -17,9 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
-using System.Net.Http;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -52,8 +49,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
                         name = "CategoryName",
                         code = "CategoryCode"
                     },
-                    correctionType="Harga Satuan",
-                    correctionDate= new DateTimeOffset(),
+                    correctionType = "Harga Satuan",
+                    correctionDate = new DateTimeOffset(),
                     items = new List<UnitPaymentCorrectionNoteItemViewModel>()
                     {
                         new UnitPaymentCorrectionNoteItemViewModel()
@@ -107,12 +104,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
                     },
                     currency = new CurrencyViewModel
                     {
-                        code="cr1",
-                        description="currency",
-                        rate=1
+                        code = "cr1",
+                        description = "currency",
+                        rate = 1
                     },
                     items = new List<UnitPaymentOrderItemViewModel>()
-                    
+
                 };
             }
         }
@@ -162,8 +159,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
 
                     DueDate = new DateTimeOffset(), // ???
 
-                    Items = new List<UnitPaymentCorrectionNoteItem> {
-                    
+                    Items = new List<UnitPaymentCorrectionNoteItem>
+                    {
+                        new UnitPaymentCorrectionNoteItem()
+                        {
+
+                        }
                     }
                 };
             }
@@ -217,11 +218,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
                     DueDate = new DateTimeOffset(), // ???
 
                     Items = new List<UnitPaymentOrderItem> {
-                    new UnitPaymentOrderItem()
-                        {
-                            URNNo="code",
-                            DONo="do",
-                        }
+                        new UnitPaymentOrderItem()
+                            {
+                                URNNo="code",
+                                DONo="do",
+                            }
                     }
                 };
             }
@@ -372,7 +373,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
                 .Returns(Model);
 
             var mockFacade = new Mock<IUnitPaymentPriceCorrectionNoteFacade>();
-            mockFacade.Setup(x => x.Create(It.IsAny<UnitPaymentCorrectionNote>(),false, "unittestusername", 7))
+            mockFacade.Setup(x => x.Create(It.IsAny<UnitPaymentCorrectionNote>(), false, "unittestusername", 7))
                .ReturnsAsync(1);
 
             var mockFacadeSpb = new Mock<IUnitPaymentOrderFacade>();
@@ -394,7 +395,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
             var mockMapper = new Mock<IMapper>();
 
             var mockFacade = new Mock<IUnitPaymentPriceCorrectionNoteFacade>();
-            mockFacade.Setup(x => x.Create(It.IsAny<UnitPaymentCorrectionNote>(),true, "unittestusername", 7))
+            mockFacade.Setup(x => x.Create(It.IsAny<UnitPaymentCorrectionNote>(), true, "unittestusername", 7))
                .ReturnsAsync(1);
 
             var mockFacadeSpb = new Mock<IUnitPaymentOrderFacade>();
@@ -418,8 +419,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
                 .Returns(Model);
             Model.Items.Add(new UnitPaymentCorrectionNoteItem
             {
-                PricePerDealUnitAfter=-100,
-                PriceTotalAfter=-200
+                PricePerDealUnitAfter = -100,
+                PriceTotalAfter = -200
             });
             var mockFacade = new Mock<IUnitPaymentPriceCorrectionNoteFacade>();
             mockFacade.Setup(x => x.Create(It.IsAny<UnitPaymentCorrectionNote>(), true, "unittestusername", 7))
@@ -444,7 +445,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
             var mockMapper = new Mock<IMapper>();
 
             var mockFacade = new Mock<IUnitPaymentPriceCorrectionNoteFacade>();
-            mockFacade.Setup(x => x.Create(It.IsAny<UnitPaymentCorrectionNote>(),false, "unittestusername", 7))
+            mockFacade.Setup(x => x.Create(It.IsAny<UnitPaymentCorrectionNote>(), false, "unittestusername", 7))
                .ReturnsAsync(1);
 
             var mockFacadeSpb = new Mock<IUnitPaymentOrderFacade>();
@@ -464,6 +465,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
             var mockFacade = new Mock<IUnitPaymentPriceCorrectionNoteFacade>();
             mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(Model);
+
+            mockFacade.Setup(x => x.GetUrn(It.IsAny<string>()))
+                .Returns(new Lib.Models.UnitReceiptNoteModel.UnitReceiptNote()
+                {
+                    ReceiptDate = DateTimeOffset.UtcNow
+                });
 
             var mockFacadeSpb = new Mock<IUnitPaymentOrderFacade>();
             mockFacadeSpb.Setup(x => x.ReadById(It.IsAny<int>()))
@@ -497,7 +504,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
 
             var response = controller.GetPDF(It.IsAny<int>());
-            Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
+            Assert.NotNull(response.GetType().GetProperty("FileStream"));
         }
 
         [Fact]
@@ -520,8 +527,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
             ViewModelSpb.currency = new CurrencyViewModel() { code = "currency", description = "currency", rate = 1 };
             mockMapper.Setup(x => x.Map<UnitPaymentOrderViewModel>(It.IsAny<UnitPaymentOrder>()))
                 .Returns(ViewModelSpb);
-            
-            
+
+
             //var mockMapper = new Mock<IMapper>();
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
@@ -543,7 +550,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
 
             var response = controller.GetPDF(It.IsAny<int>());
-            Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
+            Assert.NotNull(response.GetType().GetProperty("FileStream"));
         }
 
         [Fact]
@@ -580,9 +587,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
 
             var response = controller.GetPDF(It.IsAny<int>());
-            Assert.Equal(null, response.GetType().GetProperty("FileStream"));
+            Assert.Null(response.GetType().GetProperty("FileStream"));
         }
 
-        
+
     }
 }

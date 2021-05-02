@@ -12,11 +12,13 @@ using Com.DanLiris.Service.Purchasing.Lib.PDFTemplates;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModels;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceControllers
 {
@@ -49,6 +51,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 			try
 			{
 				identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+				identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 
 				string filterUser = string.Concat("'CreatedBy':'", identityService.Username, "'");
 				if (filter == null || !(filter.Trim().StartsWith("{") && filter.Trim().EndsWith("}")) || filter.Replace(" ", "").Equals("{}"))
@@ -76,6 +79,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 			try
 			{
 				identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+				identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 
 				var Data = facade.Read(page, size, order, keyword, filter);
 
@@ -113,6 +117,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 		{
 			try
 			{
+				identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 				var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
 
 				GarmentInvoice model = facade.ReadById(id);
@@ -134,9 +139,18 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 				else
 				{
 					int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
-					
-					IncomeTaxPDFTemplate PdfTemplateLocal = new IncomeTaxPDFTemplate();
-					MemoryStream stream = PdfTemplateLocal.GeneratePdfTemplate(viewModel, clientTimeZoneOffset,DOfacade);
+
+                    /* tambahan */
+                    /* get gsupplier */
+                    string supplierUri = "master/garment-suppliers";
+                    var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+                    var response = httpClient.GetAsync($"{Lib.Helpers.APIEndpoint.Core}{supplierUri}/{model.SupplierId}").Result.Content.ReadAsStringAsync();
+                    Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
+                    SupplierViewModel supplier = JsonConvert.DeserializeObject<SupplierViewModel>(result.GetValueOrDefault("data").ToString());
+                    /* tambahan */
+
+                    IncomeTaxPDFTemplate PdfTemplateLocal = new IncomeTaxPDFTemplate();
+					MemoryStream stream = PdfTemplateLocal.GeneratePdfTemplate(viewModel,supplier,clientTimeZoneOffset, DOfacade);
 
 					return new FileStreamResult(stream, "application/pdf")
 					{
@@ -158,6 +172,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 		{
 			try
 			{
+				identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 				var model = facade.ReadById(id);
 				var viewModel = mapper.Map<GarmentInvoiceViewModel>(model);
 				if (viewModel == null)
@@ -203,6 +218,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 		{
 			try
 			{
+				identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 				var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
 
 				GarmentInvoice model = facade.ReadById(id);
@@ -225,8 +241,17 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 				{
 					int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
-					VatPDFTemplate PdfTemplateLocal = new VatPDFTemplate();
-					MemoryStream stream = PdfTemplateLocal.GeneratePdfTemplate(viewModel, clientTimeZoneOffset,DOfacade);
+                    /* tambahan */
+                    /* get gsupplier */
+                    string supplierUri = "master/garment-suppliers";
+                    var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+                    var response = httpClient.GetAsync($"{Lib.Helpers.APIEndpoint.Core}{supplierUri}/{model.SupplierId}").Result.Content.ReadAsStringAsync();
+                    Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
+                    SupplierViewModel supplier = JsonConvert.DeserializeObject<SupplierViewModel>(result.GetValueOrDefault("data").ToString());
+                    /* tambahan */
+
+                    VatPDFTemplate PdfTemplateLocal = new VatPDFTemplate();
+					MemoryStream stream = PdfTemplateLocal.GeneratePdfTemplate(viewModel,supplier,clientTimeZoneOffset, DOfacade);
 
 					return new FileStreamResult(stream, "application/pdf")
 					{
@@ -249,6 +274,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 			try
 			{
 				identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+				identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 
 				IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
 
@@ -282,6 +308,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 		public IActionResult Delete([FromRoute]int id)
 		{
 			identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+			identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 
 			try
 			{
@@ -299,6 +326,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 			try
 			{
 				identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+				identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 
 				IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
 

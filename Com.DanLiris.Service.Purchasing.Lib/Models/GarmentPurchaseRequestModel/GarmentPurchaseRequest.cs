@@ -9,7 +9,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel
     {
         [MaxLength(255)]
         public string PRNo { get; set; }
+        [MaxLength(255)]
+        public string PRType { get; set; }
+        [MaxLength(255)]
         public string RONo { get; set; }
+
+        public long SCId { get; set; }
+        [MaxLength(255)]
+        public string SCNo { get; set; }
+
+        [MaxLength(100)]
+        public string SectionName { get; set; }
 
         [MaxLength(255)]
         public string BuyerId { get; set; }
@@ -35,6 +45,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel
         public bool IsPosted { get; set; }
         public bool IsUsed { get; set; }
         public string Remark { get; set; }
+
+        public bool IsValidated { get; set; }
+        [MaxLength(50)]
+        public string ValidatedBy { get; set; }
+        public DateTimeOffset? ValidatedDate { get; set; }
+
+        public bool IsValidatedMD1 { get; set; }
+        [MaxLength(50)]
+        public string ValidatedMD1By { get; set; }
+        public DateTimeOffset ValidatedMD1Date { get; set; }
+
+        public bool IsValidatedMD2 { get; set; }
+        [MaxLength(50)]
+        public string ValidatedMD2By { get; set; }
+        public DateTimeOffset ValidatedMD2Date { get; set; }
+
+        public bool IsValidatedPurchasing { get; set; }
+        [MaxLength(50)]
+        public string ValidatedPurchasingBy { get; set; }
+        public DateTimeOffset ValidatedPurchasingDate { get; set; }
 
         public virtual ICollection<GarmentPurchaseRequestItem> Items { get; set; }
     }

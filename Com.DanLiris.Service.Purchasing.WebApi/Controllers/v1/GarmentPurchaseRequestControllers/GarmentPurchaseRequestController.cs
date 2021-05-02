@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
@@ -12,8 +7,13 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestViewM
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseRequestControllers
 {
@@ -99,7 +99,20 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
                         },
                         s.IsPosted,
                         s.CreatedBy, 
-                        s.LastModifiedUtc
+                        s.LastModifiedUtc,
+
+                        s.PRType,
+                        s.SCId,
+                        s.SCNo,
+                        s.IsValidatedMD1,
+                        s.IsValidatedMD2,
+                        s.IsValidatedPurchasing,
+                        s.IsValidated,
+                        s.ValidatedMD1Date,
+                        s.ValidatedMD2Date,
+                        s.ValidatedPurchasingDate,
+                        s.ValidatedDate,
+                        s.SectionName
                     }).ToList()
                 );
 
@@ -126,6 +139,36 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
             }
         }
 
+        [HttpGet("dynamic")]
+        public IActionResult GetDynamic(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}", string select = "{}", string search = "[]")
+        {
+            try
+            {
+                var Data = facade.ReadDynamic(page, size, order, keyword, filter, select, search);
+
+                var info = new Dictionary<string, object>
+                    {
+                        { "count", Data.Data.Count },
+                        { "total", Data.TotalData },
+                        { "order", Data.Order },
+                        { "page", page },
+                        { "size", size }
+                    };
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(Data.Data, info);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
@@ -138,10 +181,27 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
                     throw new Exception("Invalid Id");
                 }
 
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-                    .Ok(viewModel);
-                return Ok(Result);
+                var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
+
+                if (indexAcceptPdf < 0)
+                {
+                    Dictionary<string, object> Result =
+                        new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                        .Ok(viewModel);
+                    return Ok(Result);
+                }
+                else
+                {
+                    identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
+                    identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+
+                    var stream = facade.GeneratePdf(viewModel);
+
+                    return new FileStreamResult(stream, "application/pdf")
+                    {
+                        FileDownloadName = $"{viewModel.PRNo}.pdf"
+                    };
+                }
             }
             catch (Exception e)
             {
@@ -183,6 +243,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
         {
             try
             {
+                identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
                 IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
@@ -250,6 +311,66 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
             }
         }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete([FromRoute]int id)
+        {
+            try
+            {
+                identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                await facade.Delete(id, identityService.Username);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpPost("post")]
+        public async Task<IActionResult> PRPost([FromBody]List<long> listId)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                await facade.PRPost(listId, identityService.Username);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpPut("unpost/{id}")]
+        public async Task<IActionResult> PRUnpost([FromRoute]long id)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                await facade.PRUnpost(id, identityService.Username);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
         [HttpGet("by-tags")]
         public IActionResult GetByTags(string tags, string shipmentDateFrom, string shipmentDateTo)
         {
@@ -275,7 +396,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
                     }
                 }
 
-                var data = facade.ReadByTags(tags, shipmentFrom, shipmentTo);
+                var data = facade.ReadByTagsOptimized(tags, shipmentFrom, shipmentTo);
                 var newData = mapper.Map<List<GarmentInternalPurchaseOrderViewModel>>(data);
 
                 var info = new Dictionary<string, object>
@@ -332,5 +453,71 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
 				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
 			}
 		}
-	}
+
+        [HttpPut("approve/{id}")]
+        public async Task<IActionResult> PRApprove([FromRoute]long id)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                await facade.PRApprove(id, identityService.Username);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpPut("unapprove/{id}")]
+        public async Task<IActionResult> PRUnApprove([FromRoute]long id)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                await facade.PRUnApprove(id, identityService.Username);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> Patch(long id, [FromBody]JsonPatchDocument<GarmentPurchaseRequest> jsonPatch)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                await facade.Patch(id, jsonPatch, identityService.Username);
+
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+    }
 }

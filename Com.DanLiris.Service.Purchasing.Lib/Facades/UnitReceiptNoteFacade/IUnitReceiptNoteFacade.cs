@@ -2,6 +2,7 @@
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewModel;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -19,5 +20,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
         ReadResponse<UnitReceiptNoteReportViewModel> GetReport(string urnNo, string prNo, string unitId, string categoryId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset);
         MemoryStream GenerateExcel(string urnNo, string prNo, string unitId, string categoryId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int offset);
         string GetPurchaseRequestCategoryCode(long prId);
+        List<UnitReceiptNote> GetByListOfNo(List<string> urnNoList);
+        Task<List<SubLedgerUnitReceiptNoteViewModel>> GetUnitReceiptNoteForSubledger(List<string> urnNoes);
+        ReadResponse<UnitNoteSpbViewModel> GetSpbReport(string urnNo, string supplierName, string doNo, DateTime? dateFrom, DateTime? dateTo, int size, int page, string Order, int offset);
+        MemoryStream GenerateExcelSpb(string urnNo, string supplierName, string doNo, DateTime? dateFrom, DateTime? dateTo, int offset);
+        Task<dynamic> GetCreditorAccountDataByURNNo(string urnNo);
     }
 }

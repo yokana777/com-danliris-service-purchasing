@@ -9,6 +9,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
     public class GarmentExternalPurchaseOrderItemViewModel: BaseViewModel
     {
         public string UId { get; set; }
+        public long GarmentEPOId { get; set; }
         public string PRNo { get; set; }
         public int PRId { get; set; }
         public string PONo { get; set; }
@@ -33,5 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
 
         public DateTimeOffset ShipmentDate { get; set; }
         public bool IsOverBudget { get; set; }
+
+        public long? UENItemId { get; set; }
     }
 }

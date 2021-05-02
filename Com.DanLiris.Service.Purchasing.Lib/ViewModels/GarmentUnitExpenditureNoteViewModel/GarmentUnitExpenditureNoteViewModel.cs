@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -26,6 +27,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
         public UnitViewModel UnitSender { get; set; }
         public IntegrationViewModel.StorageViewModel Storage { get; set; }
         public IntegrationViewModel.StorageViewModel StorageRequest { get; set; }
+        public bool IsPreparing { get; set; }
+        public bool IsTransfered { get; set; }
+        public bool IsReceived { get; set; }
+        public DateTimeOffset UnitDODate { get; set; }
 
         public List<GarmentUnitExpenditureNoteItemViewModel> Items { get; set; }
 
@@ -36,6 +41,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
             if (ExpenditureDate.Equals(DateTimeOffset.MinValue) || ExpenditureDate == null)
             {
                 yield return new ValidationResult("Tanggal Pengeluaran Diperlukan", new List<string> { "ExpenditureDate" });
+            }
+            else if(UnitDODate > ExpenditureDate)
+            {
+                yield return new ValidationResult($"Tanggal Pengeluaran Tidak boleh kurang dari {UnitDODate.ToOffset(new TimeSpan(7, 0, 0)).ToString("dd/MM/yyyy", new CultureInfo("id-ID"))}", new List<string> { "ExpenditureDate" });
             }
             if (UnitDONo == null)
             {
@@ -64,7 +73,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
                             var unitDOItem = unitDO.Items.Where(s => s.Id == item.UnitDOItemId).FirstOrDefault();
                             if (unitDOItem != null)
                             {
-                                if (item.Quantity > unitDOItem.Quantity)
+                                if ((double)item.Quantity > unitDOItem.Quantity)
                                 {
                                     itemErrorCount++;
                                     itemError += "Quantity: 'Jumlah tidak boleh lebih dari " + unitDOItem.Quantity + "', ";
@@ -77,7 +86,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureN
                         var UENItem = dbContext.GarmentUnitExpenditureNoteItems.AsNoTracking().FirstOrDefault(x => x.Id == item.Id);
                         if (UENItem != null)
                         {
-                            if (item.Quantity > UENItem.Quantity)
+                            if ((double)item.Quantity > UENItem.Quantity)
                             {
                                 itemErrorCount++;
                                 itemError += "Quantity: 'Jumlah tidak boleh lebih dari " + UENItem.Quantity + "', ";

@@ -31,8 +31,25 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternalPurcha
                     UId = null,
                     Items = new List<GarmentInternalPurchaseOrderItemViewModel>
                     {
-                        new GarmentInternalPurchaseOrderItemViewModel()
-                    }
+                        new GarmentInternalPurchaseOrderItemViewModel
+                        {
+                            GPRItemId = 0,
+                            PO_SerialNumber = null,
+                            BudgetPrice = 0,
+                            RemainingBudget = 0,
+                            Category = null,
+                            ProductRemark = null,
+                            Status = null
+                        }
+                    },
+
+                    PONo = null,
+                    PRId = 0,
+                    PRDate = null,
+                    ExpectedDeliveryDate = null,
+                    Unit = null,
+                    IsClosed = false,
+                    Remark = null
                 };
             }
         }
@@ -374,5 +391,28 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternalPurcha
 			var response = controller.ByName(null, null);
 			Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
 		}
-	}
+
+        [Fact]
+        public void Should_Fail_GetByName()
+        {
+            //Setup
+            var facadeMock = new Mock<IGarmentInternalPurchaseOrderFacade>();
+
+            facadeMock
+                .Setup(x => x.ReadName(It.IsAny<string>(), It.IsAny<string>()))
+                .Throws(new Exception());
+
+            var mapperMock = new Mock<IMapper>();
+            mapperMock
+                .Setup(x => x.Map<List<GarmentInternalPurchaseOrderViewModel>>(It.IsAny<List<GarmentInternalPurchaseOrder>>()))
+                .Returns(new List<GarmentInternalPurchaseOrderViewModel>());
+
+            //Act
+            GarmentInternalPurchaseOrderController controller = GetController(facadeMock, null, mapperMock);
+            var response = controller.ByName(null, null);
+
+            //Assert
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+    }
 }

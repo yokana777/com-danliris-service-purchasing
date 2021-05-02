@@ -25,5 +25,31 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentPurchaseRequestV
         public string Status { get; set; }
 
         public bool IsUsed { get; set; }
+
+        public UomViewModel PriceUom { get; set; }
+        public double PriceConversion { get; set; }
+
+        /* For PR Master Validation */
+        public GarmentProductViewModel Composition { get; set; }
+        public GarmentProductViewModel Const { get; set; }
+        public GarmentProductViewModel Yarn { get; set; }
+        public GarmentProductViewModel Width { get; set; }
+        /* For PR Master Validation */
+
+        public bool IsOpenPO { get; set; }
+        public string OpenPOBy { get; set; }
+        public DateTimeOffset OpenPODate { get; set; }
+
+        public bool IsApprovedOpenPOMD { get; set; }
+        public string ApprovedOpenPOMDBy { get; set; }
+        public DateTimeOffset ApprovedOpenPOMDDate { get; set; }
+
+        public bool IsApprovedOpenPOPurchasing { get; set; }
+        public string ApprovedOpenPOPurchasingBy { get; set; }
+        public DateTimeOffset ApprovedOpenPOPurchasingDate { get; set; }
+
+        public bool IsApprovedOpenPOKadivMd { get; set; }
+        public string ApprovedOpenPOKadivMdBy { get; set; }
+        public DateTimeOffset ApprovedOpenPOKadivMdDate { get; set; }
     }
 }

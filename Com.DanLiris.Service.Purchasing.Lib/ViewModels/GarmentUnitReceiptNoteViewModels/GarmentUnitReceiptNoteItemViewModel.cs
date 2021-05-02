@@ -10,6 +10,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
         public long DODetailId { get; set; }
 
         public long EPOItemId { get; set; }
+        public string DRItemId { get; set; }
 
         public long PRId { get; set; }
         public string PRNo { get; set; }
@@ -46,5 +47,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
         public BuyerViewModel Buyer { get; set; }
 
         public string Article { get; set; }
+        public decimal CorrectionConversion { get; set; }
+        public double DOCurrencyRate { get; set; }
     }
 }

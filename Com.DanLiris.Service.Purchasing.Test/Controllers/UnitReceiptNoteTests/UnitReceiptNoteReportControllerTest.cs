@@ -86,6 +86,25 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
         }
 
         [Fact]
+        public void Should_ThrowsException_GetReport()
+        {
+            //Setup
+            var mockFacade = new Mock<IUnitReceiptNoteFacade>();
+
+            mockFacade.Setup(x => x.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
+                .Throws(new Exception());
+
+            var mockMapper = new Mock<IMapper>();
+
+            //Act
+            UnitReceiptNoteReportController controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
+            var response = controller.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>(), "{}");
+
+            //Assert
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
         public void Should_Success_Get_Xls_Data()
         {
             var mockFacade = new Mock<IUnitReceiptNoteFacade>();
@@ -97,7 +116,26 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
 
             UnitReceiptNoteReportController controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
             var response = controller.GetXls(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>());
-            Assert.NotEqual(null, response.GetType().GetProperty("FileDownloadName"));
+            Assert.NotNull(response.GetType().GetProperty("FileDownloadName"));
+        }
+
+        [Fact]
+        public void Should_ThrowsException_GetXls()
+        {
+            //Setup
+            var mockFacade = new Mock<IUnitReceiptNoteFacade>();
+
+            mockFacade.Setup(x => x.GenerateExcel(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>()))
+                .Throws(new Exception());
+
+            var mockMapper = new Mock<IMapper>();
+
+            //Act
+            UnitReceiptNoteReportController controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
+            var response = controller.GetXls(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>());
+            
+            //Assert
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
     }
 }

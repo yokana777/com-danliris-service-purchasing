@@ -1,6 +1,7 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModels;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using System;
@@ -13,9 +14,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 {
 	public class VatPDFTemplate
 	{
-		public MemoryStream GeneratePdfTemplate(GarmentInvoiceViewModel viewModel, int clientTimeZoneOffset, IGarmentDeliveryOrderFacade DOfacade)
+		public MemoryStream GeneratePdfTemplate(GarmentInvoiceViewModel viewModel, SupplierViewModel supplier, int clientTimeZoneOffset, IGarmentDeliveryOrderFacade DOfacade)
 		{
-			Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 18);
+            Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 18);
 			Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
 			Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
 			//Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
@@ -42,7 +43,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 			PdfPCell cellHeaderContentLeft = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT };
 			//PdfPCell cellHeaderContentRight = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT };
 
-			cellHeaderContentLeft.Phrase = new Phrase("PT DAN LIRIS" + "\n" + "Head Office: Kelurahan Banaran" + "\n" + "Kecamatan Grogol" + "\n" + "Sukoharjo 57193 - INDONESIA" + "\n" + "PO.BOX 166 Solo 57100" + "\n" + "Telp. (0271) 740888, 714400" + "\n" + "Fax. (0271) 735222, 740777", bold_font);
+			cellHeaderContentLeft.Phrase = new Phrase("PT DAN LIRIS" + "\n" + "JL. Merapi No.23" + "\n" + "Banaran, Grogol, Kab. Sukoharjo" + "\n" + "Jawa Tengah 57552 - INDONESIA" + "\n" + "PO.BOX 166 Solo 57100" + "\n" + "Telp. (0271) 740888, 714400" + "\n" + "Fax. (0271) 735222, 740777", bold_font);
 			tableHeader.AddCell(cellHeaderContentLeft);
 
 			//string noPO = viewModel.Supplier.Import ? "FM-PB-00-06-009/R1" + "\n" + "PO: " + EPONo  : "PO: " + EPONo;
@@ -66,12 +67,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 			tableIncomeTax.AddCell(cellTaxLeft);
 			cellTaxLeft.Phrase = new Phrase("Kode Supplier" + "      : " + viewModel.supplier.Code, normal_font);
 			tableIncomeTax.AddCell(cellTaxLeft);
-			cellTaxLeft.Phrase = new Phrase("Nama Supplier" + "     :" + viewModel.supplier.Name, normal_font);
+			cellTaxLeft.Phrase = new Phrase("Nama Supplier" + "     : " + viewModel.supplier.Name, normal_font);
 			tableIncomeTax.AddCell(cellTaxLeft);
+            /* tambahan */
+            if (supplier.npwp == "" || supplier.npwp == null)
+            {
+                supplier.npwp = "00.000.000.0-000.000";
+                //cellTaxLeft.Phrase = new Phrase("NPWP                  : 00.000.000.0-000.000", normal_font);
+            }
+            //else
+            //{
+                cellTaxLeft.Phrase = new Phrase($"NPWP                  : {supplier.npwp}", normal_font);
+            //}
+            /* tambahan */
+            tableIncomeTax.AddCell(cellTaxLeft);
+
+            cellTaxLeft.Phrase = new Phrase($"Faktur Pajak        : {viewModel.vatNo.ToString()}", normal_font);
+            tableIncomeTax.AddCell(cellTaxLeft);
 
 
-
-			PdfPCell cellSupplier = new PdfPCell(tableIncomeTax); // dont remove
+            PdfPCell cellSupplier = new PdfPCell(tableIncomeTax); // dont remove
 			tableIncomeTax.ExtendLastRow = false;
 			tableIncomeTax.SpacingAfter = 10f;
 			document.Add(tableIncomeTax);
@@ -81,17 +96,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 			PdfPCell cellRight = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
 			PdfPCell cellLeft = new PdfPCell() { Border = Rectangle.TOP_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.RIGHT_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_MIDDLE, Padding = 5 };
 
-			PdfPTable tableContent = new PdfPTable(6);
-			tableContent.SetWidths(new float[] { 4.5f, 5f, 3.5f, 4f, 2.2f, 5f });
-			cellCenter.Phrase = new Phrase("No Surat Jalan", bold_font);
+			PdfPTable tableContent = new PdfPTable(8);
+			tableContent.SetWidths(new float[] { 4.5f, 5f, 3.5f, 5f, 4f, 5f, 2.2f, 5f });
+            cellCenter.Phrase = new Phrase("No Surat Jalan", bold_font);
 			tableContent.AddCell(cellCenter);
 			cellCenter.Phrase = new Phrase("Tanggal Surat Jalan", bold_font);
 			tableContent.AddCell(cellCenter);
 			cellCenter.Phrase = new Phrase("No Invoice", bold_font);
 			tableContent.AddCell(cellCenter);
-			cellCenter.Phrase = new Phrase("Nama Barang", bold_font);
+            cellCenter.Phrase = new Phrase("Tanggal Invoice", bold_font);
+            tableContent.AddCell(cellCenter);
+            cellCenter.Phrase = new Phrase("Nama Barang", bold_font);
 			tableContent.AddCell(cellCenter);
-			cellCenter.Phrase = new Phrase("Rate PPn", bold_font);
+            cellCenter.Phrase = new Phrase("DPP", bold_font);
+            tableContent.AddCell(cellCenter);
+            cellCenter.Phrase = new Phrase("Rate PPn", bold_font);
 			tableContent.AddCell(cellCenter);
 			cellCenter.Phrase = new Phrase("Sub Total PPn", bold_font);
 			tableContent.AddCell(cellCenter);
@@ -117,10 +136,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 					cellLeft.Phrase = new Phrase(viewModel.invoiceNo, normal_font);
 					tableContent.AddCell(cellLeft);
 
-					cellLeft.Phrase = new Phrase(detail.product.Name, normal_font);
+                    string invoiceDate = viewModel.invoiceDate.Value.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"));
+
+                    cellLeft.Phrase = new Phrase(invoiceDate, normal_font);
+                    tableContent.AddCell(cellLeft);
+
+                    cellLeft.Phrase = new Phrase(detail.product.Name, normal_font);
 					tableContent.AddCell(cellLeft);
 
-					cellRight.Phrase = new Phrase((10).ToString(), normal_font);
+                    cellRight.Phrase = new Phrase(Math.Round(detail.pricePerDealUnit * detail.doQuantity, 2).ToString("N2"), normal_font);
+                    tableContent.AddCell(cellRight);
+
+                    cellRight.Phrase = new Phrase((10).ToString(), normal_font);
 					tableContent.AddCell(cellRight);
 
 					cellRight.Phrase = new Phrase( Math.Round(10 *  detail.pricePerDealUnit * detail.doQuantity / 100,2).ToString("N2"), normal_font);
@@ -134,18 +161,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 				}
 
 			}
-			 
-			cellRight.Phrase = new Phrase("Total Ppn", normal_font);
-			cellRight.Colspan = 5;
+            cellRight.Phrase = new Phrase("Total DPP", normal_font);
+            cellRight.Colspan = 7;
+            tableContent.AddCell(cellRight);
+            cellRight.Phrase = new Phrase(total.ToString("N2"), normal_font);
+            cellRight.Colspan = 7;
+            tableContent.AddCell(cellRight);
+            cellRight.Phrase = new Phrase("Total Ppn", normal_font);
+			cellRight.Colspan = 7;
 			tableContent.AddCell(cellRight);
 			cellRight.Phrase = new Phrase(totalPPN.ToString("N2"), normal_font);
-			cellRight.Colspan = 5;
+			cellRight.Colspan = 7;
 			tableContent.AddCell(cellRight);
 			cellRight.Phrase = new Phrase("Total Ppn IDR", normal_font);
-			cellRight.Colspan = 5;
+			cellRight.Colspan = 7;
 			tableContent.AddCell(cellRight);
 			cellRight.Phrase = new Phrase( totalPPNIDR.ToString("N2"), normal_font);
-			cellRight.Colspan = 5;
+			cellRight.Colspan = 7;
 			tableContent.AddCell(cellRight);
 
 			PdfPCell cellContent = new PdfPCell(tableContent); // dont remove

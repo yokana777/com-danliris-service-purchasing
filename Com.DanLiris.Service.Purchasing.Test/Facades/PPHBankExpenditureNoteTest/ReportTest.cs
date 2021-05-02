@@ -50,7 +50,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
             PPHBankExpenditureNoteReportFacade facade = new PPHBankExpenditureNoteReportFacade(_dbContext(GetCurrentMethod()));
             ReadResponse<object> response = facade.GetReport(1, 25, null, null, null, null, null, null, 0);
 
-            Assert.NotEqual(null, response);
+            Assert.NotNull(response);
         }
 
         [Fact]
@@ -59,7 +59,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
             PPHBankExpenditureNoteReportFacade facade = new PPHBankExpenditureNoteReportFacade(_dbContext(GetCurrentMethod()));
             ReadResponse<object> response = facade.GetReport(1, 25, "", "", "", "", null, null, 0);
 
-            Assert.NotEqual(null, response);
+            Assert.NotNull(response);
         }
 
         [Fact]
@@ -68,7 +68,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
             PPHBankExpenditureNoteReportFacade facade = new PPHBankExpenditureNoteReportFacade(_dbContext(GetCurrentMethod()));
             ReadResponse<object> response = facade.GetReport(1, 25, null, null, null, null, new DateTimeOffset(), new DateTimeOffset(), 0);
 
-            Assert.NotEqual(null, response);
+            Assert.NotNull(response);
         }
 
         [Fact]
@@ -77,7 +77,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
             PPHBankExpenditureNoteReportFacade facade = new PPHBankExpenditureNoteReportFacade(_dbContext(GetCurrentMethod()));
             ReadResponse<object> response = facade.GetReport(1, 25, "", "", "", "", new DateTimeOffset(), new DateTimeOffset(), 0);
 
-            Assert.NotEqual(null, response);
+            Assert.NotNull(response);
         }
     }
 }

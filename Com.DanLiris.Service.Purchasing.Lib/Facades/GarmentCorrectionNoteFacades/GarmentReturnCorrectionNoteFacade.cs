@@ -110,7 +110,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
                         supplierImport = supplier.Import;
                     }
                     garmentCorrectionNote.CorrectionNo = await GenerateNo(garmentCorrectionNote, supplierImport, clientTimeZoneOffset);
-                    garmentCorrectionNote.TotalCorrection = (garmentCorrectionNote.Items.Sum(i => i.PriceTotalAfter))*(-1);
+                    garmentCorrectionNote.TotalCorrection = garmentCorrectionNote.Items.Sum(i => i.PriceTotalAfter);
 
                     if (garmentCorrectionNote.UseIncomeTax == true)
                     {
@@ -145,6 +145,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
                         //garmentDeliveryOrderDetail.QuantityCorrection = ((double)item.Quantity * (-1)) + garmentDeliveryOrderDetail.QuantityCorrection;
                         //garmentDeliveryOrderDetail.PriceTotalCorrection = garmentDeliveryOrderDetail.QuantityCorrection * garmentDeliveryOrderDetail.PricePerDealUnitCorrection;
                         garmentDeliveryOrderDetail.ReturQuantity = garmentDeliveryOrderDetail.ReturQuantity + ((double)item.Quantity*(-1));
+                        garmentDeliveryOrderDetail.PriceTotalCorrection = (garmentDeliveryOrderDetail.QuantityCorrection - garmentDeliveryOrderDetail.ReturQuantity) * garmentDeliveryOrderDetail.PricePerDealUnitCorrection;
 
                         epoDetail.DOQuantity=epoDetail.DOQuantity + (double)item.Quantity ;
                         EntityExtension.FlagForUpdate(garmentDeliveryOrderDetail, user, USER_AGENT);
@@ -165,7 +166,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
             return Created;
         }
 
-        async Task<string> GenerateNo(GarmentCorrectionNote model, bool isImport, int clientTimeZoneOffset)
+        public async Task<string> GenerateNo(GarmentCorrectionNote model, bool isImport, int clientTimeZoneOffset)
         {
             DateTimeOffset dateTimeOffsetNow = DateTimeOffset.Now;
             string Month = dateTimeOffsetNow.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("MM");
@@ -188,7 +189,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
                 return no + lastNoNumber.ToString().PadLeft(Padding, '0') + Supplier;
             }
         }
-        async Task<string> GenerateNKPN(GarmentCorrectionNote model, int clientTimeZoneOffset)
+        public async Task<string> GenerateNKPN(GarmentCorrectionNote model, int clientTimeZoneOffset)
         {
             DateTimeOffset dateTimeOffsetNow = DateTimeOffset.Now;
             string Month = dateTimeOffsetNow.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("MM");
@@ -209,7 +210,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacad
                 return no + lastNoNumber.ToString().PadLeft(Padding, '0');
             }
         }
-        async Task<string> GenerateNKPH(GarmentCorrectionNote model, int clientTimeZoneOffset)
+        public async Task<string> GenerateNKPH(GarmentCorrectionNote model, int clientTimeZoneOffset)
         {
             DateTimeOffset dateTimeOffsetNow = DateTimeOffset.Now;
             string Month = dateTimeOffsetNow.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("MM");

@@ -20,6 +20,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewMod
         public string invoiceNo { get; set; }
         public DateTimeOffset? invoiceDate { get; set; }
         public string pibNo { get; set; }
+        public DateTimeOffset? pibDate { get; set; }
+        public double? importDuty { get; set; }
+        public double? totalIncomeTaxAmount { get; set; }
+        public double? totalVatAmount { get; set; }
 
         public bool useIncomeTax { get; set; }
         public IncomeTaxViewModel incomeTax { get; set; }
@@ -32,11 +36,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewMod
         public DateTimeOffset? vatDate { get; set; }
 
         public string remark { get; set; }
+        public string importInfo { get; set; }
         public DateTimeOffset dueDate { get; set; }
         public bool IsCorrection { get; set; }
         public bool isPaid { get; set; }
 
         public int position { get; set; }
+
+        public bool isPosted { get; set; }
 
         public List<UnitPaymentOrderItemViewModel> items { get; set; }
 

@@ -1,8 +1,11 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentBeacukaiModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUtils;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteDataUtils;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -14,16 +17,25 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentBeacukaiDataUtil
 	public class GarmentBeacukaiDataUtil
 	{
 		private GarmentDeliveryOrderDataUtil garmentDeliveryOrderDataUtil;
-		private readonly GarmentBeacukaiFacade facade;
-		public GarmentBeacukaiDataUtil( GarmentDeliveryOrderDataUtil GarmentDeliveryOrderDataUtil, GarmentBeacukaiFacade facade)
+        private readonly GarmentBeacukaiFacade facade;
+
+        public GarmentUnitReceiptNoteDataUtil garmentUnitReceiptNoteDataUtil;
+        
+        public GarmentBeacukaiDataUtil( GarmentDeliveryOrderDataUtil GarmentDeliveryOrderDataUtil, GarmentBeacukaiFacade facade)
 		{
 			this.garmentDeliveryOrderDataUtil = GarmentDeliveryOrderDataUtil;
 			this.facade = facade;
 		}
-		public async Task<GarmentBeacukai> GetNewData(string user)
+		public GarmentBeacukaiDataUtil(GarmentDeliveryOrderDataUtil GarmentDeliveryOrderDataUtil, GarmentUnitReceiptNoteDataUtil GarmentUnitReceiptNoteDataUtil, GarmentBeacukaiFacade facade)
+		{
+            this.garmentDeliveryOrderDataUtil = GarmentDeliveryOrderDataUtil;
+            this.garmentUnitReceiptNoteDataUtil = GarmentUnitReceiptNoteDataUtil;
+			this.facade = facade;
+		}
+		public async Task<GarmentBeacukai> GetNewData(string user, GarmentDeliveryOrder garmentDeliveryOrder = null)
 		{
 			long nowTicks = DateTimeOffset.Now.Ticks;
-			var garmentDO = await Task.Run(() => garmentDeliveryOrderDataUtil.GetNewData("User"));
+			var garmentDO = garmentDeliveryOrder ?? await Task.Run(() => garmentDeliveryOrderDataUtil.GetNewData("User"));
 			
 			return new GarmentBeacukai
 			{
@@ -41,7 +53,46 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentBeacukaiDataUtil
 				ValidationDate = DateTimeOffset.Now,
 				CurrencyId = It.IsAny<int>(),
 				CurrencyCode = "TEST",
-				Items = new List<GarmentBeacukaiItem>
+                ArrivalDate= DateTimeOffset.Now,
+                Items = new List<GarmentBeacukaiItem>
+					{
+						new GarmentBeacukaiItem
+						{
+
+						   GarmentDOId =garmentDO.Id,
+						   DODate=garmentDO.DODate,
+						   GarmentDONo=garmentDO.DONo,
+						   ArrivalDate  =  garmentDO.ArrivalDate,
+						   TotalAmount = (decimal)garmentDO.TotalAmount,
+						   TotalQty=50
+						
+						}
+				}
+			};
+		}
+		public async Task<GarmentBeacukai> GetNewDataWithURN(string user)
+		{
+			long nowTicks = DateTimeOffset.Now.Ticks;
+			var garmentDO = await Task.Run(() => garmentDeliveryOrderDataUtil.GetNewData("User"));
+            var garmentURN = await Task.Run(() => garmentUnitReceiptNoteDataUtil.GetTestData(garmentDeliveryOrder: garmentDO));
+            return new GarmentBeacukai
+			{
+				BeacukaiNo = "BeacukaiNo",
+				BeacukaiDate = DateTimeOffset.Now,
+				SupplierId = It.IsAny<int>(),
+				SupplierCode = "codeS",
+				SupplierName = "nameS",
+				BillNo = "BP181115160748000042",
+				Bruto = 10,
+				Netto = 10,
+				Packaging = "COllY",
+				PackagingQty = 2,
+				CustomsType = "customsType",
+				ValidationDate = DateTimeOffset.Now,
+				CurrencyId = It.IsAny<int>(),
+				CurrencyCode = "TEST",
+                ArrivalDate= DateTimeOffset.Now,
+                Items = new List<GarmentBeacukaiItem>
 					{
 						new GarmentBeacukaiItem
 						{
@@ -60,7 +111,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentBeacukaiDataUtil
 		public async Task<GarmentBeacukaiViewModel> GetViewModel(string user)
 		{
 			long nowTicks = DateTimeOffset.Now.Ticks;
-			var garmentDO = await Task.Run(() => garmentDeliveryOrderDataUtil.GetNewData("User"));
+			var garmentDO = await Task.Run(() => garmentDeliveryOrderDataUtil.GetTestData());
 
 			return new GarmentBeacukaiViewModel
 			{
@@ -73,8 +124,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentBeacukaiDataUtil
 				bruto = 0,
 				packaging = "",
 				currency = { },
-
-				items = new List<GarmentBeacukaiItemViewModel> {new  GarmentBeacukaiItemViewModel {
+                arrivalDate= DateTimeOffset.Now,
+                items = new List<GarmentBeacukaiItemViewModel> {new  GarmentBeacukaiItemViewModel {
 					selected=false,
 					deliveryOrder  =  new GarmentDeliveryOrderViewModel{
 						   Id=garmentDO.Id,
@@ -85,13 +136,31 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentBeacukaiDataUtil
 				}
 			};
 		}
-		public async Task<GarmentBeacukai> GetTestData(string user)
+		public async Task<GarmentBeacukai> GetTestData(string user, GarmentDeliveryOrder garmentDeliveryOrder)
 		{
-			GarmentBeacukai model = await GetNewData(user);
+			GarmentBeacukai model = await GetNewData(user, garmentDeliveryOrder);
 
 			await facade.Create(model, user);
 
 			return model;
 		}
-	}
+		public async Task<GarmentBeacukai> GetTestDataWithURN(string user)
+		{
+			GarmentBeacukai model = await GetNewDataWithURN(user);
+
+			await facade.Create(model, user);
+
+			return model;
+		}
+
+        public async Task<GarmentBeacukai> GetTestData1(string user)
+        {
+            var garmentDO = await Task.Run(() => garmentDeliveryOrderDataUtil.GetTestData());
+            GarmentBeacukai model = await GetNewData(user,garmentDO);
+
+            await facade.Create(model, user);
+
+            return model;
+        }
+    }
 }

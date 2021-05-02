@@ -66,7 +66,149 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
                         },
                         Unit = new UnitViewModel
                         {
+                            _id="test",
                             name = "test",
+
+                        }
+
+
+                    });
+
+                details.Add(
+                    new PurchasingDispositionDetailViewModel
+                    {
+                        UId = null,
+                        //EPODetailId = It.IsAny<string>(),
+                        PRId = It.IsAny<string>(),
+                        PRNo = "test",
+
+                        PricePerDealUnit = 1000,
+                        PriceTotal = 10000,
+                        DealQuantity = 10,
+                        Product = new ProductViewModel
+                        {
+                            name = "test"
+                        },
+                        DealUom = new UomViewModel
+                        {
+                            unit = "test"
+                        },
+                        Unit = new UnitViewModel
+                        {
+                            _id = "35",
+                            name = "test 35",
+
+                        }
+
+
+                    });
+
+                details.Add(
+                    new PurchasingDispositionDetailViewModel
+                    {
+                        UId = null,
+                        //EPODetailId = It.IsAny<string>(),
+                        PRId = It.IsAny<string>(),
+                        PRNo = "test",
+
+                        PricePerDealUnit = 1000,
+                        PriceTotal = 10000,
+                        DealQuantity = 10,
+                        Product = new ProductViewModel
+                        {
+                            name = "test"
+                        },
+                        DealUom = new UomViewModel
+                        {
+                            unit = "test"
+                        },
+                        Unit = new UnitViewModel
+                        {
+                            _id = "50",
+                            name = "test 50",
+
+                        }
+
+
+                    });
+
+                return new PurchasingDispositionViewModel
+                {
+                    UId = null,
+                    Remark = "Test",
+                    Calculation = "axa",
+                    Amount = 1000,
+                    Category = new CategoryViewModel
+                    {
+                        _id = "1",
+                        name = "Test",
+                        code = "test"
+                    },
+                    Currency = new CurrencyViewModel
+                    {
+                        code = "test",
+                        rate = 1
+                    },
+                    Supplier = new SupplierViewModel
+                    {
+                        name = "NameSupp",
+                        _id = It.IsAny<string>()
+                    },
+                    Unit = new UnitViewModel
+                    {
+                        
+                    },
+                    Items = items
+                };
+            }
+        }
+
+        private PurchasingDispositionViewModel ViewModel2
+        {
+            get
+            {
+                List<PurchasingDispositionItemViewModel> items = new List<PurchasingDispositionItemViewModel>();
+
+                List<PurchasingDispositionDetailViewModel> details = new List<PurchasingDispositionDetailViewModel>();
+
+                items.Add(
+                    new PurchasingDispositionItemViewModel
+                    {
+                        UId = null,
+                        IncomeTax = new IncomeTaxViewModel
+                        {
+                            name = "test",
+                            rate = "1",
+                            _id = "1"
+                        },
+                        UseIncomeTax = true,
+                        Details = details
+
+                    });
+
+                details.Add(
+                    new PurchasingDispositionDetailViewModel
+                    {
+                        UId = null,
+                        //EPODetailId = It.IsAny<string>(),
+                        PRId = It.IsAny<string>(),
+                        PRNo = "test",
+
+                        PricePerDealUnit = 1000,
+                        PriceTotal = 10000,
+                        DealQuantity = 10,
+                        Product = new ProductViewModel
+                        {
+                            name = "test"
+                        },
+                        DealUom = new UomViewModel
+                        {
+                            unit = "test"
+                        },
+                        Unit = new UnitViewModel
+                        {
+                            _id = "test",
+                            name = "test"
 
                         }
 
@@ -99,7 +241,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
                 };
             }
         }
-
 
         private PurchasingDisposition Model
         {
@@ -271,6 +412,61 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
 
+
+        [Fact]
+        public void GetPDF_Return_OK()
+        {
+            //Setup
+            var validateMock = new Mock<IValidateService>();
+            validateMock
+                .Setup(s => s.Validate(It.IsAny<PurchasingDispositionViewModel>()))
+                .Verifiable();
+
+            var facadeMock = new Mock<IPurchasingDispositionFacade>();
+            facadeMock
+                .Setup(x => x.ReadModelById(It.IsAny<int>()))
+                .Returns(new PurchasingDisposition());
+            
+            var mapperMock = new Mock<IMapper>();
+            mapperMock
+                .Setup(x => x.Map<List<PurchasingDispositionViewModel>>(It.IsAny<List<PurchasingDisposition>>()))
+                .Returns(new List<PurchasingDispositionViewModel> { ViewModel });
+
+            //Act
+            PurchasingDispositionController controller = GetController(facadeMock, validateMock, mapperMock);
+            var response = controller.GetPDF(It.IsAny<int>());
+            
+            //Assert
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void GetPDF_Return_InternalServerError()
+        {
+            //Setup
+            var validateMock = new Mock<IValidateService>();
+            validateMock
+                .Setup(s => s.Validate(It.IsAny<PurchasingDispositionViewModel>()))
+                .Verifiable();
+
+            var facadeMock = new Mock<IPurchasingDispositionFacade>();
+            facadeMock
+                .Setup(x => x.ReadModelById(It.IsAny<int>()))
+                .Throws(new Exception());
+
+            var mapperMock = new Mock<IMapper>();
+            mapperMock
+                .Setup(x => x.Map<List<PurchasingDispositionViewModel>>(It.IsAny<List<PurchasingDisposition>>()))
+                .Returns(new List<PurchasingDispositionViewModel> { ViewModel });
+
+            //Act
+            PurchasingDispositionController controller = GetController(facadeMock, validateMock, mapperMock);
+            var response = controller.GetPDF(It.IsAny<int>());
+
+            //Assert
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
         [Fact]
         public void Should_Error_Get_All_Data()
         {
@@ -321,6 +517,34 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
 
             PurchasingDispositionController controller = new PurchasingDispositionController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
             var response = controller.Get(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_Data_By_Id_When_InvalidId()
+        {
+            //Setup
+            var validateMock = new Mock<IValidateService>();
+            validateMock
+                .Setup(s => s.Validate(It.IsAny<PurchasingDispositionViewModel>()))
+                .Verifiable();
+
+            var mockFacade = new Mock<IPurchasingDispositionFacade>();
+
+            mockFacade
+                .Setup(x => x.ReadModelById(It.IsAny<int>()))
+                .Returns(new PurchasingDisposition());
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper
+                .Setup(x => x.Map<PurchasingDispositionViewModel>(It.IsAny<PurchasingDisposition>()))
+                .Returns(()=>null);
+
+            //Act
+            PurchasingDispositionController controller = GetController(mockFacade, validateMock, mockMapper);
+            var response = controller.Get(It.IsAny<int>());
+            
+            //Assert
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
@@ -532,6 +756,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
             var ViewModel = this.ViewModel;
             ViewModel.IncomeTaxBy = "Dan Liris";
             ViewModel.Currency.description = "rupiah";
+           // ViewModel.Unit._id = "50";
 
 
             var mockMapper = new Mock<IMapper>();
@@ -558,7 +783,55 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
 
             var response = controller.Get(It.IsAny<int>());
-            Assert.NotEqual(null, response.GetType().GetProperty("FileStream"));
+            Assert.NotNull(response.GetType().GetProperty("FileStream"));
         }
+
+        [Fact]
+        public void Should_Success_Get_PDF_Except()
+        {
+
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<PurchasingDispositionViewModel>())).Verifiable();
+
+            var mockFacade = new Mock<IPurchasingDispositionFacade>();
+
+            mockFacade.Setup(x => x.ReadModelById(It.IsAny<int>()))
+                .Returns(new PurchasingDisposition());
+
+            var ViewModel = this.ViewModel2;
+            ViewModel.IncomeTaxBy = "Dan Liris";
+            ViewModel.Currency.description = "rupiah";
+            
+
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<PurchasingDispositionViewModel>(It.IsAny<PurchasingDisposition>()))
+                .Returns(ViewModel);
+
+            var user = new Mock<ClaimsPrincipal>();
+            var claims = new Claim[]
+            {
+                new Claim("username", "unittestusername")
+            };
+            user.Setup(u => u.Claims).Returns(claims);
+
+            PurchasingDispositionController controller = GetController(mockFacade, validateMock, mockMapper);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+                {
+                    User = user.Object
+                }
+            };
+
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+
+            var response = controller.Get(It.IsAny<int>());
+            Assert.NotNull(response.GetType().GetProperty("FileStream"));
+        }
+
+
+
     }
 }

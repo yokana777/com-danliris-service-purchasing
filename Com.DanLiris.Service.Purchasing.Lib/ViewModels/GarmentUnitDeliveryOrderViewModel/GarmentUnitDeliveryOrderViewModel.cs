@@ -33,6 +33,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrde
         public long CorrectionId { get; set; }
         public string CorrectionNo { get; set; }
 
+        public long UENFromId { get; set; }
+        public string UENFromNo { get; set; }
+        public long UnitDOFromId { get; set; }
+        public string UnitDOFromNo { get; set; }
+
+
         public List<GarmentUnitDeliveryOrderItemViewModel> Items { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -41,10 +47,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrde
             {
                 yield return new ValidationResult("Tgl. Delivery Order harus diisi", new List<string> { "UnitDODate" });
             }
-
-            if (UnitRequest == null || string.IsNullOrWhiteSpace(UnitRequest.Id))
+            if (DateTimeOffset.Compare(DateTimeOffset.Now, UnitDODate) < 0)
             {
-                yield return new ValidationResult("Unit yang meminta haris diisi", new List<string> { "UnitRequest" });
+                yield return new ValidationResult("Tgl. Delivery Order tidak boleh lebih dari hari ini", new List<string> {"UnitDODate"}); //menambah kondisi validasi
+            }
+
+            if (UnitDOType != "RETUR" && UnitDOType != "MARKETING" &&(UnitRequest == null || string.IsNullOrWhiteSpace(UnitRequest.Id)))
+            {
+                yield return new ValidationResult("Unit yang meminta harus diisi", new List<string> { "UnitRequest" });
             }
 
             if (UnitDOType == "TRANSFER" && (StorageRequest == null || string.IsNullOrWhiteSpace(StorageRequest._id)))
@@ -52,7 +62,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrde
                 yield return new ValidationResult("Gudang yang meminta harus diisi", new List<string> { "StorageRequest" });
             }
 
-            if (UnitDOType == "TRANSFER" && (UnitSender == null || string.IsNullOrWhiteSpace(UnitSender.Id)))
+            if ((UnitDOType == "TRANSFER" || UnitDOType == "RETUR" || UnitDOType == "MARKETING") && (UnitSender == null || string.IsNullOrWhiteSpace(UnitSender.Id)))
             {
                 yield return new ValidationResult("Unit yang mengirim harus diisi", new List<string> { "UnitSender" });
             }
@@ -62,12 +72,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrde
                 yield return new ValidationResult("Unit yang meminta dan Unit yang mengirim tidak boleh sama", new List<string> { "UnitSender" });
             }
 
+            if (UnitDOType != "RETUR" && UnitDOType != "MARKETING" && string.IsNullOrWhiteSpace(Article))
+            {
+                yield return new ValidationResult("Artikel harus diisi", new List<string> { "Article" });
+            }
+
             if (Storage == null)
             {
                 yield return new ValidationResult("Gudang yang mengirim harus diisi", new List<string> { "Storage" });
             }
 
-            if (string.IsNullOrWhiteSpace(RONo))
+            if (UnitDOType != "RETUR" && UnitDOType != "MARKETING" && string.IsNullOrWhiteSpace(RONo) )
             {
                 yield return new ValidationResult("No RO harus diisi", new List<string> { "RONo" });
             }
@@ -94,14 +109,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrde
                                 itemErrorCount++;
                                 itemError += "Quantity: 'Jumlah tidak boleh 0', ";
                             }
+                            else if(UnitDOType == "RETUR")
+                            {
+                                if (item.Quantity > item.ReturQtyCheck)
+                                {
+                                    itemErrorCount++;
+                                    itemError += $"Quantity: 'Jumlah tidak boleh lebih dari {item.ReturQtyCheck}', ";
+                                }
+                            }
                             else
                             {
                                 PurchasingDbContext dbContext = (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
-                                var URNItem = dbContext.GarmentUnitReceiptNoteItems.AsNoTracking().FirstOrDefault(x => x.Id == item.URNItemId);
-                                if (URNItem != null)
+                                var DOItem = dbContext.GarmentDOItems.AsNoTracking().FirstOrDefault(x => x.Id == item.DOItemsId);
+                                if (DOItem != null)
                                 {
                                     var UDOItem = dbContext.GarmentUnitDeliveryOrderItems.AsNoTracking().FirstOrDefault(x => x.Id == item.Id);
-                                    var quantity = URNItem.SmallQuantity - URNItem.OrderQuantity + (decimal)(UDOItem != null ? UDOItem.Quantity : 0);
+                                    var quantity =Math.Round(DOItem.RemainingQuantity + (decimal)(UDOItem != null ? UDOItem.Quantity : 0),2);
                                     if ((decimal)item.Quantity > quantity)
                                     {
                                         itemErrorCount++;

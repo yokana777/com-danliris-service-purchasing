@@ -8,6 +8,7 @@ using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -51,13 +52,28 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.ExternalPurchase
                     s.no,
                     s.orderDate,
                     s.supplier,
-                    unit = new
-                    {
-                        division = new { s.unit.division.name },
-                        s.unit.name
-                    },
+                    //unit = new
+                    //{
+                    //    division = new { 
+                    //        s.unit.division.name,
+                    //        s.unit.division._id,
+                    //        s.unit.division.code
+                    //    },
+                    //    s.unit.name,
+                    //    s.unit._id,
+                    //    s.unit.code
+                    //},
+                    s.unit,
                     s.isPosted,
-                    s.items
+                    s.items,
+                    s.IsCreateOnVBRequest,
+                    CurrencyCode = s.currency.code,
+                    CurrencyRate = s.currency.rate,
+                    s.currency,
+                    s.useVat,
+                    s.useIncomeTax,
+                    s.incomeTax,
+                    s.incomeTaxBy
                 }).ToList()
             );
 
@@ -98,7 +114,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.ExternalPurchase
                     unit = new
                     {
                         division = new { s.unit.division.name },
-                        s.unit.name
+                        s.unit.name,
+                        s.unit._id,
+                        s.unit.code
                     },
                     s.isPosted,
                     s.items
@@ -156,6 +174,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.ExternalPurchase
                 },
             });
         }
+
+        
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -302,6 +322,23 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.ExternalPurchase
                 _facade.EPOPost(
                     ListExternalPurchaseOrderViewModel.Select(vm => _mapper.Map<ExternalPurchaseOrder>(vm)).ToList(), identityService.Username
                 );
+
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
+            }
+        }
+
+        [HttpPut("update-from-vb-with-po-req-finance/{PONo}")]
+        public IActionResult UpdateFromSalesReceiptAsync([FromRoute] string PONo, [FromBody] POExternalUpdateModel model)
+        {
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+            try
+            {
+                _facade.HideUnpost(PONo, identityService.Username, model);
 
                 return NoContent();
             }

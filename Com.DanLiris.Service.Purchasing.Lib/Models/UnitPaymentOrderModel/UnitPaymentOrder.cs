@@ -53,8 +53,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel
         [MaxLength(255)]
         public string InvoiceNo { get; set; }
         public DateTimeOffset InvoiceDate { get; set; }
+
         [MaxLength(255)]
         public string PibNo { get; set; }
+        public DateTimeOffset PibDate { get; set; }
+        public double ImportDuty { get; set; }
+        public double TotalIncomeTaxAmount { get; set; }
+        public double TotalVatAmount { get; set; }
 
         public bool UseIncomeTax { get; set; }
         [MaxLength(255)]
@@ -79,6 +84,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel
         public bool IsPaid { get; set; }
 
         public int Position { get; set; }
+
+        public bool IsPosted { get; set; }
+
+        public bool IsCreatedVB { get; set; }
+        public string ImportInfo { get; set; }
 
         public virtual ICollection<UnitPaymentOrderItem> Items { get; set; }
     }

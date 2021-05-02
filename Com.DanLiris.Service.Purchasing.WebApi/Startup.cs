@@ -44,6 +44,40 @@ using Newtonsoft.Json.Serialization;
 using System.Text;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacade.Reports;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.PurchaseRequestFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderReturFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillReceptionFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpenditureFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteReceptionFacades;
+using FluentScheduler;
+using Com.DanLiris.Service.Purchasing.WebApi.SchedulerJobs;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteExpenditureFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPOMasterDistributionFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingReportFacade;
+using Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+using Swashbuckle.AspNetCore.Swagger;
+using System.Collections.Generic;
+using System.Linq;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.PRMasterValidationReportFacade;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades.Reports;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentSupplierBalanceDebtFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.DebtAndDispositionSummary;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.UnpaidDispositionReportFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.ExcelGenerator;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfGenerator;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpedition;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingBookReport;
+using Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchaseFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPaymentReport;
+using Microsoft.ApplicationInsights.AspNetCore;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -55,6 +89,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
 
         public IConfiguration Configuration { get; }
 
+        public bool HasAppInsight => !string.IsNullOrEmpty(Configuration.GetValue<string>("APPINSIGHTS_INSTRUMENTATIONKEY") ?? Configuration.GetValue<string>("ApplicationInsights:InstrumentationKey"));
 
         public Startup(IConfiguration configuration)
         {
@@ -70,11 +105,20 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             APIEndpoint.Inventory = Configuration.GetValue<string>(Constant.INVENTORY_ENDPOINT) ?? Configuration[Constant.INVENTORY_ENDPOINT];
             APIEndpoint.Finance = Configuration.GetValue<string>(Constant.FINANCE_ENDPOINT) ?? Configuration[Constant.FINANCE_ENDPOINT];
             APIEndpoint.CustomsReport = Configuration.GetValue<string>(Constant.CUSTOMSREPORT_ENDPOINT) ?? Configuration[Constant.FINANCE_ENDPOINT];
+            APIEndpoint.Sales = Configuration.GetValue<string>(Constant.SALES_ENDPOINT) ?? Configuration[Constant.SALES_ENDPOINT];
+            APIEndpoint.Auth = Configuration.GetValue<string>(Constant.AUTH_ENDPOINT) ?? Configuration[Constant.AUTH_ENDPOINT];
+            APIEndpoint.GarmentProduction = Configuration.GetValue<string>(Constant.GARMENT_PRODUCTION_ENDPOINT) ?? Configuration[Constant.GARMENT_PRODUCTION_ENDPOINT];
+
+            AuthCredential.Username = Configuration.GetValue<string>(Constant.USERNAME) ?? Configuration[Constant.USERNAME];
+            AuthCredential.Password = Configuration.GetValue<string>(Constant.PASSWORD) ?? Configuration[Constant.PASSWORD];
         }
 
         private void RegisterFacades(IServiceCollection services)
         {
             services
+                .AddTransient<ICoreData, CoreData>()
+                .AddTransient<ICoreHttpClientService, CoreHttpClientService>()
+                .AddTransient<IMemoryCacheManager, MemoryCacheManager>()
                 .AddTransient<PurchasingDocumentExpeditionFacade>()
                 .AddTransient<IBankExpenditureNoteFacade, BankExpenditureNoteFacade>()
                 .AddTransient<IBankDocumentNumberGenerator, BankDocumentNumberGenerator>()
@@ -86,8 +130,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<UnitPaymentOrderNotVerifiedReportFacade>()
                 .AddTransient<PurchaseRequestFacade>()
                 .AddTransient<DeliveryOrderFacade>()
-                .AddTransient<ImportPurchasingBookReportFacade>()
-                .AddTransient<LocalPurchasingBookReportFacade>()
+                .AddTransient<IDeliveryOrderFacade, DeliveryOrderFacade>()
                 .AddTransient<InternalPurchaseOrderFacade>()
                 .AddTransient<ExternalPurchaseOrderFacade>()
                 .AddTransient<MonitoringPriceFacade>()
@@ -101,12 +144,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IUnitPaymentPriceCorrectionNoteFacade, UnitPaymentPriceCorrectionNoteFacade>()
                 .AddTransient<PurchaseOrderMonitoringAllFacade>()
                 .AddTransient<IGarmentPurchaseRequestFacade, GarmentPurchaseRequestFacade>()
+                .AddTransient<IGarmentPurchaseRequestItemFacade, GarmentPurchaseRequestItemFacade>()
                 .AddTransient<IGarmentInternalPurchaseOrderFacade, GarmentInternalPurchaseOrderFacade>()
                 .AddTransient<IGarmentTotalPurchaseOrderFacade, TotalGarmentPurchaseFacade>()
                 .AddTransient<IGarmentInvoice, GarmentInvoiceFacade>()
                 .AddTransient<IGarmentInternNoteFacade, GarmentInternNoteFacades>()
                 .AddTransient<IGarmentExternalPurchaseOrderFacade, GarmentExternalPurchaseOrderFacade>()
                 .AddTransient<IGarmentDeliveryOrderFacade, GarmentDeliveryOrderFacade>()
+                .AddTransient<IGarmentDebtBalanceReportFacade, GarmentDebtBalanceReportFacade>()
                 .AddTransient<IPurchasingDispositionFacade, PurchasingDispositionFacade>()
                 .AddTransient<IGarmentCorrectionNotePriceFacade, GarmentCorrectionNotePriceFacade>()
                 .AddTransient<IGarmentCorrectionNoteQuantityFacade, GarmentCorrectionNoteQuantityFacade>()
@@ -114,11 +159,61 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IPurchasingDispositionFacade, PurchasingDispositionFacade>()
                 .AddTransient<IGarmentCorrectionNotePriceFacade, GarmentCorrectionNotePriceFacade>()
                 .AddTransient<IGarmentUnitReceiptNoteFacade, GarmentUnitReceiptNoteFacade>()
+                .AddTransient<IGarmentDOItemFacade, GarmentDOItemFacade>()
                 .AddTransient<IMonitoringUnitReceiptAllFacade, MonitoringUnitReceiptAllFacade>()
                 .AddTransient<IGarmentUnitDeliveryOrderFacade, GarmentUnitDeliveryOrderFacade>()
                 .AddTransient<IGarmentUnitExpenditureNoteFacade, GarmentUnitExpenditureNoteFacade>()
-                .AddTransient<IGarmentReturnCorrectionNoteFacade, GarmentReturnCorrectionNoteFacade>();
-
+                .AddTransient<IGarmentReturnCorrectionNoteFacade, GarmentReturnCorrectionNoteFacade>()
+                .AddTransient<IGarmentUnitDeliveryOrderReturFacade, GarmentUnitDeliveryOrderReturFacade>()
+                .AddTransient<IMonitoringCentralBillReceptionFacade, MonitoringCentralBillReceptionFacade>()
+                .AddTransient<IMonitoringCentralBillExpenditureFacade, MonitoringCentralBillExpenditureFacade>()
+                .AddTransient<IMonitoringCorrectionNoteReceptionFacade, MonitoringCorrectionNoteReceptionFacade>()
+                .AddTransient<IMonitoringCorrectionNoteExpenditureFacade, MonitoringCorrectionNoteExpenditureFacade>()
+                .AddTransient<IGarmentDailyPurchasingReportFacade, GarmentDailyPurchasingReportFacade>()
+                .AddTransient<IGarmentReceiptCorrectionFacade, GarmentReceiptCorrectionFacade>()
+                .AddTransient<IGarmentPOMasterDistributionFacade, GarmentPOMasterDistributionFacade>()
+                .AddTransient<IMonitoringROJobOrderFacade, MonitoringROJobOrderFacade>()
+                .AddTransient<IMonitoringROMasterFacade, MonitoringROMasterFacade>()
+                .AddTransient<IBudgetMasterSampleDisplayFacade, BudgetMasterSampleDisplayFacade>()
+                .AddTransient<IUnitPaymentOrderExpeditionReportService, UnitPaymentOrderExpeditionReportService>()
+                .AddTransient<ILocalPurchasingBookReportFacade, LocalPurchasingBookReportFacade>()
+                .AddTransient<IImportPurchasingBookReportFacade, ImportPurchasingBookReportFacade>()
+                .AddTransient<IDetailCreditBalanceReportFacade, DetailCreditBalanceReportFacade>()
+                .AddTransient<ICurrencyProvider, CurrencyProvider>()
+                .AddTransient<IPurchaseMonitoringService, PurchaseMonitoringService>()
+                .AddTransient<IGarmentPurchasingBookReportFacade, GarmentPurchasingBookReportFacade>()
+                .AddTransient<IPRMasterValidationReportFacade, PRMasterValidationReportFacade>()
+                .AddTransient<IAccountingStockReportFacade, AccountingStockReportFacade>()
+                .AddTransient<IGarmentReceiptCorrectionReportFacade, GarmentReceiptCorrectionReportFacade>()
+                .AddTransient<IGarmentTopTenPurchaseSupplier, TopTenGarmentPurchaseFacade>()
+                .AddTransient<IGarmentFlowDetailMaterialReport, GarmentFlowDetailMaterialReportFacade>()
+                .AddTransient<IGarmentPurchaseDayBookReport, GarmentPurchaseDayBookReportFacade>()
+                .AddTransient<IGarmentCorrectionNoteFacade, GarmentCorrectionNoteFacade>()
+                .AddTransient<IGarmentPurchaseDayBookReport, GarmentPurchaseDayBookReportFacade>()
+                .AddTransient<IGarmentStockReportFacade, GarmentStockReportFacade>()
+                .AddTransient<IGarmenInternNotePaymentStatusFacade, GarmentInternNotePaymentStatusFacade>()
+                .AddTransient<IGarmentReportCMTFacade, GarmentReportCMTFacade>()
+                .AddTransient<IGarmentRealizationCMTReportFacade, GarmentRealizationCMTReportFacade>()
+                .AddTransient<IDebtBookReportFacade, DebtBookReportFacade>()
+                .AddTransient<IBalanceDebtFacade, GarmentSupplierBalanceDebtFacade>()
+                .AddTransient<IDebtCardReportFacade, DebtCardReportFacade>()
+                .AddTransient<IVBRequestPOExternalService, VBRequestPOExternalService>()
+                .AddTransient<IDebtAndDispositionSummaryService, DebtAndDispositionSummaryService>()
+                .AddTransient<IGarmentStockOpnameFacade, GarmentStockOpnameFacade>()
+                .AddTransient<IBudgetCashflowService, BudgetCashflowService>()
+                .AddTransient<IBudgetCashflowUnitPdf, BudgetCashflowUnitPdf>()
+                .AddTransient<IBudgetCashflowDivisionPdf, BudgetCashflowDivisionPdf>()
+                .AddTransient<IBudgetCashflowUnitExcelGenerator, BudgetCashflowUnitExcelGenerator>()
+                .AddTransient<IBudgetCashflowDivisionExcelGenerator, BudgetCashflowDivisionExcelGenerator>()
+                .AddTransient<IGarmentPurchasingExpeditionService, GarmentPurchasingExpeditionService>()
+                .AddTransient<IUnpaidDispositionReportDetailFacade, UnpaidDispositionReportDetailFacade>()
+                .AddTransient<IGarmentPurchasingBookReportService, GarmentPurchasingBookReportService>()
+                .AddTransient<IGarmentDebtBalanceService, GarmentDebtBalanceService>()
+                .AddTransient<IGarmentDispositionPurchaseFacade, GarmentDispositionPurchaseFacade>()
+                .AddTransient<IGarmentDispositionPaymentReportService, GarmentDispositionPaymentReportService>()
+                .AddTransient<IROFeatureFacade, ROFeatureFacade>()
+                .AddTransient<IGarmentBC23ReportFacade, GarmentBC23ReportFacade>()
+                .AddTransient<IMutationBeacukaiFacade, MutationBeacukaiFacade>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)
@@ -126,12 +221,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             services
                 .AddScoped<IdentityService>()
                 .AddScoped<ValidateService>()
+                .AddScoped<IHttpClientService, HttpClientService>()
                 .AddScoped<IValidateService, ValidateService>();
 
-            if (isTest == false)
-            {
-                services.AddScoped<IHttpClientService, HttpClientService>();
-            }
+            //if (isTest == false)
+            //{
+            //    services.AddScoped<IHttpClientService, HttpClientService>();
+            //}
         }
 
         private void RegisterSerializationProvider()
@@ -159,19 +255,28 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
         {
             string connectionString = Configuration.GetConnectionString(Constant.DEFAULT_CONNECTION) ?? Configuration[Constant.DEFAULT_CONNECTION];
             string env = Configuration.GetValue<string>(Constant.ASPNETCORE_ENVIRONMENT);
+            string connectionStringLocalCashFlow = Configuration.GetConnectionString("LocalDbCashFlowConnection") ?? Configuration["LocalDbCashFlowConnection"];
             APIEndpoint.ConnectionString = Configuration.GetConnectionString("DefaultConnection") ?? Configuration["DefaultConnection"];
 
             /* Register */
-            services.AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(connectionString));
+            //services.AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(connectionString));
+            services.AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(connectionString, sqlServerOptions => sqlServerOptions.CommandTimeout(1000 * 60 * 20)));
+            services.AddTransient<ILocalDbCashFlowDbContext>(s => new LocalDbCashFlowDbContext(connectionStringLocalCashFlow));
             RegisterEndpoints();
             RegisterFacades(services);
             RegisterServices(services, env.Equals("Test"));
-            services.AddAutoMapper();
+            services.AddAutoMapper(typeof(BaseAutoMapperProfile));
+            services.AddMemoryCache();
 
             RegisterSerializationProvider();
             RegisterClassMap();
             MongoDbContext.connectionString = Configuration.GetConnectionString(Constant.MONGODB_CONNECTION) ?? Configuration[Constant.MONGODB_CONNECTION];
 
+            services.AddDistributedRedisCache(options =>
+            {
+                options.Configuration = Configuration.GetValue<string>("RedisConnection") ?? Configuration["RedisConnection"];
+                options.InstanceName = Configuration.GetValue<string>("RedisConnectionName") ?? Configuration["RedisConnectionName"];
+            });
 
             /* Versioning */
             services.AddApiVersioning(options => { options.DefaultApiVersion = new ApiVersion(1, 0); });
@@ -204,9 +309,31 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             /* API */
             services
                .AddMvcCore()
+               .AddApiExplorer()
                .AddAuthorization()
                .AddJsonOptions(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver())
                .AddJsonFormatters();
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "Purchasing API", Version = "v1" });
+                c.AddSecurityDefinition("Bearer", new ApiKeyScheme { In = "header", Description = "Please enter JWT with Bearer into field", Name = "Authorization", Type = "apiKey" });
+                c.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
+                {
+                    { "Bearer", Enumerable.Empty<string>() },
+                });
+                c.OperationFilter<ResponseHeaderFilter>();
+
+                c.CustomSchemaIds(i => i.FullName);
+            });
+
+            // App Insight
+            if (HasAppInsight)
+            {
+                services.AddApplicationInsightsTelemetry();
+                services.AddAppInsightRequestBodyLogging();
+            }
+
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -217,15 +344,37 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             }
 
             /* Update Database */
-            using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            {
-                PurchasingDbContext context = serviceScope.ServiceProvider.GetService<PurchasingDbContext>();
-                context.Database.Migrate();
+            //using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            //{
+            //    PurchasingDbContext context = serviceScope.ServiceProvider.GetService<PurchasingDbContext>();
+
+            //    if (context.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
+            //    {
+            //        context.Database.SetCommandTimeout(10 * 60 * 1000);
+            //        context.Database.Migrate();
+            //    }
+            //}
+
+            if(HasAppInsight){
+                app.UseAppInsightRequestBodyLogging();
+                app.UseAppInsightResponseBodyLogging();
             }
 
             app.UseAuthentication();
             app.UseCors(PURCHASING_POLICITY);
             app.UseMvc();
+
+            // Enable middleware to serve generated Swagger as a JSON endpoint.
+            app.UseSwagger();
+
+            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
+            // specifying the Swagger JSON endpoint.
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
+            });
+
+            JobManager.Initialize(new MasterRegistry(app.ApplicationServices));
         }
     }
 }

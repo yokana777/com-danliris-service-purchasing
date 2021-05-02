@@ -25,6 +25,7 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentCorrectionNoteDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitPaymentOrderDataUtils;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
 
 namespace Com.DanLiris.Service.Purchasing.Test
 {
@@ -43,7 +44,7 @@ namespace Com.DanLiris.Service.Purchasing.Test
                     new KeyValuePair<string, string>(Constant.SECRET, "DANLIRISTESTENVIRONMENT"),
                     new KeyValuePair<string, string>("ASPNETCORE_ENVIRONMENT", "Test"),
                     new KeyValuePair<string, string>(Constant.PURCHASING_ENDPOINT, "http://localhost:5004/v1/"),
-//                    new KeyValuePair<string, string>(Constant.DEFAULT_CONNECTION, "Server=(localdb)\\mssqllocaldb;Database=com-danliris-db-test;Trusted_Connection=True;MultipleActiveResultSets=true"),
+                   //new KeyValuePair<string, string>(Constant.DEFAULT_CONNECTION, "Server=(localdb)\\mssqllocaldb;Database=com-danliris-db-test;Trusted_Connection=True;MultipleActiveResultSets=true"),
                     new KeyValuePair<string, string>(Constant.DEFAULT_CONNECTION, "Server=localhost,1401;Database=com.danliris.db.purchasing.controller.test;User Id=sa;Password=Standar123.;MultipleActiveResultSets=True;"),
                     new KeyValuePair<string, string>(Constant.MONGODB_CONNECTION, "mongodb://localhost:27017/admin")
                 })
@@ -75,6 +76,7 @@ namespace Com.DanLiris.Service.Purchasing.Test
                        .AddTransient<UnitPaymentCorrectionNoteDataUtil>()
                        .AddTransient<UnitPaymentOrderUnpaidReportDataUtil>()
                        .AddScoped<IHttpClientService, HttpClientTestService>()
+                       .AddScoped<ICurrencyProvider, CurrencyProvider>()
                        .AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(configuration[Constant.DEFAULT_CONNECTION]), ServiceLifetime.Transient);
                 })
                 .UseStartup<Startup>();

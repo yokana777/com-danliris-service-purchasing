@@ -26,6 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
         public string freightCostBy { get; set; }
         public CurrencyViewModel currency { get; set; }
         public string paymentMethod { get; set; }
+        public string poCashType { get; set; }
         public string paymentDueDays { get; set; }
         public bool useVat { get; set; }
         public IncomeTaxViewModel incomeTax { get; set; }
@@ -35,6 +36,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
         public bool isClosed { get; set; }
         public bool isCanceled { get; set; }
         public string remark { get; set; }
+        public bool IsCreateOnVBRequest { get; set; }
         public List<ExternalPurchaseOrderItemViewModel> items { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -43,10 +45,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
             {
                 yield return new ValidationResult("Unit is required", new List<string> { "unit" });
             }
-            if (this.supplier == null)
-            {
-                yield return new ValidationResult("Supplier is required", new List<string> { "supplier" });
-            }
+            //if (this.supplier == null)
+            //{
+            //    yield return new ValidationResult("Supplier is required", new List<string> { "supplier" });
+            //}
             if (this.currency == null)
             {
                 yield return new ValidationResult("Currency is required", new List<string> { "currency" });
@@ -67,6 +69,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
             else if (this.deliveryDate != null && this.orderDate > this.deliveryDate)
             {
                 yield return new ValidationResult("OrderDate is greater than delivery date", new List<string> { "deliveryDate" });
+            }
+
+
+            if (this.paymentMethod == "CASH" && (this.poCashType == null || this.poCashType == ""))
+            {
+                yield return new ValidationResult("poCashType is required", new List<string> { "poCashType" });
+            }
+            if (this.poCashType != "VB" && this.supplier == null)
+            {
+                yield return new ValidationResult("Supplier is required", new List<string> { "supplier" });
             }
 
             if (this.useIncomeTax)
@@ -124,7 +136,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
                         
                     }
 
-                    if (Item.details.Count.Equals(0))
+                    if (Item.details == null || Item.details.Count.Equals(0))
                     {
                         yield return new ValidationResult("Details is required", new List<string> { "details" });
                     }
@@ -164,7 +176,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.ExternalPurchaseOrderVi
                                 externalPurchaseOrderDetailError += "price: 'Price should be more than 0', ";
                             }
                             
-                            if(Detail.productPrice==null || Detail.productPrice == 0)
+                            if(/*Detail.productPrice==null || */Detail.productPrice == 0)
                             {
                                 if(Detail.product!=null && Detail.product._id != null)
                                 {

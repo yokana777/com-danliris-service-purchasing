@@ -22,6 +22,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderModel;
+using System.Data;
+using System.Globalization;
+using System.Net.Http;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitExpenditureNoteModel;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFacade;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades
 {
@@ -41,6 +50,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         private readonly DbSet<GarmentInventoryMovement> dbSetGarmentInventoryMovement;
         private readonly DbSet<GarmentInventorySummary> dbSetGarmentInventorySummary;
         private readonly DbSet<GarmentDeliveryOrder> dbsetGarmentDeliveryOrder;
+        private readonly DbSet<GarmentUnitDeliveryOrder> dbSetGarmentUnitDeliveryOrder;
+        private readonly DbSet<GarmentUnitExpenditureNote> dbSetGarmentUnitExpenditureNote;
+        private readonly DbSet<GarmentDOItems> dbSetGarmentDOItems;
 
         private readonly IMapper mapper;
 
@@ -58,6 +70,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             dbSetGarmentInventoryMovement = dbContext.Set<GarmentInventoryMovement>();
             dbSetGarmentInventorySummary = dbContext.Set<GarmentInventorySummary>();
             dbsetGarmentDeliveryOrder = dbContext.Set<GarmentDeliveryOrder>();
+            dbSetGarmentUnitDeliveryOrder= dbContext.Set<GarmentUnitDeliveryOrder>();
+            dbSetGarmentUnitExpenditureNote= dbContext.Set<GarmentUnitExpenditureNote>();
+            dbSetGarmentDOItems = dbContext.Set<GarmentDOItems>();
 
             mapper = (IMapper)serviceProvider.GetService(typeof(IMapper));
         }
@@ -65,19 +80,51 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         public ReadResponse<object> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
             IQueryable<GarmentUnitReceiptNote> Query = dbSet;
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<GarmentUnitReceiptNote>.ConfigureFilter(Query, FilterDictionary);
 
             Query = Query.Select(m => new GarmentUnitReceiptNote
             {
                 Id = m.Id,
                 URNNo = m.URNNo,
+                UnitCode=m.UnitCode,
+                UnitId=m.UnitId,
                 UnitName = m.UnitName,
                 ReceiptDate = m.ReceiptDate,
                 SupplierName = m.SupplierName,
                 DONo = m.DONo,
+                DOId=m.DOId,
+                StorageName=m.StorageName,
+                StorageId=m.StorageId,
+                StorageCode=m.StorageCode,
+                DRNo=m.DRNo,
+                URNType=m.URNType,
+                UENNo=m.UENNo,
                 Items = m.Items.Select(i => new GarmentUnitReceiptNoteItem
                 {
                     Id = i.Id,
-                    RONo = i.RONo
+                    RONo = i.RONo,
+                    ProductCode=i.ProductCode,
+                    ProductId = i.ProductId,
+                    ProductName=i.ProductName,
+                    ProductRemark=i.ProductRemark,
+                    OrderQuantity=i.OrderQuantity,
+                    ReceiptQuantity=i.ReceiptQuantity,
+                    SmallQuantity=i.SmallQuantity,
+                    UomId=i.UomId,
+                    UomUnit=i.UomUnit,
+                    Conversion=i.Conversion,
+                    DODetailId=i.DODetailId,
+                    EPOItemId=i.EPOItemId,
+                    POItemId=i.POItemId,
+                    PRItemId=i.PRItemId,
+                    POSerialNumber=i.POSerialNumber,
+                    SmallUomId=i.SmallUomId,
+                    SmallUomUnit=i.SmallUomUnit,
+                    PricePerDealUnit=i.PricePerDealUnit,
+                    DesignColor=i.DesignColor,
+                    ReceiptCorrection=i.ReceiptCorrection,
+                    CorrectionConversion=i.CorrectionConversion
                 }).ToList(),
                 CreatedBy = m.CreatedBy,
                 LastModifiedUtc = m.LastModifiedUtc
@@ -85,13 +132,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
             List<string> searchAttributes = new List<string>()
             {
-                "URNNo", "UnitName", "SupplierName", "DONo"
+                "URNNo", "UnitName", "SupplierName", "DONo","URNType", "DRNo", "UENNo"
             };
 
             Query = QueryHelper<GarmentUnitReceiptNote>.ConfigureSearch(Query, searchAttributes, Keyword);
 
-            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
-            Query = QueryHelper<GarmentUnitReceiptNote>.ConfigureFilter(Query, FilterDictionary);
+            
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             Query = QueryHelper<GarmentUnitReceiptNote>.ConfigureOrder(Query, OrderDictionary);
@@ -105,10 +151,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             {
                 s.Id,
                 s.URNNo,
-                Unit = new { Name = s.UnitName },
+                s.DOId,
+                s.DRNo,
+                s.URNType,
+                s.UENNo,
+                Unit = new { Name = s.UnitName, Id=s.UnitId, Code=s.UnitCode },
+                Storage= new {name=s.StorageName, _id=s.StorageId, code=s.StorageCode},
                 s.ReceiptDate,
                 Supplier = new { Name = s.SupplierName },
                 s.DONo,
+                Items=new List<GarmentUnitReceiptNoteItem>(s.Items),
                 s.CreatedBy,
                 s.LastModifiedUtc
             }));
@@ -137,6 +189,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             return viewModel;
         }
 
+        public GarmentDOItems ReadDOItemsByURNItemId(int id)
+        {
+            var model = dbSetGarmentDOItems.Where(m => m.URNItemId == id)
+                            .FirstOrDefault();
+
+            return model;
+        }
+
         public MemoryStream GeneratePdf(GarmentUnitReceiptNoteViewModel garmentUnitReceiptNote)
         {
             return GarmentUnitReceiptNotePDFTemplate.GeneratePdfTemplate(serviceProvider, garmentUnitReceiptNote);
@@ -154,11 +214,28 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     garmentUnitReceiptNote.URNNo = await GenerateNo(garmentUnitReceiptNote);
                     garmentUnitReceiptNote.IsStorage = true;
 
-                    var garmentDeliveryOrder = dbsetGarmentDeliveryOrder.First(d => d.Id == garmentUnitReceiptNote.DOId);
-                    garmentUnitReceiptNote.DOCurrencyRate = garmentDeliveryOrder.DOCurrencyRate;
+                    Dictionary<long, double> doCurrencies = new Dictionary<long, double>();
+
+                    if (garmentUnitReceiptNote.URNType == "PEMBELIAN")
+                    {
+                        var garmentDeliveryOrder = dbsetGarmentDeliveryOrder.First(d => d.Id == garmentUnitReceiptNote.DOId);
+                        garmentUnitReceiptNote.DOCurrencyRate = garmentDeliveryOrder.DOCurrencyRate;
+                    }
+                    else if(garmentUnitReceiptNote.URNType == "PROSES")
+                    {
+                        await UpdateDR(garmentUnitReceiptNote.DRId, true);
+                    }
+                    
 
                     foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
                     {
+                        garmentUnitReceiptNoteItem.DOCurrencyRate = garmentUnitReceiptNote.DOCurrencyRate!=null && garmentUnitReceiptNote.URNType == "PEMBELIAN" ? 
+                        (double)garmentUnitReceiptNote.DOCurrencyRate : garmentUnitReceiptNoteItem.DOCurrencyRate;
+                        if (garmentUnitReceiptNoteItem.DOCurrencyRate == 0)
+                        {
+                            throw new Exception("DOCurrencyRate tidak boleh 0");
+                        }
+                        garmentUnitReceiptNoteItem.CorrectionConversion = garmentUnitReceiptNoteItem.Conversion;
                         EntityExtension.FlagForCreate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
                         garmentUnitReceiptNoteItem.ReceiptCorrection = garmentUnitReceiptNoteItem.ReceiptQuantity;
 
@@ -197,8 +274,368 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     dbSetGarmentInventoryDocument.Add(garmentInventoryDocument);
 
                     dbSet.Add(garmentUnitReceiptNote);
-
                     Created = await dbContext.SaveChangesAsync();
+
+
+                    if (garmentUnitReceiptNote.URNType == "PEMBELIAN")
+                    {
+                        foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
+                        {
+                            GarmentDOItems garmentDOItems = new GarmentDOItems
+                            {
+                                DOItemNo= await GenerateNoDOItems(garmentUnitReceiptNote),
+                                UnitId= garmentUnitReceiptNote.UnitId,
+                                UnitCode= garmentUnitReceiptNote.UnitCode,
+                                UnitName= garmentUnitReceiptNote.UnitName,
+                                StorageCode= garmentUnitReceiptNote.StorageCode,
+                                StorageId= garmentUnitReceiptNote.StorageId,
+                                StorageName= garmentUnitReceiptNote.StorageName,
+                                POId= garmentUnitReceiptNoteItem.POId,
+                                POItemId= garmentUnitReceiptNoteItem.POItemId,
+                                POSerialNumber= garmentUnitReceiptNoteItem.POSerialNumber,
+                                ProductCode= garmentUnitReceiptNoteItem.ProductCode,
+                                ProductId= garmentUnitReceiptNoteItem.ProductId,
+                                ProductName= garmentUnitReceiptNoteItem.ProductName,
+                                DesignColor= garmentUnitReceiptNoteItem.DesignColor,
+                                SmallQuantity= garmentUnitReceiptNoteItem.SmallQuantity,
+                                SmallUomId= garmentUnitReceiptNoteItem.SmallUomId,
+                                SmallUomUnit= garmentUnitReceiptNoteItem.SmallUomUnit,
+                                RemainingQuantity= garmentUnitReceiptNoteItem.SmallQuantity,
+                                DetailReferenceId= garmentUnitReceiptNoteItem.DODetailId,
+                                URNItemId= garmentUnitReceiptNoteItem.Id,
+                                DOCurrencyRate= garmentUnitReceiptNoteItem.DOCurrencyRate,
+                                EPOItemId= garmentUnitReceiptNoteItem.EPOItemId,
+                                PRItemId= garmentUnitReceiptNoteItem.PRItemId,
+                                RO= garmentUnitReceiptNoteItem.RONo,
+                                
+                            };
+                            EntityExtension.FlagForCreate(garmentDOItems, identityService.Username, USER_AGENT);
+                            dbSetGarmentDOItems.Add(garmentDOItems);
+                            await dbContext.SaveChangesAsync();
+                        }
+                    }
+
+                    if (garmentUnitReceiptNote.URNType == "PROSES")
+                    {
+                        //await UpdateDR(garmentUnitReceiptNote.DRId, true);
+                        var GarmentDR = GetDR(garmentUnitReceiptNote.DRId);
+                        var GarmentUnitDO = dbContext.GarmentUnitDeliveryOrders.AsNoTracking().Single(a => a.Id == GarmentDR.UnitDOId);
+                        List<GarmentUnitDeliveryOrderItem> unitDOItems = new List<GarmentUnitDeliveryOrderItem>();
+                        foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
+                        {
+                            GarmentDOItems garmentDOItems = new GarmentDOItems
+                            {
+                                DOItemNo = await GenerateNoDOItems(garmentUnitReceiptNote),
+                                UnitId = garmentUnitReceiptNote.UnitId,
+                                UnitCode = garmentUnitReceiptNote.UnitCode,
+                                UnitName = garmentUnitReceiptNote.UnitName,
+                                StorageCode = garmentUnitReceiptNote.StorageCode,
+                                StorageId = garmentUnitReceiptNote.StorageId,
+                                StorageName = garmentUnitReceiptNote.StorageName,
+                                POId = garmentUnitReceiptNoteItem.POId,
+                                POItemId = garmentUnitReceiptNoteItem.POItemId,
+                                POSerialNumber = garmentUnitReceiptNoteItem.POSerialNumber,
+                                ProductCode = garmentUnitReceiptNoteItem.ProductCode,
+                                ProductId = garmentUnitReceiptNoteItem.ProductId,
+                                ProductName = garmentUnitReceiptNoteItem.ProductName,
+                                DesignColor = garmentUnitReceiptNoteItem.DesignColor,
+                                SmallQuantity = garmentUnitReceiptNoteItem.SmallQuantity,
+                                SmallUomId = garmentUnitReceiptNoteItem.SmallUomId,
+                                SmallUomUnit = garmentUnitReceiptNoteItem.SmallUomUnit,
+                                RemainingQuantity = GarmentUnitDO.UnitDOFromId != 0? 0: garmentUnitReceiptNoteItem.SmallQuantity,
+                                DetailReferenceId = garmentUnitReceiptNoteItem.DODetailId,
+                                URNItemId = garmentUnitReceiptNoteItem.Id,
+                                DOCurrencyRate = garmentUnitReceiptNoteItem.DOCurrencyRate,
+                                EPOItemId = garmentUnitReceiptNoteItem.EPOItemId,
+                                PRItemId = garmentUnitReceiptNoteItem.PRItemId,
+                                RO = garmentUnitReceiptNoteItem.RONo,
+
+                            };
+                            EntityExtension.FlagForCreate(garmentDOItems, identityService.Username, USER_AGENT);
+                            dbSetGarmentDOItems.Add(garmentDOItems);
+                            await dbContext.SaveChangesAsync();
+                        }
+
+                        if (GarmentUnitDO.UnitDOFromId != 0)
+                        {
+                            GarmentUnitDeliveryOrderFacade garmentUnitDeliveryOrderFacade = new GarmentUnitDeliveryOrderFacade(dbContext, serviceProvider);
+                            GarmentUnitExpenditureNoteFacade.GarmentUnitExpenditureNoteFacade garmentUnitExpenditureNoteFacade = new GarmentUnitExpenditureNoteFacade.GarmentUnitExpenditureNoteFacade(serviceProvider,dbContext);
+                            var GarmentUnitDOFrom= dbContext.GarmentUnitDeliveryOrders.AsNoTracking().Single(a => a.Id == GarmentUnitDO.UnitDOFromId);
+                            foreach (var item in garmentUnitReceiptNote.Items)
+                            {
+                                GarmentUnitDeliveryOrderItem garmentUnitDeliveryOrderItem = new GarmentUnitDeliveryOrderItem
+                                {
+                                    URNId = garmentUnitReceiptNote.Id,
+                                    URNNo= garmentUnitReceiptNote.URNNo,
+                                    URNItemId=item.Id,
+                                    DODetailId=item.DODetailId,
+                                    EPOItemId=item.EPOItemId,
+                                    POItemId=item.POItemId,
+                                    POSerialNumber=item.POSerialNumber,
+                                    PRItemId=item.PRItemId,
+                                    ProductId=item.ProductId,
+                                    ProductCode=item.ProductCode,
+                                    ProductName=item.ProductName,
+                                    ProductRemark=item.ProductRemark,
+                                    RONo=item.RONo,
+                                    Quantity=(double)item.SmallQuantity,
+                                    UomId=item.SmallUomId,
+                                    UomUnit=item.SmallUomUnit,
+                                    PricePerDealUnit= (double)item.PricePerDealUnit,
+                                    DesignColor=item.DesignColor,
+                                    DefaultDOQuantity= (double)item.SmallQuantity,
+                                    DOCurrencyRate= item.DOCurrencyRate,
+                                    ReturQuantity=0
+                                };
+                                unitDOItems.Add(garmentUnitDeliveryOrderItem);
+                                EntityExtension.FlagForCreate(garmentUnitDeliveryOrderItem, identityService.Username, USER_AGENT);
+                            }
+                            var rono = garmentUnitReceiptNote.Items.First().RONo;
+                            var pr = dbContext.GarmentPurchaseRequests.AsNoTracking().FirstOrDefault(p => p.RONo == rono);
+                            GarmentUnitDeliveryOrder garmentUnitDeliveryOrder = new GarmentUnitDeliveryOrder
+                            {
+                                UnitDOType="TRANSFER",
+                                UnitDODate=garmentUnitReceiptNote.ReceiptDate,
+                                UnitRequestCode= GarmentUnitDOFrom.UnitSenderCode,
+                                UnitRequestId= GarmentUnitDOFrom.UnitSenderId,
+                                UnitRequestName= GarmentUnitDOFrom.UnitSenderName,
+                                UnitSenderId= garmentUnitReceiptNote.UnitId,
+                                UnitSenderName= garmentUnitReceiptNote.UnitName,
+                                UnitSenderCode= garmentUnitReceiptNote.UnitCode,
+                                StorageId= garmentUnitReceiptNote.StorageId,
+                                StorageCode= garmentUnitReceiptNote.StorageCode,
+                                StorageName= garmentUnitReceiptNote.StorageName,
+                                RONo=rono,
+                                Article= pr.Article,
+                                IsUsed=true,
+                                StorageRequestCode= GarmentUnitDOFrom.StorageCode,
+                                StorageRequestId= GarmentUnitDOFrom.StorageId,
+                                StorageRequestName= GarmentUnitDOFrom.StorageName,
+                                Items= unitDOItems
+                            };
+                            garmentUnitDeliveryOrder.UnitDONo = await garmentUnitDeliveryOrderFacade.GenerateNo(garmentUnitDeliveryOrder);
+                            EntityExtension.FlagForCreate(garmentUnitDeliveryOrder, identityService.Username, USER_AGENT);
+
+                            dbSetGarmentUnitDeliveryOrder.Add(garmentUnitDeliveryOrder);
+                            await dbContext.SaveChangesAsync();
+
+                            List<GarmentUnitExpenditureNoteItem> uenItems = new List<GarmentUnitExpenditureNoteItem>();
+                            foreach (var unitDOItem in garmentUnitDeliveryOrder.Items)
+                            {
+                                var poItem = dbContext.GarmentInternalPurchaseOrderItems.AsNoTracking().Single(a => a.Id == unitDOItem.POItemId);
+                                var po = dbContext.GarmentInternalPurchaseOrders.AsNoTracking().Single(a => a.Id == poItem.GPOId);
+                                var urnItem = dbContext.GarmentUnitReceiptNoteItems.AsNoTracking().Single(a => a.Id == unitDOItem.URNItemId);
+                                GarmentUnitExpenditureNoteItem garmentUnitExpenditureNoteItem = new GarmentUnitExpenditureNoteItem
+                                {
+                                    UnitDOItemId= unitDOItem.Id,
+                                    URNItemId= unitDOItem.URNItemId,
+                                    DODetailId= unitDOItem.DODetailId,
+                                    EPOItemId= unitDOItem.EPOItemId,
+                                    POItemId= unitDOItem.POItemId,
+                                    PRItemId= unitDOItem.PRItemId,
+                                    POSerialNumber= unitDOItem.POSerialNumber,
+                                    ProductId= unitDOItem.ProductId,
+                                    ProductName= unitDOItem.ProductName,
+                                    ProductCode= unitDOItem.ProductCode,
+                                    ProductRemark= unitDOItem.ProductRemark,
+                                    RONo= unitDOItem.RONo,
+                                    Quantity= unitDOItem.Quantity,
+                                    UomId= unitDOItem.UomId,
+                                    UomUnit= unitDOItem.UomUnit,
+                                    PricePerDealUnit= unitDOItem.PricePerDealUnit,
+                                    FabricType= unitDOItem.FabricType,
+                                    BuyerId=Convert.ToInt64(po.BuyerId),
+                                    BuyerCode=po.BuyerCode,
+                                    BasicPrice=(decimal)(unitDOItem.PricePerDealUnit * unitDOItem.DOCurrencyRate),
+                                    Conversion= urnItem.Conversion,
+                                    ReturQuantity=0,
+                                    DOCurrencyRate= unitDOItem.DOCurrencyRate
+                                };
+                                uenItems.Add(garmentUnitExpenditureNoteItem);
+                                EntityExtension.FlagForCreate(garmentUnitExpenditureNoteItem, identityService.Username, USER_AGENT);
+
+                            }
+                            GarmentUnitExpenditureNote garmentUnitExpenditureNote = new GarmentUnitExpenditureNote
+                            {
+                                ExpenditureDate= garmentUnitDeliveryOrder.UnitDODate,
+                                ExpenditureType="TRANSFER",
+                                ExpenditureTo="GUDANG LAIN",
+                                UnitDOId= garmentUnitDeliveryOrder.Id,
+                                UnitDONo= garmentUnitDeliveryOrder.UnitDONo,
+                                UnitSenderId= garmentUnitDeliveryOrder.UnitSenderId,
+                                UnitSenderCode= garmentUnitDeliveryOrder.UnitSenderCode,
+                                UnitSenderName= garmentUnitDeliveryOrder.UnitSenderName,
+                                StorageId= garmentUnitDeliveryOrder.StorageId,
+                                StorageCode= garmentUnitDeliveryOrder.StorageCode,
+                                StorageName= garmentUnitDeliveryOrder.StorageName,
+                                UnitRequestCode= garmentUnitDeliveryOrder.UnitRequestCode,
+                                UnitRequestId= garmentUnitDeliveryOrder.UnitRequestId,
+                                UnitRequestName= garmentUnitDeliveryOrder.UnitRequestName,
+                                StorageRequestCode= garmentUnitDeliveryOrder.StorageRequestCode,
+                                StorageRequestId= garmentUnitDeliveryOrder.StorageRequestId,
+                                StorageRequestName= garmentUnitDeliveryOrder.StorageRequestName,
+                                IsTransfered=true,
+                                Items=uenItems
+                            };
+                            garmentUnitExpenditureNote.UENNo=await garmentUnitExpenditureNoteFacade.GenerateNo(garmentUnitExpenditureNote);
+                            EntityExtension.FlagForCreate(garmentUnitExpenditureNote, identityService.Username, USER_AGENT);
+
+                            dbSetGarmentUnitExpenditureNote.Add(garmentUnitExpenditureNote);
+                            await dbContext.SaveChangesAsync();
+
+                            var garmentInventoryDocumentOut = garmentUnitExpenditureNoteFacade.GenerateGarmentInventoryDocument(garmentUnitExpenditureNote, "OUT");
+                            dbSetGarmentInventoryDocument.Add(garmentInventoryDocumentOut);
+
+                            List<GarmentUnitReceiptNoteItem> urnItems = new List<GarmentUnitReceiptNoteItem>();
+
+                            foreach (var uenItem in uenItems)
+                            {
+                                var garmentInventorySummaryExistingBUK = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == uenItem.ProductId && s.StorageId == garmentUnitExpenditureNote.StorageId && s.UomId == uenItem.UomId);
+
+                                var garmentInventoryMovement = garmentUnitExpenditureNoteFacade.GenerateGarmentInventoryMovement(garmentUnitExpenditureNote, uenItem, garmentInventorySummaryExistingBUK,"OUT");
+                                dbSetGarmentInventoryMovement.Add(garmentInventoryMovement);
+
+                                if (garmentInventorySummaryExistingBUK == null)
+                                {
+                                    var garmentInventorySummary = garmentUnitExpenditureNoteFacade.GenerateGarmentInventorySummary(garmentUnitExpenditureNote, uenItem, garmentInventoryMovement);
+                                    dbSetGarmentInventorySummary.Add(garmentInventorySummary);
+                                }
+                                else
+                                {
+                                    EntityExtension.FlagForUpdate(garmentInventorySummaryExistingBUK, identityService.Username, USER_AGENT);
+                                    garmentInventorySummaryExistingBUK.Quantity = garmentInventoryMovement.After;
+                                }
+
+                                await dbContext.SaveChangesAsync();
+
+                                var pritem= dbContext.GarmentPurchaseRequestItems.AsNoTracking().FirstOrDefault(p => p.Id == uenItem.PRItemId);
+                                var prHeader= dbContext.GarmentPurchaseRequests.AsNoTracking().FirstOrDefault(p => p.Id == pritem.GarmentPRId);
+                                var poItem= dbContext.GarmentInternalPurchaseOrderItems.AsNoTracking().FirstOrDefault(p => p.Id == uenItem.POItemId);
+                                var urnitem = dbContext.GarmentUnitReceiptNoteItems.AsNoTracking().FirstOrDefault(a => a.Id == uenItem.URNItemId);
+                                var unitDOitem = dbContext.GarmentUnitDeliveryOrderItems.AsNoTracking().FirstOrDefault(a => a.Id == uenItem.UnitDOItemId);
+
+                                GarmentUnitReceiptNoteItem garmentURNItem = new GarmentUnitReceiptNoteItem
+                                {
+                                    DODetailId= uenItem.DODetailId,
+                                    EPOItemId= uenItem.EPOItemId,
+                                    PRItemId=uenItem.PRItemId,
+                                    PRId=prHeader.Id,
+                                    PRNo=prHeader.PRNo,
+                                    POId= poItem.GPOId,
+                                    POItemId=uenItem.POItemId,
+                                    POSerialNumber= uenItem.POSerialNumber,
+                                    ProductId= uenItem.ProductId,
+                                    ProductCode= uenItem.ProductCode,
+                                    ProductName=uenItem.ProductName,
+                                    ProductRemark= uenItem.ProductRemark,
+                                    RONo= uenItem.RONo,
+                                    ReceiptQuantity=(decimal)uenItem.Quantity / uenItem.Conversion,
+                                    UomId= urnitem.UomId,
+                                    UomUnit=urnitem.UomUnit,
+                                    PricePerDealUnit= (decimal)uenItem.PricePerDealUnit,
+                                    DesignColor=unitDOitem.DesignColor,
+                                    IsCorrection=false,
+                                    Conversion= uenItem.Conversion,
+                                    SmallQuantity= (decimal)uenItem.Quantity,
+                                    SmallUomId= uenItem.UomId,
+                                    SmallUomUnit= uenItem.UomUnit,
+                                    ReceiptCorrection= (decimal)uenItem.Quantity / uenItem.Conversion,
+                                    CorrectionConversion= uenItem.Conversion,
+                                    OrderQuantity=0,
+                                    DOCurrencyRate= uenItem.DOCurrencyRate!=null ? (double)uenItem.DOCurrencyRate:0,
+                                    UENItemId=uenItem.Id
+                                };
+                                urnItems.Add(garmentURNItem);
+                                EntityExtension.FlagForCreate(garmentURNItem, identityService.Username, USER_AGENT);
+                            }
+
+                            GarmentUnitReceiptNote garmentUrn = new GarmentUnitReceiptNote
+                            {
+                                URNType="GUDANG LAIN",
+                                UnitId= garmentUnitExpenditureNote.UnitRequestId,
+                                UnitCode= garmentUnitExpenditureNote.UnitRequestCode,
+                                UnitName= garmentUnitExpenditureNote.UnitRequestName,
+                                UENId= garmentUnitExpenditureNote.Id,
+                                UENNo= garmentUnitExpenditureNote.UENNo,
+                                ReceiptDate= garmentUnitExpenditureNote.ExpenditureDate,
+                                IsStorage=true,
+                                StorageId= garmentUnitExpenditureNote.StorageRequestId,
+                                StorageCode= garmentUnitExpenditureNote.StorageRequestCode,
+                                StorageName= garmentUnitExpenditureNote.StorageRequestName,
+                                IsCorrection=false,
+                                IsUnitDO=false,
+                                Items=urnItems
+                            };
+                            garmentUrn.URNNo = await GenerateNo(garmentUrn);
+                            EntityExtension.FlagForCreate(garmentUrn, identityService.Username, USER_AGENT);
+
+                            dbSet.Add(garmentUrn);
+
+                            var garmentInventoryDocument2 = GenerateGarmentInventoryDocument(garmentUrn);
+                            dbSetGarmentInventoryDocument.Add(garmentInventoryDocument2);
+
+                            foreach(var gurnItem in urnItems)
+                            {
+                                var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == gurnItem.ProductId && s.StorageId == garmentUrn.StorageId && s.UomId == gurnItem.SmallUomId);
+
+                                var garmentInventoryMovement = GenerateGarmentInventoryMovement(garmentUrn, gurnItem, garmentInventorySummaryExisting);
+                                dbSetGarmentInventoryMovement.Add(garmentInventoryMovement);
+
+                                if (garmentInventorySummaryExisting == null)
+                                {
+                                    var garmentInventorySummary = GenerateGarmentInventorySummary(garmentUrn, gurnItem, garmentInventoryMovement);
+                                    dbSetGarmentInventorySummary.Add(garmentInventorySummary);
+                                }
+                                else
+                                {
+                                    EntityExtension.FlagForUpdate(garmentInventorySummaryExisting, identityService.Username, USER_AGENT);
+                                    garmentInventorySummaryExisting.Quantity = garmentInventoryMovement.After;
+                                }
+
+                                await dbContext.SaveChangesAsync();
+                            }
+
+                            foreach (var garmentUnitReceiptNoteItem in garmentUrn.Items)
+                            {
+                                GarmentDOItems garmentDOItems = new GarmentDOItems
+                                {
+                                    DOItemNo = await GenerateNoDOItems(garmentUrn),
+                                    UnitId = garmentUrn.UnitId,
+                                    UnitCode = garmentUrn.UnitCode,
+                                    UnitName = garmentUrn.UnitName,
+                                    StorageCode = garmentUrn.StorageCode,
+                                    StorageId = garmentUrn.StorageId,
+                                    StorageName = garmentUrn.StorageName,
+                                    POId = garmentUnitReceiptNoteItem.POId,
+                                    POItemId = garmentUnitReceiptNoteItem.POItemId,
+                                    POSerialNumber = garmentUnitReceiptNoteItem.POSerialNumber,
+                                    ProductCode = garmentUnitReceiptNoteItem.ProductCode,
+                                    ProductId = garmentUnitReceiptNoteItem.ProductId,
+                                    ProductName = garmentUnitReceiptNoteItem.ProductName,
+                                    DesignColor = garmentUnitReceiptNoteItem.DesignColor,
+                                    SmallQuantity = garmentUnitReceiptNoteItem.SmallQuantity,
+                                    SmallUomId = garmentUnitReceiptNoteItem.SmallUomId,
+                                    SmallUomUnit = garmentUnitReceiptNoteItem.SmallUomUnit,
+                                    RemainingQuantity = garmentUnitReceiptNoteItem.SmallQuantity,
+                                    DetailReferenceId = garmentUnitReceiptNoteItem.DODetailId,
+                                    URNItemId = garmentUnitReceiptNoteItem.Id,
+                                    DOCurrencyRate = garmentUnitReceiptNoteItem.DOCurrencyRate,
+                                    EPOItemId = garmentUnitReceiptNoteItem.EPOItemId,
+                                    PRItemId = garmentUnitReceiptNoteItem.PRItemId,
+                                    RO = garmentUnitReceiptNoteItem.RONo,
+
+                                };
+                                EntityExtension.FlagForCreate(garmentDOItems, identityService.Username, USER_AGENT);
+                                dbSetGarmentDOItems.Add(garmentDOItems);
+                                await dbContext.SaveChangesAsync();
+                            }
+
+                            await dbContext.SaveChangesAsync();
+                        }
+                        
+                    }
+
+                    
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -209,6 +646,53 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             }
 
             return Created;
+        }
+
+        private async Task UpdateDR(string DRId, bool isUsed)
+        {
+            string drUri ="delivery-returns";
+            IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+
+            var response = await httpClient.GetAsync($"{APIEndpoint.GarmentProduction}{drUri}/{DRId}");
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+                GarmentDeliveryReturnViewModel viewModel = JsonConvert.DeserializeObject< GarmentDeliveryReturnViewModel>(result.GetValueOrDefault("data").ToString());
+                viewModel.IsUsed= isUsed;
+                foreach(var item in viewModel.Items)
+                {
+                    item.QuantityUENItem = item.Quantity + 1;
+                    item.RemainingQuantityPreparingItem= item.Quantity + 1;
+                    item.IsSave = true;
+                }
+
+                //var httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
+                var response2 = await httpClient.PutAsync($"{APIEndpoint.GarmentProduction}{drUri}/{DRId}", new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, General.JsonMediaType));
+                var content2 = await response2.Content.ReadAsStringAsync();
+                response2.EnsureSuccessStatusCode();
+            }
+            
+        }
+
+        private GarmentDeliveryReturnViewModel GetDR(string DRId)
+        {
+            string drUri = "delivery-returns";
+            IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+
+            var response = httpClient.GetAsync($"{APIEndpoint.GarmentProduction}{drUri}/{DRId}").Result;
+            if (response.IsSuccessStatusCode)
+            {
+                var content = response.Content.ReadAsStringAsync().Result;
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+                GarmentDeliveryReturnViewModel viewModel = JsonConvert.DeserializeObject<GarmentDeliveryReturnViewModel>(result.GetValueOrDefault("data").ToString());
+
+                return viewModel;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public async Task<int> Update(int id, GarmentUnitReceiptNote garmentUnitReceiptNote)
@@ -276,6 +760,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     oldGarmentUnitReceiptNote.Remark = garmentUnitReceiptNote.Remark;
 
                     var garmentDeliveryOrder = dbsetGarmentDeliveryOrder.First(d => d.Id == garmentUnitReceiptNote.DOId);
+                    
                     garmentUnitReceiptNote.DOCurrencyRate = garmentDeliveryOrder.DOCurrencyRate;
 
                     Updated = await dbContext.SaveChangesAsync();
@@ -329,7 +814,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         }
                     }
 
-                    if (garmentUnitReceiptNote.IsStorage)
+                    if (garmentUnitReceiptNote.IsStorage && garmentUnitReceiptNote.URNType != "PROSES")
                     {
                         var garmentInventoryDocument = GenerateGarmentInventoryDocument(garmentUnitReceiptNote, "OUT");
                         dbSetGarmentInventoryDocument.Add(garmentInventoryDocument);
@@ -347,6 +832,125 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                 garmentInventorySummaryExisting.Quantity = garmentInventoryMovement.After;
                             }
                         }
+                    }
+
+                    if(garmentUnitReceiptNote.URNType == "PEMBELIAN" || garmentUnitReceiptNote.URNType == "PROSES")
+                    {
+                        foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
+                        {
+                            GarmentDOItems garmentDOItems = dbSetGarmentDOItems.FirstOrDefault(a => a.URNItemId == garmentUnitReceiptNoteItem.Id);
+                            if(garmentDOItems!=null)
+                                EntityExtension.FlagForDelete(garmentDOItems, identityService.Username, USER_AGENT);
+                        }
+                    }
+
+                    if (garmentUnitReceiptNote.URNType == "PROSES")
+                    {
+                        await UpdateDR(garmentUnitReceiptNote.DRId, false);
+                        var GarmentDR = GetDR(garmentUnitReceiptNote.DRId);
+                        var GarmentUnitDO = dbContext.GarmentUnitDeliveryOrders.AsNoTracking().Single(a => a.Id == GarmentDR.UnitDOId);
+                        if(GarmentUnitDO.UnitDOFromId != 0)
+                        {
+                            var garmentUnitDOItem = dbContext.GarmentUnitDeliveryOrderItems.FirstOrDefault(x => x.URNId == garmentUnitReceiptNote.Id);
+                            var unitDO = dbContext.GarmentUnitDeliveryOrders.Include(m => m.Items).Single(a => a.Id == garmentUnitDOItem.UnitDOId);
+                            EntityExtension.FlagForDelete(unitDO, identityService.Username, USER_AGENT);
+                            foreach (var uDOItem in unitDO.Items)
+                            {
+                                EntityExtension.FlagForDelete(uDOItem, identityService.Username, USER_AGENT);
+                            }
+
+                            var garmentExpenditureNote = dbContext.GarmentUnitExpenditureNotes.Include(m => m.Items).Single(x => x.UnitDOId == unitDO.Id);
+                            EntityExtension.FlagForDelete(garmentExpenditureNote, identityService.Username, USER_AGENT);
+                            GarmentUnitExpenditureNoteFacade.GarmentUnitExpenditureNoteFacade garmentUnitExpenditureNoteFacade = new GarmentUnitExpenditureNoteFacade.GarmentUnitExpenditureNoteFacade(serviceProvider, dbContext);
+                            
+
+                            
+
+                            //var garmentInventoryDocument = GenerateGarmentInventoryDocument(garmentUnitReceiptNote, "OUT");
+                            //dbSetGarmentInventoryDocument.Add(garmentInventoryDocument);
+
+                            //foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
+                            //{
+                            //    var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == garmentUnitReceiptNoteItem.ProductId && s.StorageId == garmentUnitReceiptNote.StorageId && s.UomId == garmentUnitReceiptNoteItem.SmallUomId);
+
+                            //    var garmentInventoryMovement = GenerateGarmentInventoryMovement(garmentUnitReceiptNote, garmentUnitReceiptNoteItem, garmentInventorySummaryExisting, "OUT");
+                            //    dbSetGarmentInventoryMovement.Add(garmentInventoryMovement);
+
+                            //    if (garmentInventorySummaryExisting != null)
+                            //    {
+                            //        EntityExtension.FlagForUpdate(garmentInventorySummaryExisting, identityService.Username, USER_AGENT);
+                            //        garmentInventorySummaryExisting.Quantity = garmentInventoryMovement.After;
+                            //    }
+
+                            //    await dbContext.SaveChangesAsync();
+                            //}
+
+                            var gURN = dbSet.Include(m => m.Items).Single(x => x.UENId == garmentExpenditureNote.Id);
+                            EntityExtension.FlagForDelete(gURN, identityService.Username, USER_AGENT);
+
+                            var garmentInventoryDocument1 = GenerateGarmentInventoryDocument(gURN, "OUT");
+                            dbSetGarmentInventoryDocument.Add(garmentInventoryDocument1);
+
+                            foreach (var gURNItem in gURN.Items)
+                            {
+                                EntityExtension.FlagForDelete(gURNItem, identityService.Username, USER_AGENT);
+
+                                var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == gURNItem.ProductId && s.StorageId == gURN.StorageId && s.UomId == gURNItem.SmallUomId);
+
+                                var garmentInventoryMovement = GenerateGarmentInventoryMovement(gURN, gURNItem, garmentInventorySummaryExisting, "OUT");
+                                dbSetGarmentInventoryMovement.Add(garmentInventoryMovement);
+
+                                if (garmentInventorySummaryExisting != null)
+                                {
+                                    EntityExtension.FlagForUpdate(garmentInventorySummaryExisting, identityService.Username, USER_AGENT);
+                                    garmentInventorySummaryExisting.Quantity = garmentInventoryMovement.After;
+                                }
+                            }
+
+                            var garmentInventoryDocumentOut = garmentUnitExpenditureNoteFacade.GenerateGarmentInventoryDocument(garmentExpenditureNote);
+                            dbSetGarmentInventoryDocument.Add(garmentInventoryDocumentOut);
+
+                            foreach (var uenItem in garmentExpenditureNote.Items)
+                            {
+                                EntityExtension.FlagForDelete(uenItem, identityService.Username, USER_AGENT);
+
+                                var garmentInventorySummaryExistingBUK = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == uenItem.ProductId && s.StorageId == garmentExpenditureNote.StorageId && s.UomId == uenItem.UomId);
+
+                                var garmentInventoryMovement = garmentUnitExpenditureNoteFacade.GenerateGarmentInventoryMovement(garmentExpenditureNote, uenItem, garmentInventorySummaryExistingBUK);
+                                dbSetGarmentInventoryMovement.Add(garmentInventoryMovement);
+
+                                if (garmentInventorySummaryExistingBUK == null)
+                                {
+                                    var garmentInventorySummary = garmentUnitExpenditureNoteFacade.GenerateGarmentInventorySummary(garmentExpenditureNote, uenItem, garmentInventoryMovement);
+                                    dbSetGarmentInventorySummary.Add(garmentInventorySummary);
+                                }
+                                else
+                                {
+                                    EntityExtension.FlagForUpdate(garmentInventorySummaryExistingBUK, identityService.Username, USER_AGENT);
+                                    garmentInventorySummaryExistingBUK.Quantity = garmentInventoryMovement.After;
+                                }
+
+                                await dbContext.SaveChangesAsync();
+                            }
+                        }
+                        
+                        var garmentInventoryDocument = GenerateGarmentInventoryDocument(garmentUnitReceiptNote, "OUT");
+                        dbSetGarmentInventoryDocument.Add(garmentInventoryDocument);
+
+                        foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
+                        {
+                            var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == garmentUnitReceiptNoteItem.ProductId && s.StorageId == garmentUnitReceiptNote.StorageId && s.UomId == garmentUnitReceiptNoteItem.SmallUomId);
+
+                            var garmentInventoryMovement = GenerateGarmentInventoryMovement(garmentUnitReceiptNote, garmentUnitReceiptNoteItem, garmentInventorySummaryExisting, "OUT");
+                            dbSetGarmentInventoryMovement.Add(garmentInventoryMovement);
+
+                            if (garmentInventorySummaryExisting != null)
+                            {
+                                EntityExtension.FlagForUpdate(garmentInventorySummaryExisting, identityService.Username, USER_AGENT);
+                                garmentInventorySummaryExisting.Quantity = garmentInventoryMovement.After;
+                            }
+                        }
+                        
                     }
 
                     Deleted = await dbContext.SaveChangesAsync();
@@ -453,6 +1057,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
             garmentInventoryDocument.Remark = garmentUnitReceiptNote.Remark;
 
+            garmentInventoryDocument.Date = DateTimeOffset.Now;
+
             foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
             {
                 var garmentInventoryDocumentItem = new GarmentInventoryDocumentItem();
@@ -475,7 +1081,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             return garmentInventoryDocument;
         }
 
-        private async Task<string> GenerateNo(GarmentUnitReceiptNote garmentUnitReceiptNote)
+        public async Task<string> GenerateNo(GarmentUnitReceiptNote garmentUnitReceiptNote)
         {
             string Year = garmentUnitReceiptNote.ReceiptDate.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("yy");
             string Month = garmentUnitReceiptNote.ReceiptDate.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("MM");
@@ -493,6 +1099,28 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             else
             {
                 int lastNoNumber = Int32.Parse(lastNo.URNNo.Replace(no, string.Empty)) + 1;
+                return no + lastNoNumber.ToString().PadLeft(Padding, '0');
+            }
+        }
+
+        public async Task<string> GenerateNoDOItems(GarmentUnitReceiptNote garmentUnitReceiptNote)
+        {
+            string Year = garmentUnitReceiptNote.ReceiptDate.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("yy");
+            string Month = garmentUnitReceiptNote.ReceiptDate.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("MM");
+            string Day = garmentUnitReceiptNote.ReceiptDate.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("dd");
+
+            string no = string.Concat("DOI", garmentUnitReceiptNote.UnitCode, Year, Month);
+            int Padding = 5;
+
+            var lastNo = await dbSetGarmentDOItems.Where(w => w.DOItemNo.StartsWith(no) && !w.IsDeleted).OrderByDescending(o => o.DOItemNo).FirstOrDefaultAsync();
+
+            if (lastNo == null)
+            {
+                return no + "1".PadLeft(Padding, '0');
+            }
+            else
+            {
+                int lastNoNumber = Int32.Parse(lastNo.DOItemNo.Replace(no, string.Empty)) + 1;
                 return no + lastNoNumber.ToString().PadLeft(Padding, '0');
             }
         }
@@ -515,7 +1143,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     x.Items.Any(i => i.RONo.Contains((Keyword ?? "").Trim()) && (isPROSES && (i.RONo.EndsWith("S") || i.RONo.EndsWith("M")) ? false : true))
                 )
                 .SelectMany(x => x.Items
-                .Where(i => i.RONo.Contains((Keyword ?? "").Trim()) && (isPROSES && (i.RONo.EndsWith("S") || i.RONo.EndsWith("M")) ? false : true))
+                .Where(i => (( i.ReceiptCorrection * i.CorrectionConversion )- i.OrderQuantity >0 ) &&  i.RONo.Contains((Keyword ?? "").Trim()) && (isPROSES && (i.RONo.EndsWith("S") || i.RONo.EndsWith("M")) ? false : true))
                 .Select(y => new
                 {
                     x.URNNo,
@@ -537,6 +1165,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     y.DesignColor,
                     y.POSerialNumber,
                     y.PricePerDealUnit,
+                    y.ReceiptCorrection,
+                    y.Conversion,
+                    y.CorrectionConversion,
                     Article = dbContext.GarmentExternalPurchaseOrderItems.Where(m => m.Id == y.EPOItemId).Select(d => d.Article).FirstOrDefault()
                 })).ToList();
             var coba = readForUnitDO.GroupBy(g => g.RONo);
@@ -567,7 +1198,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     (!hasUnitFilter ? true : x.UnitId == unitId) &&
                     (!hasStorageFilter ? true : x.StorageId == storageId) &&
                     x.IsDeleted == false &&
-                    x.Items.Any(i => i.RONo.Contains((Keyword ?? "").Trim()) && (hasRONoFilter ? (i.RONo != RONo) : true))
+                    x.Items.Any(i => i.RONo.Contains((Keyword ?? "").Trim()) && ((i.ReceiptCorrection * i.CorrectionConversion) - i.OrderQuantity > 0) && (hasRONoFilter ? (i.RONo != RONo) : true))
                 )
                 .SelectMany(x => x.Items.Select(y => new
                 {
@@ -590,10 +1221,697 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     y.SmallUomUnit,
                     y.POSerialNumber,
                     y.PricePerDealUnit,
-                    Article = dbContext.GarmentExternalPurchaseOrderItems.Where(m => m.Id == y.EPOItemId).Select(d => d.Article).FirstOrDefault()
+                    y.ReceiptCorrection,
+                    y.Conversion,
+                    y.CorrectionConversion,
+                    Article = dbContext.GarmentExternalPurchaseOrderItems.Where( m => m.Id == y.EPOItemId ).Select(d => d.Article).FirstOrDefault()
                 })).ToList();
             List<object> result = new List<object>(readForUnitDO);
             return result;
         }
+
+        public ReadResponse<object> ReadURNItem(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+        {
+            IQueryable<GarmentUnitReceiptNote> Query = dbSet;
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            Query = QueryHelper<GarmentUnitReceiptNote>.ConfigureFilter(Query, FilterDictionary);
+
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "URNNo", "UnitName", "SupplierName", "DONo"
+            };
+
+            Query = QueryHelper<GarmentUnitReceiptNote>.ConfigureSearch(Query, searchAttributes, Keyword);
+
+
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            Query = QueryHelper<GarmentUnitReceiptNote>.ConfigureOrder(Query, OrderDictionary);
+
+            Pageable<GarmentUnitReceiptNote> pageable = new Pageable<GarmentUnitReceiptNote>(Query, Page - 1, Size);
+            List<GarmentUnitReceiptNote> Data = pageable.Data.ToList();
+            int TotalData = pageable.TotalCount;
+
+            var data= Query.SelectMany(x => x.Items.Select(y => new
+            {
+                x.DOId,
+                x.DONo,
+                x.URNNo,
+                y.URNId,
+                y.Id,
+                y.RONo,
+                y.DODetailId,
+                y.EPOItemId,
+                y.POItemId,
+                y.PRItemId,
+                y.ProductId,
+                y.ProductName,
+                y.ProductCode,
+                y.ProductRemark,
+                y.OrderQuantity,
+                y.SmallQuantity,
+                y.DesignColor,
+                y.SmallUomId,
+                y.SmallUomUnit,
+                y.POSerialNumber,
+                y.PricePerDealUnit,
+                x.DOCurrencyRate,
+                y.Conversion,
+                y.UomUnit,
+                y.UomId,
+                y.ReceiptCorrection,
+                y.CorrectionConversion,
+                Article = dbContext.GarmentExternalPurchaseOrderItems.Where(m => m.Id == y.EPOItemId).Select(d => d.Article).FirstOrDefault()
+            })).ToList();
+
+            List<object> ListData = new List<object>(data);
+
+            return new ReadResponse<object>(ListData, TotalData, OrderDictionary);
+        }
+
+        public List<object> ReadItemByRO(string Keyword = null, string Filter = "{}")
+        {
+            IQueryable<GarmentUnitReceiptNote> Query = this.dbSet;
+
+            List<string> searchAttributes = new List<string>()
+            {
+                "RONo",
+            };
+
+            IQueryable<GarmentUnitReceiptNoteItem> QueryItem = dbContext.GarmentUnitReceiptNoteItems;
+
+            QueryItem = QueryHelper<GarmentUnitReceiptNoteItem>.ConfigureSearch(QueryItem, searchAttributes, Keyword);
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            long unitId = 0;
+            long storageId = 0;
+            bool hasUnitFilter = FilterDictionary.ContainsKey("UnitId") && long.TryParse(FilterDictionary["UnitId"], out unitId);
+            bool hasRONoFilter = FilterDictionary.ContainsKey("RONo");
+            bool hasStorageFilter = FilterDictionary.ContainsKey("StorageId") && long.TryParse(FilterDictionary["StorageId"], out storageId);
+            string RONo = hasRONoFilter ? (FilterDictionary["RONo"] ?? "").Trim() : "";
+            //QueryItem = QueryHelper<GarmentUnitReceiptNoteItem>.ConfigureFilter(QueryItem, FilterDictionary);
+
+            var data = (from y in QueryItem
+                        join x in Query on y.URNId equals x.Id
+                        where 
+                        (!hasUnitFilter ? true : x.UnitId == unitId) &&
+                        (!hasStorageFilter ? true : x.StorageId == storageId) &&
+                        (!hasRONoFilter ? true : y.RONo== RONo)
+                        select new
+                        {
+                            x.DOId,
+                            x.DONo,
+                            x.URNNo,
+                            y.URNId,
+                            y.Id,
+                            y.RONo,
+                            y.DODetailId,
+                            y.EPOItemId,
+                            y.POItemId,
+                            y.PRItemId,
+                            y.ProductId,
+                            y.ProductName,
+                            y.ProductCode,
+                            y.ProductRemark,
+                            y.OrderQuantity,
+                            y.SmallQuantity,
+                            y.DesignColor,
+                            y.SmallUomId,
+                            y.SmallUomUnit,
+                            y.POSerialNumber,
+                            y.PricePerDealUnit,
+                            x.DOCurrencyRate,
+                            y.Conversion,
+                            y.UomUnit,
+                            y.UomId,
+                            y.ReceiptCorrection,
+                            y.CorrectionConversion,
+                            Article = dbContext.GarmentExternalPurchaseOrderItems.Where(m => m.Id == y.EPOItemId).Select(d => d.Article).FirstOrDefault()
+                        }).ToList();
+            List<object> ListData = new List<object>(data);
+            return ListData;
+        }
+        #region Flow Detail Penerimaan
+
+        private List<GarmentCategoryViewModel> GetProductCodes(int page, int size, string order, string filter)
+        {
+            //var param = new StringContent(JsonConvert.SerializeObject(codes), Encoding.UTF8, "application/json");
+            IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
+            if (httpClient != null)
+            {
+                var garmentSupplierUri = APIEndpoint.Core + $"master/garment-categories";
+                string queryUri = "?page=" + page + "&size=" + size + "&order=" + order + "&filter=" + filter;
+                string uri = garmentSupplierUri + queryUri;
+                var response = httpClient.GetAsync($"{uri}").Result.Content.ReadAsStringAsync();
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
+                List<GarmentCategoryViewModel> viewModel = JsonConvert.DeserializeObject<List<GarmentCategoryViewModel>>(result.GetValueOrDefault("data").ToString());
+                return viewModel;
+            }
+            else
+            {
+                List<GarmentCategoryViewModel> viewModel = null;
+                return viewModel;
+            }
+        }
+
+        public IQueryable<FlowDetailPenerimaanViewModels> GetReportQueryFlow(DateTime? dateFrom, DateTime? dateTo, string unit, string category, int offset, int page, int size)
+
+        {
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+            var Status = new[] { "" };
+            //switch (category)
+            //{
+            //    case "Bahan Baku":
+            //        Status = new[] { "FABRIC", "SUBKON" };
+            //        break;
+            //    case "Bahan Pendukung":
+            //        Status = new[] { "APPLICATION", "BADGES", "BUNGEE CORD", "BUCKLE", "BENANG HANGTAG", "BUTTON", "COLLAR BONE", "CARE LABEL",
+            //        "DRAWSTRING", "ELASTIC", "EMBROIDERY", "LAIN-LAIN", "GROSS GRAIN", "GESPER", "HOOK & BAR", "HOOK & EYE",
+            //        "INTERLINING", "KNACKS", "ID LABEL", "LABEL", "LACE", "MESS GUSSET", "METAL IGOT", "NECK LABEL",
+            //        "PL PACKING", "PADDING", "PEN KRAH", "POLYCORD", "PLISKET", "POLYWOSHER", "PIPING", "PULLER","QUILTING","RIBBON","RIB","RING","STRAPPING BAND",
+            //        "SLEEVE HEADER", "SIZE LABEL", "SAMPLE MATERIAL", "SHOULDER PAD", "SPONGE FOAM", "SPINDLE", "STOPPER", "SEWING THREAD","TAPE / DRYTEX","TRIMMING GROOMET","TASSEL","VELCRO","VITTER BAND",
+            //        "WADDING", "WAPPEN", "WRAPBAND", "WASH", "ZIPPER","PROCESS",
+            //        };
+            //        break;
+            //    case "Bahan Embalase":
+            //        Status = new[] { "ATTENTION NAME", "POLYBAG", "BACK CB", "BENANG KENUR", "BELT", "BIS NAME","BEARING STAMP","BUTTERFLY","CABLE TIES",
+            //            "COLLAR CB", "CUFF STUD", "CLIPS", "DOCUMENT", "DOLL", "LAIN - LAIN","FOAM HANGER","FELT","GADGET","GLUE","GARMENT",
+            //            "HANDLING", "HANGER", "HOOK", "HEAT TRANSFER", "ISOLASI", "INNER BOX","STAMPED INK","INSERT TAG","KLEM SENG","KARET GELANG","LACKBAND",
+            //            "LICENSE SEAL", "LOOP", "INSERT CD/LAYER", "MACHINE", "MOULD", "METAL SLIDER","OUTER BOX","PLASTIC COLLAR","PIN","PLASTIC","PALLET",
+            //            "PAPER", "PRINT", "TALI", "SILICA BAG", "SHAVING", "SILICA GEL","GARMENT SAMPLE","SHIPPING MARK","STUDS TRANSFER","SEAL TAG","STICKER",
+            //            "STAMP", "STRING", "STATIONARY", "SWATCH CARD", "SIZE CHIP", "TAG","GARMENT TEST","TIE / DASI","TISSUE PAPER","TIGER TAIL",
+            //        };
+            //        break;
+            //    default:
+            //        Status = new[] { "" };
+            //        break;
+            //}
+            var productname = (category == "SUBKON" ? "SUBKON" : "");
+            category = (category == "SUBKON" ? "BB" : category);
+
+            var categories = GetProductCodes(1, int.MaxValue, "{}", "{}");
+
+            var categories1 = category == "BB" ? categories.Where(x => x.CodeRequirement == "BB").Select(x => x.Name).ToArray() : category == "BP" ? categories.Where(x => x.CodeRequirement == "BP").Select(x => x.Name).ToArray() : categories.Where(x => x.CodeRequirement == "BE").Select(x => x.Name).ToArray();
+
+
+            List<FlowDetailPenerimaanViewModels> Data = new List<FlowDetailPenerimaanViewModels>();
+
+            var Query = (from a in dbContext.GarmentUnitReceiptNotes
+                         join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+                         join e in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals e.Id
+                         join f in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on e.GarmentEPOId equals f.Id
+                         join c in dbContext.GarmentInternalPurchaseOrders on e.POId equals c.Id into PO
+                         from cc in PO.DefaultIfEmpty()
+                         join g in dbContext.GarmentUnitExpenditureNotes on a.UENId equals g.Id into uen
+                         from gg in uen.DefaultIfEmpty()
+                         where a.IsDeleted == false
+                            && b.IsDeleted == false
+                            && categories1.Contains(b.ProductName)
+                            && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
+                            && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+                            && a.UnitCode == (string.IsNullOrWhiteSpace(unit) ? a.UnitCode : unit)
+                         select new FlowDetailPenerimaanViewModels
+                         {
+                             kdbarang = b.ProductCode,
+                             nmbarang = b.ProductName,
+                             nopo = b.POSerialNumber,
+                             keterangan = b.ProductRemark,
+                             noro = b.RONo,
+                             artikel = e.Article,
+                             kdbuyer = cc != null ? cc.BuyerCode : "-",
+                             nobukti = a.URNNo,
+                             tanggal = a.CreatedUtc,
+                             jumlahbeli = a.URNType == "PEMBELIAN" ? decimal.ToDouble(b.ReceiptQuantity) : a.URNType == "PROSES" ? decimal.ToDouble(b.ReceiptQuantity) : decimal.ToDouble(b.ReceiptQuantity),
+                             satuanbeli = a.URNType == "PEMBELIAN" ? e.DealUomUnit : a.URNType == "PROSES" ? b.UomUnit : b.UomUnit,
+                             jumlahterima = Math.Round(decimal.ToDouble(b.ReceiptQuantity) * decimal.ToDouble(b.Conversion), 2),
+                             satuanterima = b.SmallUomUnit,
+                             jumlah = ((b.PricePerDealUnit / (b.Conversion == 0 ? 1 : b.Conversion) ) * Convert.ToDecimal(b.DOCurrencyRate) ) * ( b.ReceiptQuantity * b.Conversion ),
+                             asal = a.URNType == "PROSES" ? a.URNType : a.URNType == "PEMBELIAN" ? "Pembelian Eksternal" : gg.UnitSenderName,
+                             Jenis = a.URNType,
+                             tipepembayaran = f.PaymentMethod == "FREE FROM BUYER" || f.PaymentMethod == "CMT" || f.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL"
+
+                         });
+
+            var index = 1;
+            foreach (var item in Query)
+            {
+               
+                Data.Add(
+                       new FlowDetailPenerimaanViewModels
+                       {
+                           no = index++,
+                           kdbarang = item.kdbarang,
+                           nmbarang = item.nmbarang,
+                           nopo = item.nopo,
+                           keterangan = item.keterangan,
+                           noro = item.noro,
+                           artikel = item.artikel,
+                           kdbuyer = item.kdbuyer,
+                           asal = item.asal,
+                           Jenis = item.Jenis,
+                           nobukti = item.nobukti,
+                           tanggal = item.tanggal,
+                           jumlahbeli = item.jumlahbeli,
+                           satuanbeli = item.satuanbeli,
+                           jumlahterima = (double)item.jumlahterima,
+                           satuanterima = item.satuanterima,
+                           jumlah = item.jumlah,
+                           tipepembayaran = item.tipepembayaran
+
+                       });
+
+            }
+
+            return Data.AsQueryable();
+        }
+
+
+        public Tuple<List<FlowDetailPenerimaanViewModels>, int> GetReportFlow(DateTime? dateFrom, DateTime? dateTo, string unit, string category, int page, int size, string Order, int offset)
+
+        {
+            var Query = GetReportQueryFlow(dateFrom, dateTo, unit, category, offset, page, size);
+
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            if (OrderDictionary.Count.Equals(0))
+            {
+                Query = Query.OrderBy(b => b.no);
+            }
+
+
+            //Pageable<FlowDetailPenerimaanViewModels> pageable = new Pageable<FlowDetailPenerimaanViewModels>(Query, page - 1, size);
+            //List<FlowDetailPenerimaanViewModels> Data = pageable.Data.ToList<FlowDetailPenerimaanViewModels>();
+            //int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Query.ToList(), Query.Count());
+        }
+
+        public MemoryStream GenerateExcelFlowForUnit(DateTime? dateFrom, DateTime? dateTo, string unit, string category, string categoryname, int offset, string unitname)
+        {
+            var Query = GetReportQueryFlow(dateFrom, dateTo, unit, category, offset, 1, int.MaxValue);
+
+            DataTable result = new DataTable();
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No PO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Keterangan Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No R/O", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Artikel", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Buyer", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "Jenis", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor Bukti", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Asal", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Beli", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Beli", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Terima", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Terima", DataType = typeof(String) });
+
+            List<(string, Enum, Enum)> mergeCells = new List<(string, Enum, Enum)>() { };
+
+
+            double ReceiptQtyTotal = 0;
+            double PurchaseQtyTotal = 0;
+            if (Query.ToArray().Count() == 0)
+            {
+                //result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0, "", 0, ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add(0, "", "", "", "", "", "", "", "", "", "", 0, "", 0, ""); // to allow column name to be generated properly for empty data as template
+            }
+            else
+            {
+                int index = 0;
+                foreach (FlowDetailPenerimaanViewModels data in Query)
+                {
+                    index++;
+                    string tgl = data.tanggal == null ? "-" : data.tanggal.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    result.Rows.Add(index, data.kdbarang, data.nmbarang, data.nopo, data.keterangan, data.noro, data.artikel, data.kdbuyer, data.nobukti, data.asal,  tgl, data.jumlahbeli, data.satuanbeli, data.jumlahterima, data.satuanterima);
+                    ReceiptQtyTotal += data.jumlahterima;
+                    PurchaseQtyTotal += data.jumlahbeli;
+                }
+
+            }
+            ExcelPackage package = new ExcelPackage();
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+            CultureInfo Id = new CultureInfo("id-ID");
+            string Month = Id.DateTimeFormat.GetMonthName(DateTo.Month);
+            var sheet = package.Workbook.Worksheets.Add("Report");
+
+            var col = (char)('A' + result.Columns.Count);
+            string tglawal = DateFrom.ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+            string tglakhir = DateTo.ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+            sheet.Cells[$"A1:{col}1"].Value = string.Format("LAPORAN FLOW PENERIMAAN {0}", categoryname);
+            sheet.Cells[$"A1:{col}1"].Merge = true;
+            sheet.Cells[$"A1:{col}1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A1:{col}1"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+            sheet.Cells[$"A1:{col}1"].Style.Font.Bold = true;
+            sheet.Cells[$"A2:{col}2"].Value = string.Format("Periode {0} - {1}", tglawal, tglakhir);
+            sheet.Cells[$"A2:{col}2"].Merge = true;
+            sheet.Cells[$"A2:{col}2"].Style.Font.Bold = true;
+            sheet.Cells[$"A2:{col}2"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A2:{col}2"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+            sheet.Cells[$"A3:{col}3"].Value = string.Format("KONFEKSI : {0}", (string.IsNullOrWhiteSpace(unitname) ? "ALL" : unitname));
+            sheet.Cells[$"A3:{col}3"].Merge = true;
+
+            sheet.Cells["A5"].LoadFromDataTable(result, true, OfficeOpenXml.Table.TableStyles.Light16);
+
+            var a = Query.Count();
+            sheet.Cells[$"A{6 + a}"].Value = "T O T A L  . . . . . . . . . . . . . . .";
+            sheet.Cells[$"A{6 + a}:K{6 + a}"].Merge = true;
+            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.Font.Bold = true;
+            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            sheet.Cells[$"L{6 + a}"].Value = PurchaseQtyTotal;
+            sheet.Cells[$"L{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"M{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"N{6 + a}"].Value = ReceiptQtyTotal;
+            sheet.Cells[$"N{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"O{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+
+            MemoryStream stream = new MemoryStream();
+            package.SaveAs(stream);
+            return stream;
+            //return Excel.CreateExcel(new List<(DataTable, string, List<(string, Enum, Enum)>)>() { (result, "Report", mergeCells) }, true);
+        }
+
+        public MemoryStream GenerateExcelLow(DateTime? dateFrom, DateTime? dateTo, string unit, string category, string categoryname, int offset, string unitname)
+        {
+            var Query = GetReportQueryFlow(dateFrom, dateTo, unit, category, offset, 1, int.MaxValue);
+
+            DataTable result = new DataTable();
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No PO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Keterangan Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No R/O", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Artikel", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Buyer", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "Jenis", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Asal", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor Bukti", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Beli", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Beli", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Terima", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Terima", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Metode Pembayaran", DataType = typeof(String) });
+
+
+            List<(string, Enum, Enum)> mergeCells = new List<(string, Enum, Enum)>() { };
+
+
+            double ReceiptQtyTotal = 0;
+            decimal PriceReceiptTotal = 0;
+            double PurchaseQtyTotal = 0;
+            if (Query.ToArray().Count() == 0)
+            {
+                //result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0, "", 0, ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add(0, "", "", "", "", "", "", "", "", "", "", 0, "", 0, "", 0, ""); // to allow column name to be generated properly for empty data as template
+            }
+            else
+            {
+                int index = 0;
+                foreach (FlowDetailPenerimaanViewModels data in Query)
+                {
+                    index++;
+                    string tgl = data.tanggal == null ? "-" : data.tanggal.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    result.Rows.Add(index, data.kdbarang, data.nmbarang, data.nopo, data.keterangan, data.noro, data.artikel, data.kdbuyer, data.asal, data.nobukti, tgl, data.jumlahbeli, data.satuanbeli, data.jumlahterima, data.satuanterima, data.jumlah, data.tipepembayaran);
+                    ReceiptQtyTotal += data.jumlahterima;
+                    PurchaseQtyTotal += data.jumlahbeli;
+                    PriceReceiptTotal += data.jumlah;
+                }
+
+            }
+            ExcelPackage package = new ExcelPackage();
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+            CultureInfo Id = new CultureInfo("id-ID");
+            string Month = Id.DateTimeFormat.GetMonthName(DateTo.Month);
+            var sheet = package.Workbook.Worksheets.Add("Report");
+
+            var col = (char)('A' + result.Columns.Count);
+            string tglawal = DateFrom.ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+            string tglakhir = DateTo.ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+            sheet.Cells[$"A1:{col}1"].Value = string.Format("LAPORAN REKAP PENERIMAAN {0}", categoryname);
+            sheet.Cells[$"A1:{col}1"].Merge = true;
+            sheet.Cells[$"A1:{col}1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A1:{col}1"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+            sheet.Cells[$"A1:{col}1"].Style.Font.Bold = true;
+            sheet.Cells[$"A2:{col}2"].Value = string.Format("Periode {0} - {1}", tglawal, tglakhir);
+            sheet.Cells[$"A2:{col}2"].Merge = true;
+            sheet.Cells[$"A2:{col}2"].Style.Font.Bold = true;
+            sheet.Cells[$"A2:{col}2"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A2:{col}2"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+            sheet.Cells[$"A3:{col}3"].Value = string.Format("KONFEKSI : {0}", (string.IsNullOrWhiteSpace(unitname) ? "ALL" : unitname));
+            sheet.Cells[$"A3:{col}3"].Merge = true;
+            sheet.Cells[$"A3:{col}3"].Style.Font.Bold = true;
+            sheet.Cells[$"A3:{col}3"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            sheet.Cells[$"A3:{col}3"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+
+            sheet.Cells["A5"].LoadFromDataTable(result, true, OfficeOpenXml.Table.TableStyles.Light16);
+
+            var a = Query.Count();
+            sheet.Cells[$"A{6 + a}"].Value = "T O T A L  . . . . . . . . . . . . . . .";
+            sheet.Cells[$"A{6 + a}:K{6 + a}"].Merge = true;
+            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.Font.Bold = true;
+            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells[$"A{6 + a}:K{6 + a}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            sheet.Cells[$"L{6 + a}"].Value = PurchaseQtyTotal;
+            sheet.Cells[$"L{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"M{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"N{6 + a}"].Value = ReceiptQtyTotal;
+            sheet.Cells[$"N{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"O{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"P{6 + a}"].Value = PriceReceiptTotal;
+            sheet.Cells[$"P{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            sheet.Cells[$"Q{6 + a}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+
+
+            MemoryStream stream = new MemoryStream();
+            package.SaveAs(stream);
+            return stream;
+            //return Excel.CreateExcel(new List<(DataTable, string, List<(string, Enum, Enum)>)>() { (result, "Report", mergeCells) }, true);
+        }
+
+        #endregion
+
+        public Tuple<List<GarmentUnitReceiptNoteINReportViewModel>, int> GetReportIN(DateTime? dateFrom, DateTime? dateTo, string type, int page, int size, string Order, int offset)
+
+        {
+            var Query = GetReportQueryIN(dateFrom, dateTo, type, offset);
+
+
+            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+            if (OrderDictionary.Count.Equals(0))
+            {
+                Query = Query.OrderBy(b => b.NoBUM).ThenBy(b => b.NoPO).ThenBy(b => b.NoSuratJalan).ThenBy(b => b.UNit).ThenBy(b => b.TanggalMasuk).ThenBy(b => b.TanggalBuatBon).ThenBy(b => b.Gudang).ThenBy(b => b.Supplier).ThenBy(b => b.KodeBarang).ThenBy(b => b.NamaBarang);
+            }
+
+
+            Pageable<GarmentUnitReceiptNoteINReportViewModel> pageable = new Pageable<GarmentUnitReceiptNoteINReportViewModel>(Query, page - 1, size);
+            List<GarmentUnitReceiptNoteINReportViewModel> Data = pageable.Data.ToList<GarmentUnitReceiptNoteINReportViewModel>();
+            int TotalData = pageable.TotalCount;
+
+            return Tuple.Create(Data, TotalData);
+        }
+
+        public IQueryable<GarmentUnitReceiptNoteINReportViewModel> GetReportQueryIN(DateTime? dateFrom, DateTime? dateTo, string type, int offset)
+        {
+            var GudangBP = new[] { "GUDANG ACCESORIES", "GUDANG EMBALANCE", "GUDANG INTERLINING" };
+            DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
+            DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
+            var coderequirement = new[] { "BP", "BE" };
+
+            var categories = GetProductCodes(1, int.MaxValue, "{}", "{}");
+
+            var categories1 = type == "FABRIC" ? categories.Where(x => x.CodeRequirement == "BB").Select(x => x.Name).ToArray() : type == "NON FABRIC" ? categories.Where(x => coderequirement.Contains(x.CodeRequirement)).Select(x => x.Name).ToArray() : categories.Select(x=>x.Name).ToArray();
+            var Data1 = from a in dbContext.GarmentUnitReceiptNotes
+                        join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+                        where a.IsDeleted == false && b.IsDeleted == false
+                        //&& (type == "FABRIC" ? b.ProductName == "FABRIC" : type == "NON FABRIC" ? b.ProductName != "FABRIC" : b.ProductName == b.ProductName)
+                        && (type == "FABRIC" ? categories1.Contains(b.ProductName) : type == "NON FABRIC" ? categories1.Contains(b.ProductName) : categories1.Contains(b.ProductName))
+                        && b.ProductName != "PROCESS"
+                        && a.CreatedUtc.Date >= DateFrom.Date
+                        && a.CreatedUtc.Date <= DateTo.Date
+                        && a.UId == null
+                        select new GarmentUnitReceiptNoteINReportViewModel
+                        {
+                            NoSuratJalan = a.DONo,
+                            NoBUM = a.URNNo,
+                            UNit = a.UnitName,
+                            TanggalMasuk = a.ReceiptDate,
+                            TanggalBuatBon = a.CreatedUtc,
+                            Gudang = a.StorageName,
+                            AsalTerima = a.URNType,
+                            NoPO = b.POSerialNumber,
+                            Keterangan = b.ProductRemark,
+                            NoRO = b.RONo,
+                            JumlahDiterima = Convert.ToDouble(b.ReceiptQuantity),
+                            Satuan = b.UomUnit,
+                            JumlahKecil = Convert.ToDouble(b.SmallQuantity),
+                            NamaBarang = b.ProductName,
+                            KodeBarang = b.ProductCode,
+                            Supplier = a.SupplierName
+                        };
+            var Data2 = from a in dbContext.GarmentUnitReceiptNotes
+                        join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+                        where a.IsDeleted == false && b.IsDeleted == false
+                        && (type == "FABRIC" ? categories1.Contains(b.ProductName) : type == "NON FABRIC" ? categories1.Contains(b.ProductName) : categories1.Contains(b.ProductName))
+                        && b.ProductName != "PROCESS"
+                        && a.LastModifiedUtc.Date >= DateFrom.Date
+                        && a.LastModifiedUtc.Date <= DateTo.Date
+                        && a.UId != null
+                        select new GarmentUnitReceiptNoteINReportViewModel
+                        {
+                            NoSuratJalan = a.DONo,
+                            NoBUM = a.URNNo,
+                            UNit = a.UnitName,
+                            TanggalMasuk = a.ReceiptDate,
+                            TanggalBuatBon = a.CreatedUtc,
+                            Gudang = a.StorageName,
+                            AsalTerima = a.URNType,
+                            NoPO = b.POSerialNumber,
+                            Keterangan = b.ProductRemark,
+                            NoRO = b.RONo,
+                            JumlahDiterima = Convert.ToDouble(b.ReceiptQuantity),
+                            Satuan = b.UomUnit,
+                            JumlahKecil = Convert.ToDouble(b.SmallQuantity),
+                            NamaBarang = b.ProductName,
+                            KodeBarang = b.ProductCode,
+                            Supplier = a.SupplierName
+                        };
+            var Query = Data1.Union(Data2);
+            //var Query = type == "FABRIC" ? from a in dbContext.GarmentUnitReceiptNotes
+            //                               join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+            //                               where a.IsDeleted == false && b.IsDeleted == false
+            //                               && a.StorageName == "GUDANG BAHAN BAKU"
+            //                               && a.LastModifiedUtc.Date >= DateFrom.Date
+            //                               && a.LastModifiedUtc.Date <= DateTo.Date
+            //                               select new GarmentUnitReceiptNoteINReportViewModel
+            //                               {
+            //                                   NoSuratJalan = a.DONo,
+            //                                   NoBUM = a.URNNo,
+            //                                   UNit = a.UnitName,
+            //                                   TanggalMasuk = a.ReceiptDate,
+            //                                   TanggalBuatBon = a.CreatedUtc,
+            //                                   Gudang = a.StorageName,
+            //                                   AsalTerima = a.URNType,
+            //                                   NoPO = b.POSerialNumber,
+            //                                   Keterangan = b.ProductRemark,
+            //                                   NoRO = b.RONo,
+            //                                   JumlahDiterima = Convert.ToDouble(b.ReceiptQuantity),
+            //                                   Satuan = b.UomUnit,
+            //                                   JumlahKecil = Convert.ToDouble(b.SmallQuantity),
+            //                                   NamaBarang = b.ProductName,
+            //                                   KodeBarang = b.ProductCode,
+            //                                   Supplier = a.SupplierName
+            //                               }
+            //            : type == "NON FABRIC" ? from a in dbContext.GarmentUnitReceiptNotes
+            //                                     join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+            //                                     where a.IsDeleted == false && b.IsDeleted == false
+            //                                     && a.StorageName != "GUDANG BAHAN BAKU"
+            //                                     && a.LastModifiedUtc.Date >= DateFrom.Date
+            //                                     && a.LastModifiedUtc.Date <= DateTo.Date
+            //                                     select new GarmentUnitReceiptNoteINReportViewModel
+            //                                     {
+            //                                         NoSuratJalan = a.DONo,
+            //                                         NoBUM = a.URNNo,
+            //                                         UNit = a.UnitName,
+            //                                         TanggalMasuk = a.ReceiptDate,
+            //                                         TanggalBuatBon = a.CreatedUtc,
+            //                                         Gudang = a.StorageName,
+            //                                         AsalTerima = a.URNType,
+            //                                         NoPO = b.POSerialNumber,
+            //                                         Keterangan = b.ProductRemark,
+            //                                         NoRO = b.RONo,
+            //                                         JumlahDiterima = Convert.ToDouble(b.ReceiptQuantity),
+            //                                         Satuan = b.UomUnit,
+            //                                         JumlahKecil = Convert.ToDouble(b.SmallQuantity),
+            //                                         NamaBarang = b.ProductName,
+            //                                         KodeBarang = b.ProductCode,
+            //                                         Supplier = a.SupplierName
+            //                                     }
+            //                                     : from a in dbContext.GarmentUnitReceiptNotes
+            //                                       join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+            //                                       where a.IsDeleted == false && b.IsDeleted == false
+            //                                       && a.StorageName == a.StorageName
+            //                                       && a.LastModifiedUtc.Date >= DateFrom.Date
+            //                                       && a.LastModifiedUtc.Date <= DateTo.Date
+            //                                       select new GarmentUnitReceiptNoteINReportViewModel
+            //                                       {
+            //                                           NoSuratJalan = a.DONo,
+            //                                           NoBUM = a.URNNo,
+            //                                           UNit = a.UnitName,
+            //                                           TanggalMasuk = a.ReceiptDate,
+            //                                           TanggalBuatBon = a.CreatedUtc,
+            //                                           Gudang = a.StorageName,
+            //                                           AsalTerima = a.URNType,
+            //                                           NoPO = b.POSerialNumber,
+            //                                           Keterangan = b.ProductRemark,
+            //                                           NoRO = b.RONo,
+            //                                           JumlahDiterima = Convert.ToDouble(b.ReceiptQuantity),
+            //                                           Satuan = b.UomUnit,
+            //                                           JumlahKecil = Convert.ToDouble(b.SmallQuantity),
+            //                                           NamaBarang = b.ProductName,
+            //                                           KodeBarang = b.ProductCode,
+            //                                           Supplier = a.SupplierName
+            //                                       };
+            return Query.AsQueryable();
+
+        }
+
+        public MemoryStream GenerateExcelMonIN(DateTime? dateFrom, DateTime? dateTo, string category, int offset)
+        {
+            var Query = GetReportQueryIN(dateFrom, dateTo, category, offset);
+
+            DataTable result = new DataTable();
+            result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No BUM", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor PO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor Surat Jalan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Masuk", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Buat Bon", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Gudang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Asal Terima", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Keterangan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor RO", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Diterima", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Kecil", DataType = typeof(String) });
+
+
+            List<(string, Enum, Enum)> mergeCells = new List<(string, Enum, Enum)>() { };
+
+            if (Query.ToArray().Count() == 0)
+            {
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",""); // to allow column name to be generated properly for empty data as template
+            }
+            else
+            {
+                int index = 0;
+                foreach (GarmentUnitReceiptNoteINReportViewModel data in Query)
+                {
+                    index++;
+                    string tgl1 = data.TanggalMasuk == null ? "-" : data.TanggalMasuk.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    //string tgl2 = data.TanggalBuatBon == null ? "-" : data.TanggalBuatBon.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    result.Rows.Add(index, data.NoBUM, data.NoPO, data.NoSuratJalan, data.UNit, tgl1, data.TanggalBuatBon, data.Gudang, data.Supplier, data.AsalTerima, data.KodeBarang, data.NamaBarang, data.Keterangan, data.NoRO, data.JumlahDiterima, data.Satuan, data.JumlahKecil);
+
+                }
+
+            }
+
+            return Excel.CreateExcel(new List<(DataTable, string, List<(string, Enum, Enum)>)>() { (result, "Report", mergeCells) }, true);
+        }
+
     }
 }

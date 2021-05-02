@@ -17,6 +17,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 {
@@ -25,12 +26,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
         private readonly PurchasingDbContext dbContext;
         public readonly IServiceProvider serviceProvider;
         private readonly DbSet<PurchasingDocumentExpedition> dbSet;
+        private readonly DbSet<UnitPaymentOrder> unitPaymentOrderDbSet;
+
+        //var unitPaymentOrderDbSet = dbContext.Set<UnitPaymentOrder>();
+
 
         public PurchasingDocumentExpeditionFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
         {
             this.serviceProvider = serviceProvider;
             this.dbContext = dbContext;
             this.dbSet = dbContext.Set<PurchasingDocumentExpedition>();
+            unitPaymentOrderDbSet = dbContext.Set<UnitPaymentOrder>();
         }
 
         public Tuple<List<object>, int, Dictionary<string, string>> Read(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
@@ -58,7 +64,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     IsPaid = s.IsPaid,
                     IsPaidPPH = s.IsPaidPPH,
                     VerifyDate = s.VerifyDate,
-                    LastModifiedUtc = s.LastModifiedUtc
+                    LastModifiedUtc = s.LastModifiedUtc,
+                    Active = s.Active,
+                    IsDeleted = s.IsDeleted,
+                    Vat = s.Vat,
+                    IncomeTax = s.IncomeTax
                 });
 
             List<string> searchAttributes = new List<string>()
@@ -102,7 +112,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                    Currency = s.Currency,
                    Position = s.Position,
                    VerifyDate = s.VerifyDate,
-                   _LastModifiedUtc = s.LastModifiedUtc
+                   _LastModifiedUtc = s.LastModifiedUtc,
+                   s.Active,
+                   s.IsDeleted,
+                   s.IncomeTax,
+                   s.Vat
                }).ToList()
             );
 
@@ -216,7 +230,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             int Created = 0;
 
             using (var transaction = this.dbContext.Database.BeginTransaction())
-            {
+             {
                 try
                 {
                     List<string> unitPaymentOrders = new List<string>();
@@ -231,32 +245,48 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                                                                 .Include(d => d.Items)
                                                                 .FirstOrDefault(p => p.UnitPaymentOrderNo == purchasingDocumentExpedition.UnitPaymentOrderNo && p.IsDeleted == false);
 
-                        if (existing != null)
+                        purchasingDocumentExpedition.Position = ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION;
+                        purchasingDocumentExpedition.Active = true;
+                        purchasingDocumentExpedition.SendToVerificationDivisionBy = username;
+
+                        foreach (PurchasingDocumentExpeditionItem purchasingDocumentExpeditionItem in purchasingDocumentExpedition.Items)
                         {
-                            existing.Position = ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION;
-                            existing.Active = true;
-                            existing.SendToVerificationDivisionBy = username;
-                            EntityExtension.FlagForUpdate(existing, username, "Facade");
-                            this.dbSet.Update(existing);
+
+                            EntityExtension.FlagForCreate(purchasingDocumentExpeditionItem, username, "Facade");
+
                         }
-                        else if (existing == null)
-                        {
-                            purchasingDocumentExpedition.Position = ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION;
-                            purchasingDocumentExpedition.Active = true;
-                            purchasingDocumentExpedition.SendToVerificationDivisionBy = username;
 
-                            foreach (PurchasingDocumentExpeditionItem purchasingDocumentExpeditionItem in purchasingDocumentExpedition.Items)
-                            {
-
-                                EntityExtension.FlagForCreate(purchasingDocumentExpeditionItem, username, "Facade");
-
-                            }
-
-                            EntityExtension.FlagForCreate(purchasingDocumentExpedition, username, "Facade");
+                        EntityExtension.FlagForCreate(purchasingDocumentExpedition, username, "Facade");
 
 
-                            this.dbSet.Add(purchasingDocumentExpedition);
-                        }
+                        this.dbSet.Add(purchasingDocumentExpedition);
+
+                        //if (existing != null)
+                        //{
+                        //    existing.Position = ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION;
+                        //    existing.Active = true;
+                        //    existing.SendToVerificationDivisionBy = username;
+                        //    EntityExtension.FlagForUpdate(existing, username, "Facade");
+                        //    this.dbSet.Update(existing);
+                        //}
+                        //else if (existing == null)
+                        //{
+                        //    purchasingDocumentExpedition.Position = ExpeditionPosition.SEND_TO_VERIFICATION_DIVISION;
+                        //    purchasingDocumentExpedition.Active = true;
+                        //    purchasingDocumentExpedition.SendToVerificationDivisionBy = username;
+
+                        //    foreach (PurchasingDocumentExpeditionItem purchasingDocumentExpeditionItem in purchasingDocumentExpedition.Items)
+                        //    {
+
+                        //        EntityExtension.FlagForCreate(purchasingDocumentExpeditionItem, username, "Facade");
+
+                        //    }
+
+                        //    EntityExtension.FlagForCreate(purchasingDocumentExpedition, username, "Facade");
+
+
+                        //    this.dbSet.Add(purchasingDocumentExpedition);
+                        //}
                         Created = await dbContext.SaveChangesAsync();
 
                     }
@@ -350,6 +380,35 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         UpdateUnitPaymentOrderPosition(unitPaymentOrders, ExpeditionPosition.CASHIER_DIVISION, username);
                     }
                     #endregion Cashier
+                    #region Accounting
+                    else if (data.Role.Equals("ACCOUNTING"))
+                    {
+                        foreach (PurchasingDocumentAcceptanceItem item in data.PurchasingDocumentExpedition)
+                        {
+                            unitPaymentOrders.Add(item.UnitPaymentOrderNo);
+
+                            PurchasingDocumentExpedition model = new PurchasingDocumentExpedition
+                            {
+                                Id = item.Id,
+                                AccountingDivisionBy = username,
+                                AccountingDivisionDate = DateTimeOffset.UtcNow,
+                                Position = ExpeditionPosition.FINANCE_DIVISION,
+                            };
+
+                            EntityExtension.FlagForUpdate(model, username, "Facade");
+                            //dbContext.Attach(model);
+                            dbContext.Entry(model).Property(x => x.AccountingDivisionBy).IsModified = true;
+                            dbContext.Entry(model).Property(x => x.AccountingDivisionDate).IsModified = true;
+                            dbContext.Entry(model).Property(x => x.Position).IsModified = true;
+                            dbContext.Entry(model).Property(x => x.LastModifiedAgent).IsModified = true;
+                            dbContext.Entry(model).Property(x => x.LastModifiedBy).IsModified = true;
+                            dbContext.Entry(model).Property(x => x.LastModifiedUtc).IsModified = true;
+                        }
+
+                        Updated = await dbContext.SaveChangesAsync();
+                        UpdateUnitPaymentOrderPosition(unitPaymentOrders, ExpeditionPosition.FINANCE_DIVISION, username);
+                    }
+                    #endregion Accounting
                     /*
                     #region Finance
                     else if (data.Role.Equals("FINANCE"))
@@ -631,17 +690,34 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             //}
 
             //dbContext.SaveChanges();
-            string unitPaymentOrderUri = "unit-payment-orders/update/position";
 
-            var data = new
+
+            //unitPaymentOrder
+
+            var unitPaymentOrderModels = unitPaymentOrderDbSet.Where(w => unitPaymentOrders.Contains(w.UPONo)).ToList();
+            foreach (var unitPaymentOrder in unitPaymentOrderModels)
             {
-                position = position,
-                unitPaymentOrders = unitPaymentOrders
-            };
+                unitPaymentOrder.Position = (int)position;
+                EntityExtension.FlagForUpdate(unitPaymentOrder, username, "Facade");
+            }
 
-            IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
-            var response = httpClient.PutAsync($"{APIEndpoint.Purchasing}{unitPaymentOrderUri}", new StringContent(JsonConvert.SerializeObject(data).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
-            response.EnsureSuccessStatusCode();
+            dbContext.SaveChanges();
+
+            //unitPaymentOrderModels.UpdateRa
+
+
+
+            //string unitPaymentOrderUri = "unit-payment-orders/update/position";
+
+            //var data = new
+            //{
+            //    position = position,
+            //    unitPaymentOrders = unitPaymentOrders
+            //};
+
+            //IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
+            //var response = httpClient.PutAsync($"{APIEndpoint.Purchasing}{unitPaymentOrderUri}", new StringContent(JsonConvert.SerializeObject(data).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
+            //response.EnsureSuccessStatusCode();
         }
     }
 }

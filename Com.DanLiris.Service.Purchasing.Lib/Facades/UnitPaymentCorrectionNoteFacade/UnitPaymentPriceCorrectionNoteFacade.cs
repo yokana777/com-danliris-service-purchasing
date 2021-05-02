@@ -1,5 +1,6 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
@@ -10,6 +11,7 @@ using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
@@ -17,6 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteFacade
 {
@@ -154,14 +157,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
 
                     foreach (var item in model.Items)
                     {
+                        
                         UnitPaymentOrderDetail upoDetail = dbContext.UnitPaymentOrderDetails.FirstOrDefault(s => s.Id == item.UPODetailId);
+                        item.PricePerDealUnitBefore = upoDetail.PricePerDealUnit;
+                        item.PriceTotalBefore = upoDetail.PriceTotal;
                         upoDetail.PricePerDealUnitCorrection = item.PricePerDealUnitAfter;
                         upoDetail.PriceTotalCorrection = item.PriceTotalAfter;
+
+                        if (item.PriceTotalAfter > 0 && item.PricePerDealUnitAfter <= 0)
+                        {
+                            upoDetail.PricePerDealUnitCorrection = upoDetail.PricePerDealUnit;
+                        }
+                            
                         EntityExtension.FlagForCreate(item, username, USER_AGENT);
                     }
 
                     this.dbSet.Add(model);
                     Created = await dbContext.SaveChangesAsync();
+                    Created += await AddCorrections(model, username);
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -202,7 +215,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
             IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
             if (httpClient != null)
             {
-                var response = httpClient.GetAsync($"{APIEndpoint.Core}{supplierUri}/{supplierId}").Result.Content.ReadAsStringAsync();
+                var resu = httpClient.GetAsync($"{APIEndpoint.Core}{supplierUri}/{supplierId}").Result;
+                var response = resu.Content.ReadAsStringAsync();
                 Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
                 SupplierViewModel viewModel = JsonConvert.DeserializeObject<SupplierViewModel>(result.GetValueOrDefault("data").ToString());
                 return viewModel;
@@ -423,5 +437,37 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
             }
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Sheet1") }, true);
         }
+
+        private async Task<int> AddCorrections(UnitPaymentCorrectionNote model, string username)
+        {
+            var internalPOFacade = serviceProvider.GetService<InternalPurchaseOrderFacade>();
+            int count = 0;
+            foreach (var item in model.Items)
+            {
+
+                var fulfillment = await dbContext.InternalPurchaseOrderFulfillments.AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.UnitPaymentOrderId == model.UPOId && x.UnitPaymentOrderDetailId == item.UPODetailId);
+
+                if(fulfillment != null)
+                {
+                    fulfillment.Corrections.Add(new InternalPurchaseOrderCorrection()
+                    {
+                        CorrectionDate = model.CorrectionDate,
+                        CorrectionNo = model.UPCNo,
+                        CorrectionPriceTotal = item.PriceTotalAfter,
+                        CorrectionQuantity = item.Quantity,
+                        CorrectionRemark = model.Remark,
+                        UnitPaymentCorrectionId = model.Id,
+                        UnitPaymentCorrectionItemId = item.Id
+                    });
+
+                    count += await internalPOFacade.UpdateFulfillmentAsync(fulfillment.Id, fulfillment, username);
+                }
+            }
+
+            return count;
+        }
+
+        
     }
 }

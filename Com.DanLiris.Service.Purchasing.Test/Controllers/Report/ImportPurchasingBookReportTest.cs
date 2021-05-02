@@ -1,5 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.Report;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote;
+using Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Report;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -7,46 +15,142 @@ using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Report
 {
-    [Collection("TestServerFixture Collection")]
     public class ImportPurchasingBookReportTest
     {
-        private const string MediaType = "application/json";
-        private readonly string URI = "v1/report/import-purchasing-book-reports";
-        private readonly List<string> CreateValidationAttributes;
-
-        private TestServerFixture TestFixture { get; set; }
-
-        private HttpClient Client
-        {
-            get { return this.TestFixture.Client; }
-        }
-
-        public ImportPurchasingBookReportTest(TestServerFixture fixture)
-        {
-            TestFixture = fixture;
-        }
-
-        //[Fact]
-        //public async Task Should_Success_Get_Report()
+        //protected int GetStatusCode(IActionResult response)
         //{
-        //    var response = await this.Client.GetAsync(URI);
-        //    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-
-        //    var json = await response.Content.ReadAsStringAsync();
-        //    Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(json.ToString());
-
-        //    Assert.True(result.ContainsKey("apiVersion"));
-        //    Assert.True(result.ContainsKey("message"));
-        //    Assert.True(result.ContainsKey("data"));
-        //    Assert.True(result["data"].GetType().Name.Equals("JArray"));
+        //    return (int)response.GetType().GetProperty("StatusCode").GetValue(response, null);
         //}
 
-        [Fact]
-        public async Task Should_Success_Get_Report_Excel()
-        {
-            var response = await this.Client.GetAsync(URI + "/download");
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        }
+        //[Fact]
+        //public async Task Should_Success_GetLocalPurchasingBookReport()
+        //{
+        //    var mockFacade = new Mock<IImportPurchasingBookReportFacade>();
+        //    mockFacade.Setup(facade => facade.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(new LocalPurchasingBookReportViewModel());
+
+        //    var controller = new ImportPurchasingBookReportController(mockFacade.Object);
+        //    var response = await controller.Get(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>());
+
+        //    Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        //}
+
+        //[Fact]
+        //public async Task Should_Failed_GetLocalPurchasingBookReport_WithException()
+        //{
+        //    var mockFacade = new Mock<IImportPurchasingBookReportFacade>();
+        //    mockFacade.Setup(facade => facade.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>())).ThrowsAsync(new Exception());
+
+        //    var controller = new ImportPurchasingBookReportController(mockFacade.Object);
+        //    var response = await controller.Get(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>());
+
+        //    Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        //}
+
+        //[Fact]
+        //public async Task Should_Failed_GetLocalPurchasingBookReportXls()
+        //{
+        //    var mockFacade = new Mock<IImportPurchasingBookReportFacade>();
+        //    mockFacade.Setup(facade => facade.GenerateExcel(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(new MemoryStream());
+
+        //    var controller = new ImportPurchasingBookReportController(mockFacade.Object);
+        //    var response = await controller.Get(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>());
+
+        //    Assert.NotNull(response);
+        //}
+
+        //[Fact]
+        //public async Task Should_Failed_GetLocalPurchasingBookReportXls_WithException()
+        //{
+        //    var mockFacade = new Mock<IImportPurchasingBookReportFacade>();
+        //    mockFacade.Setup(facade => facade.GenerateExcel(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>())).ThrowsAsync(new Exception());
+
+        //    var controller = new ImportPurchasingBookReportController(mockFacade.Object);
+        //    var response = await controller.Get(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>());
+
+        //    Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        //}
+
+        //[Fact]
+        //public async Task Should_Success_GetXls()
+        //{
+        //    //Setup
+        //    var mockFacade = new Mock<IImportPurchasingBookReportFacade>();
+        //    mockFacade.Setup(facade => facade.GenerateExcel(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>())).ReturnsAsync(new MemoryStream());
+
+        //    //Act
+        //    var controller = new ImportPurchasingBookReportController(mockFacade.Object);
+        //    var response = await controller.GetXls(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>());
+
+        //    //Assert
+        //    Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.GetType().GetProperty("ContentType").GetValue(response, null));
+        //    Assert.Equal("Laporan Buku Pembelian Impor 01-01-0001_01-01-0001.xlsx", response.GetType().GetProperty("FileDownloadName").GetValue(response, null));
+        //}
+
+        //[Fact]
+        //public async Task Should_Throws_InternalServerError_GetXls()
+        //{
+        //    //Setup
+        //    var mockFacade = new Mock<IImportPurchasingBookReportFacade>();
+        //    mockFacade.Setup(facade => facade.GenerateExcel(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>())).Throws(new Exception());
+
+        //    //Act
+        //    var controller = new ImportPurchasingBookReportController(mockFacade.Object);
+        //    var response = await controller.GetXls(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>());
+
+        //    //Assert
+        //    Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        //}
+
+        //[Fact]
+        //public async Task Should_Success_GetImportPurchasingBookReport_Pdf()
+        //{
+        //    var mockFacade = new Mock<IImportPurchasingBookReportFacade>();
+        //    mockFacade.Setup(facade => facade.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(new LocalPurchasingBookReportViewModel()
+        //    {
+        //        CategorySummaries = new List<Summary>() { new Summary() },
+        //        CategorySummaryTotal = 1,
+        //        CurrencySummaries = new List<Summary>() { new Summary() },
+        //        GrandTotal = 1,
+        //        Reports = new List<PurchasingReport>() { new PurchasingReport() }
+        //    });
+
+        //    var controller = new ImportPurchasingBookReportController(mockFacade.Object)
+        //    {
+        //        ControllerContext = new ControllerContext()
+        //        {
+        //            HttpContext = new DefaultHttpContext()
+        //            {
+                        
+        //            }
+        //        }
+        //    };
+        //    controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "1";
+        //    var response = await controller.GetPdf(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>());
+
+        //    Assert.NotNull(response);
+        //}
+
+        //[Fact]
+        //public async Task Should_Failed_GetImportPurchasingBookReport_Pdf_WithException()
+        //{
+        //    var mockFacade = new Mock<IImportPurchasingBookReportFacade>();
+        //    mockFacade.Setup(facade => facade.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>())).ThrowsAsync(new Exception());
+
+        //    var controller = new ImportPurchasingBookReportController(mockFacade.Object) 
+        //    {
+        //        ControllerContext = new ControllerContext()
+        //        {
+        //            HttpContext = new DefaultHttpContext()
+        //            {
+                        
+        //            }
+        //        }
+        //    };
+        //    controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "1";
+        //    var response = await controller.GetPdf(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>());
+
+        //    Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        //}
 
     }
 }

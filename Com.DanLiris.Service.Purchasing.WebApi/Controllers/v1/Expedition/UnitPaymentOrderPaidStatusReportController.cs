@@ -27,11 +27,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
         }
 
         [HttpGet]
-        public ActionResult Get(int Size, int Page, string Order, string UnitPaymentOrderNo, string SupplierCode, string DivisionCode, string Status, DateTimeOffset? DateFrom, DateTimeOffset? DateTo)
+        public ActionResult Get(int Size, int Page, string Order, string UnitPaymentOrderNo, string SupplierCode, string DivisionCode, string SupplierType, string PaymentMethod, string Status, DateTimeOffset? DateFromDue, DateTimeOffset? DateToDue, DateTimeOffset? DateFrom, DateTimeOffset? DateTo)
         {
             int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
-            ReadResponse<object> response = this.unitPaymentOrderPaidStatusReportFacade.GetReport(Size, Page, Order, UnitPaymentOrderNo, SupplierCode, DivisionCode, Status, DateFrom, DateTo, clientTimeZoneOffset);
+            ReadResponse<object> response = this.unitPaymentOrderPaidStatusReportFacade.GetReport(Size, Page, Order, UnitPaymentOrderNo, SupplierCode, DivisionCode, SupplierType, PaymentMethod, Status, DateFromDue, DateToDue, DateFrom, DateTo, clientTimeZoneOffset);
 
             return Ok(new
             {

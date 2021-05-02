@@ -55,13 +55,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
             }
         }
 
-        private ServiceValidationExeption GetServiceValidationExeption()
-        {
-            Mock<IServiceProvider> serviceProvider = new Mock<IServiceProvider>();
-            List<ValidationResult> validationResults = new List<ValidationResult>();
-            System.ComponentModel.DataAnnotations.ValidationContext validationContext = new System.ComponentModel.DataAnnotations.ValidationContext(this.ViewModel, serviceProvider.Object, null);
-            return new ServiceValidationExeption(validationContext, validationResults);
-        }
 
         private Mock<IServiceProvider> GetServiceProvider()
         {
@@ -77,7 +70,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
             return serviceProvider;
         }
 
-        private UnitPaymentPriceCorrectionNoteReportController GetController(Mock<IUnitPaymentPriceCorrectionNoteFacade> facadeM, Mock<IValidateService> validateM, Mock<IMapper> mapper)
+        private UnitPaymentPriceCorrectionNoteReportController GetController(Mock<IServiceProvider> serviceProviderMock,Mock<IMapper> mapper, Mock<IUnitPaymentPriceCorrectionNoteFacade> facade)
         {
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
@@ -86,12 +79,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
             };
             user.Setup(u => u.Claims).Returns(claims);
 
-            var servicePMock = GetServiceProvider();
-            servicePMock
-                .Setup(x => x.GetService(typeof(IValidateService)))
-                .Returns(validateM.Object);
-
-            UnitPaymentPriceCorrectionNoteReportController controller = new UnitPaymentPriceCorrectionNoteReportController(servicePMock.Object, mapper.Object, facadeM.Object)
+            UnitPaymentPriceCorrectionNoteReportController controller = new UnitPaymentPriceCorrectionNoteReportController(serviceProviderMock.Object, mapper.Object, facade.Object)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -113,34 +101,49 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
             return (int)response.GetType().GetProperty("StatusCode").GetValue(response, null);
         }
 
-        [Fact]
-        public void Should_Success_Get_Report_Data()
-        {
-            var mockFacade = new Mock<IUnitPaymentPriceCorrectionNoteFacade>();
-            mockFacade.Setup(x => x.GetReport(null,null, It.IsAny<int>(), It.IsAny<int>(), "{}",It.IsAny<int>()))
-                .Returns(Tuple.Create( new List<UnitPaymentPriceCorrectionNoteReportViewModel> { ViewModel },25));
 
-            var mockMapper = new Mock<IMapper>();
-            mockMapper.Setup(x => x.Map<List<UnitPaymentPriceCorrectionNoteReportViewModel>>(It.IsAny<List<UnitPaymentCorrectionNote>>()))
+        [Fact]
+        public void GetReport_Return_OK()
+        {
+            //Setup
+            var facadeMock = new Mock<IUnitPaymentPriceCorrectionNoteFacade>();
+            facadeMock
+                .Setup(x => x.GetReport(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(Tuple.Create(new List<UnitPaymentPriceCorrectionNoteReportViewModel> { ViewModel }, 25));
+
+            var mapperMock = new Mock<IMapper>();
+            mapperMock
+                .Setup(x => x.Map<List<UnitPaymentPriceCorrectionNoteReportViewModel>>(It.IsAny<List<UnitPaymentCorrectionNote>>()))
                 .Returns(new List<UnitPaymentPriceCorrectionNoteReportViewModel> { ViewModel });
 
-            var user = new Mock<ClaimsPrincipal>();
-            var claims = new Claim[]
-            {
-                new Claim("username", "unittestusername")
-            };
-            user.Setup(u => u.Claims).Returns(claims);
-            UnitPaymentPriceCorrectionNoteReportController controller = new UnitPaymentPriceCorrectionNoteReportController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
-            controller.ControllerContext = new ControllerContext()
-            {
-                HttpContext = new DefaultHttpContext()
-                {
-                    User = user.Object
-                }
-            };
-            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-            var response = controller.GetReport(null,null,1, 25, "{}");
+            //Act
+            UnitPaymentPriceCorrectionNoteReportController controller = GetController(GetServiceProvider(), mapperMock, facadeMock);
+            var response = controller.GetReport(null, null, 1, 25, "{}");
+
+            //Assert
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void GetReport_Return_InternalServerError()
+        {
+            //Setup
+            var facadeMock = new Mock<IUnitPaymentPriceCorrectionNoteFacade>();
+            facadeMock
+                .Setup(x => x.GetReport(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
+                .Throws(new Exception());
+
+            var mapperMock = new Mock<IMapper>();
+            mapperMock
+                .Setup(x => x.Map<List<UnitPaymentPriceCorrectionNoteReportViewModel>>(It.IsAny<List<UnitPaymentCorrectionNote>>()))
+                .Returns(new List<UnitPaymentPriceCorrectionNoteReportViewModel> { ViewModel });
+
+            //Act
+            UnitPaymentPriceCorrectionNoteReportController controller = GetController(GetServiceProvider(), mapperMock, facadeMock);
+            var response = controller.GetReport(null, null, 1, 25, "{}");
+
+            //Assert
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
         [Fact]
@@ -200,7 +203,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
             };
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
             var response = controller.GetXls(null, null);
-            Assert.Equal(null, response.GetType().GetProperty("FileStream"));
+            Assert.Null(response.GetType().GetProperty("FileStream"));
         }
     }
 }

@@ -50,7 +50,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
             return serviceProvider;
         }
 
-        private GarmentExternalPurchaseOrderDeliveryOrderDurationReportController GetController(Mock<IGarmentExternalPurchaseOrderFacade> facadeM, Mock<IValidateService> validateM, Mock<IMapper> mapper, Mock<IGarmentInternalPurchaseOrderFacade> facadeIPO)
+        private GarmentExternalPurchaseOrderDeliveryOrderDurationReportController GetController(Mock<IServiceProvider> serviceProviderMock, Mock<IMapper> mapper, Mock<IGarmentExternalPurchaseOrderFacade> facade)
         {
             var user = new Mock<ClaimsPrincipal>();
             var claims = new Claim[]
@@ -59,15 +59,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
             };
             user.Setup(u => u.Claims).Returns(claims);
 
-            var servicePMock = GetServiceProvider();
-            if (validateM != null)
-            {
-                servicePMock
-                    .Setup(x => x.GetService(typeof(IValidateService)))
-                    .Returns(validateM.Object);
-            }
-
-            var controller = new GarmentExternalPurchaseOrderDeliveryOrderDurationReportController(servicePMock.Object, mapper.Object, facadeM.Object)
+            var controller = new GarmentExternalPurchaseOrderDeliveryOrderDurationReportController(serviceProviderMock.Object, mapper.Object, facade.Object)
             {
                 ControllerContext = new ControllerContext()
                 {
@@ -87,6 +79,29 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
         protected int GetStatusCode(IActionResult response)
         {
             return (int)response.GetType().GetProperty("StatusCode").GetValue(response, null);
+        }
+
+        [Fact]
+        public void Should_Fail_GetReport()
+        {
+            //Setup
+            var serviceProviderMock = GetServiceProvider();
+            var facadeMock = new Mock<IGarmentExternalPurchaseOrderFacade>();
+            facadeMock
+                .Setup(x => x.GetEPODODurationReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
+                .Throws(new Exception());
+
+            var mapperMock = new Mock<IMapper>();
+            mapperMock
+                .Setup(x => x.Map<List<GarmentExternalPurchaseOrderDeliveryOrderDurationReportViewModel>>(It.IsAny<List<GarmentExternalPurchaseOrder>>()))
+                .Returns(new List<GarmentExternalPurchaseOrderDeliveryOrderDurationReportViewModel> { ViewModel });
+
+            //Act
+            GarmentExternalPurchaseOrderDeliveryOrderDurationReportController controller =GetController(serviceProviderMock, mapperMock, facadeMock);
+            var response = controller.GetReport(null, null, null, null, null, 1, 25, "{}");
+
+            //Assert
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
         [Fact]
@@ -176,7 +191,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
             };
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
             var response = controller.GetXls(null, null, "0-30 hari", null, null);
-            Assert.Equal(null, response.GetType().GetProperty("FileStream"));
+            Assert.Null(response.GetType().GetProperty("FileStream"));
         }
     }
 }

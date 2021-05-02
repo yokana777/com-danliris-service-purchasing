@@ -22,6 +22,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.Expedition
         public double TotalIncomeTax { get; set; }
         public double TotalDPP { get; set; }
         public string Currency { get; set; }
+        public double? CurrencyRate { get; set; }
+        public bool IsPosted { get; set; }
         public virtual ICollection<PPHBankExpenditureNoteItem> Items { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

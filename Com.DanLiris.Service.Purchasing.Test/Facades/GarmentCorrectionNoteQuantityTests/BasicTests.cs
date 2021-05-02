@@ -106,7 +106,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteQuan
 
         private GarmentCorrectionNoteQuantityDataUtil dataUtil(GarmentCorrectionNoteQuantityFacade facade, string testName)
         {
-            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(_dbContext(testName));
+            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(testName));
             var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
 
             var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));
@@ -128,7 +128,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteQuan
             var facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestData(USERNAME);
             var Response = facade.Read();
-            Assert.NotEqual(Response.Item1.Count, 0);
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
@@ -137,7 +137,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteQuan
             var facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestData(USERNAME);
             var Response = facade.ReadById((int)data.Id);
-            Assert.NotEqual(Response.Id, 0);
+            Assert.NotEqual(0, Response.Id);
         }
 
         [Fact]
@@ -146,7 +146,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteQuan
             var facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             var Response = await facade.Create(data,false, USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
         }
 
         [Fact]
@@ -155,11 +155,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteQuan
             var facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithTax();
             var Response = await facade.Create(data,false,USERNAME);
-            Assert.NotEqual(Response, 0);
+            Assert.NotEqual(0, Response);
 
             var data2nd = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithTax();
             var Response2nd = await facade.Create(data2nd,false,USERNAME);
-            Assert.NotEqual(Response2nd, 0);
+            Assert.NotEqual(0, Response2nd);
         }
 
         [Fact]
@@ -220,11 +220,39 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentCorrectionNoteQuan
                 {
                     new GarmentCorrectionNoteItemViewModel
                     {
-                        Quantity = 0
+                        Quantity = 0,
+
+                        DODetailId = 0,
+                        EPOId = 0,
+                        EPONo = null,
+                        PRId = 0,
+                        PRNo = null,
+                        POId = 0,
+                        POSerialNumber = null,
+                        RONo = null,
+                        Product = null,
+                        Uom = null
                     },
-                }
+                },
+
+                DOId = 0,
+                Currency = null,
+                IncomeTax = null,
+                Remark = null,
+                TotalCorrection = 0,
+                NKPH = null,
+                NKPN = null
             };
             Assert.True(viewModel.Validate(null).Count() > 0);
+        }
+        [Fact]
+        public async Task Should_Success_Get_Data()
+        {
+            var facade = new GarmentCorrectionNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var facadeQty = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facadeQty, GetCurrentMethod()).GetTestData(USERNAME);
+            var Response = facade.Read();
+            Assert.NotEmpty(Response.Item1);
         }
     }
 }

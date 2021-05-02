@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Facades;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.DeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.DeliveryOrderViewModel;
@@ -22,14 +23,16 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.DeliveryOrderCon
     {
         private string ApiVersion = "1.0.0";
         private readonly IMapper mapper;
-        private readonly DeliveryOrderFacade facade;
+        private readonly IDeliveryOrderFacade facade;
         private readonly IdentityService identityService;
+        private readonly IServiceProvider _serviceProvider;
 
-        public DeliveryOrderController(IMapper mapper, DeliveryOrderFacade facade, IdentityService identityService)
+        public DeliveryOrderController(IMapper mapper, IDeliveryOrderFacade facade, IServiceProvider serviceProvider)
         {
             this.mapper = mapper;
             this.facade = facade;
-            this.identityService = identityService;
+            _serviceProvider = serviceProvider;
+            identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
         }
 
         [HttpGet]
@@ -131,7 +134,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.DeliveryOrderCon
             identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-            ValidateService validateService = (ValidateService)facade.serviceProvider.GetService(typeof(ValidateService));
+            IValidateService validateService = (IValidateService)_serviceProvider.GetService(typeof(IValidateService));
 
             try
             {
@@ -169,7 +172,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.DeliveryOrderCon
 
             DeliveryOrder m = mapper.Map<DeliveryOrder>(vm);
 
-            ValidateService validateService = (ValidateService)facade.serviceProvider.GetService(typeof(ValidateService));
+            IValidateService validateService = (IValidateService)_serviceProvider.GetService(typeof(IValidateService));
 
             try
             {

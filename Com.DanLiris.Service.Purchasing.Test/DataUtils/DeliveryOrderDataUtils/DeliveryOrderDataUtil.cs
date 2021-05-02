@@ -1,5 +1,6 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Facades;
 using Com.DanLiris.Service.Purchasing.Lib.Models.DeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.DeliveryOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
@@ -40,6 +41,40 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils
             };
         }
 
+        public async Task<DeliveryOrder> GetNewDataValas(string user)
+        {
+            var externalPurchaseOrder = await externalPurchaseOrderDataUtil.GetTestDataUnusedValas(user);
+            return new DeliveryOrder
+            {
+                DONo = DateTime.UtcNow.Ticks.ToString(),
+                DODate = DateTimeOffset.Now,
+                ArrivalDate = DateTimeOffset.Now,
+                SupplierId = externalPurchaseOrder.SupplierId,
+                SupplierCode = externalPurchaseOrder.SupplierCode,
+                SupplierName = externalPurchaseOrder.SupplierName,
+                Remark = "Ini Keterangan",
+                Items = new List<DeliveryOrderItem> { deliveryOrderItemDataUtil.GetNewData(externalPurchaseOrder) }
+            };
+        }
+
+        public async Task<DeliveryOrder> GetNewHavingStockData(string user)
+        {
+            var externalPurchaseOrder = await externalPurchaseOrderDataUtil.GetTestHavingStockDataUnused(user);
+            return new DeliveryOrder
+            {
+                DONo = DateTime.UtcNow.Ticks.ToString(),
+                DODate = DateTimeOffset.Now,
+                ArrivalDate = DateTimeOffset.Now,
+                SupplierId = externalPurchaseOrder.SupplierId,
+                SupplierCode = externalPurchaseOrder.SupplierCode,
+                SupplierName = externalPurchaseOrder.SupplierName,
+                Remark = "Ini Keterangan",
+                Items = new List<DeliveryOrderItem> { deliveryOrderItemDataUtil.GetNewData(externalPurchaseOrder) }
+            };
+        }
+
+
+
         public async Task<DeliveryOrderViewModel> GetNewDataViewModel(string user)
         {
             var externalPurchaseOrder = await externalPurchaseOrderDataUtil.GetTestDataUnused(user);
@@ -63,6 +98,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils
         public async Task<DeliveryOrder> GetNewDataDummy(string user)
         {
             var externalPurchaseOrder = await externalPurchaseOrderDataUtil.GetTestDataUnused(user);
+            List<ExternalPurchaseOrderItem> EPOItem = new List<ExternalPurchaseOrderItem>(externalPurchaseOrder.Items);
+            List<ExternalPurchaseOrderDetail> EPODetail= new List<ExternalPurchaseOrderDetail>(EPOItem[0].Details);
             return new DeliveryOrder
             {
                 DONo = DateTime.UtcNow.Ticks.ToString(),
@@ -76,15 +113,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils
                 {
                     new DeliveryOrderItem()
                     {
-                        EPOId = 1,
+                        EPOId = externalPurchaseOrder.Id,
                         EPONo = "ExternalPONo",
                         Details = new List<DeliveryOrderDetail>
                         {
                             new DeliveryOrderDetail()
                             {
-                                EPODetailId = 1,
-                                POItemId = 1,
-                                PRId = 1,
+                                EPODetailId = EPODetail[0].Id,
+                                POItemId = EPOItem[0].POId,
+                                PRId = EPOItem[0].PRId,
                                 PRNo = "PRNo",
                                 PRItemId = 1,
                                 UnitId = "UnitId",
@@ -106,6 +143,24 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils
         public async Task<DeliveryOrder> GetTestData(string user)
         {
             DeliveryOrder model = await GetNewData(user);
+
+            await facade.Create(model, user);
+
+            return model;
+        }
+
+        public async Task<DeliveryOrder> GetTestDataValas(string user)
+        {
+            DeliveryOrder model = await GetNewDataValas(user);
+
+            await facade.Create(model, user);
+
+            return model;
+        }
+
+        public async Task<DeliveryOrder> GetTestHavingStockData(string user)
+        {
+            DeliveryOrder model = await GetNewHavingStockData(user);
 
             await facade.Create(model, user);
 

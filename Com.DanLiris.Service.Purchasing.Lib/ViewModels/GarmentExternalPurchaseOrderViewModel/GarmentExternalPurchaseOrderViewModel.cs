@@ -43,6 +43,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
         public string LightMedPerspiration { get; set; }
         public string PieceLength { get; set; }
 
+        public long? UENId { get; set; }
+
+        public double BudgetRate { get; set; }
+
+        public bool IsPayVAT { get; set; }
+        public bool IsPayIncomeTax { get; set; }
+
         public List<GarmentExternalPurchaseOrderItemViewModel> Items { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -128,11 +135,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
                         itemError += "DealQuantity: 'Quantity harus lebih dari 0', ";
                     }
 
-                    //if (item.BudgetPrice <= 0)
-                    //{
-                    //    itemErrorCount++;
-                    //    itemError += "BudgetPrice: 'BudgetPrice harus lebih dari 0', ";
-                    //}
+                    if (item.PricePerDealUnit <= 0)
+                    {
+                        itemErrorCount++;
+                        itemError += "PricePerDealUnit: 'Harga harus lebih dari 0', ";
+                    }
 
                     if (item.DealUom == null)
                     {
@@ -143,6 +150,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
                     {
                         itemErrorCount++;
                         itemError += "DealUom: 'Data Satuan tidak benar', ";
+                    }
+                    if (item.SmallUom == null)
+                    {
+                        itemErrorCount++;
+                        itemError += "SmallUom: 'Satuan Kacil tidak boleh kosong', ";
+                    }
+                    else if (String.IsNullOrWhiteSpace(item.SmallUom.Id) || item.SmallUom.Id.Equals("0") || String.IsNullOrWhiteSpace(item.SmallUom.Unit))
+                    {
+                        itemErrorCount++;
+                        itemError += "SmallUom: 'Data Satuan Kecil tidak benar', ";
                     }
                     if (item.IsOverBudget && !((PaymentMethod == "CMT" || PaymentMethod == "FREE FROM BUYER") && (PaymentType == "FREE" || PaymentType == "EX MASTER FREE")))
                     {

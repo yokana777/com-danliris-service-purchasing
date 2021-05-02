@@ -34,7 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
 
         public Tuple<List<GarmentInternalPurchaseOrder>, int, Dictionary<string, string>> Read(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
-            IQueryable<GarmentInternalPurchaseOrder> Query = this.dbSet.Include(m => m.Items);
+            IQueryable<GarmentInternalPurchaseOrder> Query = this.dbSet.Include(x => x.Items);
 
             List<string> searchAttributes = new List<string>()
             {
@@ -45,6 +45,31 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
 
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
             Query = QueryHelper<GarmentInternalPurchaseOrder>.ConfigureFilter(Query, FilterDictionary);
+
+            //Query = Query.Select(m => new GarmentInternalPurchaseOrder
+            //{
+            //    Id = m.Id,
+            //    PRNo = m.PRNo,
+            //    RONo = m.RONo,
+            //    Article = m.Article,
+            //    ShipmentDate = m.ShipmentDate,
+            //    BuyerId = m.BuyerId,
+            //    BuyerCode = m.BuyerCode,
+            //    BuyerName = m.BuyerName,
+            //    Items = m.Items.Select(i => new GarmentInternalPurchaseOrderItem
+            //    {
+            //        ProductId = i.ProductId,
+            //        ProductCode = i.ProductCode,
+            //        ProductName = i.ProductName,
+            //        ProductRemark = i.ProductRemark,
+            //        Quantity = i.Quantity,
+            //        UomId = i.UomId,
+            //        UomUnit = i.UomUnit
+            //    }).ToList(),
+            //    CreatedBy = m.CreatedBy,
+            //    IsPosted = m.IsPosted,
+            //    LastModifiedUtc = m.LastModifiedUtc
+            //});
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             if (OrderDictionary.Count > 0 && OrderDictionary.Keys.First().Contains("."))
@@ -319,17 +344,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
         }
 		public List<GarmentInternalPurchaseOrder> ReadName(string Keyword = null, string Filter = "{}")
 		{
-			IQueryable<GarmentInternalPurchaseOrder> Query = this.dbSet;
+			//IQueryable<GarmentInternalPurchaseOrder> Query = this.dbSet;
 
-			List<string> searchAttributes = new List<string>()
-			{
-				"CreatedBy",
-			};
+			//List<string> searchAttributes = new List<string>()
+			//{
+			//	"CreatedBy",
+			//};
 
-			Query = QueryHelper<GarmentInternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, Keyword); // kalo search setelah Select dengan .Where setelahnya maka case sensitive, kalo tanpa .Where tidak masalah
+			//Query = QueryHelper<GarmentInternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, Keyword); // kalo search setelah Select dengan .Where setelahnya maka case sensitive, kalo tanpa .Where tidak masalah
 
-			Query = Query
-				.Where(m =>m.IsDeleted == false && m.CreatedBy.Contains(Keyword))
+			var Query = this.dbSet
+				.Where(x => !x.IsDeleted && x.CreatedBy.Contains(Keyword))
 				.Select(s => new GarmentInternalPurchaseOrder
 				{
 					CreatedBy = s.CreatedBy

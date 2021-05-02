@@ -22,6 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderVi
         public string supplierCode { get; set; }
         public string supplierName { get; set; }
         public string receivedDatePO { get; set; }
+        public string division { get; set; }
 
         //EPO
         public string epoDate { get; set; }
@@ -30,12 +31,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.InternalPurchaseOrderVi
         public string epoDeliveryDate { get; set; }
         public string epoNo { get; set; }
         public string currencyCode { get; set; }
+        public double epoQty { get; set; }
+        public string Uomepo { get; set; }
 
         //DO
         public string doDate { get; set; }
         public string doDeliveryDate { get; set; }
         public string doNo { get; set; }
         public long doDetailId { get; set; }
+        public double doQuantity { get; set; }
+        public string doUom { get; set; }
 
         //URN
         public string urnDate { get; set; }

@@ -9,6 +9,7 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureNoteV
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -71,6 +72,64 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
+        [HttpGet("custom-loader")]
+        public IActionResult GetCustomLoader(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}", Lib.Helpers.ConditionType conditionType = Lib.Helpers.ConditionType.ENUM_INT)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                var model = facade.ReadLoader(page, size, order, keyword, filter, conditionType);
+
+                var info = new Dictionary<string, object>
+                    {
+                        { "count", model.Data.Count },
+                        { "total", model.TotalData },
+                        { "order", model.Order },
+                        { "page", page },
+                        { "size", size }
+                    };
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(model.Data, info);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+        [HttpGet("by-user")]
+        public IActionResult GetByUser(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                string filterUser = string.Concat("'CreatedBy':'", identityService.Username, "'");
+                if (filter == null || !(filter.Trim().StartsWith("{") && filter.Trim().EndsWith("}")) || filter.Replace(" ", "").Equals("{}"))
+                {
+                    filter = string.Concat("{", filterUser, "}");
+                }
+                else
+                {
+                    filter = filter.Replace("}", string.Concat(", ", filterUser, "}"));
+                }
+
+                return Get(page, size, order, keyword, filter);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
 
         [HttpGet("{id}")]
         public IActionResult Get(int id)
@@ -96,6 +155,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
                             if (garmentUnitDOItem != null)
                             {
                                 item.DesignColor = garmentUnitDOItem.DesignColor;
+								item.RONo = garmentUnitDOItem.RONo;
                             }
                         }
 
@@ -130,7 +190,28 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
             }
         }
 
-        [HttpPost]
+		[HttpGet("ro-asal/{id}")]
+		public IActionResult GetROAsal(int id)
+		{
+			try
+			{
+				var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
+				var viewModel = facade.GetROAsalById(id);
+				Dictionary<string, object> Result =
+				new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+				.Ok(viewModel);
+				return Ok(Result);
+				 
+			}
+			catch (Exception e)
+			{
+				Dictionary<string, object> Result =
+					new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+					.Fail();
+				return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+			}
+		}
+		[HttpPost]
         public async Task<IActionResult> Post([FromBody]GarmentUnitExpenditureNoteViewModel viewModel)
         {
             try
@@ -216,6 +297,223 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
 
                 await facade.Delete(id);
                 return NoContent();
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> PatchOne(long id, [FromBody]JsonPatchDocument<GarmentUnitExpenditureNote> jsonPatch)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                await facade.PatchOne(id, jsonPatch);
+
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpGet("unit-expenditure-note")]
+        public IActionResult GetForGarmentPreparing(int page = 1, int size = 10, string order = "{}", string keyword = null, string filter = "{}")
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                var result = facade.ReadForGPreparing(page, size, order, keyword, filter);
+
+                var info = new Dictionary<string, object>
+                    {
+                        { "count", result.Data.Count },
+                        { "total", result.TotalData },
+                        { "order", result.Order },
+                        { "page", page },
+                        { "size", size }
+                    };
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(result.Data, info);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpPut("isPreparingTrue/{id}")]
+        public async Task<IActionResult> PutIsPreparingTrue(int id, [FromBody]GarmentUnitExpenditureNoteViewModel ViewModel)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                ViewModel.IsPreparing = true;
+
+                var model = mapper.Map<GarmentUnitExpenditureNote>(ViewModel);
+
+                await facade.UpdateIsPreparing(id, model);
+
+                return NoContent();
+            }
+           
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpPut("isPreparingFalse/{id}")]
+        public async Task<IActionResult> PutIsPreparingFalse(int id, [FromBody]GarmentUnitExpenditureNoteViewModel ViewModel)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                ViewModel.IsPreparing = false;
+
+                var model = mapper.Map<GarmentUnitExpenditureNote>(ViewModel);
+
+                await facade.UpdateIsPreparing(id, model);
+
+                return NoContent();
+            }
+            
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpPut("returQuantity/{id}")]
+        public async Task<IActionResult> PutReturQuantity(int id, [FromBody]Dictionary<string, double> ViewModel)
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
+                await facade.UpdateReturQuantity(id, ViewModel.GetValueOrDefault("ReturQuantity"), ViewModel.GetValueOrDefault("Quantity"));
+
+                return NoContent();
+            }
+            
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpGet("by-unit-expenditure-note/{id}")]
+        public IActionResult GetByUEN(int id)
+        {
+            try
+            {
+                var model = facade.ReadByUENId(id);
+
+                var viewModel = mapper.Map<GarmentUnitExpenditureNoteViewModel>(model);
+
+                if (viewModel == null)
+                {
+                    throw new Exception("Invalid Id");
+                }
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(viewModel);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+        [HttpGet("monitoring-out")]
+        public IActionResult GetMonitoringOut(DateTime? dateFrom, DateTime? dateTo, string type, int page, int size, string Order = "{}")
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+                identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
+
+                int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+                string accept = Request.Headers["Accept"];
+
+                var data = facade.GetReportOut(dateFrom, dateTo, type, page, size, Order, offset);
+
+
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    data = data.Item1,
+                    info = new { total = data.Item2 },
+                    message = General.OK_MESSAGE,
+                    statusCode = General.OK_STATUS_CODE
+                });
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+        [HttpGet("monitoring-out/download")]
+        public IActionResult GetXlsMonOut(DateTime? dateFrom, DateTime? dateTo, string type, int page, int size, string Order = "{}")
+        {
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+                identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
+
+                byte[] xlsInBytes;
+                int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+                var xls = facade.GenerateExcelMonOut(dateFrom, dateTo, type, offset);
+
+                string filename = "Monitoring Pengeluaran";
+                if (dateFrom != null) filename += " " + ((DateTime)dateFrom).ToString("dd-MM-yyyy");
+                if (dateTo != null) filename += "_" + ((DateTime)dateTo).ToString("dd-MM-yyyy");
+                filename += ".xlsx";
+
+                xlsInBytes = xls.ToArray();
+                var file = File(xlsInBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+                return file;
             }
             catch (Exception e)
             {

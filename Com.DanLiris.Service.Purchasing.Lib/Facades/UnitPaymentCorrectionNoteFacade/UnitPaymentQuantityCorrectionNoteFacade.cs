@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.InternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentCorrectionNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitReceiptNoteModel;
@@ -20,6 +22,7 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteFacade
 {
@@ -124,7 +127,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                         supplierImport = supplier.import;
                     }
                     m.UPCNo = await GenerateNo(m, clientTimeZoneOffset, supplierImport, m.DivisionName);
-                    if(m.useVat==true)
+                    if (m.useVat == true)
                     {
                         m.ReturNoteNo = await GeneratePONo(m, clientTimeZoneOffset);
                     }
@@ -136,10 +139,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                         EntityExtension.FlagForCreate(item, user, USER_AGENT);
                         foreach (var itemSpb in unitPaymentOrder.Items)
                         {
-                            foreach(var detailSpb in itemSpb.Details)
+                            foreach (var detailSpb in itemSpb.Details)
                             {
                                 if (item.UPODetailId == detailSpb.Id)
                                 {
+                                    if (detailSpb.QuantityCorrection <= 0)
+                                    {
+                                        detailSpb.QuantityCorrection = detailSpb.ReceiptQuantity;
+                                    }
+
                                     detailSpb.QuantityCorrection = detailSpb.QuantityCorrection - item.Quantity;
                                     ExternalPurchaseOrderDetail epoDetail = dbContext.ExternalPurchaseOrderDetails.FirstOrDefault(a => a.Id.Equals(detailSpb.EPODetailId));
                                     epoDetail.DOQuantity -= item.Quantity;
@@ -150,6 +158,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
 
                     this.dbSet.Add(m);
                     Created = await dbContext.SaveChangesAsync();
+                    Created += await AddCorrections(m, user);
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -231,7 +240,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
         {
             string supplierUri = "master/suppliers";
             IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
-            if (httpClient!=null)
+            if (httpClient != null)
             {
                 var response = httpClient.GetAsync($"{APIEndpoint.Core}{supplierUri}/{supplierId}").Result.Content.ReadAsStringAsync();
                 Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
@@ -243,7 +252,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                 SupplierViewModel viewModel = null;
                 return viewModel;
             }
-            
+
         }
 
         public UnitReceiptNote ReadByURNNo(string uRNNo)
@@ -453,5 +462,44 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
         }
         #endregion 
 
+        private async Task<int> AddCorrections(UnitPaymentCorrectionNote model, string username)
+        {
+            var internalPOFacade = serviceProvider.GetService<InternalPurchaseOrderFacade>();
+            int count = 0;
+            foreach (var item in model.Items)
+            {
+
+                var fulfillment = await dbContext.InternalPurchaseOrderFulfillments.AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.UnitPaymentOrderId == model.UPOId && x.UnitPaymentOrderDetailId == item.UPODetailId);
+
+                if (fulfillment != null)
+                {
+                    fulfillment.Corrections.Add(new InternalPurchaseOrderCorrection()
+                    {
+                        CorrectionDate = model.CorrectionDate,
+                        CorrectionNo = model.UPCNo,
+                        CorrectionPriceTotal = item.PriceTotalAfter,
+                        CorrectionQuantity = item.Quantity,
+                        CorrectionRemark = model.Remark,
+                        UnitPaymentCorrectionId = model.Id,
+                        UnitPaymentCorrectionItemId = item.Id
+                    });
+
+                    count += await internalPOFacade.UpdateFulfillmentAsync(fulfillment.Id, fulfillment, username);
+                }
+            }
+
+            return count;
+        }
+
+        public async Task<CorrectionState> GetCorrectionStateByUnitPaymentOrderId(int unitPaymentOrderId)
+        {
+            return new CorrectionState()
+            {
+                IsHavingPricePerUnitCorrection = await dbSet.AnyAsync(entity => entity.UPOId == unitPaymentOrderId && entity.CorrectionType == "Harga Satuan"),
+                IsHavingPriceTotalCorrection = await dbSet.AnyAsync(entity => entity.UPOId == unitPaymentOrderId && entity.CorrectionType == "Harga Total"),
+                IsHavingQuantityCorrection = await dbSet.AnyAsync(entity => entity.UPOId == unitPaymentOrderId && entity.CorrectionType == "Jumlah")
+            };
+        }
     }
 }
