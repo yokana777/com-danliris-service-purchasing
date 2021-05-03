@@ -153,8 +153,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
             }
             catch (Exception e)
             {
+                var innerException = e.InnerException != null ? e.InnerException.Message : "";
                 Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, $"- {e.Message}\n- {innerException}")
                     .Fail();
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
