@@ -692,7 +692,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             List<MutationBPCentralViewModel> mutations = new List<MutationBPCentralViewModel>();
 
-            foreach(var item in mutationgroup)
+            foreach(var item in mutationgroup.Where(x=>(x.ItemCode != "APL001") && (x.ItemCode != "EMB001") && (x.ItemCode != "GMT001") && (x.ItemCode != "PRN001") && (x.ItemCode != "SMP001") && (x.ItemCode != "WSH001") ).ToList())
             {
                 MutationBPCentralViewModel mutation = new MutationBPCentralViewModel()
                 {
@@ -714,6 +714,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
 
             mutations = mutations.OrderBy(x => x.ItemCode).ToList();
+
+            mutations = mutations.Where(x => x.ItemCode != "APL001" || x.ItemCode != "EMB001" || x.ItemCode != "GMT001" || x.ItemCode != "PRN001" || x.ItemCode != "SMP001" || x.ItemCode != "WSH001").ToList();
 
             var mm = new MutationBPCentralViewModel();
 
