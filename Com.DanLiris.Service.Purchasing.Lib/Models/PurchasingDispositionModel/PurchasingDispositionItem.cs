@@ -22,6 +22,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel
         [ForeignKey("PurchasingDispositionId")]
         public virtual PurchasingDisposition PurchasingDisposition { get; set; }
 
-        public virtual IEnumerable<PurchasingDispositionDetail> Details { get; set; }
+        public virtual ICollection<PurchasingDispositionDetail> Details { get; set; }
     }
 }
