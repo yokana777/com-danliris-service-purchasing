@@ -1173,7 +1173,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             return Tuple.Create(Data, TotalData, OrderDictionary);
         }
 
-        public Tuple<List<GarmentExternalPurchaseOrder>, int, Dictionary<string, string>> ReadItemByEPONoSimply(string EPONo = null, string Filter = "{}", int supplierId = 0, string currencyCode = null, int Page = 1, int Size = 10)
+        public Tuple<List<GarmentExternalPurchaseOrder>, int, Dictionary<string, string>> ReadItemByEPONoSimply(string EPONo = null, string Filter = "{}", int supplierId = 0, string currencyCode = null, string paymentType = null, int Page = 1, int Size = 10)
         {
             IQueryable<GarmentExternalPurchaseOrder> Query = this.dbSet.Include(s => s.Items).Where(m => m.IsPosted && m.IsClosed == false && m.IsDeleted == false && m.IsCanceled == false && m.IsDispositionPaidCreatedAll == false && m.Items.Any(t => t.IsDispositionCreatedAll == false)); ;
 
@@ -1188,6 +1188,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             {
                 Query = Query.Where(s => s.CurrencyCode == currencyCode);
             }
+
+            if (supplierId > 0)
+                Query = Query.Where(entity => entity.SupplierId == supplierId);
+
+            if (!string.IsNullOrWhiteSpace(paymentType))
+                Query = Query.Where(entity => entity.PaymentType == paymentType);
 
             Query = Query.Select(s => new GarmentExternalPurchaseOrder
             {

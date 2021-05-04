@@ -550,6 +550,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
         public ReadResponse<object> GetReport(int Size, int Page, string DocumentNo, string UnitPaymentOrderNo, string InvoiceNo, string SupplierCode, string DivisionCode, string PaymentMethod, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset)
         {
             IQueryable<BankExpenditureNoteReportViewModel> Query;
+            TimeSpan offset = new TimeSpan(7, 0, 0);
 
             DateFrom = DateFrom.HasValue ? DateFrom : DateTimeOffset.MinValue;
             DateTo = DateTo.HasValue ? DateTo : DateFrom.GetValueOrDefault().AddMonths(1);
@@ -625,7 +626,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                       );
             }
 
-            Query = Query.Where(entity => entity.Date >= DateFrom && entity.Date <= DateTo);
+            Query = Query.Where(entity => entity.Date.ToOffset(offset) >= DateFrom.GetValueOrDefault().ToOffset(offset) && entity.Date.ToOffset(offset) <= DateTo.GetValueOrDefault().ToOffset(offset));
             // override duplicate 
             Query = Query.GroupBy(
                 key => new { key.BankName, key.CategoryName, key.Currency,key.Date, key.DivisionCode,key.DivisionName,key.DocumentNo,key.DPP,key.InvoiceNumber,key.PaymentMethod,key.SupplierCode,key.SupplierName,key.TotalDPP,key.TotalPaid,key.TotalPPN,key.VAT,key.UnitPaymentOrderNo},
