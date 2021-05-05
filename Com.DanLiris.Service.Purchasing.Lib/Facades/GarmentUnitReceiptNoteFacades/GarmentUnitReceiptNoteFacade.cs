@@ -1230,64 +1230,119 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             return result;
         }
 
-        public ReadResponse<object> ReadURNItem(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+        public List<object> ReadURNItem(string Keyword = null, string Filter = "{}")
         {
-            IQueryable<GarmentUnitReceiptNote> Query = dbSet;
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
-            Query = QueryHelper<GarmentUnitReceiptNote>.ConfigureFilter(Query, FilterDictionary);
 
+            bool hasDONoFilter = FilterDictionary.ContainsKey("DONo");
+            bool hasUnitCodeFilter = FilterDictionary.ContainsKey("UnitCode");
+            bool hasStorageCodeFilter = FilterDictionary.ContainsKey("StorageCode");
+            string DONo = hasDONoFilter ? (FilterDictionary["DONo"] ?? "").Trim() : "";
+            string UnitCode = hasUnitCodeFilter ? (FilterDictionary["UnitCode"] ?? "").Trim() : "";
+            string StorageCode = hasStorageCodeFilter ? (FilterDictionary["StorageCode"] ?? "").Trim() : "";
+            var dataDO = (from a in dbContext.GarmentDeliveryOrders
+                               join b in dbContext.GarmentDeliveryOrderItems on a.Id equals b.GarmentDOId
+                               join c in dbContext.GarmentDeliveryOrderDetails on b.Id equals c.GarmentDOItemId
+                               where a.DONo == DONo
+                               select new { DOId=a.Id, c.Id } ).Distinct().ToList();
+            var doDetailIds = dataDO.Select(a => a.Id).Distinct().ToList();
+            var query= (from y in dbContext.GarmentUnitReceiptNoteItems 
+                       join x in dbContext.GarmentUnitReceiptNotes on y.URNId equals x.Id
+                       //join m in dbContext.GarmentExternalPurchaseOrderItems on y.EPOItemId equals m.Id
+                       where x.UnitCode==UnitCode && x.StorageCode==StorageCode && doDetailIds.Contains(y.DODetailId)
+                       select new
+                       {
+                           URNId = x.Id,
+                           URNItemId = y.Id,
+                           y.EPOItemId
+                       }).ToList();
 
-            List<string> searchAttributes = new List<string>()
+            var epoItemIds = query.Select(s => s.EPOItemId).ToList().Distinct().ToList();
+            var epoItems = dbContext.GarmentExternalPurchaseOrderItems.Where(u => epoItemIds.Contains(u.Id))
+                .Select(s => new { s.Id, s.Article }).ToList();
+
+            var urnIds = query.Select(s => s.URNId).ToList().Distinct().ToList();
+            var URNs = dbContext.GarmentUnitReceiptNotes.Where(u => urnIds.Contains(u.Id))
+                .Select(s => new { s.Id, s.DOId, s.DONo, s.URNNo, s.DOCurrencyRate }).ToList();
+
+            var urnItemIds = query.Select(s => s.URNItemId).ToList().Distinct().ToList();
+            var urnItems = dbContext.GarmentUnitReceiptNoteItems.Where(u => urnItemIds.Contains(u.Id))
+                .Select(y => new
+                {   y.URNId,
+                    y.Id,
+                    y.RONo,
+                    y.DODetailId,
+                    y.EPOItemId,
+                    y.POItemId,
+                    y.PRItemId,
+                    y.ProductId,
+                    y.ProductName,
+                    y.ProductCode,
+                    y.ProductRemark,
+                    y.OrderQuantity,
+                    y.SmallQuantity,
+                    y.DesignColor,
+                    y.SmallUomId,
+                    y.SmallUomUnit,
+                    y.POSerialNumber,
+                    y.PricePerDealUnit,
+                    y.Conversion,
+                    y.UomUnit,
+                    y.UomId,
+                    y.ReceiptCorrection,
+                    y.CorrectionConversion,
+                }).ToList();
+
+            List<object> ListData = new List<object>();
+            foreach (var item in query)
             {
-                "URNNo", "UnitName", "SupplierName", "DONo"
-            };
+                var urn = URNs.FirstOrDefault(f => f.Id.Equals(item.URNId));
+                var urnItem = urnItems.FirstOrDefault(f => f.Id.Equals(item.URNItemId));
+                var epoItem = epoItems.FirstOrDefault(f => f.Id.Equals(item.EPOItemId));
+                string doNo = "";
+                long doId = 0;
+                double doCurrencyRate = 0;
+                if(urn.DOId == 0)
+                {
+                    var URN = URNs.FirstOrDefault(a => a.DONo == DONo);
+                    doNo = URN.DONo;
+                    doId = URN.DOId;
+                    doCurrencyRate = (double)URN.DOCurrencyRate;
+                }
+                ListData.Add(new
+                {
+                    DOId = doId == 0 ? urn.DOId : doId,
+                    DONo = doNo == "" ? urn.DONo : doNo,
+                    urn.URNNo,
+                    urnItem.URNId,
+                    urnItem.Id,
+                    urnItem.RONo,
+                    urnItem.DODetailId,
+                    urnItem.EPOItemId,
+                    urnItem.POItemId,
+                    urnItem.PRItemId,
+                    urnItem.ProductId,
+                    urnItem.ProductName,
+                    urnItem.ProductCode,
+                    urnItem.ProductRemark,
+                    urnItem.OrderQuantity,
+                    urnItem.SmallQuantity,
+                    urnItem.DesignColor,
+                    urnItem.SmallUomId,
+                    urnItem.SmallUomUnit,
+                    urnItem.POSerialNumber,
+                    urnItem.PricePerDealUnit,
+                    DOCurrencyRate = doCurrencyRate == 0 ? urn.DOCurrencyRate : doCurrencyRate,
+                    urnItem.Conversion,
+                    urnItem.UomUnit,
+                    urnItem.UomId,
+                    urnItem.ReceiptCorrection,
+                    urnItem.CorrectionConversion,
+                    epoItem.Article
+                });
+            }
 
-            Query = QueryHelper<GarmentUnitReceiptNote>.ConfigureSearch(Query, searchAttributes, Keyword);
-
-
-
-            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
-            Query = QueryHelper<GarmentUnitReceiptNote>.ConfigureOrder(Query, OrderDictionary);
-
-            Pageable<GarmentUnitReceiptNote> pageable = new Pageable<GarmentUnitReceiptNote>(Query, Page - 1, Size);
-            List<GarmentUnitReceiptNote> Data = pageable.Data.ToList();
-            int TotalData = pageable.TotalCount;
-
-            var data= Query.SelectMany(x => x.Items.Select(y => new
-            {
-                x.DOId,
-                x.DONo,
-                x.URNNo,
-                y.URNId,
-                y.Id,
-                y.RONo,
-                y.DODetailId,
-                y.EPOItemId,
-                y.POItemId,
-                y.PRItemId,
-                y.ProductId,
-                y.ProductName,
-                y.ProductCode,
-                y.ProductRemark,
-                y.OrderQuantity,
-                y.SmallQuantity,
-                y.DesignColor,
-                y.SmallUomId,
-                y.SmallUomUnit,
-                y.POSerialNumber,
-                y.PricePerDealUnit,
-                x.DOCurrencyRate,
-                y.Conversion,
-                y.UomUnit,
-                y.UomId,
-                y.ReceiptCorrection,
-                y.CorrectionConversion,
-                Article = dbContext.GarmentExternalPurchaseOrderItems.Where(m => m.Id == y.EPOItemId).Select(d => d.Article).FirstOrDefault()
-            })).ToList();
-
-            List<object> ListData = new List<object>(data);
-
-            return new ReadResponse<object>(ListData, TotalData, OrderDictionary);
+            return ListData;
         }
 
         public List<object> ReadItemByRO(string Keyword = null, string Filter = "{}")
