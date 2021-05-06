@@ -130,7 +130,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 join c in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on b.GarmentEPOId equals c.Id
                                 join e in dbContext.GarmentUnitReceiptNoteItems on (long)a.EPOItemId equals e.EPOItemId
                                 join f in dbContext.GarmentUnitReceiptNotes on e.URNId equals f.Id
-                                join g in dbContext.GarmentPurchaseRequests on a.RO equals g.RONo
+                                join g in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RO equals g.RONo
                                 where a.CreateDate == lastdate
                                 && f.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? f.UnitCode : unitcode)
                                 && categories1.Contains(b.ProductName)
@@ -185,9 +185,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 }).Distinct().ToList();
             var SATerima = (from a in (from aa in dbContext.GarmentUnitReceiptNoteItems where categories1.Contains(aa.ProductName) select aa)
                             join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
-                            join c in dbContext.GarmentExternalPurchaseOrderItems on a.EPOItemId equals c.Id
-                            join d in dbContext.GarmentExternalPurchaseOrders on c.GarmentEPOId equals d.Id
-                            join e in dbContext.GarmentPurchaseRequests on a.RONo equals e.RONo
+                            join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
+                            join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
+                            join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
                             where a.IsDeleted == false && b.IsDeleted == false
                               &&
                               b.CreatedUtc.AddHours(offset).Date > lastdate
@@ -290,9 +290,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             }).ToList();
             var SAKeluar = (from a in (from aa in dbContext.GarmentUnitExpenditureNoteItems where categories1.Contains(aa.ProductName) select aa)
                             join b in dbContext.GarmentUnitExpenditureNotes on a.UENId equals b.Id
-                            join c in dbContext.GarmentExternalPurchaseOrderItems on a.EPOItemId equals c.Id
-                            join d in dbContext.GarmentExternalPurchaseOrders on c.GarmentEPOId equals d.Id
-                            join e in dbContext.GarmentPurchaseRequests on a.RONo equals e.RONo
+                            join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
+                            join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
+                            //join e in dbContext.GarmentPurchaseRequests on a.RONo equals e.RONo
                             where a.IsDeleted == false && b.IsDeleted == false
                                &&
                                b.CreatedUtc.AddHours(offset).Date > lastdate
@@ -303,9 +303,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 ProductCode = a.ProductCode,
                                 ProductName = a.ProductName,
                                 RO = a.RONo,
-                                Buyer = e.BuyerCode,
+                                Buyer = a.BuyerCode,
                                 PlanPo = a.POSerialNumber,
-                                NoArticle = e.Article,
+                                NoArticle = c.Article,
                                 BeginningBalanceQty = (decimal)a.Quantity * -1,
                                 BeginningBalanceUom = a.UomUnit,
                                 BeginningBalancePrice = Math.Round(a.Quantity * ((double)a.BasicPrice / (a.Conversion == 0 ? 1 : (double)a.Conversion)), 2),
@@ -396,10 +396,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var SAKoreksi = (from a in dbContext.GarmentUnitReceiptNotes
                              join b in (from aa in dbContext.GarmentUnitReceiptNoteItems where categories1.Contains(aa.ProductName) select aa) on a.Id equals b.URNId
-                             join c in dbContext.GarmentExternalPurchaseOrderItems on b.EPOItemId equals c.Id
-                             join d in dbContext.GarmentExternalPurchaseOrders on c.GarmentEPOId equals d.Id
+                             join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
+                             join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                              join e in dbContext.GarmentReceiptCorrectionItems on b.Id equals e.URNItemId
-                             join f in dbContext.GarmentPurchaseRequests on b.RONo equals f.RONo
+                             join f in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RONo equals f.RONo
                              where
                              a.IsDeleted == false && b.IsDeleted == false
                              &&
@@ -553,9 +553,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var Terima = (from a in (from aa in dbContext.GarmentUnitReceiptNoteItems where categories1.Contains(aa.ProductName) select aa)
                           join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
-                          join c in dbContext.GarmentExternalPurchaseOrderItems on a.EPOItemId equals c.Id
-                          join d in dbContext.GarmentExternalPurchaseOrders on c.GarmentEPOId equals d.Id
-                          join e in dbContext.GarmentPurchaseRequests on a.RONo equals e.RONo
+                          join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
+                          join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
+                          join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
                           join g in dbContext.GarmentUnitExpenditureNotes on b.UENId equals g.Id into UEN
                           from dd in UEN.DefaultIfEmpty()
                           where a.IsDeleted == false && b.IsDeleted == false
@@ -661,9 +661,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var Keluar = (from a in (from aa in dbContext.GarmentUnitExpenditureNoteItems where categories1.Contains(aa.ProductName) select aa)
                           join b in dbContext.GarmentUnitExpenditureNotes on a.UENId equals b.Id
-                          join c in dbContext.GarmentExternalPurchaseOrderItems on a.EPOItemId equals c.Id
-                          join d in dbContext.GarmentExternalPurchaseOrders on c.GarmentEPOId equals d.Id
-                          join e in dbContext.GarmentPurchaseRequests on a.RONo equals e.RONo
+                          join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
+                          join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
+                          //join e in dbContext.GarmentPurchaseRequests on a.RONo equals e.RONo
                           where a.IsDeleted == false && b.IsDeleted == false
                              &&
                              b.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
@@ -674,9 +674,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              ProductCode = a.ProductCode,
                              ProductName = a.ProductName,
                              RO = a.RONo,
-                             Buyer = e.BuyerCode,
+                             Buyer = a.BuyerCode,
                              PlanPo = a.POSerialNumber,
-                             NoArticle = e.Article,
+                             NoArticle = c.Article,
                              BeginningBalanceQty = 0,
                              BeginningBalanceUom = a.UomUnit,
                              BeginningBalancePrice = 0,
@@ -767,10 +767,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var Koreksi = (from a in dbContext.GarmentUnitReceiptNotes
                            join b in (from aa in dbContext.GarmentUnitReceiptNoteItems where categories1.Contains(aa.ProductName) select aa) on a.Id equals b.URNId
-                           join c in dbContext.GarmentExternalPurchaseOrderItems on b.EPOItemId equals c.Id
-                           join d in dbContext.GarmentExternalPurchaseOrders on c.GarmentEPOId equals d.Id
+                           join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
+                           join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                            join e in dbContext.GarmentReceiptCorrectionItems on b.Id equals e.URNItemId
-                           join f in dbContext.GarmentPurchaseRequests on b.RONo equals f.RONo
+                           join f in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RONo equals f.RONo
                            where
                            a.IsDeleted == false && b.IsDeleted == false
                            &&
