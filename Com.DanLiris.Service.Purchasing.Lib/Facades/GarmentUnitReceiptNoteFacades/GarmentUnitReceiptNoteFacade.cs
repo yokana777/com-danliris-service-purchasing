@@ -1250,6 +1250,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                        join x in dbContext.GarmentUnitReceiptNotes on y.URNId equals x.Id
                        //join m in dbContext.GarmentExternalPurchaseOrderItems on y.EPOItemId equals m.Id
                        where x.UnitCode==UnitCode && x.StorageCode==StorageCode && doDetailIds.Contains(y.DODetailId)
+                       && x.URNType!="GUDANG LAIN"
                        select new
                        {
                            URNId = x.Id,
