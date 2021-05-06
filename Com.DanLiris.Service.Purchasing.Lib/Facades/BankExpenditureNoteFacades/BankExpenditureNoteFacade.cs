@@ -230,13 +230,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
         {
             int Created = 0;
             string username = identityService.Username;
+            TimeSpan timeOffset = new TimeSpan(identityService.TimezoneOffset, 0, 0);
             using (var transaction = dbContext.Database.BeginTransaction())
             {
                 try
                 {
                     EntityExtension.FlagForCreate(model, username, USER_AGENT);
 
-                    model.DocumentNo = await bankDocumentNumberGenerator.GenerateDocumentNumber("K", model.BankCode, username);
+                    model.DocumentNo = await bankDocumentNumberGenerator.GenerateDocumentNumber("K", model.BankCode, username,model.Date.ToOffset(timeOffset).Date);
 
                     if (model.BankCurrencyCode != "IDR")
                     {
