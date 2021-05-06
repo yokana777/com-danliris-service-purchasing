@@ -196,8 +196,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                         UnitCode = y.UnitCode,
                         UnitId = y.UnitId,
                         UnitName = y.UnitName
-                    })
-                })
+                    }).ToList()
+                }).ToList()
             });
 
             List<string> searchAttributes = new List<string>()

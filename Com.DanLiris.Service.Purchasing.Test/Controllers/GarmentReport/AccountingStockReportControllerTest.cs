@@ -52,7 +52,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
                     ExpendSampleQty = 0,
                     NoArticle = "",
                     PlanPo = "",
-                    POId = 0,
+                    //POId = 0,
                     ProductCode = "",
                     ProductName = "",
                     ReceiptCorrectionPrice = 0,
