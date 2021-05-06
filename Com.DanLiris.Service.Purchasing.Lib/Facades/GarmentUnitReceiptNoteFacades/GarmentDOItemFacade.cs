@@ -103,7 +103,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
             var epoItemIds = data.Select(s => s.EPOItemId).ToList().Distinct().ToList();
             dbSetGarmentExternalPurchaseOrderItem.IgnoreQueryFilters();
-            var epoItems = dbSetGarmentExternalPurchaseOrderItem.Where(w => epoItemIds.Contains(w.Id))
+            var epoItems = dbSetGarmentExternalPurchaseOrderItem.IgnoreQueryFilters().Where(w => epoItemIds.Contains(w.Id))
                 .Select(s => new { s.Id, s.Article }).ToList().ToList();
 
             var DOItemIds = data.Select(s => s.DOItemsId).Distinct().ToList();
