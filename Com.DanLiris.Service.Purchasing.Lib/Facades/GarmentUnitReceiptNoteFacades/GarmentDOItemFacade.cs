@@ -100,9 +100,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             var urnItemIds = data.Select(s => s.URNItemId).ToList().Distinct().ToList();
             var urnItems = dbSetGarmentUnitReceiptNoteItem.Where(w => urnItemIds.Contains(w.Id))
                 .Select(s => new { s.Id, s.DODetailId, s.ProductRemark, s.PricePerDealUnit, s.ReceiptCorrection, s.CorrectionConversion }).ToList();
+
             var epoItemIds = data.Select(s => s.EPOItemId).ToList().Distinct().ToList();
-            var epoItems = dbSetGarmentExternalPurchaseOrderItem.Where(w => epoItemIds.Contains(w.Id))
+            dbSetGarmentExternalPurchaseOrderItem.IgnoreQueryFilters();
+            var epoItems = dbSetGarmentExternalPurchaseOrderItem.IgnoreQueryFilters().Where(w => epoItemIds.Contains(w.Id))
                 .Select(s => new { s.Id, s.Article }).ToList().ToList();
+
             var DOItemIds = data.Select(s => s.DOItemsId).Distinct().ToList();
             var DOItems = dbSetGarmentDOItems.Where(w => DOItemIds.Contains(w.Id))
                 .Select(s => new
@@ -164,10 +167,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         public List<object> ReadForUnitDOMore(string Keyword = null, string Filter = "{}", int size = 50)
         {
             IQueryable<GarmentDOItems> GarmentDOItemsQuery = dbSetGarmentDOItems.Where(w => w.IsDeleted == false);
-            IQueryable<GarmentUnitReceiptNoteItem> GarmentUnitReceiptNoteItemsQuery = dbSetGarmentUnitReceiptNoteItem.Where(w => w.IsDeleted == false);
-            IQueryable<GarmentUnitReceiptNote> GarmentUnitReceiptNotesQuery = dbSetGarmentUnitReceiptNote.Where(w => w.IsDeleted == false);
-            IQueryable<GarmentExternalPurchaseOrderItem> GarmentExternalPurchaseOrderItemsQuery = dbSetGarmentExternalPurchaseOrderItem.IgnoreQueryFilters();
-
+            
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
             long unitId = 0;
             long storageId = 0;
