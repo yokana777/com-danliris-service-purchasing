@@ -545,7 +545,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 //var epoDetail = epoItem.Details.FirstOrDefault(f => f.Id.Equals(urnItem.EPODetailId));
                 //var selectedCurrencies = currencies.Where(element => element.Code == item.CurrencyCode).ToList();
                 //var currency = selectedCurrencies.OrderBy(entity => (entity.Date - item.ReceiptDate).Duration()).FirstOrDefault();
-                var currency = currencies.Where(entity=> entity.Code == item.CurrencyCode && entity.Date <= item.ReceiptDate).OrderByDescending(entity=> Math.Abs((entity.Date - item.ReceiptDate).TotalDays)).FirstOrDefault();
+                var currency = currencies.Where(entity=> entity.Code == item.CurrencyCode && entity.Date <= item.ReceiptDate).ToList().Select(o => new { Diffs = Math.Abs((o.Date.Date - item.ReceiptDate.DateTime.Date).Days), o.Date, o.Code, o.Rate }).OrderBy(o => o.Diffs).FirstOrDefault();
 
 
                 int.TryParse(item.UnitId, out var unitId);
