@@ -1,5 +1,6 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewModel
@@ -36,6 +37,37 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
             Amount += correctionAmount;
             CorrectionAmount = correctionAmount;
         }
+        public InvoiceDto(string invoiceNo, DateTimeOffset invoiceDate, string productNames, int categoryId, string categoryName, string paymentMethod, int invoiceId, string deliveryOrdersNo, string billsNo, string paymentBills, double amount, bool useVAT, bool isPayVAT, bool useIncomeTax, bool isPayTax, double incomeTaxRate, double correctionAmount, List<DeliveryOrderDto> detailDO)
+        {
+            DocumentNo = invoiceNo;
+            Date = invoiceDate;
+            ProductNames = productNames;
+            Category = new CategoryDto(categoryId, categoryName);
+            PaymentMethod = paymentMethod;
+            Id = invoiceId;
+            DeliveryOrdersNo = deliveryOrdersNo;
+            BillsNo = billsNo;
+            PaymentBills = paymentBills;
+
+            UseVAT = useVAT;
+            IsPayVAT = isPayVAT;
+            UseIncomeTax = useIncomeTax;
+            IsPayTax = isPayTax;
+            IncomeTaxRate = incomeTaxRate;
+            TotalAmount = amount;
+
+            Amount = amount;
+
+            if (useVAT && isPayVAT)
+                Amount += amount * 0.1;
+
+            if (useIncomeTax && isPayTax)
+                Amount -= amount * (incomeTaxRate / 100);
+
+            Amount += correctionAmount;
+            CorrectionAmount = correctionAmount;
+            DetailDO = detailDO;
+        }
 
         public string DocumentNo { get; set; }
         public DateTimeOffset Date { get; set; }
@@ -54,5 +86,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
         public double IncomeTaxRate { get; private set; }
         public double TotalAmount { get; private set; }
         public double CorrectionAmount { get; private set; }
+        public List<DeliveryOrderDto> DetailDO { get; set; }
     }
 }
