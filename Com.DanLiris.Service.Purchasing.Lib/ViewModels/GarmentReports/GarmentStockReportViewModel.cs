@@ -10,7 +10,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public string RO { get; set; }
         public string PlanPo { get; set; }
         public string NoArticle { get; set; }
-        public string ProductName { get; set; }
+        //public string ProductName { get; set; }
         public string ProductRemark { get; set; }
         public string Buyer { get; set; }
         public decimal BeginningBalanceQty { get; set; }
@@ -31,7 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public string RO { get; set; }
         public string PlanPo { get; set; }
         public string NoArticle { get; set; }
-        public string ProductName { get; set; }
+        //public string ProductName { get; set; }
         public string Buyer { get; set; }
         public decimal BeginningBalanceQty { get; set; }
         public string BeginningBalanceUom { get; set; }
