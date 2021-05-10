@@ -542,7 +542,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                 var garmentInvoiceItemIds = garmentInvoiceItems.Select(element => element.Id).ToList();
                 var garmentInvoiceDetails = dbContext.GarmentInvoiceDetails.Where(entity => garmentInvoiceItemIds.Contains(entity.InvoiceItemId)).Select(entity => new { entity.Id, entity.InvoiceItemId, entity.ProductName }).ToList();
                 var deliveryOrderIds = garmentInvoiceItems.Select(element => element.DeliveryOrderId).ToList();
-                var deliveryOrders = dbContext.GarmentDeliveryOrders.Where(entity => deliveryOrderIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.DONo, entity.PaymentBill, entity.BillNo }).ToList();
+                var deliveryOrders = dbContext.GarmentDeliveryOrders.Where(entity => deliveryOrderIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.DONo, entity.PaymentBill, entity.BillNo, entity.TotalAmount,entity.DOCurrencyRate }).ToList();
 
                 var corrections = dbContext.GarmentCorrectionNotes.Where(entity => deliveryOrderIds.Contains(entity.DOId)).Select(entity => new { entity.Id, entity.TotalCorrection, entity.CorrectionType, entity.DOId });
                 var correctionIds = corrections.Select(element => element.Id).ToList();
@@ -576,6 +576,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                         var invoiceDetails = garmentInvoiceDetails.Where(element => invoiceItemIds.Contains(element.InvoiceItemId)).ToList();
                         var selectedDeliveryOrderIds = invoiceItems.Select(item => item.DeliveryOrderId).ToList();
                         var selectedDeliveryOrders = deliveryOrders.Where(element => selectedDeliveryOrderIds.Contains(element.Id)).ToList();
+                        var selectedDeliveryOrderLists = selectedDeliveryOrders.Select(element => new DeliveryOrderDto(element.DONo, element.TotalAmount, element.PaymentBill, element.BillNo, element.Id,element.DOCurrencyRate.GetValueOrDefault())).ToList();
+
 
                         var selectedCorrections = corrections.Where(element => selectedDeliveryOrderIds.Contains(element.DOId)).ToList();
                         var correctionAmount = selectedCorrections.Sum(element =>
@@ -593,7 +595,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
 
                         int.TryParse(internalPurchaseOrderItem.CategoryId, out var categoryId);
                         
-                        return new InternalNoteInvoiceDto(s.InvoiceNo, s.InvoiceDate, string.Join("\n", invoiceDetails.Select(element => $"- {element.ProductName}").Distinct()), categoryId, internalPurchaseOrderItem.CategoryName, externalPurchaseOrder.PaymentMethod, (int)s.Id, string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.DONo}").Distinct()), string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.BillNo}").Distinct()), string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.PaymentBill}").Distinct()), s.TotalAmount, s.UseVat, s.IsPayVat, s.UseIncomeTax, s.IsPayTax, s.IncomeTaxRate, correctionAmount);
+                        return new InternalNoteInvoiceDto(s.InvoiceNo, s.InvoiceDate, string.Join("\n", invoiceDetails.Select(element => $"- {element.ProductName}").Distinct()), categoryId, internalPurchaseOrderItem.CategoryName, externalPurchaseOrder.PaymentMethod, (int)s.Id, string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.DONo}").Distinct()), string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.BillNo}").Distinct()), string.Join("\n", selectedDeliveryOrders.Select(element => $"- {element.PaymentBill}").Distinct()), s.TotalAmount, s.UseVat, s.IsPayVat, s.UseIncomeTax, s.IsPayTax, s.IncomeTaxRate, correctionAmount,selectedDeliveryOrderLists);
 
                     }).ToList();
 
@@ -684,7 +686,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     deliveryOrder => deliveryOrder.Id,
                     garmentInvoice => garmentInvoice.DeliveryOrderId,
                     (entity, garmentInvoice) =>
-                    new { entity.Id, entity.DONo, entity.PaymentBill, entity.BillNo }
+                    new { entity.Id, entity.DONo, entity.PaymentBill, entity.BillNo ,entity.TotalAmount,entity.DOCurrencyRate}
                     ).ToList();
 
                 var externalPurchaseOrders = dbContext.GarmentExternalPurchaseOrders.Include(entity=> entity.Items)
@@ -739,6 +741,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                         var invoiceDetails = garmentInvoiceDetails.Where(element => invoiceItemIds.Contains(element.InvoiceItemId)).ToList();
                         var selectedDeliveryOrderIds = invoiceItems.Select(item => item.DeliveryOrderId).ToList();
                         var selectedDeliveryOrders = deliveryOrders.Where(element => selectedDeliveryOrderIds.Contains(element.Id)).ToList();
+                        var selectedDeliveryOrderLists = selectedDeliveryOrders.Select(element => new DeliveryOrderDto(element.DONo,element.TotalAmount,element.PaymentBill,element.BillNo,element.Id,element.DOCurrencyRate.GetValueOrDefault())).ToList();
                         var productNames = string.Join("\n", invoiceDetails.Select(element => $"- {element.ProductName}").Distinct());
                         int.TryParse(internalPurchaseOrderItem.CategoryId, out var categoryId);
                         var selectedCorrections = corrections.Where(element => selectedDeliveryOrderIds.Contains(element.DOId)).ToList();
@@ -771,7 +774,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                             s.IsPayVat,
                             s.UseIncomeTax,
                             s.IsPayTax,
-                            s.IncomeTaxRate, correctionAmount);
+                            s.IncomeTaxRate, 
+                            correctionAmount, selectedDeliveryOrderLists);
 
                     }).ToList();
 
