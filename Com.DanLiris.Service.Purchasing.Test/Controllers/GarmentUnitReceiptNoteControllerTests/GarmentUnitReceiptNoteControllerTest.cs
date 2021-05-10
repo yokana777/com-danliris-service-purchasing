@@ -468,8 +468,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
         public void Should_Success_Get_For_URNItem()
         {
             var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
-            mockFacade.Setup(x => x.ReadURNItem(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
-                .Returns(new ReadResponse<object>(new List<object>(), 0, new Dictionary<string, string>()));
+            mockFacade.Setup(x => x.ReadURNItem(It.IsAny<string>(),  It.IsAny<string>()))
+                .Returns(new ReadResponse<object>(new List<object>(), 0, new Dictionary<string, string>()).Data);
 
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<List<GarmentUnitReceiptNoteViewModel>>(It.IsAny<List<GarmentUnitReceiptNote>>()))
@@ -485,8 +485,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
         {
             var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
 
-            mockFacade.Setup(x => x.ReadURNItem(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), null, It.IsAny<string>()))
-                .Returns(new ReadResponse<object>(new List<object>(), 0, new Dictionary<string, string>()));
+            mockFacade.Setup(x => x.ReadURNItem(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(new ReadResponse<object>(new List<object>(), 0, new Dictionary<string, string>()).Data);
 
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<List<GarmentUnitReceiptNoteViewModel>>(It.IsAny<List<GarmentUnitReceiptNote>>()))
