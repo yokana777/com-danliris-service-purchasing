@@ -87,6 +87,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             List<object> ListData = new List<object>();
             var data = from doi in GarmentDOItemsQuery
                        join urni in GarmentUnitReceiptNoteItemsQuery.IgnoreQueryFilters() on doi.URNItemId equals urni.Id
+                       where (urni.IsDeleted==false) || (urni.IsDeleted == true && urni.DeletedBy=="LUCIA")
                        select new
                        {
                            DOItemsId = doi.Id,
