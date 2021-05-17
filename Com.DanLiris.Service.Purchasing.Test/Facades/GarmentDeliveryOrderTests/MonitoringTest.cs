@@ -140,475 +140,475 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             return new GarmentDeliveryOrderDataUtil(facade, garmentExternalPurchaseOrderDataUtil);
         }
 
-        [Fact]
-        public async Task Should_Success_Get_Report_AccuracyArrival()
-        {
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var data = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
-            data.DODate = DateTimeOffset.Now.AddDays(-35);
-            foreach (var item in data.Items)
-            {
-                foreach (var detail in item.Details)
-                {
-                    detail.ProductCode = "LBL";
-                }
-            }
-            await facade.Create(data, USERNAME);
-
-            var Facade = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var Response = Facade.GetReportHeaderAccuracyofArrival(null, null, null, 7);
-            Assert.NotNull(Response.Item1);
-
-            var data2 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
-            data2.DODate = DateTimeOffset.Now.AddDays(-35);
-            foreach (var item in data2.Items)
-            {
-                foreach (var detail in item.Details)
-                {
-                    detail.ProductCode = "SUB";
-                }
-            }
-            await facade.Create(data2, USERNAME);
-
-            var data3 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
-            data3.DODate = DateTimeOffset.Now.AddDays(-34);
-            foreach (var item in data3.Items)
-            {
-                foreach (var detail in item.Details)
-                {
-                    detail.ProductCode = "SUB";
-                }
-            }
-            await facade.Create(data3, USERNAME);
-
-            var data4 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
-            data4.DODate = DateTimeOffset.Now.AddDays(-33);
-            foreach (var item in data4.Items)
-            {
-                foreach (var detail in item.Details)
-                {
-                    detail.ProductCode = "LBL";
-                }
-            }
-            await facade.Create(data4, USERNAME);
-
-            var Response1 = Facade.GetReportHeaderAccuracyofArrival(null, null, null, 7);
-            Assert.NotNull(Response1.Item1);
-
-            long nowTicks = DateTimeOffset.Now.Ticks;
-            string nowTicksA = $"{nowTicks}a";
-            AccuracyOfArrivalReportViewModel viewModelAccuracy = new AccuracyOfArrivalReportViewModel
-            {
-                supplier = new SupplierViewModel(),
-                product = new GarmentProductViewModel(),
-            };
-            viewModelAccuracy.Id = 1;
-            viewModelAccuracy.doNo = data.DONo;
-            viewModelAccuracy.supplier.Id = data.SupplierId;
-            viewModelAccuracy.supplier.Code = data.SupplierCode;
-            viewModelAccuracy.supplier.Name = data.SupplierName;
-            viewModelAccuracy.doDate = data.DODate;
-            viewModelAccuracy.poSerialNumber = nowTicksA;
-            viewModelAccuracy.product.Id = nowTicks;
-            viewModelAccuracy.product.Code = nowTicksA;
-            viewModelAccuracy.prDate = DateTimeOffset.Now;
-            viewModelAccuracy.poDate = DateTimeOffset.Now;
-            viewModelAccuracy.epoDate = DateTimeOffset.Now;
-            viewModelAccuracy.article = nowTicksA;
-            viewModelAccuracy.roNo = nowTicksA;
-            viewModelAccuracy.shipmentDate = DateTimeOffset.Now;
-            viewModelAccuracy.status = nowTicksA;
-            viewModelAccuracy.staff = nowTicksA;
-            viewModelAccuracy.category = nowTicksA;
-            viewModelAccuracy.dateDiff = (int)nowTicks;
-            viewModelAccuracy.ok_notOk = nowTicksA;
-            viewModelAccuracy.percentOk_notOk = (int)nowTicks;
-            viewModelAccuracy.jumlahOk = (int)nowTicks;
-            viewModelAccuracy.jumlah = (int)nowTicks;
-            viewModelAccuracy.paymentMethod = data.PaymentMethod;
-            viewModelAccuracy.paymentType = data.PaymentType;
-            string paymentMethod = viewModelAccuracy.paymentMethod;
-            string paymentType = viewModelAccuracy.paymentType;
-
-            var Response2 = Facade.GetReportDetailAccuracyofArrival($"BuyerCode{nowTicksA}", null, null, null, 7);
-            Assert.NotNull(Response2.Item1);
-
-            var Response3 = Facade.GetReportDetailAccuracyofArrival($"BuyerCode{nowTicksA}", "Bahan Pendukung", null, null, 7);
-            Assert.NotNull(Response3.Item1);
-        }
-
-        [Fact]
-        public async Task Should_Success_Get_Report_AccuracyArrival_Excel()
-        {
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var data = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
-            await facade.Create(data, USERNAME);
-
-            var data2 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
-            data2.DODate = DateTimeOffset.Now.AddDays(-35);
-            foreach (var item in data2.Items)
-            {
-                foreach (var detail in item.Details)
-                {
-                    detail.ProductCode = "SUB";
-                }
-            }
-            await facade.Create(data2, USERNAME);
-
-            var data3 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
-            data3.DODate = DateTimeOffset.Now.AddDays(-34);
-            foreach (var item in data3.Items)
-            {
-                foreach (var detail in item.Details)
-                {
-                    detail.ProductCode = "SUB";
-                }
-            }
-            await facade.Create(data3, USERNAME);
-
-            var data4 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
-            data4.DODate = DateTimeOffset.Now.AddDays(-33);
-            foreach (var item in data4.Items)
-            {
-                foreach (var detail in item.Details)
-                {
-                    detail.ProductCode = "LBL";
-                }
-            }
-            await facade.Create(data4, USERNAME);
-
-            var Facade = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var Response = Facade.GenerateExcelArrivalHeader(null, null, null, 7);
-            Assert.IsType<System.IO.MemoryStream>(Response);
-
-            long nowTicks = DateTimeOffset.Now.Ticks;
-            string nowTicksA = $"{nowTicks}a";
-            var Response1 = Facade.GenerateExcelArrivalDetail($"BuyerCode{nowTicksA}", null, null, null, 7);
-            Assert.IsType<System.IO.MemoryStream>(Response1);
-        }
-
-
-        [Fact]
-        public async Task ShouldSuccess_GetReportHeaderAccuracyofArrival_with_CategoryBB()
-        {
-            //Setup
-            Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
-            string testName = GetCurrentAsyncMethod();
-            PurchasingDbContext dbCOntext = _dbContext(testName);
-
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(serviceProviderMock.Object, dbCOntext);
-            var data = await dataUtil(facade, testName).GetTestData();
-
-            //Act
-            var response = facade.GetReportHeaderAccuracyofArrival("Bahan Baku", null, null,1);
-
-            //Assert
-            Assert.NotNull(response);
-        }
-
-        [Fact]
-        public async Task ShouldSuccess_GetReportHeaderAccuracyofArrival_with_CategoryBP()
-        {
-            //Setup
-            Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
-            string testName = GetCurrentAsyncMethod();
-            PurchasingDbContext dbCOntext = _dbContext(testName);
-
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(serviceProviderMock.Object, dbCOntext);
-            var data = await dataUtil(facade, testName).GetTestData();
-
-            //Act
-            var response = facade.GetReportHeaderAccuracyofArrival("Bahan Pendukung", null, null, 1);
-
-            //Assert
-            Assert.NotNull(response);
-        }
-
-
-        [Fact]
-        public void ShouldSuccess_GetAccuracyOfArrivalHeader()
-        {
-            //Setup
-            Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
-            string testName = GetCurrentAsyncMethod();
-            PurchasingDbContext dbCOntext = _dbContext(testName);
-
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(serviceProviderMock.Object, dbCOntext);
-
-            //Act
-            var response = facade.GetAccuracyOfArrivalHeader(null, null, null);
-
-            //Assert
-            Assert.NotNull(response);
-        }
-
-
-
-        [Fact]
-        public async Task ShouldSuccess_GetAccuracyOfArrivalHeader_with_CategoryBB()
-        {
-            //Setup
-            Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
-            string testName = GetCurrentAsyncMethod();
-            PurchasingDbContext dbCOntext = _dbContext(testName);
-
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(serviceProviderMock.Object, dbCOntext);
-            var data = await dataUtil(facade, testName).GetTestData();
-
-            //Act
-            var response = facade.GetAccuracyOfArrivalHeader("Bahan Baku", null, null);
-
-            //Assert
-            Assert.NotNull(response);
-        }
-
-        [Fact]
-        public async Task ShouldSuccess_GetAccuracyOfArrivalHeader_with_CategoryBP()
-        {
-            //Setup
-            Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
-            string testName = GetCurrentAsyncMethod();
-            PurchasingDbContext dbCOntext = _dbContext(testName);
-
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(serviceProviderMock.Object, dbCOntext);
-            var data = await dataUtil(facade, testName).GetTestData();
-
-            //Act
-            var response = facade.GetAccuracyOfArrivalHeader("Bahan Pendukung", DateTime.Now.AddDays(-28), DateTime.Now.AddDays(28));
-
-            //Assert
-            Assert.NotNull(response);
-            Assert.True(response.Total > 0);
-        }
-
-        [Fact]
-        public async Task ShouldThrowsException_GetAccuracyOfArrivalHeader_When_InvalidDateRange()
-        {
-            //Setup
-            Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
-            string testName = GetCurrentAsyncMethod();
-            var dbCOntext = _dbContext(testName);
-
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(serviceProviderMock.Object, dbCOntext);
-            var data = await dataUtil(facade, testName).GetTestData();
-
-            //Act and Assert
-            Assert.Throws<Exception>(() => facade.GetAccuracyOfArrivalHeader("Bahan Pendukung", DateTime.Now.AddDays(2), DateTime.Now));
-        }
-
-        [Fact]
-        public async Task ShouldSuccess_GetAccuracyOfArrivalDetail_with_CategoryBB()
-        {
-            //Setup
-            Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
-            string testName = GetCurrentAsyncMethod();
-            var dbCOntext = _dbContext(testName);
-
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(serviceProviderMock.Object, dbCOntext);
-            var data = await dataUtil(facade, testName).GetTestData();
-            //Act
-            var response = facade.GetAccuracyOfArrivalDetail(data.SupplierCode, "Bahan Baku", DateTime.Now.AddDays(28), DateTime.Now.AddDays(28));
-
-            //Assert
-            Assert.NotNull(response);
-        }
-
-        [Fact]
-        public async Task ShouldSuccess_GetAccuracyOfArrivalDetail_with_CategoryBP()
-        {
-            //Setup
-            Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
-            string testName = GetCurrentAsyncMethod();
-            var dbCOntext = _dbContext(testName);
-
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(serviceProviderMock.Object, dbCOntext);
-            var data = await dataUtil(facade, testName).GetTestData();
-            //Act
-            var response = facade.GetAccuracyOfArrivalDetail(data.SupplierCode, "Bahan Pendukung", null, null);
-
-            //Assert
-            Assert.NotNull(response);
-        }
-
-        [Fact]
-        public async Task ShouldThrowsException_GetAccuracyOfArrivalDetail_When_InvalidDateRange()
-        {
-            //Setup
-            Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
-            string testName = GetCurrentAsyncMethod();
-            var dbCOntext = _dbContext(testName);
-
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(serviceProviderMock.Object, dbCOntext);
-            var data = await dataUtil(facade, testName).GetTestData();
-
-            //Act and Assert
-            Assert.Throws<Exception>(() => facade.GetAccuracyOfArrivalDetail(data.SupplierCode, "Bahan Pendukung", DateTime.Now.AddDays(2), DateTime.Now));
-        }
-
-
-        [Fact]
-        public void ShouldSuccess_GetAccuracyOfArrivalDetail_With_EmptyData()
-        {
-            //Setup
-            Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
-            string testName = GetCurrentAsyncMethod();
-            PurchasingDbContext dbCOntext = _dbContext(testName);
-
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(serviceProviderMock.Object, dbCOntext);
-
-            //Act
-            var response = facade.GetAccuracyOfArrivalDetail(null, null, null,null);
-
-            //Assert
-            Assert.NotNull(response);
-        }
-
-        [Fact]
-        public async Task Should_Success_Get_Report_AccuracyDelivery()
-        {
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var data = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
-            data.DODate = DateTimeOffset.Now.AddDays(10);
-            foreach (var item in data.Items)
-            {
-                foreach (var detail in item.Details)
-                {
-                    detail.ProductCode = "LBL";
-                }
-            }
-            await facade.Create(data, USERNAME);
-
-            var Facade = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var Response = Facade.GetReportHeaderAccuracyofDelivery(null, null, data.PaymentType, data.PaymentMethod, 7);
-            Assert.NotNull(Response.Item1);
-
-            var data2 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
-            data2.DODate = DateTimeOffset.Now.AddDays(10);
-            foreach (var item in data2.Items)
-            {
-                foreach (var detail in item.Details)
-                {
-                    detail.ProductCode = "SUB";
-                }
-            }
-            await facade.Create(data2, USERNAME);
-
-            var data3 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
-            data3.DODate = DateTimeOffset.Now.AddDays(10);
-            foreach (var item in data3.Items)
-            {
-                foreach (var detail in item.Details)
-                {
-                    detail.ProductCode = "SUB";
-                }
-            }
-            await facade.Create(data3, USERNAME);
-
-            var data4 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
-            data4.DODate = DateTimeOffset.Now.AddDays(11);
-            foreach (var item in data4.Items)
-            {
-                foreach (var detail in item.Details)
-                {
-                    detail.ProductCode = "LBL";
-                }
-            }
-            await facade.Create(data4, USERNAME);
-
-            var Response1 = Facade.GetReportHeaderAccuracyofDelivery(null, null, "", "", 7);
-            Assert.NotNull(Response1.Item1);
-
-            long nowTicks = DateTimeOffset.Now.Ticks;
-            string nowTicksA = $"{nowTicks}a";
-            var Response2 = Facade.GetReportDetailAccuracyofDelivery($"BuyerCode{nowTicksA}", null, null, "", "", 7);
-            Assert.NotNull(Response2.Item1);
-        }
-
-        [Fact]
-        public async Task Should_Success_Get_Report_AccuracyDelivery_Excel()
-        {
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var data = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
-            await facade.Create(data, USERNAME);
-
-            var data2 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
-            data2.DODate = DateTimeOffset.Now.AddDays(10);
-            foreach (var item in data2.Items)
-            {
-                foreach (var detail in item.Details)
-                {
-                    detail.ProductCode = "SUB";
-                }
-            }
-            await facade.Create(data2, USERNAME);
-
-            var data3 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
-            data3.DODate = DateTimeOffset.Now.AddDays(10);
-            foreach (var item in data3.Items)
-            {
-                foreach (var detail in item.Details)
-                {
-                    detail.ProductCode = "SUB";
-                }
-            }
-            await facade.Create(data3, USERNAME);
-
-            var data4 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
-            data4.DODate = DateTimeOffset.Now.AddDays(10);
-            foreach (var item in data4.Items)
-            {
-                foreach (var detail in item.Details)
-                {
-                    detail.ProductCode = "LBL";
-                }
-            }
-            await facade.Create(data4, USERNAME);
-
-            var Facade = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var Response = Facade.GenerateExcelDeliveryHeader(null, null, "", "", 7);
-            Assert.IsType<System.IO.MemoryStream>(Response);
-
-            long nowTicks = DateTimeOffset.Now.Ticks;
-            string nowTicksA = $"{nowTicks}a";
-            var Response1 = Facade.GenerateExcelDeliveryDetail($"BuyerCode{nowTicksA}", null, null, "", "", 7);
-            Assert.IsType<System.IO.MemoryStream>(Response1);
-        }
-
-        [Fact]
-        public async Task Should_Success_Get_Report_Data()
-        {
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.GetReportDO(model.DONo, "", model.SupplierId, null, null, 1, 25, "{}", 7);
-            Assert.NotEqual(-1, Response.Item2);
-        }
-
-        [Fact]
-        public async Task Should_Success_Get_Report_Data_Null_Parameter()
-        {
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.GetReportDO("", "", 0, null, null, 1, 25, "{}", 7);
-            Assert.NotEmpty(Response.Item1);
-        }
-
-        [Fact]
-        public async Task Should_Success_Get_Report_Data_Excel()
-        {
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.GenerateExcelDO(model.DONo, "", model.SupplierId, null, null, 7);
-            Assert.IsType<System.IO.MemoryStream>(Response);
-        }
-
-        [Fact]
-        public async Task Should_Success_Get_Report_Data_Excel_Null_parameter()
-        {
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.GenerateExcelDO("", "", 0, null, null, 7);
-            Assert.IsType<System.IO.MemoryStream>(Response);
-        }
+        //[Fact]
+        //public async Task Should_Success_Get_Report_AccuracyArrival()
+        //{
+        //    GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+        //    var data = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+        //    data.DODate = DateTimeOffset.Now.AddDays(-35);
+        //    foreach (var item in data.Items)
+        //    {
+        //        foreach (var detail in item.Details)
+        //        {
+        //            detail.ProductCode = "LBL";
+        //        }
+        //    }
+        //    await facade.Create(data, USERNAME);
+
+        //    var Facade = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+        //    var Response = Facade.GetReportHeaderAccuracyofArrival(null, null, null, 7);
+        //    Assert.NotNull(Response.Item1);
+
+        //    var data2 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+        //    data2.DODate = DateTimeOffset.Now.AddDays(-35);
+        //    foreach (var item in data2.Items)
+        //    {
+        //        foreach (var detail in item.Details)
+        //        {
+        //            detail.ProductCode = "SUB";
+        //        }
+        //    }
+        //    await facade.Create(data2, USERNAME);
+
+        //    var data3 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+        //    data3.DODate = DateTimeOffset.Now.AddDays(-34);
+        //    foreach (var item in data3.Items)
+        //    {
+        //        foreach (var detail in item.Details)
+        //        {
+        //            detail.ProductCode = "SUB";
+        //        }
+        //    }
+        //    await facade.Create(data3, USERNAME);
+
+        //    var data4 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+        //    data4.DODate = DateTimeOffset.Now.AddDays(-33);
+        //    foreach (var item in data4.Items)
+        //    {
+        //        foreach (var detail in item.Details)
+        //        {
+        //            detail.ProductCode = "LBL";
+        //        }
+        //    }
+        //    await facade.Create(data4, USERNAME);
+
+        //    var Response1 = Facade.GetReportHeaderAccuracyofArrival(null, null, null, 7);
+        //    Assert.NotNull(Response1.Item1);
+
+        //    long nowTicks = DateTimeOffset.Now.Ticks;
+        //    string nowTicksA = $"{nowTicks}a";
+        //    AccuracyOfArrivalReportViewModel viewModelAccuracy = new AccuracyOfArrivalReportViewModel
+        //    {
+        //        supplier = new SupplierViewModel(),
+        //        product = new GarmentProductViewModel(),
+        //    };
+        //    viewModelAccuracy.Id = 1;
+        //    viewModelAccuracy.doNo = data.DONo;
+        //    viewModelAccuracy.supplier.Id = data.SupplierId;
+        //    viewModelAccuracy.supplier.Code = data.SupplierCode;
+        //    viewModelAccuracy.supplier.Name = data.SupplierName;
+        //    viewModelAccuracy.doDate = data.DODate;
+        //    viewModelAccuracy.poSerialNumber = nowTicksA;
+        //    viewModelAccuracy.product.Id = nowTicks;
+        //    viewModelAccuracy.product.Code = nowTicksA;
+        //    viewModelAccuracy.prDate = DateTimeOffset.Now;
+        //    viewModelAccuracy.poDate = DateTimeOffset.Now;
+        //    viewModelAccuracy.epoDate = DateTimeOffset.Now;
+        //    viewModelAccuracy.article = nowTicksA;
+        //    viewModelAccuracy.roNo = nowTicksA;
+        //    viewModelAccuracy.shipmentDate = DateTimeOffset.Now;
+        //    viewModelAccuracy.status = nowTicksA;
+        //    viewModelAccuracy.staff = nowTicksA;
+        //    viewModelAccuracy.category = nowTicksA;
+        //    viewModelAccuracy.dateDiff = (int)nowTicks;
+        //    viewModelAccuracy.ok_notOk = nowTicksA;
+        //    viewModelAccuracy.percentOk_notOk = (int)nowTicks;
+        //    viewModelAccuracy.jumlahOk = (int)nowTicks;
+        //    viewModelAccuracy.jumlah = (int)nowTicks;
+        //    viewModelAccuracy.paymentMethod = data.PaymentMethod;
+        //    viewModelAccuracy.paymentType = data.PaymentType;
+        //    string paymentMethod = viewModelAccuracy.paymentMethod;
+        //    string paymentType = viewModelAccuracy.paymentType;
+
+        //    var Response2 = Facade.GetReportDetailAccuracyofArrival($"BuyerCode{nowTicksA}", null, null, null, 7);
+        //    Assert.NotNull(Response2.Item1);
+
+        //    var Response3 = Facade.GetReportDetailAccuracyofArrival($"BuyerCode{nowTicksA}", "Bahan Pendukung", null, null, 7);
+        //    Assert.NotNull(Response3.Item1);
+        //}
+
+        //[Fact]
+        //public async Task Should_Success_Get_Report_AccuracyArrival_Excel()
+        //{
+        //    GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+        //    var data = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+        //    await facade.Create(data, USERNAME);
+
+        //    var data2 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+        //    data2.DODate = DateTimeOffset.Now.AddDays(-35);
+        //    foreach (var item in data2.Items)
+        //    {
+        //        foreach (var detail in item.Details)
+        //        {
+        //            detail.ProductCode = "SUB";
+        //        }
+        //    }
+        //    await facade.Create(data2, USERNAME);
+
+        //    var data3 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+        //    data3.DODate = DateTimeOffset.Now.AddDays(-34);
+        //    foreach (var item in data3.Items)
+        //    {
+        //        foreach (var detail in item.Details)
+        //        {
+        //            detail.ProductCode = "SUB";
+        //        }
+        //    }
+        //    await facade.Create(data3, USERNAME);
+
+        //    var data4 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+        //    data4.DODate = DateTimeOffset.Now.AddDays(-33);
+        //    foreach (var item in data4.Items)
+        //    {
+        //        foreach (var detail in item.Details)
+        //        {
+        //            detail.ProductCode = "LBL";
+        //        }
+        //    }
+        //    await facade.Create(data4, USERNAME);
+
+        //    var Facade = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+        //    var Response = Facade.GenerateExcelArrivalHeader(null, null, null, 7);
+        //    Assert.IsType<System.IO.MemoryStream>(Response);
+
+        //    long nowTicks = DateTimeOffset.Now.Ticks;
+        //    string nowTicksA = $"{nowTicks}a";
+        //    var Response1 = Facade.GenerateExcelArrivalDetail($"BuyerCode{nowTicksA}", null, null, null, 7);
+        //    Assert.IsType<System.IO.MemoryStream>(Response1);
+        //}
+
+
+        //[Fact]
+        //public async Task ShouldSuccess_GetReportHeaderAccuracyofArrival_with_CategoryBB()
+        //{
+        //    //Setup
+        //    Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
+        //    string testName = GetCurrentAsyncMethod();
+        //    PurchasingDbContext dbCOntext = _dbContext(testName);
+
+        //    GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(serviceProviderMock.Object, dbCOntext);
+        //    var data = await dataUtil(facade, testName).GetTestData();
+
+        //    //Act
+        //    var response = facade.GetReportHeaderAccuracyofArrival("Bahan Baku", null, null,1);
+
+        //    //Assert
+        //    Assert.NotNull(response);
+        //}
+
+        //[Fact]
+        //public async Task ShouldSuccess_GetReportHeaderAccuracyofArrival_with_CategoryBP()
+        //{
+        //    //Setup
+        //    Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
+        //    string testName = GetCurrentAsyncMethod();
+        //    PurchasingDbContext dbCOntext = _dbContext(testName);
+
+        //    GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(serviceProviderMock.Object, dbCOntext);
+        //    var data = await dataUtil(facade, testName).GetTestData();
+
+        //    //Act
+        //    var response = facade.GetReportHeaderAccuracyofArrival("Bahan Pendukung", null, null, 1);
+
+        //    //Assert
+        //    Assert.NotNull(response);
+        //}
+
+
+        //[Fact]
+        //public void ShouldSuccess_GetAccuracyOfArrivalHeader()
+        //{
+        //    //Setup
+        //    Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
+        //    string testName = GetCurrentAsyncMethod();
+        //    PurchasingDbContext dbCOntext = _dbContext(testName);
+
+        //    GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(serviceProviderMock.Object, dbCOntext);
+
+        //    //Act
+        //    var response = facade.GetAccuracyOfArrivalHeader(null, null, null);
+
+        //    //Assert
+        //    Assert.NotNull(response);
+        //}
+
+
+
+        //[Fact]
+        //public async Task ShouldSuccess_GetAccuracyOfArrivalHeader_with_CategoryBB()
+        //{
+        //    //Setup
+        //    Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
+        //    string testName = GetCurrentAsyncMethod();
+        //    PurchasingDbContext dbCOntext = _dbContext(testName);
+
+        //    GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(serviceProviderMock.Object, dbCOntext);
+        //    var data = await dataUtil(facade, testName).GetTestData();
+
+        //    //Act
+        //    var response = facade.GetAccuracyOfArrivalHeader("Bahan Baku", null, null);
+
+        //    //Assert
+        //    Assert.NotNull(response);
+        //}
+
+        //[Fact]
+        //public async Task ShouldSuccess_GetAccuracyOfArrivalHeader_with_CategoryBP()
+        //{
+        //    //Setup
+        //    Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
+        //    string testName = GetCurrentAsyncMethod();
+        //    PurchasingDbContext dbCOntext = _dbContext(testName);
+
+        //    GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(serviceProviderMock.Object, dbCOntext);
+        //    var data = await dataUtil(facade, testName).GetTestData();
+
+        //    //Act
+        //    var response = facade.GetAccuracyOfArrivalHeader("Bahan Pendukung", DateTime.Now.AddDays(-28), DateTime.Now.AddDays(28));
+
+        //    //Assert
+        //    Assert.NotNull(response);
+        //    Assert.True(response.Total > 0);
+        //}
+
+        //[Fact]
+        //public async Task ShouldThrowsException_GetAccuracyOfArrivalHeader_When_InvalidDateRange()
+        //{
+        //    //Setup
+        //    Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
+        //    string testName = GetCurrentAsyncMethod();
+        //    var dbCOntext = _dbContext(testName);
+
+        //    GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(serviceProviderMock.Object, dbCOntext);
+        //    var data = await dataUtil(facade, testName).GetTestData();
+
+        //    //Act and Assert
+        //    Assert.Throws<Exception>(() => facade.GetAccuracyOfArrivalHeader("Bahan Pendukung", DateTime.Now.AddDays(2), DateTime.Now));
+        //}
+
+        //[Fact]
+        //public async Task ShouldSuccess_GetAccuracyOfArrivalDetail_with_CategoryBB()
+        //{
+        //    //Setup
+        //    Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
+        //    string testName = GetCurrentAsyncMethod();
+        //    var dbCOntext = _dbContext(testName);
+
+        //    GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(serviceProviderMock.Object, dbCOntext);
+        //    var data = await dataUtil(facade, testName).GetTestData();
+        //    //Act
+        //    var response = facade.GetAccuracyOfArrivalDetail(data.SupplierCode, "Bahan Baku", DateTime.Now.AddDays(28), DateTime.Now.AddDays(28));
+
+        //    //Assert
+        //    Assert.NotNull(response);
+        //}
+
+        //[Fact]
+        //public async Task ShouldSuccess_GetAccuracyOfArrivalDetail_with_CategoryBP()
+        //{
+        //    //Setup
+        //    Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
+        //    string testName = GetCurrentAsyncMethod();
+        //    var dbCOntext = _dbContext(testName);
+
+        //    GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(serviceProviderMock.Object, dbCOntext);
+        //    var data = await dataUtil(facade, testName).GetTestData();
+        //    //Act
+        //    var response = facade.GetAccuracyOfArrivalDetail(data.SupplierCode, "Bahan Pendukung", null, null);
+
+        //    //Assert
+        //    Assert.NotNull(response);
+        //}
+
+        //[Fact]
+        //public async Task ShouldThrowsException_GetAccuracyOfArrivalDetail_When_InvalidDateRange()
+        //{
+        //    //Setup
+        //    Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
+        //    string testName = GetCurrentAsyncMethod();
+        //    var dbCOntext = _dbContext(testName);
+
+        //    GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(serviceProviderMock.Object, dbCOntext);
+        //    var data = await dataUtil(facade, testName).GetTestData();
+
+        //    //Act and Assert
+        //    Assert.Throws<Exception>(() => facade.GetAccuracyOfArrivalDetail(data.SupplierCode, "Bahan Pendukung", DateTime.Now.AddDays(2), DateTime.Now));
+        //}
+
+
+        //[Fact]
+        //public void ShouldSuccess_GetAccuracyOfArrivalDetail_With_EmptyData()
+        //{
+        //    //Setup
+        //    Mock<IServiceProvider> serviceProviderMock = GetServiceProvider();
+        //    string testName = GetCurrentAsyncMethod();
+        //    PurchasingDbContext dbCOntext = _dbContext(testName);
+
+        //    GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(serviceProviderMock.Object, dbCOntext);
+
+        //    //Act
+        //    var response = facade.GetAccuracyOfArrivalDetail(null, null, null,null);
+
+        //    //Assert
+        //    Assert.NotNull(response);
+        //}
+
+        //[Fact]
+        //public async Task Should_Success_Get_Report_AccuracyDelivery()
+        //{
+        //    GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+        //    var data = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+        //    data.DODate = DateTimeOffset.Now.AddDays(10);
+        //    foreach (var item in data.Items)
+        //    {
+        //        foreach (var detail in item.Details)
+        //        {
+        //            detail.ProductCode = "LBL";
+        //        }
+        //    }
+        //    await facade.Create(data, USERNAME);
+
+        //    var Facade = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+        //    var Response = Facade.GetReportHeaderAccuracyofDelivery(null, null, data.PaymentType, data.PaymentMethod, 7);
+        //    Assert.NotNull(Response.Item1);
+
+        //    var data2 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+        //    data2.DODate = DateTimeOffset.Now.AddDays(10);
+        //    foreach (var item in data2.Items)
+        //    {
+        //        foreach (var detail in item.Details)
+        //        {
+        //            detail.ProductCode = "SUB";
+        //        }
+        //    }
+        //    await facade.Create(data2, USERNAME);
+
+        //    var data3 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+        //    data3.DODate = DateTimeOffset.Now.AddDays(10);
+        //    foreach (var item in data3.Items)
+        //    {
+        //        foreach (var detail in item.Details)
+        //        {
+        //            detail.ProductCode = "SUB";
+        //        }
+        //    }
+        //    await facade.Create(data3, USERNAME);
+
+        //    var data4 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+        //    data4.DODate = DateTimeOffset.Now.AddDays(11);
+        //    foreach (var item in data4.Items)
+        //    {
+        //        foreach (var detail in item.Details)
+        //        {
+        //            detail.ProductCode = "LBL";
+        //        }
+        //    }
+        //    await facade.Create(data4, USERNAME);
+
+        //    var Response1 = Facade.GetReportHeaderAccuracyofDelivery(null, null, "", "", 7);
+        //    Assert.NotNull(Response1.Item1);
+
+        //    long nowTicks = DateTimeOffset.Now.Ticks;
+        //    string nowTicksA = $"{nowTicks}a";
+        //    var Response2 = Facade.GetReportDetailAccuracyofDelivery($"BuyerCode{nowTicksA}", null, null, "", "", 7);
+        //    Assert.NotNull(Response2.Item1);
+        //}
+
+        //[Fact]
+        //public async Task Should_Success_Get_Report_AccuracyDelivery_Excel()
+        //{
+        //    GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+        //    var data = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+        //    await facade.Create(data, USERNAME);
+
+        //    var data2 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+        //    data2.DODate = DateTimeOffset.Now.AddDays(10);
+        //    foreach (var item in data2.Items)
+        //    {
+        //        foreach (var detail in item.Details)
+        //        {
+        //            detail.ProductCode = "SUB";
+        //        }
+        //    }
+        //    await facade.Create(data2, USERNAME);
+
+        //    var data3 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+        //    data3.DODate = DateTimeOffset.Now.AddDays(10);
+        //    foreach (var item in data3.Items)
+        //    {
+        //        foreach (var detail in item.Details)
+        //        {
+        //            detail.ProductCode = "SUB";
+        //        }
+        //    }
+        //    await facade.Create(data3, USERNAME);
+
+        //    var data4 = await dataUtil(facade, GetCurrentMethod()).GetNewData3();
+        //    data4.DODate = DateTimeOffset.Now.AddDays(10);
+        //    foreach (var item in data4.Items)
+        //    {
+        //        foreach (var detail in item.Details)
+        //        {
+        //            detail.ProductCode = "LBL";
+        //        }
+        //    }
+        //    await facade.Create(data4, USERNAME);
+
+        //    var Facade = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+        //    var Response = Facade.GenerateExcelDeliveryHeader(null, null, "", "", 7);
+        //    Assert.IsType<System.IO.MemoryStream>(Response);
+
+        //    long nowTicks = DateTimeOffset.Now.Ticks;
+        //    string nowTicksA = $"{nowTicks}a";
+        //    var Response1 = Facade.GenerateExcelDeliveryDetail($"BuyerCode{nowTicksA}", null, null, "", "", 7);
+        //    Assert.IsType<System.IO.MemoryStream>(Response1);
+        //}
+
+        //[Fact]
+        //public async Task Should_Success_Get_Report_Data()
+        //{
+        //    GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+        //    var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+        //    var Response = facade.GetReportDO(model.DONo, "", model.SupplierId, null, null, 1, 25, "{}", 7);
+        //    Assert.NotEqual(-1, Response.Item2);
+        //}
+
+        //[Fact]
+        //public async Task Should_Success_Get_Report_Data_Null_Parameter()
+        //{
+        //    GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+        //    var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+        //    var Response = facade.GetReportDO("", "", 0, null, null, 1, 25, "{}", 7);
+        //    Assert.NotEmpty(Response.Item1);
+        //}
+
+        //[Fact]
+        //public async Task Should_Success_Get_Report_Data_Excel()
+        //{
+        //    GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+        //    var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+        //    var Response = facade.GenerateExcelDO(model.DONo, "", model.SupplierId, null, null, 7);
+        //    Assert.IsType<System.IO.MemoryStream>(Response);
+        //}
+
+        //[Fact]
+        //public async Task Should_Success_Get_Report_Data_Excel_Null_parameter()
+        //{
+        //    GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+        //    var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+        //    var Response = facade.GenerateExcelDO("", "", 0, null, null, 7);
+        //    Assert.IsType<System.IO.MemoryStream>(Response);
+        //}
         // Buku Harian Pembelian
         //[Fact]
         //public async Task Should_Success_Get_Buku_Sub_Beli_Data()
@@ -1245,12 +1245,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         //    var result = reportFacade.GenerateExcelDebtReport(DateTime.Now.Month + 1, DateTime.Now.Year + 1, null, "");
         //    Assert.IsType<System.IO.MemoryStream>(result);
         //}
-        [Fact]
-        public void Create_Connection_Error()
-        {
-            var result = Assert.ThrowsAny<Exception>(() => new LocalDbCashFlowDbContext(""));
-            Assert.NotNull(result);
-        }
+        //[Fact]
+        //public void Create_Connection_Error()
+        //{
+        //    var result = Assert.ThrowsAny<Exception>(() => new LocalDbCashFlowDbContext(""));
+        //    Assert.NotNull(result);
+        //}
 
         //[Fact]
         //public async Task Should_Success_Get_Debt_Balance_Report()
@@ -1473,140 +1473,140 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         //    var result = reportFacade.GenerateExcelDebtReport(DateTime.Now.Month + 1, DateTime.Now.Year + 1, null, "");
         //    Assert.IsType<System.IO.MemoryStream>(result);
         //}
-        [Fact]
-        public async Task Should_Success_Get_Debt_Card_Report()
-        {
-            DataTable dataTable = new DataTable();
-            GarmentDeliveryOrderFacade deliveryOrderFacade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            //var datautilDO = dataUtil(deliveryOrderFacade, GetCurrentMethod());
-            var data = await dataUtil(deliveryOrderFacade, GetCurrentMethod()).GetNewData3();
-            data.DONo = "DONoTest123";
-            data.DOCurrencyCode = "CurrencyCode123";
-            data.SupplierCode = "SupplierCodeTest123";
-            data.SupplierName = "SupplierNameTest123";
-            data.ArrivalDate = new DateTime(2020, 03, 12);
-            await deliveryOrderFacade.Create(data, "Unit Test");
-            var data2 = await dataUtil(deliveryOrderFacade, GetCurrentMethod()).GetNewData3();
-            data2.DONo = "DONoTest12";
-            data2.DOCurrencyCode = "CurrencyCode123";
-            data2.SupplierCode = "SupplierCodeTest123";
-            data2.SupplierName = "SupplierNameTest123";
-            data2.ArrivalDate = new DateTime(2020, 04, 20);
-            await deliveryOrderFacade.Create(data2, "Unit Test");
+        //[Fact]
+        //public async Task Should_Success_Get_Debt_Card_Report()
+        //{
+        //    DataTable dataTable = new DataTable();
+        //    GarmentDeliveryOrderFacade deliveryOrderFacade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+        //    //var datautilDO = dataUtil(deliveryOrderFacade, GetCurrentMethod());
+        //    var data = await dataUtil(deliveryOrderFacade, GetCurrentMethod()).GetNewData3();
+        //    data.DONo = "DONoTest123";
+        //    data.DOCurrencyCode = "CurrencyCode123";
+        //    data.SupplierCode = "SupplierCodeTest123";
+        //    data.SupplierName = "SupplierNameTest123";
+        //    data.ArrivalDate = new DateTime(2020, 03, 12);
+        //    await deliveryOrderFacade.Create(data, "Unit Test");
+        //    var data2 = await dataUtil(deliveryOrderFacade, GetCurrentMethod()).GetNewData3();
+        //    data2.DONo = "DONoTest12";
+        //    data2.DOCurrencyCode = "CurrencyCode123";
+        //    data2.SupplierCode = "SupplierCodeTest123";
+        //    data2.SupplierName = "SupplierNameTest123";
+        //    data2.ArrivalDate = new DateTime(2020, 04, 20);
+        //    await deliveryOrderFacade.Create(data2, "Unit Test");
 
-            dataTable.Columns.Add("Jumlah", typeof(decimal));
-            dataTable.Columns.Add("Rate", typeof(decimal));
-            dataTable.Columns.Add("Rate1", typeof(decimal));
-            dataTable.Columns.Add("Nomor", typeof(string));
-            dataTable.Columns.Add("Tgl", typeof(DateTime));
-            dataTable.Rows.Add(0, 12, 12, "Nomor", "1970,1,1");
-            Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
-            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
-                .Returns(dataTable.CreateDataReader());
-            mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
-                .Returns(dataTable.CreateDataReader());
-            DebtCardReportFacade cardReportFacade = new DebtCardReportFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()), mockDbContext.Object);
-            var Response = cardReportFacade.GetDebtCardReport(4, 2020, data.SupplierCode, data.SupplierName, data.DOCurrencyCode, null, 7);
-            Assert.NotNull(Response.Item1);
-        }
-        [Fact]
-        public async Task Should_Success_Get_Debt_Card_Report_With_Date() {
-            DataTable dataTable = new DataTable();
-            GarmentDeliveryOrderFacade deliveryOrderFacade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            dataTable.Columns.Add("Jumlah", typeof(decimal));
-            dataTable.Columns.Add("Rate", typeof(decimal));
-            dataTable.Columns.Add("Rate1", typeof(decimal));
-            dataTable.Columns.Add("Nomor", typeof(string));
-            dataTable.Columns.Add("Tgl", typeof(DateTime));
-            dataTable.Rows.Add(0, 12, 12, "Nomor", DateTime.Now);
-            Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
-            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
-                .Returns(dataTable.CreateDataReader());
-            mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
-                .Returns(dataTable.CreateDataReader());
-            var data = await dataUtil(deliveryOrderFacade, GetCurrentMethod()).GetNewData3();
-            data.SupplierCode = "SupplierCode123";
-            data.SupplierName = "SupplierName234";
-            data.DOCurrencyCode = "Currency123";
-            data.ArrivalDate = new DateTime(2019, 03, 03);
-            await deliveryOrderFacade.Create(data, GetCurrentMethod());
+        //    dataTable.Columns.Add("Jumlah", typeof(decimal));
+        //    dataTable.Columns.Add("Rate", typeof(decimal));
+        //    dataTable.Columns.Add("Rate1", typeof(decimal));
+        //    dataTable.Columns.Add("Nomor", typeof(string));
+        //    dataTable.Columns.Add("Tgl", typeof(DateTime));
+        //    dataTable.Rows.Add(0, 12, 12, "Nomor", "1970,1,1");
+        //    Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+        //    mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+        //        .Returns(dataTable.CreateDataReader());
+        //    mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
+        //        .Returns(dataTable.CreateDataReader());
+        //    DebtCardReportFacade cardReportFacade = new DebtCardReportFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()), mockDbContext.Object);
+        //    var Response = cardReportFacade.GetDebtCardReport(4, 2020, data.SupplierCode, data.SupplierName, data.DOCurrencyCode, null, 7);
+        //    Assert.NotNull(Response.Item1);
+        //}
+        //[Fact]
+        //public async Task Should_Success_Get_Debt_Card_Report_With_Date() {
+        //    DataTable dataTable = new DataTable();
+        //    GarmentDeliveryOrderFacade deliveryOrderFacade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+        //    dataTable.Columns.Add("Jumlah", typeof(decimal));
+        //    dataTable.Columns.Add("Rate", typeof(decimal));
+        //    dataTable.Columns.Add("Rate1", typeof(decimal));
+        //    dataTable.Columns.Add("Nomor", typeof(string));
+        //    dataTable.Columns.Add("Tgl", typeof(DateTime));
+        //    dataTable.Rows.Add(0, 12, 12, "Nomor", DateTime.Now);
+        //    Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+        //    mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+        //        .Returns(dataTable.CreateDataReader());
+        //    mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
+        //        .Returns(dataTable.CreateDataReader());
+        //    var data = await dataUtil(deliveryOrderFacade, GetCurrentMethod()).GetNewData3();
+        //    data.SupplierCode = "SupplierCode123";
+        //    data.SupplierName = "SupplierName234";
+        //    data.DOCurrencyCode = "Currency123";
+        //    data.ArrivalDate = new DateTime(2019, 03, 03);
+        //    await deliveryOrderFacade.Create(data, GetCurrentMethod());
 
-            DebtCardReportFacade debtCard = new DebtCardReportFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()), mockDbContext.Object);
-            var Response = debtCard.GetDebtCardReport(3, 2019, data.SupplierCode, null, data.DOCurrencyCode, null, 7);
-            Assert.NotNull(Response.Item1);
-        }
-        [Fact]
-        public async Task Should_Success_Generate_Debt_Card_Report_Excel() {
-            DataTable dataTable = new DataTable();
-            GarmentDeliveryOrderFacade deliveryOrderFacade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            dataTable.Columns.Add("Jumlah", typeof(decimal));
-            dataTable.Columns.Add("Rate", typeof(decimal));
-            dataTable.Columns.Add("Rate1", typeof(decimal));
-            dataTable.Columns.Add("Nomor", typeof(string));
-            dataTable.Columns.Add("Tgl", typeof(DateTime));
-            dataTable.Rows.Add(0, 12, 12, "Nomor", "1970,1,1");
-            Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
-            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
-                .Returns(dataTable.CreateDataReader());
-            mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
-                .Returns(dataTable.CreateDataReader());
+        //    DebtCardReportFacade debtCard = new DebtCardReportFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()), mockDbContext.Object);
+        //    var Response = debtCard.GetDebtCardReport(3, 2019, data.SupplierCode, null, data.DOCurrencyCode, null, 7);
+        //    Assert.NotNull(Response.Item1);
+        //}
+        //[Fact]
+        //public async Task Should_Success_Generate_Debt_Card_Report_Excel() {
+        //    DataTable dataTable = new DataTable();
+        //    GarmentDeliveryOrderFacade deliveryOrderFacade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+        //    dataTable.Columns.Add("Jumlah", typeof(decimal));
+        //    dataTable.Columns.Add("Rate", typeof(decimal));
+        //    dataTable.Columns.Add("Rate1", typeof(decimal));
+        //    dataTable.Columns.Add("Nomor", typeof(string));
+        //    dataTable.Columns.Add("Tgl", typeof(DateTime));
+        //    dataTable.Rows.Add(0, 12, 12, "Nomor", "1970,1,1");
+        //    Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+        //    mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+        //        .Returns(dataTable.CreateDataReader());
+        //    mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
+        //        .Returns(dataTable.CreateDataReader());
 
-            var data = await dataUtil(deliveryOrderFacade, GetCurrentMethod()).GetNewData3();
-            data.DONo = "DONoTest123";
-            data.DOCurrencyCode = "CurrencyCode123";
-            data.SupplierCode = "SupplierCodeTest123";
-            data.SupplierName = "SupplierNameTest123";
-            data.ArrivalDate = new DateTime(2020, 03, 12);
-            await deliveryOrderFacade.Create(data, "Unit Test");
-            var data2 = await dataUtil(deliveryOrderFacade, GetCurrentMethod()).GetNewData3();
-            data2.DONo = "DONoTest12";
-            data2.DOCurrencyCode = "CurrencyCode123";
-            data2.SupplierCode = "SupplierCodeTest123";
-            data2.SupplierName = "SupplierNameTest123";
-            data2.ArrivalDate = new DateTime(2020, 04, 20);
-            await deliveryOrderFacade.Create(data2, "Unit Test");
-            DebtCardReportFacade cardReportFacade = new DebtCardReportFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()), mockDbContext.Object);
-            var Response = cardReportFacade.GenerateExcelCardReport(4, 2020, data.SupplierCode, data.SupplierName, data.DOCurrencyCode, "CurrencyTest", null, 7);
-            Assert.IsType<System.IO.MemoryStream>(Response);
+        //    var data = await dataUtil(deliveryOrderFacade, GetCurrentMethod()).GetNewData3();
+        //    data.DONo = "DONoTest123";
+        //    data.DOCurrencyCode = "CurrencyCode123";
+        //    data.SupplierCode = "SupplierCodeTest123";
+        //    data.SupplierName = "SupplierNameTest123";
+        //    data.ArrivalDate = new DateTime(2020, 03, 12);
+        //    await deliveryOrderFacade.Create(data, "Unit Test");
+        //    var data2 = await dataUtil(deliveryOrderFacade, GetCurrentMethod()).GetNewData3();
+        //    data2.DONo = "DONoTest12";
+        //    data2.DOCurrencyCode = "CurrencyCode123";
+        //    data2.SupplierCode = "SupplierCodeTest123";
+        //    data2.SupplierName = "SupplierNameTest123";
+        //    data2.ArrivalDate = new DateTime(2020, 04, 20);
+        //    await deliveryOrderFacade.Create(data2, "Unit Test");
+        //    DebtCardReportFacade cardReportFacade = new DebtCardReportFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()), mockDbContext.Object);
+        //    var Response = cardReportFacade.GenerateExcelCardReport(4, 2020, data.SupplierCode, data.SupplierName, data.DOCurrencyCode, "CurrencyTest", null, 7);
+        //    Assert.IsType<System.IO.MemoryStream>(Response);
 
-        }
+        //}
 
-        [Fact]
-        public async Task Should_Success_Generate_Debt_Card_Report_Excel_Null_Parameters()
-        {
-            DataTable dataTable = new DataTable();
-            GarmentDeliveryOrderFacade deliveryOrderFacade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            dataTable.Columns.Add("Jumlah", typeof(decimal));
-            dataTable.Columns.Add("Rate", typeof(decimal));
-            dataTable.Columns.Add("Rate1", typeof(decimal));
-            dataTable.Columns.Add("Nomor", typeof(string));
-            dataTable.Columns.Add("Tgl", typeof(DateTime));
-            dataTable.Rows.Add(0, 12, 12, "Nomor", "1970,1,1");
-            Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
-            mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
-                .Returns(dataTable.CreateDataReader());
-            mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
-                .Returns(dataTable.CreateDataReader());
+        //[Fact]
+        //public async Task Should_Success_Generate_Debt_Card_Report_Excel_Null_Parameters()
+        //{
+        //    DataTable dataTable = new DataTable();
+        //    GarmentDeliveryOrderFacade deliveryOrderFacade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+        //    dataTable.Columns.Add("Jumlah", typeof(decimal));
+        //    dataTable.Columns.Add("Rate", typeof(decimal));
+        //    dataTable.Columns.Add("Rate1", typeof(decimal));
+        //    dataTable.Columns.Add("Nomor", typeof(string));
+        //    dataTable.Columns.Add("Tgl", typeof(DateTime));
+        //    dataTable.Rows.Add(0, 12, 12, "Nomor", "1970,1,1");
+        //    Mock<ILocalDbCashFlowDbContext> mockDbContext = new Mock<ILocalDbCashFlowDbContext>();
+        //    mockDbContext.Setup(s => s.ExecuteReaderOnlyQuery(It.IsAny<string>()))
+        //        .Returns(dataTable.CreateDataReader());
+        //    mockDbContext.Setup(s => s.ExecuteReader(It.IsAny<string>(), It.IsAny<List<SqlParameter>>()))
+        //        .Returns(dataTable.CreateDataReader());
 
-            var data = await dataUtil(deliveryOrderFacade, GetCurrentMethod()).GetNewData3();
-            data.DONo = "DONoTest123";
-            data.DOCurrencyCode = "CurrencyCode123";
-            data.SupplierCode = "SupplierCodeTest123";
-            data.SupplierName = "SupplierNameTest123";
-            data.ArrivalDate = new DateTime(2020, 03, 12);
-            await deliveryOrderFacade.Create(data, "Unit Test");
-            var data2 = await dataUtil(deliveryOrderFacade, GetCurrentMethod()).GetNewData3();
-            data2.DONo = "DONoTest12";
-            data2.DOCurrencyCode = "CurrencyCode123";
-            data2.SupplierCode = "SupplierCodeTest123";
-            data2.SupplierName = "SupplierNameTest123";
-            data2.ArrivalDate = new DateTime(2020, 04, 20);
-            await deliveryOrderFacade.Create(data2, "Unit Test");
-            DebtCardReportFacade cardReportFacade = new DebtCardReportFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()), mockDbContext.Object);
-            var Response = cardReportFacade.GenerateExcelCardReport(4, 2020, null, null, null, "", null, 7);
-            Assert.IsType<System.IO.MemoryStream>(Response);
+        //    var data = await dataUtil(deliveryOrderFacade, GetCurrentMethod()).GetNewData3();
+        //    data.DONo = "DONoTest123";
+        //    data.DOCurrencyCode = "CurrencyCode123";
+        //    data.SupplierCode = "SupplierCodeTest123";
+        //    data.SupplierName = "SupplierNameTest123";
+        //    data.ArrivalDate = new DateTime(2020, 03, 12);
+        //    await deliveryOrderFacade.Create(data, "Unit Test");
+        //    var data2 = await dataUtil(deliveryOrderFacade, GetCurrentMethod()).GetNewData3();
+        //    data2.DONo = "DONoTest12";
+        //    data2.DOCurrencyCode = "CurrencyCode123";
+        //    data2.SupplierCode = "SupplierCodeTest123";
+        //    data2.SupplierName = "SupplierNameTest123";
+        //    data2.ArrivalDate = new DateTime(2020, 04, 20);
+        //    await deliveryOrderFacade.Create(data2, "Unit Test");
+        //    DebtCardReportFacade cardReportFacade = new DebtCardReportFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()), mockDbContext.Object);
+        //    var Response = cardReportFacade.GenerateExcelCardReport(4, 2020, null, null, null, "", null, 7);
+        //    Assert.IsType<System.IO.MemoryStream>(Response);
 
-        }
+        //}
 
     }
 }
