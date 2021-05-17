@@ -30,7 +30,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
                     RO = "",
                     PlanPo = "",
                     NoArticle = "",
-                    ProductName = "",
+                    //ProductName = "",
                     ProductRemark = "",
                     Buyer = "",
                     BeginningBalanceQty = 0,
