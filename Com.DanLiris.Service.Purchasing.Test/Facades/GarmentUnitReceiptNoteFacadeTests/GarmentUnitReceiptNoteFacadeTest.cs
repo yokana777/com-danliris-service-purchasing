@@ -573,7 +573,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
                 data.DONo
             };
             var Response = facade.ReadURNItem();
-            Assert.NotEmpty(Response.Data);
+            Assert.NotEmpty(Response);
         }
 
         [Fact]
