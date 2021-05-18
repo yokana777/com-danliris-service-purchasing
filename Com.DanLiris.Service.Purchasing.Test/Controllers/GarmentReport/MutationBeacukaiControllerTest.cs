@@ -157,70 +157,70 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
 
-        [Fact]
-        public void Should_Success_Get_Report_Xls()
-        {
-            var mockFacade = new Mock<IMutationBeacukaiFacade>();
-            mockFacade.Setup(x => x.GenerateExcelBBCentral(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>()))
-                .Returns(new MemoryStream());
+        //[Fact]
+        //public void Should_Success_Get_Report_Xls()
+        //{
+        //    var mockFacade = new Mock<IMutationBeacukaiFacade>();
+        //    mockFacade.Setup(x => x.GenerateExcelBBCentral(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>()))
+        //        .Returns(new MemoryStream());
 
-            var mockMapper = new Mock<IMapper>();
-            mockMapper.Setup(x => x.Map<List<MutationBBCentralViewModel>>(It.IsAny<List<MutationBBCentralViewModel>>()))
-                .Returns(new List<MutationBBCentralViewModel> { viewModelBB });
+        //    var mockMapper = new Mock<IMapper>();
+        //    mockMapper.Setup(x => x.Map<List<MutationBBCentralViewModel>>(It.IsAny<List<MutationBBCentralViewModel>>()))
+        //        .Returns(new List<MutationBBCentralViewModel> { viewModelBB });
 
-            var user = new Mock<System.Security.Claims.ClaimsPrincipal>();
-            var claims = new Claim[]
-            {
-                new Claim("username", "unittestusername")
-            };
-            user.Setup(u => u.Claims).Returns(claims);
-            MutationBeacukaiController controller = new MutationBeacukaiController(mockFacade.Object, GetServiceProvider().Object);
-            controller.ControllerContext = new ControllerContext()
-            {
-                HttpContext = new DefaultHttpContext()
-                {
-                    User = user.Object
-                }
-            };
+        //    var user = new Mock<System.Security.Claims.ClaimsPrincipal>();
+        //    var claims = new Claim[]
+        //    {
+        //        new Claim("username", "unittestusername")
+        //    };
+        //    user.Setup(u => u.Claims).Returns(claims);
+        //    MutationBeacukaiController controller = new MutationBeacukaiController(mockFacade.Object, GetServiceProvider().Object);
+        //    controller.ControllerContext = new ControllerContext()
+        //    {
+        //        HttpContext = new DefaultHttpContext()
+        //        {
+        //            User = user.Object
+        //        }
+        //    };
 
-            //var dateTo = DateTime.UtcNow.AddDays(1);
-            //var dateFrom = dateTo.AddDays(-30);
+        //    //var dateTo = DateTime.UtcNow.AddDays(1);
+        //    //var dateFrom = dateTo.AddDays(-30);
 
-            var response = controller.GetXlsBBCentral(It.IsAny<DateTime>(), It.IsAny<DateTime>());
-            Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.GetType().GetProperty("ContentType").GetValue(response, null));
-        }
-        [Fact]
-        public void Should_Success_Get_Report_Xls_BP()
-        {
-            var mockFacade = new Mock<IMutationBeacukaiFacade>();
-            mockFacade.Setup(x => x.GenerateExcelBPCentral(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>()))
-                .Returns(new MemoryStream());
+        //    var response = controller.GetXlsBBCentral(It.IsAny<DateTime>(), It.IsAny<DateTime>());
+        //    Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.GetType().GetProperty("ContentType").GetValue(response, null));
+        //}
+        //[Fact]
+        //public void Should_Success_Get_Report_Xls_BP()
+        //{
+        //    var mockFacade = new Mock<IMutationBeacukaiFacade>();
+        //    mockFacade.Setup(x => x.GenerateExcelBPCentral(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>()))
+        //        .Returns(new MemoryStream());
 
-            var mockMapper = new Mock<IMapper>();
-            mockMapper.Setup(x => x.Map<List<MutationBBCentralViewModel>>(It.IsAny<List<MutationBBCentralViewModel>>()))
-                .Returns(new List<MutationBBCentralViewModel> { viewModelBB });
+        //    var mockMapper = new Mock<IMapper>();
+        //    mockMapper.Setup(x => x.Map<List<MutationBBCentralViewModel>>(It.IsAny<List<MutationBBCentralViewModel>>()))
+        //        .Returns(new List<MutationBBCentralViewModel> { viewModelBB });
 
-            var user = new Mock<System.Security.Claims.ClaimsPrincipal>();
-            var claims = new Claim[]
-            {
-                new Claim("username", "unittestusername")
-            };
-            user.Setup(u => u.Claims).Returns(claims);
-            MutationBeacukaiController controller = new MutationBeacukaiController(mockFacade.Object, GetServiceProvider().Object);
-            controller.ControllerContext = new ControllerContext()
-            {
-                HttpContext = new DefaultHttpContext()
-                {
-                    User = user.Object
-                }
-            };
+        //    var user = new Mock<System.Security.Claims.ClaimsPrincipal>();
+        //    var claims = new Claim[]
+        //    {
+        //        new Claim("username", "unittestusername")
+        //    };
+        //    user.Setup(u => u.Claims).Returns(claims);
+        //    MutationBeacukaiController controller = new MutationBeacukaiController(mockFacade.Object, GetServiceProvider().Object);
+        //    controller.ControllerContext = new ControllerContext()
+        //    {
+        //        HttpContext = new DefaultHttpContext()
+        //        {
+        //            User = user.Object
+        //        }
+        //    };
 
-            //var dateTo = DateTime.UtcNow.AddDays(1);
-            //var dateFrom = dateTo.AddDays(-30);
+        //    //var dateTo = DateTime.UtcNow.AddDays(1);
+        //    //var dateFrom = dateTo.AddDays(-30);
 
-            var response = controller.GetXlsBPCentral(It.IsAny<DateTime>(), It.IsAny<DateTime>());
-            Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.GetType().GetProperty("ContentType").GetValue(response, null));
-        }
+        //    var response = controller.GetXlsBPCentral(It.IsAny<DateTime>(), It.IsAny<DateTime>());
+        //    Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.GetType().GetProperty("ContentType").GetValue(response, null));
+        //}
 
         [Fact]
         public void Should_Fail_Get_Report_BB()
