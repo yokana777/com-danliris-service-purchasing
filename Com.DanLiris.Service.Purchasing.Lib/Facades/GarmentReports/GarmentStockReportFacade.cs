@@ -48,8 +48,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             var Codes = product.Where(x => categories1.Contains(x.Name)).ToList();
 
             //var lastdate = dbContext.BalanceStocks.OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault();
-            var lastdate = dbContext.BalanceStocks.Where(x=>x.PeriodeYear == "2018").OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault();
-            //var lastdate = ctg == "BB" ? dbContext.BalanceStocks.Where(x=>x.PeriodeYear == "2018").OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault() : dbContext.BalanceStocks.OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault();
+           // var lastdate = dbContext.BalanceStocks.Where(x=>x.PeriodeYear == "2018").OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault();
+            var lastdate = ctg == "BB" ? dbContext.BalanceStocks.Where(x=>x.PeriodeYear == "2018").OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault() : dbContext.BalanceStocks.OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault();
 
 
             var BalaceStock = (from a in dbContext.BalanceStocks
