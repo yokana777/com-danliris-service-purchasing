@@ -218,10 +218,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     MissingMemberHandling = MissingMemberHandling.Ignore
                 };
 
-                var divisions = JsonConvert.DeserializeObject<List<IdCOAResult>>(_jsonDivisions, jsonSerializerSettings);
-                var units = JsonConvert.DeserializeObject<List<IdCOAResult>>(_jsonUnits, jsonSerializerSettings);
-                var categories = JsonConvert.DeserializeObject<List<CategoryCOAResult>>(_jsonCategories, jsonSerializerSettings);
-                var incomeTaxes = JsonConvert.DeserializeObject<List<IncomeTaxCOAResult>>(_jsonIncomeTaxes, jsonSerializerSettings);
+                var divisions = JsonConvert.DeserializeObject<List<IdCOAResult>>(_jsonDivisions ?? "[]", jsonSerializerSettings);
+                var units = JsonConvert.DeserializeObject<List<IdCOAResult>>(_jsonUnits ?? "[]", jsonSerializerSettings);
+                var categories = JsonConvert.DeserializeObject<List<CategoryCOAResult>>(_jsonCategories ?? "[]", jsonSerializerSettings);
+                var incomeTaxes = JsonConvert.DeserializeObject<List<IncomeTaxCOAResult>>(_jsonIncomeTaxes ?? "[]", jsonSerializerSettings);
 
                 var purchaseRequestIds = unitReceiptNote.Items.Select(s => s.PRId).ToList();
                 var purchaseRequests = dbContext.PurchaseRequests.Where(w => purchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.CategoryCode, s.CategoryId }).ToList();
@@ -299,7 +299,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     var currencyTuples = new List<Tuple<string, DateTimeOffset>> { new Tuple<string, DateTimeOffset>(externalPurchaseOrder.CurrencyCode, unitPaymentCorrection.CorrectionDate) };
                     var currency = await _currencyProvider.GetCurrencyByCurrencyCodeDateList(currencyTuples);
 
-                    var currencyRate = currency.FirstOrDefault() != null ? (decimal)currency.FirstOrDefault().Rate.GetValueOrDefault() : (decimal)externalPurchaseOrder.CurrencyRate;
+                    var currencyRate = currency != null && currency.FirstOrDefault() != null ? (decimal)currency.FirstOrDefault().Rate.GetValueOrDefault() : (decimal)externalPurchaseOrder.CurrencyRate;
 
                     //if (!externalPurchaseOrder.UseIncomeTax)
                     //    incomeTaxRate = 1;
@@ -513,14 +513,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
             }
         }
 
-        private async Task ReverseJournalTransaction(string referenceNo)
-        {
-            string journalTransactionUri = $"journal-transactions/reverse-transactions/{referenceNo}";
-            var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
-            var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(new object()).ToString(), Encoding.UTF8, General.JsonMediaType));
+        //private async Task ReverseJournalTransaction(string referenceNo)
+        //{
+        //    string journalTransactionUri = $"journal-transactions/reverse-transactions/{referenceNo}";
+        //    var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+        //    var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(new object()).ToString(), Encoding.UTF8, General.JsonMediaType));
 
-            response.EnsureSuccessStatusCode();
-        }
+        //    response.EnsureSuccessStatusCode();
+        //}
 
         async Task<string> GeneratePONo(UnitPaymentCorrectionNote model, int clientTimeZoneOffset)
         {
