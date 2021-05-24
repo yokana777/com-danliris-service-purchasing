@@ -384,10 +384,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 MissingMemberHandling = MissingMemberHandling.Ignore
             };
 
-            var divisions = JsonConvert.DeserializeObject<List<IdCOAResult>>(_jsonDivisions ?? "[]", jsonSerializerSettings);
-            var units = JsonConvert.DeserializeObject<List<IdCOAResult>>(_jsonUnits ?? "[]", jsonSerializerSettings);
-            var categories = JsonConvert.DeserializeObject<List<CategoryCOAResult>>(_jsonCategories ?? "[]", jsonSerializerSettings);
-            var incomeTaxes = JsonConvert.DeserializeObject<List<IncomeTaxCOAResult>>(_jsonIncomeTaxes ?? "[]", jsonSerializerSettings);
+            var divisions = JsonConvert.DeserializeObject<List<IdCOAResult>>(string.IsNullOrEmpty(_jsonDivisions) ? "[]": _jsonDivisions, jsonSerializerSettings);
+            var units = JsonConvert.DeserializeObject<List<IdCOAResult>>(string.IsNullOrEmpty(_jsonUnits) ? "[]": _jsonUnits, jsonSerializerSettings);
+            var categories = JsonConvert.DeserializeObject<List<CategoryCOAResult>>(string.IsNullOrEmpty(_jsonCategories) ? "[]" : _jsonCategories, jsonSerializerSettings);
+            var incomeTaxes = JsonConvert.DeserializeObject<List<IncomeTaxCOAResult>>(string.IsNullOrEmpty(_jsonIncomeTaxes) ? "[]": _jsonIncomeTaxes, jsonSerializerSettings);
 
             var purchaseRequestIds = model.Items.Select(s => s.PRId).ToList();
             var purchaseRequests = dbContext.PurchaseRequests.Where(w => purchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.CategoryCode, s.CategoryId }).ToList();
