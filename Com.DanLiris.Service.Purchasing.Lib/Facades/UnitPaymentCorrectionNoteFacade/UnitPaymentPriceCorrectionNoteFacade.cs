@@ -165,6 +165,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                 {
                     EntityExtension.FlagForCreate(model, username, USER_AGENT);
 
+                    //override correctionDate to created date
+                    model.CorrectionDate = DateTimeOffset.Now.ToUniversalTime();
+
                     model.UPCNo = await GenerateNo(model, supplierImport, clientTimeZoneOffset);
                     if (model.useVat == true)
                     {
