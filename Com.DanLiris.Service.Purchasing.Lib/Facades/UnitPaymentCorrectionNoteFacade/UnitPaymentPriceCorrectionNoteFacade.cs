@@ -193,10 +193,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     this.dbSet.Add(model);
                     Created = await dbContext.SaveChangesAsync();
                     Created += await AddCorrections(model, username);
-                    transaction.Commit();
 
                     await AutoCreateJournalTransaction(model);
                     await AutoCreateCreditorAccount(model);
+
+                    transaction.Commit();
                 }
                 catch (Exception e)
                 {
@@ -497,14 +498,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     }
                 }
 
+
                 journalDebitItems = journalDebitItems.GroupBy(grouping => grouping.COA.Code).Select(s => new JournalTransactionItem()
                 {
                     COA = new COA()
                     {
                         Code = s.Key
                     },
-                    Debit = s.Sum(sum => Math.Round(sum.Debit.GetValueOrDefault(), 4)),
-                    Credit = 0,
+                    Debit = s.Sum(sum => Math.Round(sum.Debit.GetValueOrDefault(), 4)) > 0 ? s.Sum(sum => Math.Abs(Math.Round(sum.Debit.GetValueOrDefault(), 4))) : 0,
+                    Credit = s.Sum(sum => Math.Round(sum.Debit.GetValueOrDefault(), 4)) > 0 ? 0 : s.Sum(sum => Math.Abs(Math.Round(sum.Debit.GetValueOrDefault(), 4))),
                     Remark = string.Join("\n", s.Select(grouped => grouped.Remark).ToList())
                 }).ToList();
                 journalTransactionToPost.Items.AddRange(journalDebitItems);
@@ -515,8 +517,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     {
                         Code = s.Key
                     },
-                    Debit = 0,
-                    Credit = s.Sum(sum => Math.Round(sum.Credit.GetValueOrDefault(), 4)),
+                    Credit = s.Sum(sum => Math.Round(sum.Credit.GetValueOrDefault(), 4)) > 0 ? s.Sum(sum => Math.Abs(Math.Round(sum.Credit.GetValueOrDefault(), 4))) : 0,
+                    Debit = s.Sum(sum => Math.Round(sum.Credit.GetValueOrDefault(), 4)) > 0 ? 0 : s.Sum(sum => Math.Abs(Math.Round(sum.Credit.GetValueOrDefault(), 4))),
                     Remark = string.Join("\n", s.Select(grouped => grouped.Remark).ToList())
                 }).ToList();
                 journalTransactionToPost.Items.AddRange(journalCreditItems);
@@ -569,7 +571,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
 
                 if (unitPaymentCorrectionNote.useVat)
                     vatAmount = dppAmount * (decimal)0.1;
-                    
+
 
                 var viewModel = new CreateCreditorAccountViewModel()
                 {

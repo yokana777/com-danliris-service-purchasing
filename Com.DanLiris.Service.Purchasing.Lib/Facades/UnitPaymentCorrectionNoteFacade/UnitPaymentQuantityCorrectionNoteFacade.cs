@@ -550,8 +550,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     {
                         Code = s.Key
                     },
-                    Debit = s.Sum(sum => Math.Round(sum.Debit.GetValueOrDefault(), 4)),
-                    Credit = 0,
+                    Debit = s.Sum(sum => Math.Round(sum.Debit.GetValueOrDefault(), 4)) > 0 ? s.Sum(sum => Math.Abs(Math.Round(sum.Debit.GetValueOrDefault(), 4))) : 0,
+                    Credit = s.Sum(sum => Math.Round(sum.Debit.GetValueOrDefault(), 4)) > 0 ? 0 : s.Sum(sum => Math.Abs(Math.Round(sum.Debit.GetValueOrDefault(), 4))),
                     Remark = string.Join("\n", s.Select(grouped => grouped.Remark).ToList())
                 }).ToList();
                 journalTransactionToPost.Items.AddRange(journalDebitItems);
@@ -562,8 +562,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     {
                         Code = s.Key
                     },
-                    Debit = 0,
-                    Credit = s.Sum(sum => Math.Round(sum.Credit.GetValueOrDefault(), 4)),
+                    Credit = s.Sum(sum => Math.Round(sum.Credit.GetValueOrDefault(), 4)) > 0 ? s.Sum(sum => Math.Abs(Math.Round(sum.Credit.GetValueOrDefault(), 4))) : 0,
+                    Debit = s.Sum(sum => Math.Round(sum.Credit.GetValueOrDefault(), 4)) > 0 ? 0 : s.Sum(sum => Math.Abs(Math.Round(sum.Credit.GetValueOrDefault(), 4))),
                     Remark = string.Join("\n", s.Select(grouped => grouped.Remark).ToList())
                 }).ToList();
                 journalTransactionToPost.Items.AddRange(journalCreditItems);
