@@ -1949,7 +1949,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             await facadeRC.Create(dataRC.GarmentReceiptCorrection, USERNAME);
             var stockreport = new AccountingStockReportFacade(serviceProvider, dbContext);
             //var Response = stockreport.GenerateExcelAStockReport(null, dataUrn1.UnitCode, new DateTime(2019, 12, 26), new DateTime(2019, 12, 27), 7);
-            var Response = stockreport.GenerateExcelAStockReportAsync("BB", "BAHAN BAKU", "C2C", "KONFEKSI 2C", null, null, 7);
+            var Response = await stockreport.GenerateExcelAStockReportAsync("BB", "BAHAN BAKU", "C2C", "KONFEKSI 2C", null, null, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
         [Fact]
@@ -2229,6 +2229,26 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         }
 
         #endregion
+
+        [Fact]
+        public async Task Should_Success_RO_Feature()
+        {
+            var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var ro = "";
+
+            foreach (var i in data.Items)
+            {
+                ro = i.RONo;
+            }
+
+            var RoFacade = new ROFeatureFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var Response = RoFacade.GetROReport(7, ro, 1, 25, "{}");
+
+            Assert.NotNull(Response.Item1);
+            //var Response = facade.Read()
+        }
     }
 
 
