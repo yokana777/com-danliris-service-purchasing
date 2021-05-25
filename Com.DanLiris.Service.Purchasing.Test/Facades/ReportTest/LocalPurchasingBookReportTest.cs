@@ -155,7 +155,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
 
             mockCurrencyProvider
                 .Setup(x => x.GetCurrencyByCurrencyCodeDateList(It.IsAny<IEnumerable<Tuple<string, DateTimeOffset>>>()))
-                .ReturnsAsync(new List<Currency>());
+                .ReturnsAsync(new List<Currency> { new Currency { UId = "1", Code = "Currency", Date=DateTime.Now,Rate=1} });
 
             mockCurrencyProvider
                 .Setup(x => x.GetUnitsIdsByAccountingUnitId(It.IsAny<int>()))
@@ -167,19 +167,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
 
             mockCurrencyProvider
                 .Setup(x => x.GetUnitsByUnitIds(It.IsAny<List<int>>()))
-                .ReturnsAsync(new List<Unit>());
+                .ReturnsAsync(new List<Unit> { new Unit { Id = 1,AccountingUnitId=1} });
 
             mockCurrencyProvider
                 .Setup(x => x.GetAccountingUnitsByUnitIds(It.IsAny<List<int>>()))
-                .ReturnsAsync(new List<AccountingUnit>());
+                .ReturnsAsync(new List<AccountingUnit> { new AccountingUnit { Id = 1, Name ="AccountingUnit",Code ="AccoutingUnit"} });
 
             mockCurrencyProvider
                 .Setup(x => x.GetCategoriesByCategoryIds(It.IsAny<List<int>>()))
-                .ReturnsAsync(new List<Category>());
+                .ReturnsAsync(new List<Category> { new Category { Id = 1,AccountingCategoryId=1 } });
 
             mockCurrencyProvider
                 .Setup(x => x.GetAccountingCategoriesByCategoryIds(It.IsAny<List<int>>()))
-                .ReturnsAsync(new List<AccountingCategory>());
+                .ReturnsAsync(new List<AccountingCategory> { new AccountingCategory { Id=1,Code="AccoutingCategory",AccountingLayoutIndex=1,Name="AccoutingCategory"} });
 
             serviceProvider
                 .Setup(x => x.GetService(typeof(ICurrencyProvider)))
@@ -282,7 +282,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             var facade = new LocalPurchasingBookReportFacade(serviceProvider, dbContext);
 
             var result = await facade.GetReportDataV2(urn.URNNo, Convert.ToInt32(urn.UnitId), Convert.ToInt32(pr.CategoryId), DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), false, It.IsAny<int>());
-            result.Reports[0].DataSourceSort = 2;
+            result.Reports[0].DataSourceSort = 1;
 
             var localPdf = LocalPurchasingBookReportPdfTemplate.Generate(result, 1, null, null);
             Assert.NotNull(localPdf);
@@ -295,7 +295,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
         }
 
         [Fact]
-        public async Task Should_Success_Generate_Pdf_Correction()
+        public async Task Should_Success_Generate_Pdf_LocalValasCorrection()
         {
             var dbContext = _dbContext(GetCurrentMethod());
             var serviceProvider = _getServiceProvider(GetCurrentMethod()).Object;
@@ -311,7 +311,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             var facade = new LocalPurchasingBookReportFacade(serviceProvider, dbContext);
 
             var result = await facade.GetReportDataV2(urn.URNNo, Convert.ToInt32(urn.UnitId), Convert.ToInt32(pr.CategoryId), DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), false, It.IsAny<int>());
-            result.Reports[0].DataSourceSort = 1;
+            result.Reports[0].DataSourceSort = 2;
+
             var localPdf = LocalPurchasingBookReportPdfTemplate.Generate(result, 1, null, null);
             Assert.NotNull(localPdf);
 
