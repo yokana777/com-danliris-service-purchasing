@@ -196,9 +196,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     this.dbSet.Add(model);
                     Created = await dbContext.SaveChangesAsync();
                     Created += await AddCorrections(model, username);
-                    transaction.Commit();
 
                     await AutoCreateJournalTransaction(model);
+                    await AutoCreateCreditorAccount(model);
+
+                    transaction.Commit();
                 }
                 catch (Exception e)
                 {
@@ -349,7 +351,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     var grandTotal = (decimal)0.0;
                     if (unitPaymentCorrection.CorrectionType == "Harga Total")
                     {
-                        grandTotal = (decimal)(unitPaymentCorrectionItem.PriceTotalAfter - unitPaymentCorrectionItem.PriceTotalBefore);
+                        grandTotal = (decimal)((unitPaymentCorrectionItem.PriceTotalAfter - unitPaymentCorrectionItem.PriceTotalBefore) * unitPaymentCorrectionItem.Quantity);
                     }
                     else if (unitPaymentCorrection.CorrectionType == "Harga Satuan")
                     {
@@ -362,7 +364,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
 
                     if (grandTotal != 0)
                     {
-                        if (externalPurchaseOrder.UseIncomeTax)
+                        if (unitPaymentCorrection.useIncomeTax)
                         {
                             int.TryParse(externalPurchaseOrder.IncomeTaxId, out var incomeTaxId);
                             var incomeTax = incomeTaxes.FirstOrDefault(f => f.Id.Equals(incomeTaxId));
@@ -396,6 +398,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                             });
                         }
 
+                        if (unitPaymentCorrection.useVat)
+                        {
+                            var inVATCOA = "1509.00";
+                            var totalVAT = (decimal)0.1 * grandTotal;
+                            journalCreditItems.Add(new JournalTransactionItem()
+                            {
+                                COA = new COA()
+                                {
+                                    Code = unitReceiptNote.SupplierIsImport ? $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}" : $"{category.LocalDebtCOA}.{division.COACode}.{unit.COACode}"
+                                },
+                                Credit = totalVAT
+                            });
+
+                            journalDebitItems.Add(new JournalTransactionItem()
+                            {
+                                COA = new COA()
+                                {
+                                    Code = $"{inVATCOA}.{division.COACode}.{unit.COACode}"
+                                },
+                                Debit = totalVAT,
+                                Remark = unitPaymentCorrection.VatTaxCorrectionNo
+                            });
+                        }
 
                         if (unitReceiptNote.SupplierIsImport && ((decimal)externalPOPriceTotal * currencyRate) > 100000000)
                         {
@@ -499,14 +524,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     }
                 }
 
+
                 journalDebitItems = journalDebitItems.GroupBy(grouping => grouping.COA.Code).Select(s => new JournalTransactionItem()
                 {
                     COA = new COA()
                     {
                         Code = s.Key
                     },
-                    Debit = s.Sum(sum => Math.Round(sum.Debit.GetValueOrDefault(), 4)),
-                    Credit = 0,
+                    Debit = s.Sum(sum => Math.Round(sum.Debit.GetValueOrDefault(), 4)) > 0 ? s.Sum(sum => Math.Abs(Math.Round(sum.Debit.GetValueOrDefault(), 4))) : 0,
+                    Credit = s.Sum(sum => Math.Round(sum.Debit.GetValueOrDefault(), 4)) > 0 ? 0 : s.Sum(sum => Math.Abs(Math.Round(sum.Debit.GetValueOrDefault(), 4))),
                     Remark = string.Join("\n", s.Select(grouped => grouped.Remark).ToList())
                 }).ToList();
                 journalTransactionToPost.Items.AddRange(journalDebitItems);
@@ -517,8 +543,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     {
                         Code = s.Key
                     },
-                    Debit = 0,
-                    Credit = s.Sum(sum => Math.Round(sum.Credit.GetValueOrDefault(), 4)),
+                    Credit = s.Sum(sum => Math.Round(sum.Credit.GetValueOrDefault(), 4)) > 0 ? s.Sum(sum => Math.Abs(Math.Round(sum.Credit.GetValueOrDefault(), 4))) : 0,
+                    Debit = s.Sum(sum => Math.Round(sum.Credit.GetValueOrDefault(), 4)) > 0 ? 0 : s.Sum(sum => Math.Abs(Math.Round(sum.Credit.GetValueOrDefault(), 4))),
                     Remark = string.Join("\n", s.Select(grouped => grouped.Remark).ToList())
                 }).ToList();
                 journalTransactionToPost.Items.AddRange(journalCreditItems);
@@ -545,6 +571,51 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
 
         //    response.EnsureSuccessStatusCode();
         //}
+
+        private async Task AutoCreateCreditorAccount(UnitPaymentCorrectionNote unitPaymentCorrectionNote)
+        {
+            var upoDetailIds = unitPaymentCorrectionNote.Items.Select(element => element.UPODetailId).ToList();
+            var unitPaymentOrderDetails = dbContext.UnitPaymentOrderDetails.Where(entity => upoDetailIds.Contains(entity.Id)).ToList();
+            foreach (var unitPaymentCorrectionNoteItem in unitPaymentCorrectionNote.Items)
+            {
+                var dppAmount = (decimal)0;
+                var vatAmount = (decimal)0;
+                var unitPaymentOrderDetail = unitPaymentOrderDetails.FirstOrDefault(element => element.Id == unitPaymentCorrectionNoteItem.UPODetailId);
+
+                if (unitPaymentCorrectionNote.CorrectionType == "Harga Total")
+                {
+                    dppAmount = (decimal)(unitPaymentCorrectionNoteItem.PriceTotalAfter - unitPaymentCorrectionNoteItem.PriceTotalBefore);
+                }
+                else if (unitPaymentCorrectionNote.CorrectionType == "Harga Satuan")
+                {
+                    dppAmount = (decimal)(unitPaymentCorrectionNoteItem.PricePerDealUnitAfter - unitPaymentCorrectionNoteItem.PricePerDealUnitBefore);
+                }
+                else if (unitPaymentCorrectionNote.CorrectionType == "Jumlah")
+                {
+                    dppAmount = (decimal)(unitPaymentOrderDetail.QuantityCorrection * unitPaymentOrderDetail.PricePerDealUnit);
+                }
+
+                if (unitPaymentCorrectionNote.useVat)
+                    vatAmount = dppAmount * (decimal)0.1;
+
+
+                var viewModel = new CreateCreditorAccountViewModel()
+                {
+                    UnitPaymentCorrectionDPP = dppAmount,
+                    UnitPaymentCorrectionId = (int)unitPaymentCorrectionNote.Id,
+                    UnitPaymentCorrectionMutation = dppAmount + vatAmount,
+                    UnitPaymentCorrectionNo = unitPaymentCorrectionNote.UPCNo,
+                    UnitPaymentCorrectionPPN = vatAmount,
+                    UnitReceiptNoteNo = unitPaymentCorrectionNoteItem.URNNo
+                };
+
+                var uri = "creditor-account/unit-payment-correction";
+                var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+                var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{uri}", new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, General.JsonMediaType));
+
+                response.EnsureSuccessStatusCode();
+            }
+        }
 
         async Task<string> GeneratePONo(UnitPaymentCorrectionNote model, int clientTimeZoneOffset)
         {

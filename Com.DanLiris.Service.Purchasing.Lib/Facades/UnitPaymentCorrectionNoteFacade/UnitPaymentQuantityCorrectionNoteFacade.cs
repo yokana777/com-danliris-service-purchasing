@@ -181,6 +181,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     this.dbSet.Add(m);
                     Created = await dbContext.SaveChangesAsync();
                     Created += await AddCorrections(m, user);
+                    await AutoCreateJournalTransaction(m);
+                    await AutoCreateCreditorAccount(m);
+
                     transaction.Commit();
                 }
                 catch (Exception e)
@@ -361,6 +364,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
 
                     var purchaseRequest = purchaseRequests.FirstOrDefault(f => f.Id.Equals(unitReceiptNoteItem.PRId));
                     var externalPurchaseOrder = externalPurchaseOrders.FirstOrDefault(f => f.Id.Equals(unitReceiptNoteItem.EPOId));
+                    var unitPaymentOrderDetail = dbContext.UnitPaymentOrderDetails.FirstOrDefault(entity => entity.URNItemId == unitReceiptNoteItem.Id);
 
                     //double.TryParse(externalPurchaseOrder.IncomeTaxRate, out var incomeTaxRate);
 
@@ -411,103 +415,105 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     }
 
                     double.TryParse(externalPurchaseOrder.IncomeTaxRate, out var incomeTaxRate);
-                    var grandTotal = Convert.ToDecimal(unitReceiptNoteItem.ReceiptQuantity * unitReceiptNoteItem.PricePerDealUnit * (double)currencyRate);
-                    if (externalPurchaseOrder.UseIncomeTax)
-                    {
-                        int.TryParse(externalPurchaseOrder.IncomeTaxId, out var incomeTaxId);
-                        var incomeTax = incomeTaxes.FirstOrDefault(f => f.Id.Equals(incomeTaxId));
 
-                        if (incomeTax == null || string.IsNullOrWhiteSpace(incomeTax.COACodeCredit))
+                    var grandTotal = (decimal)0.0;
+                    if (unitPaymentCorrection.CorrectionType == "Harga Total")
+                    {
+                        grandTotal = (decimal)((unitPaymentCorrectionItem.PriceTotalAfter - unitPaymentCorrectionItem.PriceTotalBefore) * unitPaymentCorrectionItem.Quantity);
+                    }
+                    else if (unitPaymentCorrection.CorrectionType == "Harga Satuan")
+                    {
+                        grandTotal = (decimal)(unitPaymentCorrectionItem.PricePerDealUnitAfter - unitPaymentCorrectionItem.PricePerDealUnitBefore);
+                    }
+                    else if (unitPaymentCorrection.CorrectionType == "Jumlah")
+                    {
+                        grandTotal = (decimal)(unitPaymentOrderDetail.QuantityCorrection * unitPaymentOrderDetail.PricePerDealUnit);
+                    }
+
+                    if (grandTotal != 0)
+                    {
+                        if (unitPaymentCorrection.useIncomeTax)
                         {
-                            incomeTax = new IncomeTaxCOAResult()
+                            int.TryParse(externalPurchaseOrder.IncomeTaxId, out var incomeTaxId);
+                            var incomeTax = incomeTaxes.FirstOrDefault(f => f.Id.Equals(incomeTaxId));
+
+                            if (incomeTax == null || string.IsNullOrWhiteSpace(incomeTax.COACodeCredit))
                             {
-                                COACodeCredit = "9999.00"
-                            };
+                                incomeTax = new IncomeTaxCOAResult()
+                                {
+                                    COACodeCredit = "9999.00"
+                                };
+                            }
+
+                            var incomeTaxTotal = (decimal)incomeTaxRate / 100 * grandTotal;
+
+                            journalDebitItems.Add(new JournalTransactionItem()
+                            {
+                                COA = new COA()
+                                {
+                                    Code = unitReceiptNote.SupplierIsImport ? $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}" : $"{category.LocalDebtCOA}.{division.COACode}.{unit.COACode}"
+                                },
+                                Debit = incomeTaxTotal
+                            });
+
+                            journalCreditItems.Add(new JournalTransactionItem()
+                            {
+                                COA = new COA()
+                                {
+                                    Code = $"{incomeTax.COACodeCredit}.{division.COACode}.{unit.COACode}"
+                                },
+                                Credit = incomeTaxTotal
+                            });
                         }
 
-                        var incomeTaxTotal = (decimal)incomeTaxRate / 100 * grandTotal;
-
-                        journalDebitItems.Add(new JournalTransactionItem()
+                        if (unitPaymentCorrection.useVat)
                         {
-                            COA = new COA()
+                            var inVATCOA = "1509.00";
+                            var totalVAT = (decimal)0.1 * grandTotal;
+                            journalCreditItems.Add(new JournalTransactionItem()
                             {
-                                Code = unitReceiptNote.SupplierIsImport ? $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}" : $"{category.LocalDebtCOA}.{division.COACode}.{unit.COACode}"
-                            },
-                            Debit = incomeTaxTotal
-                        });
+                                COA = new COA()
+                                {
+                                    Code = unitReceiptNote.SupplierIsImport ? $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}" : $"{category.LocalDebtCOA}.{division.COACode}.{unit.COACode}"
+                                },
+                                Credit = totalVAT
+                            });
 
-                        journalCreditItems.Add(new JournalTransactionItem()
-                        {
-                            COA = new COA()
+                            journalDebitItems.Add(new JournalTransactionItem()
                             {
-                                Code = $"{incomeTax.COACodeCredit}.{division.COACode}.{unit.COACode}"
-                            },
-                            Credit = incomeTaxTotal
-                        });
-                    }
+                                COA = new COA()
+                                {
+                                    Code = $"{inVATCOA}.{division.COACode}.{unit.COACode}"
+                                },
+                                Debit = totalVAT,
+                                Remark = unitPaymentCorrection.VatTaxCorrectionNo
+                            });
+                        }
 
-
-                    if (unitReceiptNote.SupplierIsImport && ((decimal)externalPOPriceTotal * currencyRate) > 100000000)
-                    {
-                        //Purchasing Journal Item
-                        journalDebitItems.Add(new JournalTransactionItem()
+                        if (unitReceiptNote.SupplierIsImport && ((decimal)externalPOPriceTotal * currencyRate) > 100000000)
                         {
-                            COA = new COA()
+                            //Purchasing Journal Item
+                            journalDebitItems.Add(new JournalTransactionItem()
                             {
-                                Code = $"{category.PurchasingCOA}.{division.COACode}.{unit.COACode}"
-                            },
-                            Debit = grandTotal,
-                            Remark = $"- {unitReceiptNoteItem.ProductName}"
-                        });
+                                COA = new COA()
+                                {
+                                    Code = $"{category.PurchasingCOA}.{division.COACode}.{unit.COACode}"
+                                },
+                                Debit = grandTotal,
+                                Remark = $"- {unitReceiptNoteItem.ProductName}"
+                            });
 
-                        //Debt Journal Item
-                        journalCreditItems.Add(new JournalTransactionItem()
-                        {
-                            COA = new COA()
+                            //Debt Journal Item
+                            journalCreditItems.Add(new JournalTransactionItem()
                             {
-                                Code = $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}"
-                            },
-                            Credit = grandTotal,
-                            Remark = $"- {unitReceiptNoteItem.ProductName}"
-                        });
+                                COA = new COA()
+                                {
+                                    Code = $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}"
+                                },
+                                Credit = grandTotal,
+                                Remark = $"- {unitReceiptNoteItem.ProductName}"
+                            });
 
-                        //Stock Journal Item
-                        journalDebitItems.Add(new JournalTransactionItem()
-                        {
-                            COA = new COA()
-                            {
-                                Code = $"{category.StockCOA}.{division.COACode}.{unit.COACode}"
-                            },
-                            Debit = grandTotal,
-                            Remark = $"- {unitReceiptNoteItem.ProductName}"
-                        });
-
-                        //Purchasing Journal Item
-                        journalCreditItems.Add(new JournalTransactionItem()
-                        {
-                            COA = new COA()
-                            {
-                                Code = $"{category.PurchasingCOA}.{division.COACode}.{unit.COACode}"
-                            },
-                            Credit = grandTotal,
-                            Remark = $"- {unitReceiptNoteItem.ProductName}"
-                        });
-                    }
-                    else
-                    {
-                        //Purchasing Journal Item
-                        journalDebitItems.Add(new JournalTransactionItem()
-                        {
-                            COA = new COA()
-                            {
-                                Code = $"{category.PurchasingCOA}.{division.COACode}.{unit.COACode}"
-                            },
-                            Debit = grandTotal,
-                            Remark = $"- {unitReceiptNoteItem.ProductName}"
-                        });
-
-                        if (SpecialCategoryCode.Contains(category.Code))
-                        {
                             //Stock Journal Item
                             journalDebitItems.Add(new JournalTransactionItem()
                             {
@@ -518,22 +524,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                                 Debit = grandTotal,
                                 Remark = $"- {unitReceiptNoteItem.ProductName}"
                             });
-                        }
 
-
-                        //Debt Journal Item
-                        journalCreditItems.Add(new JournalTransactionItem()
-                        {
-                            COA = new COA()
-                            {
-                                Code = unitReceiptNote.SupplierIsImport ? $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}" : $"{category.LocalDebtCOA}.{division.COACode}.{unit.COACode}"
-                            },
-                            Credit = grandTotal,
-                            Remark = $"- {unitReceiptNoteItem.ProductName}"
-                        });
-
-                        if (SpecialCategoryCode.Contains(category.Code))
-                        {
                             //Purchasing Journal Item
                             journalCreditItems.Add(new JournalTransactionItem()
                             {
@@ -545,8 +536,62 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                                 Remark = $"- {unitReceiptNoteItem.ProductName}"
                             });
                         }
+                        else
+                        {
+                            //Purchasing Journal Item
+                            journalDebitItems.Add(new JournalTransactionItem()
+                            {
+                                COA = new COA()
+                                {
+                                    Code = $"{category.PurchasingCOA}.{division.COACode}.{unit.COACode}"
+                                },
+                                Debit = grandTotal,
+                                Remark = $"- {unitReceiptNoteItem.ProductName}"
+                            });
+
+                            if (SpecialCategoryCode.Contains(category.Code))
+                            {
+                                //Stock Journal Item
+                                journalDebitItems.Add(new JournalTransactionItem()
+                                {
+                                    COA = new COA()
+                                    {
+                                        Code = $"{category.StockCOA}.{division.COACode}.{unit.COACode}"
+                                    },
+                                    Debit = grandTotal,
+                                    Remark = $"- {unitReceiptNoteItem.ProductName}"
+                                });
+                            }
+
+
+                            //Debt Journal Item
+                            journalCreditItems.Add(new JournalTransactionItem()
+                            {
+                                COA = new COA()
+                                {
+                                    Code = unitReceiptNote.SupplierIsImport ? $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}" : $"{category.LocalDebtCOA}.{division.COACode}.{unit.COACode}"
+                                },
+                                Credit = grandTotal,
+                                Remark = $"- {unitReceiptNoteItem.ProductName}"
+                            });
+
+                            if (SpecialCategoryCode.Contains(category.Code))
+                            {
+                                //Purchasing Journal Item
+                                journalCreditItems.Add(new JournalTransactionItem()
+                                {
+                                    COA = new COA()
+                                    {
+                                        Code = $"{category.PurchasingCOA}.{division.COACode}.{unit.COACode}"
+                                    },
+                                    Credit = grandTotal,
+                                    Remark = $"- {unitReceiptNoteItem.ProductName}"
+                                });
+                            }
+                        }
                     }
                 }
+
 
                 journalDebitItems = journalDebitItems.GroupBy(grouping => grouping.COA.Code).Select(s => new JournalTransactionItem()
                 {
@@ -554,8 +599,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     {
                         Code = s.Key
                     },
-                    Debit = s.Sum(sum => Math.Round(sum.Debit.GetValueOrDefault(), 4)),
-                    Credit = 0,
+                    Debit = s.Sum(sum => Math.Round(sum.Debit.GetValueOrDefault(), 4)) > 0 ? s.Sum(sum => Math.Abs(Math.Round(sum.Debit.GetValueOrDefault(), 4))) : 0,
+                    Credit = s.Sum(sum => Math.Round(sum.Debit.GetValueOrDefault(), 4)) > 0 ? 0 : s.Sum(sum => Math.Abs(Math.Round(sum.Debit.GetValueOrDefault(), 4))),
                     Remark = string.Join("\n", s.Select(grouped => grouped.Remark).ToList())
                 }).ToList();
                 journalTransactionToPost.Items.AddRange(journalDebitItems);
@@ -566,8 +611,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     {
                         Code = s.Key
                     },
-                    Debit = 0,
-                    Credit = s.Sum(sum => Math.Round(sum.Credit.GetValueOrDefault(), 4)),
+                    Credit = s.Sum(sum => Math.Round(sum.Credit.GetValueOrDefault(), 4)) > 0 ? s.Sum(sum => Math.Abs(Math.Round(sum.Credit.GetValueOrDefault(), 4))) : 0,
+                    Debit = s.Sum(sum => Math.Round(sum.Credit.GetValueOrDefault(), 4)) > 0 ? 0 : s.Sum(sum => Math.Abs(Math.Round(sum.Credit.GetValueOrDefault(), 4))),
                     Remark = string.Join("\n", s.Select(grouped => grouped.Remark).ToList())
                 }).ToList();
                 journalTransactionToPost.Items.AddRange(journalCreditItems);
@@ -575,9 +620,57 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                 if (journalTransactionToPost.Items.Any(item => item.COA.Code.Split(".").FirstOrDefault().Equals("9999")))
                     journalTransactionToPost.Status = "DRAFT";
 
-                var journalTransactionUri = "journal-transactions";
+                if (journalTransactionToPost.Items.Count > 0)
+                {
+                    var journalTransactionUri = "journal-transactions";
+                    var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+                    var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(journalTransactionToPost).ToString(), Encoding.UTF8, General.JsonMediaType));
+
+                    response.EnsureSuccessStatusCode();
+                }
+            }
+        }
+
+        private async Task AutoCreateCreditorAccount(UnitPaymentCorrectionNote unitPaymentCorrectionNote)
+        {
+            var upoDetailIds = unitPaymentCorrectionNote.Items.Select(element => element.UPODetailId).ToList();
+            var unitPaymentOrderDetails = dbContext.UnitPaymentOrderDetails.Where(entity => upoDetailIds.Contains(entity.Id)).ToList();
+            foreach (var unitPaymentCorrectionNoteItem in unitPaymentCorrectionNote.Items)
+            {
+                var dppAmount = (decimal)0;
+                var vatAmount = (decimal)0;
+                var unitPaymentOrderDetail = unitPaymentOrderDetails.FirstOrDefault(element => element.Id == unitPaymentCorrectionNoteItem.UPODetailId);
+
+                if (unitPaymentCorrectionNote.CorrectionType == "Harga Total")
+                {
+                    dppAmount = (decimal)(unitPaymentCorrectionNoteItem.PriceTotalAfter - unitPaymentCorrectionNoteItem.PriceTotalBefore);
+                }
+                else if (unitPaymentCorrectionNote.CorrectionType == "Harga Satuan")
+                {
+                    dppAmount = (decimal)(unitPaymentCorrectionNoteItem.PricePerDealUnitAfter - unitPaymentCorrectionNoteItem.PricePerDealUnitBefore);
+                }
+                else if (unitPaymentCorrectionNote.CorrectionType == "Jumlah")
+                {
+                    dppAmount = (decimal)(unitPaymentOrderDetail.QuantityCorrection * unitPaymentOrderDetail.PricePerDealUnit);
+                }
+
+                if (unitPaymentCorrectionNote.useVat)
+                    vatAmount = dppAmount * (decimal)0.1;
+
+
+                var viewModel = new CreateCreditorAccountViewModel()
+                {
+                    UnitPaymentCorrectionDPP = dppAmount,
+                    UnitPaymentCorrectionId = (int)unitPaymentCorrectionNote.Id,
+                    UnitPaymentCorrectionMutation = dppAmount + vatAmount,
+                    UnitPaymentCorrectionNo = unitPaymentCorrectionNote.UPCNo,
+                    UnitPaymentCorrectionPPN = vatAmount,
+                    UnitReceiptNoteNo = unitPaymentCorrectionNoteItem.URNNo
+                };
+
+                var uri = "creditor-account/unit-payment-correction";
                 var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
-                var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(journalTransactionToPost).ToString(), Encoding.UTF8, General.JsonMediaType));
+                var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{uri}", new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, General.JsonMediaType));
 
                 response.EnsureSuccessStatusCode();
             }
