@@ -281,8 +281,37 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
 
             var facade = new LocalPurchasingBookReportFacade(serviceProvider, dbContext);
 
-            var result = await facade.GetReportDataV2(urn.URNNo, Convert.ToInt32(urn.UnitId), Convert.ToInt32(pr.CategoryId), DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), true, It.IsAny<int>());
+            var result = await facade.GetReportDataV2(urn.URNNo, Convert.ToInt32(urn.UnitId), Convert.ToInt32(pr.CategoryId), DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), false, It.IsAny<int>());
+            result.Reports[0].DataSourceSort = 2;
 
+            var localPdf = LocalPurchasingBookReportPdfTemplate.Generate(result, 1, null, null);
+            Assert.NotNull(localPdf);
+
+            var localCurrencyPdf = LocalPurchasingForeignCurrencyBookReportPdfTemplate.Generate(result, 1, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7));
+            Assert.NotNull(localCurrencyPdf);
+
+            var importPdf = ImportPurchasingBookReportPdfTemplate.Generate(result, 1, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7));
+            Assert.NotNull(importPdf);
+        }
+
+        [Fact]
+        public async Task Should_Success_Generate_Pdf_Correction()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var serviceProvider = _getServiceProvider(GetCurrentMethod()).Object;
+
+            var unitPaymentOrderFacade = new UnitPaymentOrderFacade(serviceProvider, dbContext);
+            var dataUtil = await _dataUtil(unitPaymentOrderFacade, dbContext, GetCurrentMethod()).GetTestLocalData();
+
+            var urnId = dataUtil.Items.FirstOrDefault().URNId;
+            var urn = dbContext.UnitReceiptNotes.FirstOrDefault(f => f.Id.Equals(urnId));
+            var prId = urn.Items.FirstOrDefault(f => f.URNId.Equals(urn.Id)).PRId;
+            var pr = dbContext.PurchaseRequests.FirstOrDefault(f => f.Id.Equals(prId));
+
+            var facade = new LocalPurchasingBookReportFacade(serviceProvider, dbContext);
+
+            var result = await facade.GetReportDataV2(urn.URNNo, Convert.ToInt32(urn.UnitId), Convert.ToInt32(pr.CategoryId), DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), false, It.IsAny<int>());
+            result.Reports[0].DataSourceSort = 1;
             var localPdf = LocalPurchasingBookReportPdfTemplate.Generate(result, 1, null, null);
             Assert.NotNull(localPdf);
 
