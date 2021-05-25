@@ -1020,7 +1020,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     PIBVat = (decimal)item.TotalVatAmount,
                     PIBImportInfo = item.ImportInfo,
                     Remark = item.Remark,
-                    Quantity = item.ReceiptQuantity
+                    Quantity = item.ReceiptQuantity,
+                    DataSourceSort = 1
                 };
 
                 reportResult.Add(reportItem);
@@ -1265,6 +1266,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     Quantity = item.ReceiptQuantity,
                     CorrectionDate = item.CorrectionDate,
                     CorrectionNo = item.CorrectionNo,
+                    DataSourceSort = 2
                 };
 
                 reportResult.Add(reportItem);
