@@ -79,7 +79,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 join f in dbContext.GarmentUnitReceiptNotes on e.URNId equals f.Id
                                 join g in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RO equals g.RONo
                                 join h in Codes on b.ProductCode equals h.Code
-                                where a.CreateDate.Value.Date == lastdate.Value.Date
+                                where a.CreateDate.Value.Date == lastdate
                                 && f.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? f.UnitCode : unitcode)
                                 && f.URNType == "PEMBELIAN"
                                 //&& categories1.Contains(b.ProductName)
@@ -243,7 +243,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                             join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                             join h in Codes on a.ProductCode equals h.Code
-                            //join e in dbContext.GarmentPurchaseRequests on a.RONo equals e.RONo
+                            join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
                             where a.IsDeleted == false && b.IsDeleted == false
                                &&
                                b.CreatedUtc.AddHours(offset).Date > lastdate
@@ -256,7 +256,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 RO = a.RONo,
                                 Buyer = a.BuyerCode,
                                 PlanPo = a.POSerialNumber,
-                                NoArticle = c.Article,
+                                NoArticle = e.Article,
                                 BeginningBalanceQty = (decimal)a.Quantity * -1,
                                 BeginningBalanceUom = a.UomUnit,
                                 BeginningBalancePrice = Math.Round(a.Quantity * ((double)a.BasicPrice / (a.Conversion == 0 ? 1 : (double)a.Conversion)), 2) * -1,
@@ -618,7 +618,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                           join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                           join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                           join h in Codes on a.ProductCode equals h.Code
-                          //join e in dbContext.GarmentPurchaseRequests on a.RONo equals e.RONo
+                          join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
                           where a.IsDeleted == false && b.IsDeleted == false
                              &&
                              b.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
@@ -631,7 +631,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              RO = a.RONo,
                              Buyer = a.BuyerCode,
                              PlanPo = a.POSerialNumber,
-                             NoArticle = c.Article,
+                             NoArticle = e.Article,
                              BeginningBalanceQty = 0,
                              BeginningBalanceUom = a.UomUnit,
                              BeginningBalancePrice = 0,

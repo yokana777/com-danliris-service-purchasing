@@ -9,6 +9,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager.CacheData;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.DeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.InternalPurchaseOrderDataUtils;
@@ -20,11 +21,13 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Moq;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -252,6 +255,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
                 .Setup(x => x.GetService(typeof(ICurrencyProvider)))
                 .Returns(mockCurrencyProvider.Object);
 
+            var opts = Options.Create(new MemoryDistributedCacheOptions());
+            var cache = new MemoryDistributedCache(opts);
+
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IDistributedCache)))
+                .Returns(cache);
+
             return serviceProvider;
         }
 
@@ -284,80 +294,80 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             return new UnitReceiptNoteDataUtil(unitReceiptNoteItemDataUtil, facade, deliveryOrderDataUtil);
         }
 
-        //[Fact]
-        //public async Task Should_Success_Get_Data()
-        //{
-        //    var dbContext = _dbContext(GetCurrentMethod());
-        //    UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
-        //    var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
-        //    var Response = facade.Read();
-        //    Assert.NotEmpty(Response.Data);
-        //}
+        [Fact]
+        public async Task Should_Success_Get_Data()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
+            var Response = facade.Read();
+            Assert.NotEmpty(Response.Data);
+        }
 
-        //[Fact]
-        //public async Task Should_Success_Get_Data_By_Id()
-        //{
-        //    var dbContext = _dbContext(GetCurrentMethod());
-        //    UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
-        //    var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
-        //    var Response = facade.ReadById((int)dataUtil.Id);
-        //    Assert.NotNull(Response);
-        //}
+        [Fact]
+        public async Task Should_Success_Get_Data_By_Id()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
+            var Response = facade.ReadById((int)dataUtil.Id);
+            Assert.NotNull(Response);
+        }
 
-        //[Fact]
-        //public async Task Should_Success_Create_Data()
-        //{
-        //    var dbContext = _dbContext(GetCurrentMethod());
-        //    UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
-        //    var model = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetNewData(USERNAME);
-        //    model.IsStorage = true;
-        //    model.UnitId = null;
-        //    var response = await facade.Create(model, USERNAME);
+        [Fact]
+        public async Task Should_Success_Create_Data()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var model = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetNewData(USERNAME);
+            model.IsStorage = true;
+            model.UnitId = null;
+            var response = await facade.Create(model, USERNAME);
 
-        //    Assert.NotEqual(0, response);
+            Assert.NotEqual(0, response);
 
-        //}
+        }
 
-        //[Fact]
-        //public async Task Should_Success_Create_Data_SupplierIsImport()
-        //{
-        //    var dbContext = _dbContext(GetCurrentMethod());
+        [Fact]
+        public async Task Should_Success_Create_Data_SupplierIsImport()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
 
-        //    UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(GetServiceProviderCurrencyNotNull(GetCurrentMethod()).Object, dbContext);
-        //    var model = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetNewData(USERNAME);
-        //    model.IsStorage = true;
-        //    model.UnitId = null;
-        //    model.SupplierIsImport = true;
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(GetServiceProviderCurrencyNotNull(GetCurrentMethod()).Object, dbContext);
+            var model = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetNewData(USERNAME);
+            model.IsStorage = true;
+            model.UnitId = null;
+            model.SupplierIsImport = true;
 
-        //    var response = await facade.Create(model, USERNAME);
+            var response = await facade.Create(model, USERNAME);
 
-        //    Assert.NotEqual(0, response);
+            Assert.NotEqual(0, response);
 
-        //}
+        }
 
-        //[Fact]
-        //public async Task Should_Success_CreateNullCOA_Data()
-        //{
-        //    var dbContext = _dbContext(GetCurrentMethod());
+        [Fact]
+        public async Task Should_Success_CreateNullCOA_Data()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
 
-        //    UnitReceiptNoteFacade facade2 = new UnitReceiptNoteFacade(GetServiceProvider2(GetCurrentMethod()).Object, dbContext);
-        //    var model2 = await _dataUtil(facade2, dbContext, GetCurrentMethod()).GetNewData(USERNAME);
-        //    model2.IsStorage = true;
-        //    model2.UnitId = null;
-        //    var response2 = await facade2.Create(model2, USERNAME);
-        //    Assert.NotEqual(0, response2);
-        //}
+            UnitReceiptNoteFacade facade2 = new UnitReceiptNoteFacade(GetServiceProvider2(GetCurrentMethod()).Object, dbContext);
+            var model2 = await _dataUtil(facade2, dbContext, GetCurrentMethod()).GetNewData(USERNAME);
+            model2.IsStorage = true;
+            model2.UnitId = null;
+            var response2 = await facade2.Create(model2, USERNAME);
+            Assert.NotEqual(0, response2);
+        }
 
-        //[Fact]
-        //public async Task Should_Success_Create_Having_Stock_Data()
-        //{
-        //    var dbContext = _dbContext(GetCurrentMethod());
-        //    UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
-        //    var model = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetNewHavingStockData(USERNAME);
-        //    model.IsStorage = true;
-        //    var response = await facade.Create(model, USERNAME);
-        //    Assert.NotEqual(0, response);
-        //}
+        [Fact]
+        public async Task Should_Success_Create_Having_Stock_Data()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var model = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetNewHavingStockData(USERNAME);
+            model.IsStorage = true;
+            var response = await facade.Create(model, USERNAME);
+            Assert.NotEqual(0, response);
+        }
 
         //[Fact]
         //public async Task Should_Success_Update_Data()
@@ -401,35 +411,35 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             Assert.NotEmpty(response.Data);
         }
 
-        //[Fact]
-        //public async Task Should_Success_GetReport()
-        //{
-        //    var dbContext = _dbContext(GetCurrentMethod());
-        //    UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
-        //    var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
-        //    var response = facade.GetReport(dataUtil.URNNo, "", dataUtil.UnitId, "", dataUtil.SupplierId, null, null, 1, 25, "{}", 1);
-        //    Assert.NotEmpty(response.Data);
-        //}
+        [Fact]
+        public async Task Should_Success_GetReport()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
+            var response = facade.GetReport(dataUtil.URNNo, "", dataUtil.UnitId, "", dataUtil.SupplierId, null, null, 1, 25, "{}", 1);
+            Assert.NotEmpty(response.Data);
+        }
 
-        //[Fact]
-        //public async Task Should_Success_GenerateExcel()
-        //{
-        //    var dbContext = _dbContext(GetCurrentMethod());
-        //    UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
-        //    var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
-        //    var response = facade.GenerateExcel(dataUtil.URNNo, "", dataUtil.UnitId, "", dataUtil.SupplierId, null, null, 1);
-        //    Assert.NotNull(response);
-        //}
+        [Fact]
+        public async Task Should_Success_GenerateExcel()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
+            var response = facade.GenerateExcel(dataUtil.URNNo, "", dataUtil.UnitId, "", dataUtil.SupplierId, null, null, 1);
+            Assert.NotNull(response);
+        }
 
-        //[Fact]
-        //public async Task Should_Success_Get_By_No()
-        //{
-        //    var dbContext = _dbContext(GetCurrentMethod());
-        //    UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
-        //    var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
-        //    var response = facade.ReadByNoFiltered(1, 25, "{}", null, "{ no : ['" + dataUtil.URNNo + "']}");
-        //    Assert.NotNull(response);
-        //}
+        [Fact]
+        public async Task Should_Success_Get_By_No()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
+            var response = facade.ReadByNoFiltered(1, 25, "{}", null, "{ no : ['" + dataUtil.URNNo + "']}");
+            Assert.NotNull(response);
+        }
 
         [Fact]
         public void Should_Success_Get_GetPurchaseRequestCategoryCode()
@@ -451,55 +461,55 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             }
         }
 
-        //[Fact]
-        //public async Task Should_Success_Get_By_List_Of_No()
-        //{
-        //    var dbContext = _dbContext(GetCurrentMethod());
-        //    UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
-        //    var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
-        //    var response = facade.GetByListOfNo(new List<string>() { dataUtil.URNNo });
-        //    Assert.NotEmpty(response);
-        //}
+        [Fact]
+        public async Task Should_Success_Get_By_List_Of_No()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
+            var response = facade.GetByListOfNo(new List<string>() { dataUtil.URNNo });
+            Assert.NotEmpty(response);
+        }
 
-        //[Fact]
-        //public async Task Should_Success_Get_Subledger()
-        //{
-        //    var dbContext = _dbContext(GetCurrentMethod());
-        //    UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
-        //    var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
-        //    var response = await facade.GetUnitReceiptNoteForSubledger(new List<string>() { dataUtil.URNNo });
-        //    Assert.NotEmpty(response);
-        //}
+        [Fact]
+        public async Task Should_Success_Get_Subledger()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
+            var response = await facade.GetUnitReceiptNoteForSubledger(new List<string>() { dataUtil.URNNo });
+            Assert.NotEmpty(response);
+        }
 
-        //[Fact]
-        //public async Task Should_Success_GetSpbReport()
-        //{
-        //    var dbContext = _dbContext(GetCurrentMethod());
-        //    UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
-        //    var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
-        //    var response = facade.GetSpbReport(dataUtil.URNNo, "", "", null, null, 25, 1, "{}", 1);
-        //    Assert.NotEmpty(response.Data);
-        //}
+        [Fact]
+        public async Task Should_Success_GetSpbReport()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
+            var response = facade.GetSpbReport(dataUtil.URNNo, "", "", null, null, 25, 1, "{}", 1);
+            Assert.NotEmpty(response.Data);
+        }
 
-        //[Fact]
-        //public async Task Should_Success_GenerateExcel_Spb()
-        //{
-        //    var dbContext = _dbContext(GetCurrentMethod());
-        //    UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
-        //    var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
-        //    var response = facade.GenerateExcelSpb(dataUtil.URNNo, "", "", null, null, 1);
-        //    Assert.NotNull(response);
-        //}
+        [Fact]
+        public async Task Should_Success_GenerateExcel_Spb()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
+            var response = facade.GenerateExcelSpb(dataUtil.URNNo, "", "", null, null, 1);
+            Assert.NotNull(response);
+        }
 
-        //[Fact]
-        //public async Task Should_Success_Get_Creditor_Account_Data()
-        //{
-        //    var dbContext = _dbContext(GetCurrentMethod());
-        //    UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
-        //    var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
-        //    var response = facade.GetCreditorAccountDataByURNNo(dataUtil.URNNo);
-        //    Assert.NotNull(response);
-        //}
+        [Fact]
+        public async Task Should_Success_Get_Creditor_Account_Data()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
+            var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
+            var response = facade.GetCreditorAccountDataByURNNo(dataUtil.URNNo);
+            Assert.NotNull(response);
+        }
         //[Fact]
         //public async Task Should_Success_Update_Data()
         //{
@@ -522,37 +532,37 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
         //    Assert.True(Deleted > 0);
         //}
 
-        //[Fact]
-        //public void Should_Success_Validate_Data()
-        //{
-        //    UnitPaymentOrderViewModel nullViewModel = new UnitPaymentOrderViewModel();
-        //    Assert.True(nullViewModel.Validate(null).Count() > 0);
+        [Fact]
+        public void Should_Success_Validate_Data()
+        {
+            UnitPaymentOrderViewModel nullViewModel = new UnitPaymentOrderViewModel();
+            Assert.True(nullViewModel.Validate(null).Count() > 0);
 
-        //    UnitPaymentOrderViewModel viewModel = new UnitPaymentOrderViewModel()
-        //    {
-        //        useIncomeTax = true,
-        //        useVat = true,
-        //        items = new List<UnitPaymentOrderItemViewModel>
-        //        {
-        //            new UnitPaymentOrderItemViewModel(),
-        //            new UnitPaymentOrderItemViewModel()
-        //            {
-        //                unitReceiptNote = new UnitReceiptNote
-        //                {
-        //                    _id = 1
-        //                }
-        //            },
-        //            new UnitPaymentOrderItemViewModel()
-        //            {
-        //                unitReceiptNote = new UnitReceiptNote
-        //                {
-        //                    _id = 1
-        //                }
-        //            }
-        //        }
-        //    };
-        //    Assert.True(viewModel.Validate(null).Count() > 0);
-        //}
+            UnitPaymentOrderViewModel viewModel = new UnitPaymentOrderViewModel()
+            {
+                useIncomeTax = true,
+                useVat = true,
+                items = new List<UnitPaymentOrderItemViewModel>
+                {
+                    new UnitPaymentOrderItemViewModel(),
+                    new UnitPaymentOrderItemViewModel()
+                    {
+                        unitReceiptNote = new UnitReceiptNote
+                        {
+                            _id = 1
+                        }
+                    },
+                    new UnitPaymentOrderItemViewModel()
+                    {
+                        unitReceiptNote = new UnitReceiptNote
+                        {
+                            _id = 1
+                        }
+                    }
+                }
+            };
+            Assert.True(viewModel.Validate(null).Count() > 0);
+        }
 
         //[Fact]
         //public async Task Should_Success_Get_Data_Spb()
