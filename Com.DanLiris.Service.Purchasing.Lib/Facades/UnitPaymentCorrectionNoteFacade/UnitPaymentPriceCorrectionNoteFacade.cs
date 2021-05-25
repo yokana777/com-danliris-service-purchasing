@@ -351,7 +351,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     var grandTotal = (decimal)0.0;
                     if (unitPaymentCorrection.CorrectionType == "Harga Total")
                     {
-                        grandTotal = (decimal)(unitPaymentCorrectionItem.PriceTotalAfter - unitPaymentCorrectionItem.PriceTotalBefore);
+                        grandTotal = (decimal)((unitPaymentCorrectionItem.PriceTotalAfter - unitPaymentCorrectionItem.PriceTotalBefore) * unitPaymentCorrectionItem.Quantity);
                     }
                     else if (unitPaymentCorrection.CorrectionType == "Harga Satuan")
                     {
@@ -364,7 +364,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
 
                     if (grandTotal != 0)
                     {
-                        if (externalPurchaseOrder.UseIncomeTax)
+                        if (unitPaymentCorrection.useIncomeTax)
                         {
                             int.TryParse(externalPurchaseOrder.IncomeTaxId, out var incomeTaxId);
                             var incomeTax = incomeTaxes.FirstOrDefault(f => f.Id.Equals(incomeTaxId));
@@ -398,6 +398,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                             });
                         }
 
+                        if (unitPaymentCorrection.useVat)
+                        {
+                            var inVATCOA = "1509.00";
+                            var totalVAT = (decimal)0.1 * grandTotal;
+                            journalCreditItems.Add(new JournalTransactionItem()
+                            {
+                                COA = new COA()
+                                {
+                                    Code = unitReceiptNote.SupplierIsImport ? $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}" : $"{category.LocalDebtCOA}.{division.COACode}.{unit.COACode}"
+                                },
+                                Credit = totalVAT
+                            });
+
+                            journalDebitItems.Add(new JournalTransactionItem()
+                            {
+                                COA = new COA()
+                                {
+                                    Code = $"{inVATCOA}.{division.COACode}.{unit.COACode}"
+                                },
+                                Debit = totalVAT,
+                                Remark = unitPaymentCorrection.VatTaxCorrectionNo
+                            });
+                        }
 
                         if (unitReceiptNote.SupplierIsImport && ((decimal)externalPOPriceTotal * currencyRate) > 100000000)
                         {
