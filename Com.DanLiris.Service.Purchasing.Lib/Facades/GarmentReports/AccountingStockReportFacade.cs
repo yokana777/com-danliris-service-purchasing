@@ -66,11 +66,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var Codes = product.Where(x => categories1.Contains(x.Name)).ToList();
 
-            var lastdate = dbContext.BalanceStocks.OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault() == null ? new DateTime(1970, 1, 1) : dbContext.BalanceStocks.OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault();
+            //var lastdate = dbContext.BalanceStocks.OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault() == null ? new DateTime(1970, 1, 1) : dbContext.BalanceStocks.OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault();
 
-            //var lastdate = dbContext.BalanceStocks.Where(x => x.PeriodeYear == "2018" && x.PeriodeMonth == "7").OrderByDescending(x => x.CreateDate).FirstOrDefault().CreateDate;
+            var lastdate = ctg == "BB" ? dbContext.BalanceStocks.Where(x => x.PeriodeYear == "2018").OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault() : dbContext.BalanceStocks.OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault();
 
-           
+
 
             var BalanceStock = (from a in dbContext.BalanceStocks
                                 join b in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on (long)a.EPOItemId equals b.Id
@@ -79,8 +79,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 join f in dbContext.GarmentUnitReceiptNotes on e.URNId equals f.Id
                                 join g in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RO equals g.RONo
                                 join h in Codes on b.ProductCode equals h.Code
-                                where a.CreateDate == lastdate
+                                where a.CreateDate.Value.Date == lastdate
                                 && f.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? f.UnitCode : unitcode)
+                                && f.URNType == "PEMBELIAN"
                                 //&& categories1.Contains(b.ProductName)
 
                                 select new AccountingStockTempViewModel
@@ -130,7 +131,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                     ExpendKon1BPrice = 0,
                                     EndingBalanceQty = 0,
                                     EndingBalancePrice = 0,
-                                }).Distinct().ToList();
+                                }).Distinct();
             var SATerima = (from a in (from aa in dbContext.GarmentUnitReceiptNoteItems  select aa)
                             join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
                             join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
@@ -236,13 +237,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 ExpendKon1BPrice = group.Sum(x => x.ExpendKon1BPrice),
                                 EndingBalanceQty = group.Sum(x => x.EndingBalanceQty),
                                 EndingBalancePrice = group.Sum(x => x.EndingBalancePrice),
-                            }).OrderBy(x=>x.ProductCode).ToList();
+                            });
             var SAKeluar = (from a in (from aa in dbContext.GarmentUnitExpenditureNoteItems select aa)
                             join b in dbContext.GarmentUnitExpenditureNotes on a.UENId equals b.Id
                             join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                             join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                             join h in Codes on a.ProductCode equals h.Code
-                            //join e in dbContext.GarmentPurchaseRequests on a.RONo equals e.RONo
+                            join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
                             where a.IsDeleted == false && b.IsDeleted == false
                                &&
                                b.CreatedUtc.AddHours(offset).Date > lastdate
@@ -255,7 +256,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 RO = a.RONo,
                                 Buyer = a.BuyerCode,
                                 PlanPo = a.POSerialNumber,
-                                NoArticle = c.Article,
+                                NoArticle = e.Article,
                                 BeginningBalanceQty = (decimal)a.Quantity * -1,
                                 BeginningBalanceUom = a.UomUnit,
                                 BeginningBalancePrice = Math.Round(a.Quantity * ((double)a.BasicPrice / (a.Conversion == 0 ? 1 : (double)a.Conversion)), 2) * -1,
@@ -342,10 +343,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 ExpendKon1BPrice = group.Sum(x => x.ExpendKon1BPrice),
                                 EndingBalanceQty = group.Sum(x => x.EndingBalanceQty),
                                 EndingBalancePrice = group.Sum(x => x.EndingBalancePrice),
-                            }).OrderBy(x => x.ProductCode).ToList();
+                            });
 
             var SAKoreksi = (from a in dbContext.GarmentUnitReceiptNotes
-                             join b in (from aa in dbContext.GarmentUnitReceiptNoteItems where categories1.Contains(aa.ProductName) select aa) on a.Id equals b.URNId
+                             join b in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa) on a.Id equals b.URNId
                              join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
                              join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                              join e in dbContext.GarmentReceiptCorrectionItems on b.Id equals e.URNItemId
@@ -451,7 +452,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  ExpendKon1BPrice = group.Sum(x => x.ExpendKon1BPrice),
                                  EndingBalanceQty = group.Sum(x => x.EndingBalanceQty),
                                  EndingBalancePrice = group.Sum(x => x.EndingBalancePrice),
-                             }).ToList();
+                             });
             //var t = BalanceStock.Concat(SATerima).Con
             var SaldoAwal1 = BalanceStock.Concat(SATerima).Concat(SAKeluar).Concat(SAKoreksi).AsEnumerable();
             var SaldoAwal = SaldoAwal1.GroupBy(x => new { x.ProductCode, /*x.ProductName,*/ x.BeginningBalanceUom, x.Buyer, x.NoArticle, x.PlanPo, x.RO }, (key, group) => new AccountingStockTempViewModel
@@ -610,14 +611,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             ExpendKon1BPrice = group.Sum(x => x.ExpendKon1BPrice),
                             EndingBalanceQty = group.Sum(x => x.EndingBalanceQty),
                             EndingBalancePrice = group.Sum(x => x.EndingBalancePrice),
-                        }).ToList();
+                        });
 
             var Keluar = (from a in (from aa in dbContext.GarmentUnitExpenditureNoteItems select aa)
                           join b in dbContext.GarmentUnitExpenditureNotes on a.UENId equals b.Id
                           join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                           join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                           join h in Codes on a.ProductCode equals h.Code
-                          //join e in dbContext.GarmentPurchaseRequests on a.RONo equals e.RONo
+                          join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
                           where a.IsDeleted == false && b.IsDeleted == false
                              &&
                              b.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
@@ -630,7 +631,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              RO = a.RONo,
                              Buyer = a.BuyerCode,
                              PlanPo = a.POSerialNumber,
-                             NoArticle = c.Article,
+                             NoArticle = e.Article,
                              BeginningBalanceQty = 0,
                              BeginningBalanceUom = a.UomUnit,
                              BeginningBalancePrice = 0,
@@ -717,7 +718,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              ExpendKon1BPrice = group.Sum(x => x.ExpendKon1BPrice),
                              EndingBalanceQty = group.Sum(x => x.EndingBalanceQty),
                              EndingBalancePrice = group.Sum(x => x.EndingBalancePrice),
-                         }).ToList();
+                         });
 
             var Koreksi = (from a in dbContext.GarmentUnitReceiptNotes
                            join b in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa) on a.Id equals b.URNId
@@ -826,7 +827,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                ExpendKon1BPrice = group.Sum(x => x.ExpendKon1BPrice),
                                EndingBalanceQty = group.Sum(x => x.EndingBalanceQty),
                                EndingBalancePrice = group.Sum(x => x.EndingBalancePrice),
-                           }).ToList();
+                           });
 
             var SaldoAkhir1 = Terima.Concat(Keluar).Concat(Koreksi).AsEnumerable();
             var SaldoAkhir = SaldoAkhir1.GroupBy(x => new { x.ProductCode, /*x.ProductName,*/ x.BeginningBalanceUom, x.Buyer, x.NoArticle, x.PlanPo, x.RO }, (key, group) => new AccountingStockTempViewModel
@@ -1434,8 +1435,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 var garmentSupplierUri = APIEndpoint.Core + $"master/garmentProducts";
                 string queryUri = "?page=" + page + "&size=" + size + "&order=" + order + "&filter=" + filter;
                 string uri = garmentSupplierUri + queryUri;
-                var response = httpClient.GetAsync($"{uri}").Result.Content.ReadAsStringAsync();
-                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
+                var response = httpClient.GetAsync($"{uri}").Result.Content.ReadAsStringAsync().Result;
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);
                 List<GarmentProductViewModel> viewModel = JsonConvert.DeserializeObject<List<GarmentProductViewModel>>(result.GetValueOrDefault("data").ToString());
                 return viewModel;
             }
