@@ -16,8 +16,10 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.UnitReceiptNoteDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Moq;
 using System;
 using System.Diagnostics;
@@ -71,6 +73,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
             var serviceProviders = services.BuildServiceProvider();
             var memoryCache = serviceProviders.GetService<IMemoryCache>();
 
+            var opts = Options.Create(new MemoryDistributedCacheOptions());
+            var cache = new MemoryDistributedCache(opts);
+
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IDistributedCache)))
+                .Returns(cache);
+
             serviceProvider
                 .Setup(x => x.GetService(typeof(IMemoryCacheManager)))
                 .Returns(new MemoryCacheManager(memoryCache));
@@ -119,37 +128,37 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderTests
             return new UnitPaymentOrderDataUtil(unitReceiptNoteDataUtil, facade);
         }
 
-        //[Fact]
-        //public async Task Should_Success_GetUnitReceiptNote()
-        //{
-        //    UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, _dbContext(GetCurrentMethod()));
-        //    var model = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
-        //    var Response = await facade.Create(model, USERNAME, true);
-        //    Assert.NotEqual(0, Response);
+        [Fact]
+        public async Task Should_Success_GetUnitReceiptNote()
+        {
+            UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, _dbContext(GetCurrentMethod()));
+            var model = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var Response = await facade.Create(model, USERNAME, true);
+            Assert.NotEqual(0, Response);
 
-        //    foreach (var item in model.Items)
-        //    {
-        //        var unitReceiptNote = facade.GetUnitReceiptNote(item.URNId);
-        //        Assert.NotNull(unitReceiptNote);
-        //    }
-        //}
+            foreach (var item in model.Items)
+            {
+                var unitReceiptNote = facade.GetUnitReceiptNote(item.URNId);
+                Assert.NotNull(unitReceiptNote);
+            }
+        }
 
-        //[Fact]
-        //public async Task Should_Success_GetExternalPurchaseOrder()
-        //{
-        //    UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, _dbContext(GetCurrentMethod()));
-        //    var model = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
-        //    var Response = await facade.Create(model, USERNAME, true);
-        //    Assert.NotEqual(0, Response);
+        [Fact]
+        public async Task Should_Success_GetExternalPurchaseOrder()
+        {
+            UnitPaymentOrderFacade facade = new UnitPaymentOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, _dbContext(GetCurrentMethod()));
+            var model = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            var Response = await facade.Create(model, USERNAME, true);
+            Assert.NotEqual(0, Response);
 
-        //    foreach (var item in model.Items)
-        //    {
-        //        foreach (var detail in item.Details)
-        //        {
-        //            var externalPurchaseOrder = facade.GetExternalPurchaseOrder(detail.EPONo);
-        //            Assert.NotNull(externalPurchaseOrder);
-        //        }
-        //    }
-        //}
+            foreach (var item in model.Items)
+            {
+                foreach (var detail in item.Details)
+                {
+                    var externalPurchaseOrder = facade.GetExternalPurchaseOrder(detail.EPONo);
+                    Assert.NotNull(externalPurchaseOrder);
+                }
+            }
+        }
     }
 }

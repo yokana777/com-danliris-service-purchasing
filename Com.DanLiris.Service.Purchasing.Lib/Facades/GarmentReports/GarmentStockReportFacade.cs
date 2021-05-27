@@ -47,8 +47,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var Codes = product.Where(x => categories1.Contains(x.Name)).ToList();
 
-            var lastdate = dbContext.BalanceStocks.OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault();
+            var lastdate = ctg == "BB" ? dbContext.BalanceStocks.Where(x=>x.PeriodeYear == "2018").OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault() : dbContext.BalanceStocks.OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault();
 
+            //var lastdate = dbContext.BalanceStocks.Where(x => x.PeriodeYear == "2018").FirstOrDefault().CreateDate;
 
             var BalaceStock = (from a in dbContext.BalanceStocks
                                join b in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on (long)a.EPOItemId equals b.Id
@@ -57,10 +58,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                join f in dbContext.GarmentUnitReceiptNotes on e.URNId equals f.Id
                                join g in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RO equals g.RONo
                                join h in Codes on b.ProductCode equals h.Code
-                               where a.CreateDate == lastdate
+                               where a.CreateDate.Value.Date == lastdate
                                && f.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? f.UnitCode : unitcode)
-                               //&& Codes.Contains(b.ProductCode)
-
+                               && f.URNType == "PEMBELIAN"
                                select new GarmentStockReportViewModelTemp
                                {
                                    BeginningBalanceQty = (decimal)a.CloseStock,
@@ -71,7 +71,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                    ExpandUom = b.SmallUomUnit,
                                    ExpendQty = 0,
                                    NoArticle = a.ArticleNo,
-                                   PaymentMethod = c.PaymentMethod,
+                                   PaymentMethod = c.PaymentMethod == "BY DANLIRIS" ? "DAN LIRIS" : c.PaymentMethod,
                                    PlanPo = b.PO_SerialNumber,
                                    ProductCode = b.ProductCode,
                                    //ProductName = b.ProductName,
@@ -79,10 +79,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                    ReceiptQty = 0,
                                    ReceiptUom = b.SmallUomUnit,
                                    RO = b.RONo
-                               }).Distinct().ToList();
-
-            //var Coba = BalaceStock.Where(x => x.PlanPo == "PM17200220");
-            //var BalaceStock = new List<GarmentStockReportViewModel>();
+                               }).Distinct();
 
             var SATerima = (from a in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa)
                             join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
@@ -90,7 +87,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                             join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
                             join h in Codes on a.ProductCode equals h.Code
-                            where a.IsDeleted == false && b.IsDeleted == false
+                            where
+                            a.IsDeleted == false && b.IsDeleted == false
                               &&
                               b.CreatedUtc.AddHours(offset).Date > lastdate
                               && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
@@ -105,10 +103,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 ExpandUom = a.SmallUomUnit,
                                 ExpendQty = 0,
                                 NoArticle = e.Article,
-                                PaymentMethod = d.PaymentMethod,
+                                PaymentMethod = d.PaymentMethod == "BY DANLIRIS" ? "DAN LIRIS" : d.PaymentMethod,
                                 PlanPo = a.POSerialNumber,
                                 ProductCode = a.ProductCode,
-                                //ProductName = a.ProductName,
                                 ReceiptCorrectionQty = 0,
                                 ReceiptQty = 0,
                                 ReceiptUom = a.SmallUomUnit,
@@ -131,32 +128,33 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
                                 ReceiptUom = key.ReceiptUom,
                                 RO = key.RO
-                            }).OrderBy(x=>x.ProductCode).ToList();
+                            });
+
             var SAKeluar = (from a in (from aa in dbContext.GarmentUnitExpenditureNoteItems select aa)
                             join b in dbContext.GarmentUnitExpenditureNotes on a.UENId equals b.Id
                             join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                             join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                             join h in Codes on a.ProductCode equals h.Code
-                            //join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
-                            where a.IsDeleted == false && b.IsDeleted == false
+                            join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
+                            where
+                            a.IsDeleted == false && b.IsDeleted == false
                                &&
                                b.CreatedUtc.AddHours(offset).Date > lastdate
                                && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                && b.UnitSenderCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitSenderCode : unitcode)
                             select new GarmentStockReportViewModelTemp
                             {
-                                BeginningBalanceQty = (decimal)a.Quantity * -1,
+                                BeginningBalanceQty = Convert.ToDecimal(a.Quantity * -1),
                                 BeginningBalanceUom = a.UomUnit,
                                 Buyer = a.BuyerCode,
                                 EndingBalanceQty = 0,
                                 EndingUom = a.UomUnit,
                                 ExpandUom = a.UomUnit,
                                 ExpendQty = 0,
-                                NoArticle = c.Article,
-                                PaymentMethod = d.PaymentMethod,
+                                NoArticle = e.Article,
+                                PaymentMethod = d.PaymentMethod == "BY DANLIRIS" ? "DAN LIRIS" : d.PaymentMethod,
                                 PlanPo = a.POSerialNumber,
                                 ProductCode = a.ProductCode,
-                                //ProductName = a.ProductName,
                                 ReceiptCorrectionQty = 0,
                                 ReceiptQty = 0,
                                 ReceiptUom = a.UomUnit,
@@ -174,12 +172,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 PaymentMethod = key.PaymentMethod,
                                 PlanPo = key.PlanPo,
                                 ProductCode = key.ProductCode,
-                                //ProductName = key.ProductName,
                                 ReceiptCorrectionQty = Math.Round(group.Sum(x => x.ReceiptCorrectionQty), 2),
                                 ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
                                 ReceiptUom = key.ReceiptUom,
                                 RO = key.RO
-                            }).OrderBy(x => x.ProductCode).ToList();
+                            });
+
             var SAKoreksi = (from a in dbContext.GarmentUnitReceiptNotes
                              join b in (from aa in dbContext.GarmentUnitReceiptNoteItems  select aa) on a.Id equals b.URNId
                              join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
@@ -195,7 +193,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
                              select new GarmentStockReportViewModelTemp
                              {
-                                 BeginningBalanceQty = (decimal)e.Quantity,
+                                 BeginningBalanceQty = (decimal)e.SmallQuantity,
                                  BeginningBalanceUom = b.SmallUomUnit,
                                  Buyer = f.BuyerCode,
                                  EndingBalanceQty = 0,
@@ -203,10 +201,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  ExpandUom = b.SmallUomUnit,
                                  ExpendQty = 0,
                                  NoArticle = f.Article,
-                                 PaymentMethod = d.PaymentMethod,
+                                 PaymentMethod = d.PaymentMethod == "BY DANLIRIS" ? "DAN LIRIS" : d.PaymentMethod,
                                  PlanPo = b.POSerialNumber,
                                  ProductCode = b.ProductCode,
-                                 //Pr/*o*/ductName = b.ProductName,
                                  ReceiptCorrectionQty = 0,
                                  ReceiptQty = 0,
                                  ReceiptUom = b.SmallUomUnit,
@@ -224,7 +221,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  PaymentMethod = key.PaymentMethod,
                                  PlanPo = key.PlanPo,
                                  ProductCode = key.ProductCode,
-                                 //ProductName = key.ProductName,
                                  ReceiptCorrectionQty = Math.Round(group.Sum(x => x.ReceiptCorrectionQty), 2),
                                  ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
                                  ReceiptUom = key.ReceiptUom,
@@ -245,7 +241,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 PaymentMethod = key.PaymentMethod,
                 PlanPo = key.PlanPo,
                 ProductCode = key.ProductCode,
-                //ProductName = key.ProductName,
                 ReceiptCorrectionQty = Math.Round(group.Sum(x => x.ReceiptCorrectionQty), 2),
                 ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
                 ReceiptUom = key.ReceiptUom,
@@ -273,10 +268,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 ExpandUom = a.SmallUomUnit,
                                 ExpendQty = 0,
                                 NoArticle = e.Article,
-                                PaymentMethod = d.PaymentMethod,
+                                PaymentMethod = d.PaymentMethod == "BY DANLIRIS" ? "DAN LIRIS" : d.PaymentMethod,
                                 PlanPo = a.POSerialNumber,
                                 ProductCode = a.ProductCode,
-                                //ProductName = a.ProductName,
                                 ReceiptCorrectionQty = 0,
                                 ReceiptQty = Math.Round(a.ReceiptQuantity * a.Conversion, 2),
                                 ReceiptUom = a.SmallUomUnit,
@@ -294,7 +288,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 PaymentMethod = key.PaymentMethod,
                                 PlanPo = key.PlanPo,
                                 ProductCode = key.ProductCode,
-                                //ProductName = key.ProductName,
                                 ReceiptCorrectionQty = Math.Round(group.Sum(x => x.ReceiptCorrectionQty), 2),
                                 ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
                                 ReceiptUom = key.ReceiptUom,
@@ -306,7 +299,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                             join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                           join h in Codes on a.ProductCode equals h.Code
-                          //join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
+                          join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
                           where a.IsDeleted == false && b.IsDeleted == false
                                &&
                                b.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
@@ -321,11 +314,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 EndingUom = a.UomUnit,
                                 ExpandUom = a.UomUnit,
                                 ExpendQty = a.Quantity,
-                                NoArticle = c.Article,
-                                PaymentMethod = d.PaymentMethod,
+                                NoArticle = e.Article,
+                                PaymentMethod = d.PaymentMethod == "BY DANLIRIS" ? "DAN LIRIS" : d.PaymentMethod,
                                 PlanPo = a.POSerialNumber,
                                 ProductCode = a.ProductCode,
-                                //ProductName = a.ProductName,
                                 ReceiptCorrectionQty = 0,
                                 ReceiptQty = 0,
                                 ReceiptUom = a.UomUnit,
@@ -372,11 +364,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  ExpandUom = b.SmallUomUnit,
                                  ExpendQty = 0,
                                  NoArticle = f.Article,
-                                 PaymentMethod = d.PaymentMethod,
+                                 PaymentMethod = d.PaymentMethod == "BY DANLIRIS" ? "DAN LIRIS" : d.PaymentMethod,
                                  PlanPo = b.POSerialNumber,
                                  ProductCode = b.ProductCode,
                                  //ProductName = b.ProductName,
-                                 ReceiptCorrectionQty = (decimal)e.Quantity,
+                                 ReceiptCorrectionQty = (decimal)e.SmallQuantity,
                                  ReceiptQty = 0,
                                  ReceiptUom = b.SmallUomUnit,
                                  RO = b.RONo
@@ -445,8 +437,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             List<GarmentStockReportViewModel> stock1 = new List<GarmentStockReportViewModel>();
 
-            //var remarks = GetRemark(string.Join(',', stock.Select(x => x.ProductCode).Distinct().ToList()));
-
             foreach (var i in stock)
             {
                 var BeginningBalanceQty = i.BeginningBalanceQty > 0 ? i.BeginningBalanceQty : 0;
@@ -471,7 +461,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     PaymentMethod = i.PaymentMethod,
                     PlanPo = i.PlanPo,
                     ProductCode = i.ProductCode,
-                    //ProductName = i.ProductName,
                     ProductRemark = ctg == "BB" ? string.Concat(Composition, "", Width, "", Const, "", Yarn) : remark.Name,
                     ReceiptCorrectionQty = i.ReceiptCorrectionQty,
                     ReceiptQty = i.ReceiptQty,
@@ -574,17 +563,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             result.Columns.Add(new DataColumn() { ColumnName = headers[14], DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = headers[15], DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = headers[16], DataType = typeof(String) });
+
             var index = 1;
             decimal BeginningQtyTotal = 0;
             decimal ReceiptQtyTotal = 0;
+            decimal CorrQtyTotal = 0;
             double ExpendQtyTotal = 0;
             decimal EndingQtyTotal = 0;
+
             foreach (var item in Query)
             {
                 BeginningQtyTotal += item.BeginningBalanceQty;
                 ReceiptQtyTotal += item.ReceiptQty;
                 ExpendQtyTotal += item.ExpendQty;
                 EndingQtyTotal += item.EndingBalanceQty;
+                CorrQtyTotal += item.ReceiptCorrectionQty;
 
                 //result.Rows.Add(index++, item.ProductCode, item.RO, item.PlanPo, item.NoArticle, item.ProductName, item.Information, item.Buyer,
 
@@ -676,6 +669,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             sheet.Cells[$"A{7 + a}:G{7 + a}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             sheet.Cells[$"H{7 + a}"].Value = BeginningQtyTotal;
             sheet.Cells[$"J{7 + a}"].Value = ReceiptQtyTotal;
+            sheet.Cells[$"K{7 + a}"].Value = CorrQtyTotal;
             sheet.Cells[$"M{7 + a}"].Value = ExpendQtyTotal;
             sheet.Cells[$"O{7 + a}"].Value = EndingQtyTotal;
 
@@ -736,8 +730,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 var garmentSupplierUri = APIEndpoint.Core + $"master/garmentProducts";
                 string queryUri = "?page=" + page + "&size=" + size + "&order=" + order + "&filter=" + filter;
                 string uri = garmentSupplierUri + queryUri;
-                var response = httpClient.GetAsync($"{uri}").Result.Content.ReadAsStringAsync();
-                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
+                var response = httpClient.GetAsync($"{uri}").Result.Content.ReadAsStringAsync().Result;
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);
                 List<GarmentProductViewModel> viewModel = JsonConvert.DeserializeObject<List<GarmentProductViewModel>>(result.GetValueOrDefault("data").ToString());
                 return viewModel;
             }
