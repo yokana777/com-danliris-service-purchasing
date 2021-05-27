@@ -136,6 +136,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                 try
                 {
                     EntityExtension.FlagForCreate(m, user, USER_AGENT);
+
+                    //override correction Date
+                    m.CorrectionDate = DateTimeOffset.Now.ToUniversalTime();
+
                     var supplier = GetSupplier(m.SupplierId);
                     var supplierImport = false;
                     m.SupplierNpwp = null;
