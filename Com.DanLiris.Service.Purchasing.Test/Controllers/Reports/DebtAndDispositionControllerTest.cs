@@ -209,6 +209,95 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Reports
             Assert.NotNull(response);
         }
 
+
+
+        [Fact]
+        public void DownloadPdf_Should_Success()
+        {
+            var mockFacade = new Mock<IDebtAndDispositionSummaryService>();
+            mockFacade.Setup(facade => facade.GetReport(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTimeOffset>(), It.IsAny<bool>(), It.IsAny<bool>()))
+                .Returns(new ReadResponse<DebtAndDispositionSummaryDto>(new List<DebtAndDispositionSummaryDto>(), 10, new Dictionary<string, string>()));
+
+            SetDefaultServiceMockProvider(mockFacade);
+
+            var response = _controller.DownloadPdf(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<Nullable<DateTimeOffset>>(), It.IsAny<bool>(), It.IsAny<bool>());
+
+            Assert.NotNull(response);
+
+        }
+
+        [Fact]
+        public void DownloadPdf_Should_InternalServerError()
+        {
+            var mockFacade = new Mock<IDebtAndDispositionSummaryService>();
+            mockFacade.Setup(facade => facade.GetReport(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTimeOffset>(), It.IsAny<bool>(), It.IsAny<bool>()))
+                .Throws(new Exception("Exception test"));
+
+            SetDefaultServiceMockProvider(mockFacade);
+
+            var response = _controller.DownloadPdf(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<Nullable<DateTimeOffset>>(), It.IsAny<bool>(), It.IsAny<bool>());
+
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void DownloadPdf_Should_Success_IfIsImportTrue()
+        {
+            var mockFacade = new Mock<IDebtAndDispositionSummaryService>();
+            mockFacade.Setup(facade => facade.GetReport(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTimeOffset>(), It.IsAny<bool>(), It.IsAny<bool>()))
+                .Returns(new ReadResponse<DebtAndDispositionSummaryDto>(new List<DebtAndDispositionSummaryDto>(), 10, new Dictionary<string, string>()));
+
+            SetDefaultServiceMockProvider(mockFacade);
+
+            var response = _controller.DownloadPdf(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), null, true, It.IsAny<bool>());
+
+            Assert.NotNull(response);
+        }
+
+        [Fact]
+        public void DownloadPdf_Should_Success_IfIsImportFalse()
+        {
+            var mockFacade = new Mock<IDebtAndDispositionSummaryService>();
+            mockFacade.Setup(facade => facade.GetReport(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTimeOffset>(), It.IsAny<bool>(), It.IsAny<bool>()))
+                .Returns(new ReadResponse<DebtAndDispositionSummaryDto>(new List<DebtAndDispositionSummaryDto>(), 10, new Dictionary<string, string>()));
+
+            SetDefaultServiceMockProvider(mockFacade);
+
+            var response = _controller.DownloadPdf(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), null, false, It.IsAny<bool>());
+
+            Assert.NotNull(response);
+        }
+
+        [Fact]
+        public void DownloadPdf_Should_Success_IfIsForeignCurrencyTrue()
+        {
+            var mockFacade = new Mock<IDebtAndDispositionSummaryService>();
+            mockFacade.Setup(facade => facade.GetReport(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTimeOffset>(), It.IsAny<bool>(), It.IsAny<bool>()))
+                .Returns(new ReadResponse<DebtAndDispositionSummaryDto>(new List<DebtAndDispositionSummaryDto>(), 10, new Dictionary<string, string>()));
+
+            SetDefaultServiceMockProvider(mockFacade);
+
+            var response = _controller.DownloadPdf(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), null, It.IsAny<bool>(), true);
+
+            Assert.NotNull(response);
+        }
+
+        [Fact]
+        public void DownloadPdf_Should_Success_IfIsForeignCurrencyFalse()
+        {
+            var mockFacade = new Mock<IDebtAndDispositionSummaryService>();
+            mockFacade.Setup(facade => facade.GetReport(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTimeOffset>(), It.IsAny<bool>(), It.IsAny<bool>()))
+                .Returns(new ReadResponse<DebtAndDispositionSummaryDto>(new List<DebtAndDispositionSummaryDto>(), 10, new Dictionary<string, string>()));
+
+            SetDefaultServiceMockProvider(mockFacade);
+
+            var response = _controller.DownloadPdf(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), null, It.IsAny<bool>(), false);
+
+            Assert.NotNull(response);
+        }
+
+
+
         [Fact]
         public void GetDebt_Should_Success()
         {
@@ -282,7 +371,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Reports
         public void GetSummary_Should_Success()
         {
             var mockFacade = new Mock<IDebtAndDispositionSummaryService>();
-            mockFacade.Setup(facade => facade.GetSummary(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<DateTimeOffset>(), It.IsAny<string>()))
+            mockFacade.Setup(facade => facade.GetSummary(It.IsAny<List<int>>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<DateTimeOffset>(), It.IsAny<string>()))
                 .Returns(new List<DebtAndDispositionSummaryDto>());
 
             SetDefaultServiceMockProvider(mockFacade);
@@ -296,7 +385,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Reports
         public void GetSummary_Should_InternalServerError()
         {
             var mockFacade = new Mock<IDebtAndDispositionSummaryService>();
-            mockFacade.Setup(facade => facade.GetSummary(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<DateTimeOffset>(), It.IsAny<string>()))
+            mockFacade.Setup(facade => facade.GetSummary(It.IsAny<List<int>>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<DateTimeOffset>(), It.IsAny<string>()))
                 .Throws(new Exception("Exception test"));
 
             SetDefaultServiceMockProvider(mockFacade);
