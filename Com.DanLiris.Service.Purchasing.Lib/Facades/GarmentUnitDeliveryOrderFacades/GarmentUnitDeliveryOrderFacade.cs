@@ -464,7 +464,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                         i.DOCurrency,
                         Buyer = new
                         {
-                            Id = dbContext.GarmentPurchaseRequests.Where(m => m.RONo==i.RONo).Select(m => m.BuyerId).FirstOrDefault(),
+                            Id = dbContext.GarmentPurchaseRequests.Where(m => m.RONo == i.RONo).Select(m => m.BuyerId).FirstOrDefault(),
                             Code = dbContext.GarmentPurchaseRequests.Where(m => m.RONo == i.RONo).Select(m => m.BuyerCode).FirstOrDefault()
                         },
                     }).ToList()
