@@ -1276,8 +1276,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
         public async Task<LocalPurchasingBookReportViewModel> GetReportDataV2(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, int divisionId)
         {
-            var dataReceiptNote = await GetReportDataImportPurchasing(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo,divisionId);
-            var dataReceiptNoteCorrection = await GetReportDataImportPurchasingCorrection(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo,  divisionId);
+            var dataReceiptNote = Task.Run(()=> GetReportDataImportPurchasing(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo,divisionId)).Result;
+            var dataReceiptNoteCorrection = Task.Run(()=> GetReportDataImportPurchasingCorrection(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo,  divisionId)).Result;
 
             var reportReceipt = new List<PurchasingReport>();
             reportReceipt.AddRange(dataReceiptNote);
