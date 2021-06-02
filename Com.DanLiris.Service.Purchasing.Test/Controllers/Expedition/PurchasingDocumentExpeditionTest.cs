@@ -252,17 +252,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
             Assert.Equal((int)HttpStatusCode.NotFound, GetStatusCode(response));
         }
 
-        //[Fact]
-        //public async Task Should_InternalServerError_GetById()
-        //{
-        //    var mockFacade = new Mock<IPurchasingDocumentExpeditionFacade>();
+        [Fact]
+        public async Task Should_InternalServerError_GetById()
+        {
+            var mockFacade = new Mock<IPurchasingDocumentExpeditionFacade>();
 
-        //    mockFacade.Setup(x => x.ReadModelById(It.IsAny<int>()))
-        //        .ThrowsAsync(new Exception());
+            mockFacade.Setup(x => x.ReadModelById(It.IsAny<int>()))
+                .ThrowsAsync(new Exception());
 
-        //    var controller = GetController(mockFacade);
-        //    var response = await controller.GetById(It.IsAny<int>());
-        //    Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
-        //}
+            var controller = GetController(mockFacade);
+            var response = await controller.GetById(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
     }
 }
