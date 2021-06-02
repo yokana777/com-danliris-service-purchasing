@@ -1239,19 +1239,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 
         public Tuple<List<GarmentExternalPurchaseOrderItem>, int, Dictionary<string, string>> ReadItemByPOSerialNumberLoader(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
         {
-            IQueryable<GarmentExternalPurchaseOrder> Query = this.dbSet.Where(m => m.IsPosted == true && m.IsClosed == false && m.IsDeleted == false && m.IsCanceled == false);
+           // IQueryable<GarmentExternalPurchaseOrder> Query = this.dbSet.IgnoreQueryFilters().Where(m => m.IsPosted == true && m.IsClosed == false && m.IsCanceled == false);
 
             List<string> searchAttributes = new List<string>()
             {
                 "PO_SerialNumber"
             };
 
-            IQueryable<GarmentExternalPurchaseOrderItem> QueryItem = dbContext.GarmentExternalPurchaseOrderItems;
+            IQueryable<GarmentExternalPurchaseOrderItem> QueryItem = dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters();
 
             QueryItem = QueryHelper<GarmentExternalPurchaseOrderItem>.ConfigureSearch(QueryItem, searchAttributes, Keyword);
 
             QueryItem = (from i in QueryItem
-                         join b in Query on i.GarmentEPOId equals b.Id
+                         where (i.IsDeleted == true && i.DeletedAgent == "LUCIA") || (i.IsDeleted == false) && i.PO_SerialNumber.Contains(Keyword)
                          select new GarmentExternalPurchaseOrderItem
                          {
                              Id = i.Id,
