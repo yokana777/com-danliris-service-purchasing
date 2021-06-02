@@ -1059,7 +1059,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         from urnUPODetail in joinUnitPaymentOrderDetails.DefaultIfEmpty()
 
                             //where urnWithItem.UnitReceiptNote.ReceiptDate >= d1 && urnWithItem.UnitReceiptNote.ReceiptDate <= d2 && urnWithItem.UnitReceiptNote.SupplierIsImport
-                        where upcCorrection.CorrectionDate.Date >= d1.Date && upcCorrection.CorrectionDate.Date <= d2.Date && !urnWithItem.UnitReceiptNote.SupplierIsImport
+                        where upcCorrection.CorrectionDate.Date >= d1.Date && upcCorrection.CorrectionDate.Date <= d2.Date && urnWithItem.UnitReceiptNote.SupplierIsImport
 
                         select new
                         {
