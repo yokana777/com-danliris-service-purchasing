@@ -221,10 +221,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         var garmentDeliveryOrder = dbsetGarmentDeliveryOrder.First(d => d.Id == garmentUnitReceiptNote.DOId);
                         garmentUnitReceiptNote.DOCurrencyRate = garmentDeliveryOrder.DOCurrencyRate;
                     }
-                    else if(garmentUnitReceiptNote.URNType == "PROSES")
-                    {
-                        await UpdateDR(garmentUnitReceiptNote.DRId, true);
-                    }
                     
 
                     foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
@@ -271,6 +267,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         }
 
                         await dbContext.SaveChangesAsync();
+                    }
+
+                    
+                    if (garmentUnitReceiptNote.URNType == "PROSES")
+                    {
+                        await UpdateDR(garmentUnitReceiptNote.DRId, true);
                     }
 
                     var garmentInventoryDocument = GenerateGarmentInventoryDocument(garmentUnitReceiptNote);
