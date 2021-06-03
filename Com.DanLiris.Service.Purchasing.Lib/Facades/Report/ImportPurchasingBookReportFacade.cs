@@ -1059,7 +1059,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         from urnUPODetail in joinUnitPaymentOrderDetails.DefaultIfEmpty()
 
                             //where urnWithItem.UnitReceiptNote.ReceiptDate >= d1 && urnWithItem.UnitReceiptNote.ReceiptDate <= d2 && urnWithItem.UnitReceiptNote.SupplierIsImport
-                        where upcCorrection.CorrectionDate.Date >= d1.Date && upcCorrection.CorrectionDate.Date <= d2.Date && !urnWithItem.UnitReceiptNote.SupplierIsImport
+                        where upcCorrection.CorrectionDate.Date >= d1.Date && upcCorrection.CorrectionDate.Date <= d2.Date && urnWithItem.UnitReceiptNote.SupplierIsImport
 
                         select new
                         {
@@ -1276,8 +1276,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
         public async Task<LocalPurchasingBookReportViewModel> GetReportDataV2(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, int divisionId)
         {
-            var dataReceiptNote = await GetReportDataImportPurchasing(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo,divisionId);
-            var dataReceiptNoteCorrection = await GetReportDataImportPurchasingCorrection(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo,  divisionId);
+            var dataReceiptNote = Task.Run(()=> GetReportDataImportPurchasing(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo,divisionId)).Result;
+            var dataReceiptNoteCorrection = Task.Run(()=> GetReportDataImportPurchasingCorrection(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo,  divisionId)).Result;
 
             var reportReceipt = new List<PurchasingReport>();
             reportReceipt.AddRange(dataReceiptNote);
