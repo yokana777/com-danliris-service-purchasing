@@ -38,14 +38,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             _identityService.TimezoneOffset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
         }
 
-        public async Task<IActionResult> Get([FromQuery] string username, [FromQuery] int supplierId, [FromQuery] DateTimeOffset? dateFrom, [FromQuery] DateTimeOffset? dateTo, [FromQuery] int page, [FromQuery] int size)
+        public IActionResult Get([FromQuery] string username, [FromQuery] int supplierId, [FromQuery] DateTimeOffset? dateFrom, [FromQuery] DateTimeOffset? dateTo, [FromQuery] int page, [FromQuery] int size)
         {
             try
             {
                 VerifyUser();
                 _identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-                var Data = await _service.GetReport(supplierId, username, dateFrom, dateTo, size, page);
+                var Data = _service.GetReport(supplierId, username, dateFrom, dateTo, size, page);
 
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
@@ -86,14 +86,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
         }
 
         [HttpGet("xlsx")]
-        public async Task<IActionResult> DownloadExcel([FromQuery] string username, [FromQuery] int supplierId, [FromQuery] string supplierName, [FromQuery] DateTimeOffset? dateFrom, [FromQuery] DateTimeOffset? dateTo)
+        public IActionResult DownloadExcel([FromQuery] string username, [FromQuery] int supplierId, [FromQuery] string supplierName, [FromQuery] DateTimeOffset? dateFrom, [FromQuery] DateTimeOffset? dateTo)
         {
 
             try
             {
                 VerifyUser();
 
-                var Data = await _service.GetReport(supplierId, username, dateFrom, dateTo, 0, 0);
+                var Data =  _service.GetReport(supplierId, username, dateFrom, dateTo, 0, 0);
 
 
                 var stream = GenerateExcel(Data.Data, _identityService.TimezoneOffset, username,supplierName,dateFrom,dateTo);
@@ -113,7 +113,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
 
         private MemoryStream GenerateExcel(List<DispositionPurchaseReportTableDto> data, int timezoneOffset, string username, string supplierName, DateTimeOffset? dateFrom, DateTimeOffset? dateTo)
         {
-            VerifyUser();
 
             var title = "LAPORAN DISPOSISI PEMBAYARAN";
 
@@ -294,16 +293,16 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             {
                 dataTable.Rows.Add(
                     item.Index.ToString(),
-                    item.Item.StaffName.ToString(),
-                    item.Item.DispositionNo.ToString(),
+                    item.Item.StaffName,
+                    item.Item.DispositionNo,
                     item.Item.DispositionDate.ToString("dd/MM/yyyy"),
-                    item.Item.SupplierCode.ToString(),
-                    item.Item.SupplierName.ToString(),
-                    item.Item.Category.ToString(),
-                    item.Item.PaymentType.ToString(),
-                    item.Item.InvoiceNo.ToString(),
+                    item.Item.SupplierCode,
+                    item.Item.SupplierName,
+                    item.Item.Category,
+                    item.Item.PaymentType,
+                    item.Item.InvoiceNo,
                     item.Item.DueDate.ToString("dd/MM/yyyy"),
-                    item.Item.CurrencyCode.ToString(),
+                    item.Item.CurrencyCode,
                     item.Item.Nominal.ToString("N2")
                     );
             }

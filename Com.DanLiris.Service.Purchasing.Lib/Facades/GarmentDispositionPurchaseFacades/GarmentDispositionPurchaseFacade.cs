@@ -230,7 +230,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
             return indexModel;
         }
 
-        public async Task<DispositionPurchaseReportIndexDto> GetReport(int supplierId, string username, DateTimeOffset? dateForm, DateTimeOffset? dateTo, int size, int page)
+        public DispositionPurchaseReportIndexDto GetReport(int supplierId, string username, DateTimeOffset? dateForm, DateTimeOffset? dateTo, int size, int page)
         {
             var dataModel = dbSet
                 .AsNoTracking()
@@ -249,11 +249,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                 dataModel = dataModel.Where(s => s.CreatedUtc >= dateForm.GetValueOrDefault());
 
             if (dateTo.HasValue)
-                dataModel = dataModel.Where(s => s.CreatedUtc >= dateTo.GetValueOrDefault());
+                dataModel = dataModel.Where(s => s.CreatedUtc <= dateTo.GetValueOrDefault());
 
             var countData = dataModel.Count();
 
-            var dataList = await dataModel.ToListAsync();
+            var dataList = dataModel.ToList();
 
 
             var Query = dataList.AsQueryable();

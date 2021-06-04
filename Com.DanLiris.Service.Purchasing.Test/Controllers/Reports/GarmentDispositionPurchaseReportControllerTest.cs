@@ -84,15 +84,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Reports
         }
 
         [Fact]
-        public async Task Get_Should_Success()
+        public void Get_Should_Success()
         {
             var mockFacade = new Mock<IGarmentDispositionPurchaseFacade>();
-            mockFacade.Setup(facade => facade.GetReport(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>(), It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(new DispositionPurchaseReportIndexDto(It.IsAny<List<DispositionPurchaseReportTableDto>>(),It.IsAny<int>(), It.IsAny<int>()));
+            mockFacade.Setup(facade => facade.GetReport(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<Nullable<DateTimeOffset>>(), It.IsAny<Nullable<DateTimeOffset>>(), It.IsAny<int>(), It.IsAny<int>()))
+                .Returns(new DispositionPurchaseReportIndexDto(It.IsAny<List<DispositionPurchaseReportTableDto>>(),It.IsAny<int>(), It.IsAny<int>()));
 
             SetDefaultServiceMockProvider(mockFacade);
 
-            var response = await _controller.Get(It.IsAny<string>(), It.IsAny<int>(),It.IsAny<Nullable<DateTimeOffset>>(), It.IsAny<Nullable<DateTimeOffset>>(), It.IsAny<int>(), It.IsAny<int>());
+            var response = _controller.Get(It.IsAny<string>(), It.IsAny<int>(),It.IsAny<Nullable<DateTimeOffset>>(), It.IsAny<Nullable<DateTimeOffset>>(), It.IsAny<int>(), It.IsAny<int>());
 
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
@@ -112,16 +112,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Reports
         //}
 
         [Fact]
-        public async Task Get_Should_Success_IfDueDateNull()
+        public void Get_Should_Success_IfDueDateNull()
         {
             var mockFacade = new Mock<IGarmentDispositionPurchaseFacade>();
-            mockFacade.Setup(facade => facade.GetReport(It.IsAny<int>(), It.IsAny<string>(), null, null, It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(new DispositionPurchaseReportIndexDto(It.IsAny<List<DispositionPurchaseReportTableDto>>(), It.IsAny<int>(), It.IsAny<int>()));
+            mockFacade.Setup(facade => facade.GetReport(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<Nullable<DateTimeOffset>>(), It.IsAny<Nullable<DateTimeOffset>>(), It.IsAny<int>(), It.IsAny<int>()))
+                .Returns(new DispositionPurchaseReportIndexDto(It.IsAny<List<DispositionPurchaseReportTableDto>>(), It.IsAny<int>(), It.IsAny<int>()));
 
 
             SetDefaultServiceMockProvider(mockFacade);
 
-            var response = await _controller.Get(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<Nullable<DateTimeOffset>>(), It.IsAny<Nullable<DateTimeOffset>>(), It.IsAny<int>(), It.IsAny<int>());
+            var response = _controller.Get(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<Nullable<DateTimeOffset>>(), It.IsAny<Nullable<DateTimeOffset>>(), It.IsAny<int>(), It.IsAny<int>());
 
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
@@ -155,30 +155,30 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Reports
         }
 
         [Fact]
-        public async Task DownloadExcel_Should_Success()
+        public void DownloadExcel_Should_Success()
         {
             var mockFacade = new Mock<IGarmentDispositionPurchaseFacade>();
-            mockFacade.Setup(facade => facade.GetReport(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>(), It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(new DispositionPurchaseReportIndexDto(It.IsAny<List<DispositionPurchaseReportTableDto>>(), It.IsAny<int>(), It.IsAny<int>()));
+            mockFacade.Setup(facade => facade.GetReport(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<Nullable<DateTimeOffset>>(), It.IsAny<Nullable<DateTimeOffset>>(), It.IsAny<int>(), It.IsAny<int>()))
+                .Returns(new DispositionPurchaseReportIndexDto(new List<DispositionPurchaseReportTableDto>{ new DispositionPurchaseReportTableDto { Category="testCateg"} }, It.IsAny<int>(), It.IsAny<int>()));
 
             SetDefaultServiceMockProvider(mockFacade);
 
-            var response = await _controller.DownloadExcel(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<Nullable<DateTimeOffset>>(), It.IsAny<Nullable<DateTimeOffset>>());
+            var response = _controller.DownloadExcel(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<Nullable<DateTimeOffset>>(), It.IsAny<Nullable<DateTimeOffset>>());
 
             Assert.NotNull(response);
 
         }
 
         [Fact]
-        public async Task DownloadExcel_Should_InternalServerError()
+        public void DownloadExcel_Should_InternalServerError()
         {
             var mockFacade = new Mock<IGarmentDispositionPurchaseFacade>();
-            mockFacade.Setup(facade => facade.GetReport(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>(), It.IsAny<int>(), It.IsAny<int>()))
+            mockFacade.Setup(facade => facade.GetReport(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<Nullable<DateTimeOffset>>(), It.IsAny<Nullable<DateTimeOffset>>(), It.IsAny<int>(), It.IsAny<int>()))
                 .Throws(new Exception("Exception test"));
 
             SetDefaultServiceMockProvider(mockFacade);
 
-            var response = await _controller.DownloadExcel(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<Nullable<DateTimeOffset>>(), It.IsAny<Nullable<DateTimeOffset>>());
+            var response =  _controller.DownloadExcel(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<Nullable<DateTimeOffset>>(), It.IsAny<Nullable<DateTimeOffset>>());
 
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
