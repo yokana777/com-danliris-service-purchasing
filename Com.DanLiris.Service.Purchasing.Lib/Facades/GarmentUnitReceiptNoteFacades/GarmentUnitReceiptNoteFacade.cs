@@ -221,10 +221,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         var garmentDeliveryOrder = dbsetGarmentDeliveryOrder.First(d => d.Id == garmentUnitReceiptNote.DOId);
                         garmentUnitReceiptNote.DOCurrencyRate = garmentDeliveryOrder.DOCurrencyRate;
                     }
-                    else if(garmentUnitReceiptNote.URNType == "PROSES")
-                    {
-                        await UpdateDR(garmentUnitReceiptNote.DRId, true);
-                    }
                     
 
                     foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
@@ -253,7 +249,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                             EntityExtension.FlagForUpdate(garmentInternalPurchaseOrderItem, identityService.Username, USER_AGENT);
                             garmentInternalPurchaseOrderItem.Status = "Barang sudah diterima Unit";
                         }
-                           
+                        
                         var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == garmentUnitReceiptNoteItem.ProductId && s.StorageId == garmentUnitReceiptNote.StorageId && s.UomId == garmentUnitReceiptNoteItem.SmallUomId);
 
                         var garmentInventoryMovement = GenerateGarmentInventoryMovement(garmentUnitReceiptNote, garmentUnitReceiptNoteItem, garmentInventorySummaryExisting);
@@ -271,6 +267,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         }
 
                         await dbContext.SaveChangesAsync();
+                    }
+
+                    
+                    if (garmentUnitReceiptNote.URNType == "PROSES")
+                    {
+                        await UpdateDR(garmentUnitReceiptNote.DRId, true);
                     }
 
                     var garmentInventoryDocument = GenerateGarmentInventoryDocument(garmentUnitReceiptNote);

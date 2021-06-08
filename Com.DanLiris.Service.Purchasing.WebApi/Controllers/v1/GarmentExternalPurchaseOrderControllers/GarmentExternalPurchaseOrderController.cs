@@ -665,7 +665,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
         [HttpGet("by-po-serial-number-loader")]
         public IActionResult ByPOSerialNumberLoader(int page = 1, int size = 25, string order = "{}", string keyword = null, string Filter = "{}")
         {
-
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
             try
@@ -683,7 +682,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
                     .Fail();
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
-
         }
 
         [HttpGet("by-ro-loader")]

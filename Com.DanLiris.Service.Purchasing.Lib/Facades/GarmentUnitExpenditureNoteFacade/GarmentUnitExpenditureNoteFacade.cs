@@ -638,6 +638,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             GarmentPurchaseRequest garmentPurchaseRequest = dbContext.GarmentPurchaseRequests.FirstOrDefault(a => a.RONo == unitDOItem.RONo);
                             //GarmentInternalPurchaseOrderItem gpoItem = dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(a => a.Id == unitDOItem.POItemId);
                             //GarmentInternalPurchaseOrder garmentInternalPurchaseOrder = dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(a => a.Id == gpoItem.GPOId);
+
                             GarmentUnitReceiptNoteItem gUrnItem = garmentUnitReceiptNote.Items.FirstOrDefault(a => a.Id == unitDOItem.URNItemId);
                             GarmentUnitExpenditureNoteItem gUenItem1 = garmentUnitExpenditureNote.Items.FirstOrDefault(a => a.Id == gUrnItem.UENItemId);
 
