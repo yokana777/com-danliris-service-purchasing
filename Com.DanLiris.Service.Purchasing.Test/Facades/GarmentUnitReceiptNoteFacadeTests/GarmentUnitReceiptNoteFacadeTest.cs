@@ -612,21 +612,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             Assert.NotEqual(Response.Count, 0);
         }
 
-        [Fact]
-        public async Task Should_Success_ReadURNItem()
-        {
-            var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
-            var filter = new
-            {
-                DONo= data.DONo,
-                UnitCode = data.UnitCode,
-                StorageCode= data.StorageCode
+        //[Fact]
+        //public async Task Should_Success_ReadURNItem()
+        //{
+        //    var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+        //    var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
+        //    var filter = new
+        //    {
+        //        DONo= data.DONo,
+        //        UnitCode = data.UnitCode,
+        //        StorageCode= data.StorageCode
                 
-            };
-            var Response = facade.ReadURNItem("", JsonConvert.SerializeObject(filter));
-            Assert.NotEmpty(Response);
-        }
+        //    };
+        //    var Response = facade.ReadURNItem("", JsonConvert.SerializeObject(filter));
+        //    Assert.NotEmpty(Response);
+        //}
         //Monitoring Terima BP
         //[Fact]
         //public async Task Should_Success_Get_Terima_BP_Report_Data()
