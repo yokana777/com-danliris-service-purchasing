@@ -117,6 +117,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance
                                 dto.MemoDetails.Add(new MemoDetail((int)dispositionDeliveryOrder.Id, dispositionDeliveryOrder.DONo, dispositionDeliveryOrder.SupplierCode, dispositionDeliveryOrder.SupplierName, internalNoteNo, dispositionDeliveryOrder.BillNo, dispositionDeliveryOrder.PaymentBill, dispositionDeliveryOrder.DOCurrencyCode, currencyRate, dispositionDeliveryOrder.TotalAmount));
                             }
                         }
+                        dto.OrderByInternalNoteNo();
                         result.Add(dto);
                     }
                 }
