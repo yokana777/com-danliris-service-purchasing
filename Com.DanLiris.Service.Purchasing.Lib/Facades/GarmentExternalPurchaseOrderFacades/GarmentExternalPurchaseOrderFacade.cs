@@ -1237,21 +1237,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             return Tuple.Create(Data, TotalData, OrderDictionary);
         }
 
-        public Tuple<List<GarmentExternalPurchaseOrderItem>, int, Dictionary<string, string>> ReadItemByPOSerialNumberLoader(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
+        public List<GarmentExternalPurchaseOrderItem> ReadItemByPOSerialNumberLoader(string Keyword = null, string Filter = "{}", int size = 50)
         {
             // IQueryable<GarmentExternalPurchaseOrder> Query = this.dbSet.IgnoreQueryFilters().Where(m => m.IsPosted == true && m.IsClosed == false && m.IsCanceled == false);
-
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            bool hasACCFilter = FilterDictionary.ContainsKey("PO_SerialNumber");
+            string POSerialNumber = hasACCFilter ? (FilterDictionary["PO_SerialNumber"] ?? "").Trim() : "";
+            IQueryable<GarmentExternalPurchaseOrderItem> QueryItem = dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters().Where(i => (i.IsDeleted == true && i.DeletedAgent == "LUCIA") || (i.IsDeleted == false));
             List<string> searchAttributes = new List<string>()
             {
                 "PO_SerialNumber"
             };
 
-            IQueryable<GarmentExternalPurchaseOrderItem> QueryItem = dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters();
-
             QueryItem = QueryHelper<GarmentExternalPurchaseOrderItem>.ConfigureSearch(QueryItem, searchAttributes, Keyword);
+            if (hasACCFilter)
+            {
+                QueryItem = QueryItem.Where(a => a.PO_SerialNumber.Contains(POSerialNumber));
+            }
 
             QueryItem = (from i in QueryItem
-                         where (i.IsDeleted == true && i.DeletedAgent == "LUCIA") || (i.IsDeleted == false) && i.PO_SerialNumber.Contains(Keyword)
+                         where i.PO_SerialNumber.Contains(Keyword)
                          select new GarmentExternalPurchaseOrderItem
                          {
                              Id = i.Id,
@@ -1262,17 +1267,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                              Remark = i.Remark
                          });
 
-            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
-            QueryItem = QueryHelper<GarmentExternalPurchaseOrderItem>.ConfigureFilter(QueryItem, FilterDictionary);
-
-            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
-            QueryItem = QueryHelper<GarmentExternalPurchaseOrderItem>.ConfigureOrder(QueryItem, OrderDictionary);
-
-            Pageable<GarmentExternalPurchaseOrderItem> pageable = new Pageable<GarmentExternalPurchaseOrderItem>(QueryItem, Page - 1, Size);
-            List<GarmentExternalPurchaseOrderItem> Data = pageable.Data.ToList<GarmentExternalPurchaseOrderItem>();
-            int TotalData = pageable.TotalCount;
-
-            return Tuple.Create(Data, TotalData, OrderDictionary);
+            List<GarmentExternalPurchaseOrderItem> ListData = new List<GarmentExternalPurchaseOrderItem>(QueryItem.OrderBy(o => o.PO_SerialNumber).Take(size));
+            return ListData;
         }
 
         public Tuple<List<GarmentExternalPurchaseOrderItem>, int, Dictionary<string, string>> ReadItemByROLoader(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}")
