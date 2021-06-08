@@ -665,37 +665,15 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
         [HttpGet("by-po-serial-number-loader")]
         public IActionResult ByPOSerialNumberLoader(int page = 1, int size = 25, string order = "{}", string keyword = null, string Filter = "{}")
         {
+
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
             try
             {
-                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
-
-                var Data = facade.ReadItemByPOSerialNumberLoader(page, size, order, keyword, Filter);
-
-                var newData = mapper.Map<List<GarmentExternalPurchaseOrderItemViewModel>>(Data.Item1);
-
-                List<object> listData = new List<object>();
-                listData.AddRange(
-                    newData.AsQueryable().Select(i => new
-                    {
-                        i.Id,
-                        i.PO_SerialNumber,
-                        i.Product,
-                        i.Remark
-                    }).ToList()
-                );
-
-                var info = new Dictionary<string, object>
-                    {
-                        { "count", listData.Count },
-                        { "total", Data.Item2 },
-                        { "order", Data.Item3 },
-                        { "page", page },
-                        { "size", size }
-                    };
-
+                var result = facade.ReadItemByPOSerialNumberLoader(keyword, Filter);
                 Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-                    .Ok(listData, info);
+                        new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                        .Ok(result);
                 return Ok(Result);
             }
             catch (Exception e)
@@ -705,6 +683,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
                     .Fail();
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
+
         }
 
         [HttpGet("by-ro-loader")]
