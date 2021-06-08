@@ -1240,16 +1240,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
         public List<GarmentExternalPurchaseOrderItem> ReadItemByPOSerialNumberLoader(string Keyword = null, string Filter = "{}", int size = 50)
         {
             // IQueryable<GarmentExternalPurchaseOrder> Query = this.dbSet.IgnoreQueryFilters().Where(m => m.IsPosted == true && m.IsClosed == false && m.IsCanceled == false);
-            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter); bool hasACCFilter = FilterDictionary.ContainsKey("PO_SerialNumber"); string POSerialNumber = hasACCFilter ? (FilterDictionary["PO_SerialNumber"] ?? "").Trim() : "";  
-            IQueryable<GarmentExternalPurchaseOrderItem> QueryItem = dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters().Where(i=> (i.IsDeleted == true && i.DeletedAgent == "LUCIA") || (i.IsDeleted == false));
+            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+            bool hasACCFilter = FilterDictionary.ContainsKey("PO_SerialNumber");
+            string POSerialNumber = hasACCFilter ? (FilterDictionary["PO_SerialNumber"] ?? "").Trim() : "";
+            IQueryable<GarmentExternalPurchaseOrderItem> QueryItem = dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters().Where(i => (i.IsDeleted == true && i.DeletedAgent == "LUCIA") || (i.IsDeleted == false));
+            List<string> searchAttributes = new List<string>()
+            {
+                "PO_SerialNumber"
+            };
 
+            QueryItem = QueryHelper<GarmentExternalPurchaseOrderItem>.ConfigureSearch(QueryItem, searchAttributes, Keyword);
             if (hasACCFilter)
             {
                 QueryItem = QueryItem.Where(a => a.PO_SerialNumber.Contains(POSerialNumber));
             }
 
             QueryItem = (from i in QueryItem
-                         where (i.IsDeleted == true && i.DeletedAgent == "LUCIA") || (i.IsDeleted == false) && i.PO_SerialNumber.Contains(Keyword)
+                         where i.PO_SerialNumber.Contains(Keyword)
                          select new GarmentExternalPurchaseOrderItem
                          {
                              Id = i.Id,
