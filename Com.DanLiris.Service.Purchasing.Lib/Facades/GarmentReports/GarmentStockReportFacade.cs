@@ -37,17 +37,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             DateTime DateFrom = datefrom == null ? new DateTime(1970, 1, 1) : (DateTime)datefrom;
             DateTime DateTo = dateto == null ? DateTime.Now : (DateTime)dateto;
 
-            var categories = GetProductCategories(1, int.MaxValue, "{}", "{}");
+            string filter = (string.IsNullOrWhiteSpace(ctg) ? "{}" : "{" + "'" + "CodeRequirement" + "'" + ":" + "'" + ctg + "'" + "}");
 
-            var categories1 = ctg == "BB" ? categories.Where(x => x.CodeRequirement == "BB").Select(x => x.Name).ToArray() : ctg == "BP" ? categories.Where(x => x.CodeRequirement == "BP").Select(x => x.Name).ToArray() : ctg == "BE" ? categories.Where(x => x.CodeRequirement == "BE").Select(x => x.Name).ToArray() : categories.Select(x=>x.Name).ToArray();
+            var categories = GetProductCategories(1, int.MaxValue, "{}", filter);
 
-            string filter = ctg == "BB" ? "{" + "'" + "ProductType" + "'" + ":" + "'FABRIC'" + "}" : "{" + "'" + "ProductType" + "'" + ":" + "'NON FABRIC'" + "}";
+            //var categories1 = ctg == "BB" ? categories.Where(x => x.CodeRequirement == "BB").Select(x => x.Name).ToArray() : ctg == "BP" ? categories.Where(x => x.CodeRequirement == "BP").Select(x => x.Name).ToArray() : ctg == "BE" ? categories.Where(x => x.CodeRequirement == "BE").Select(x => x.Name).ToArray() : categories.Select(x=>x.Name).ToArray();
+            var categories1 = categories.Select(x => x.Name).ToArray();
 
-            var product = GetProductCode(1, int.MaxValue, "{}", filter);
+            //string filter = ctg == "BB" ? "{" + "'" + "ProductType" + "'" + ":" + "'FABRIC'" + "}" : "{" + "'" + "ProductType" + "'" + ":" + "'NON FABRIC'" + "}";
 
-            var Codes = product.Where(x => categories1.Contains(x.Name)).ToList();
 
-            var lastdate = ctg == "BB" ? dbContext.BalanceStocks.Where(x=>x.PeriodeYear == "2018").OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault() : dbContext.BalanceStocks.OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault();
+            //var product = GetProductCode(1, int.MaxValue, "{}", filter);
+
+            //var Codes = product.Where(x => categories1.Contains(x.Name)).ToList();
+
+            var lastdate = ctg == "BB" ? dbContext.BalanceStocks.Where(x => x.PeriodeYear == "2018").OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault() : dbContext.BalanceStocks.OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault();
 
             //var lastdate = dbContext.BalanceStocks.Where(x => x.PeriodeYear == "2018").FirstOrDefault().CreateDate;
 
@@ -57,10 +61,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                join e in dbContext.GarmentUnitReceiptNoteItems on (long)a.EPOItemId equals e.EPOItemId
                                join f in dbContext.GarmentUnitReceiptNotes on e.URNId equals f.Id
                                join g in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RO equals g.RONo
-                               join h in Codes on b.ProductCode equals h.Code
+                               //join h in Codes on b.ProductCode equals h.Code
                                where a.CreateDate.Value.Date == lastdate
                                && f.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? f.UnitCode : unitcode)
                                && f.URNType == "PEMBELIAN"
+                               && categories1.Contains(b.ProductName)
                                select new GarmentStockReportViewModelTemp
                                {
                                    BeginningBalanceQty = (decimal)a.CloseStock,
@@ -86,13 +91,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                             join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                             join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
-                            join h in Codes on a.ProductCode equals h.Code
+                            //join h in Codes on a.ProductCode equals h.Code
                             where
                             a.IsDeleted == false && b.IsDeleted == false
                               &&
                               b.CreatedUtc.AddHours(offset).Date > lastdate
                               && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                               && b.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitCode : unitcode)
+                              && categories1.Contains(a.ProductName)
                             select new GarmentStockReportViewModelTemp
                             {
                                 BeginningBalanceQty = Math.Round(a.ReceiptQuantity * a.Conversion,2),
@@ -134,7 +140,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             join b in dbContext.GarmentUnitExpenditureNotes on a.UENId equals b.Id
                             join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                             join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
-                            join h in Codes on a.ProductCode equals h.Code
+                            //join h in Codes on a.ProductCode equals h.Code
                             join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
                             where
                             a.IsDeleted == false && b.IsDeleted == false
@@ -142,6 +148,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                b.CreatedUtc.AddHours(offset).Date > lastdate
                                && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                && b.UnitSenderCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitSenderCode : unitcode)
+                               && categories1.Contains(a.ProductName)
                             select new GarmentStockReportViewModelTemp
                             {
                                 BeginningBalanceQty = Convert.ToDecimal(a.Quantity * -1),
@@ -184,13 +191,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                              join e in dbContext.GarmentReceiptCorrectionItems on b.Id equals e.URNItemId
                              join f in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RONo equals f.RONo
-                             join h in Codes on b.ProductCode equals h.Code
+                             //join h in Codes on b.ProductCode equals h.Code
                              where
                              a.IsDeleted == false && b.IsDeleted == false
                              &&
                              a.CreatedUtc.AddHours(offset).Date > lastdate
                              && a.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                              && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
+                             && categories1.Contains(b.ProductName)
                              select new GarmentStockReportViewModelTemp
                              {
                                  BeginningBalanceQty = (decimal)e.SmallQuantity,
@@ -252,13 +260,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                             join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                             join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
-                          join h in Codes on a.ProductCode equals h.Code
+                          //join h in Codes on a.ProductCode equals h.Code
                           where a.IsDeleted == false && b.IsDeleted == false
                               &&
                               b.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
                               && b.CreatedUtc.AddHours(offset).Date <= DateTo.Date
                               && b.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitCode : unitcode)
-                            select new GarmentStockReportViewModelTemp
+                              && categories1.Contains(a.ProductName)
+                          select new GarmentStockReportViewModelTemp
                             {
                                 BeginningBalanceQty = 0,
                                 BeginningBalanceUom = a.SmallUomUnit,
@@ -298,14 +307,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             join b in dbContext.GarmentUnitExpenditureNotes on a.UENId equals b.Id
                             join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                             join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
-                          join h in Codes on a.ProductCode equals h.Code
+                          //join h in Codes on a.ProductCode equals h.Code
                           join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
                           where a.IsDeleted == false && b.IsDeleted == false
                                &&
                                b.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
                                && b.CreatedUtc.AddHours(offset).Date <= DateTo.Date
                                && b.UnitSenderCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitSenderCode : unitcode)
-                            select new GarmentStockReportViewModelTemp
+                               && categories1.Contains(a.ProductName)
+                          select new GarmentStockReportViewModelTemp
                             {
                                 BeginningBalanceQty = 0,
                                 BeginningBalanceUom = a.UomUnit,
@@ -347,14 +357,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                              join e in dbContext.GarmentReceiptCorrectionItems on b.Id equals e.URNItemId
                              join f in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RONo equals f.RONo
-                           join h in Codes on b.ProductCode equals h.Code
+                           //join h in Codes on b.ProductCode equals h.Code
                            where
                              a.IsDeleted == false && b.IsDeleted == false
                              &&
                              a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
                              && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
                              && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
-                             select new GarmentStockReportViewModelTemp
+                             && categories1.Contains(b.ProductName)
+                           select new GarmentStockReportViewModelTemp
                              {
                                  BeginningBalanceQty = 0,
                                  BeginningBalanceUom = b.SmallUomUnit,
@@ -436,6 +447,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
 
             List<GarmentStockReportViewModel> stock1 = new List<GarmentStockReportViewModel>();
+
+            var PrdoctCodes = string.Join(",", stock.Select(x => x.ProductCode).Distinct().ToList());
+
+            var Codes = GetProductCode(PrdoctCodes);
 
             foreach (var i in stock)
             {
@@ -721,18 +736,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             }
         }
 
-        private List<GarmentProductViewModel> GetProductCode(int page, int size, string order, string filter)
+        private List<GarmentProductViewModel> GetProductCode(string codes)
         {
             IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
 
-            if (httpClient != null)
+            var httpContent = new StringContent(JsonConvert.SerializeObject(codes), Encoding.UTF8, "application/json");
+
+            var garmentProductionUri = APIEndpoint.Core + $"master/garmentProducts/byCode";
+            var httpResponse = httpClient.SendAsync(HttpMethod.Get, garmentProductionUri, httpContent).Result;
+
+            if (httpResponse.IsSuccessStatusCode)
             {
-                var garmentSupplierUri = APIEndpoint.Core + $"master/garmentProducts";
-                string queryUri = "?page=" + page + "&size=" + size + "&order=" + order + "&filter=" + filter;
-                string uri = garmentSupplierUri + queryUri;
-                var response = httpClient.GetAsync($"{uri}").Result.Content.ReadAsStringAsync().Result;
-                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);
-                List<GarmentProductViewModel> viewModel = JsonConvert.DeserializeObject<List<GarmentProductViewModel>>(result.GetValueOrDefault("data").ToString());
+                var content = httpResponse.Content.ReadAsStringAsync().Result;
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+
+                List<GarmentProductViewModel> viewModel;
+                if (result.GetValueOrDefault("data") == null)
+                {
+                    viewModel = null;
+                }
+                else
+                {
+                    viewModel = JsonConvert.DeserializeObject<List<GarmentProductViewModel>>(result.GetValueOrDefault("data").ToString());
+
+                }
                 return viewModel;
             }
             else
