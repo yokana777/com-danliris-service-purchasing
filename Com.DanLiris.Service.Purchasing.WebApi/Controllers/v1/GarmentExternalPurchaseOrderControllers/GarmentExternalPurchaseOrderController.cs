@@ -687,35 +687,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
         [HttpGet("by-ro-loader")]
         public IActionResult ByROLoader(int page = 1, int size = 25, string order = "{}", string keyword = null, string Filter = "{}")
         {
+            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+
             try
             {
-                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
-
-                var Data = facade.ReadItemByROLoader(page, size, order, keyword, Filter);
-
-                var newData = mapper.Map<List<GarmentExternalPurchaseOrderItemViewModel>>(Data.Item1);
-
-                List<object> listData = new List<object>();
-                listData.AddRange(
-                    newData.AsQueryable().Select(i => new
-                    {
-                        i.Id,
-                        i.RONo
-                    }).ToList()
-                );
-
-                var info = new Dictionary<string, object>
-                    {
-                        { "count", listData.Count },
-                        { "total", Data.Item2 },
-                        { "order", Data.Item3 },
-                        { "page", page },
-                        { "size", size }
-                    };
-
+                var result = facade.ReadItemByROLoader(keyword, Filter);
                 Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-                    .Ok(listData, info);
+                        new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                        .Ok(result);
                 return Ok(Result);
             }
             catch (Exception e)
