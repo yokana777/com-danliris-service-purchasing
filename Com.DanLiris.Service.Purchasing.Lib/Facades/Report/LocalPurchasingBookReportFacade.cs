@@ -1319,11 +1319,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             switch (correctionType)
             {
                 case "Harga Satuan":
-                    return ((pricePerDealBefore - priceperDealAfter)* quantity)*-1;
+                    return ((pricePerDealBefore - priceperDealAfter)* (Math.Abs(quantityCorrection- quantity))) *-1;
                 case "Harga Total":
                     return (priceTotalBefore - priceTotalAfter) * -1;
                 case "Jumlah":
-                    return ((pricePerDealBefore - priceperDealAfter) * quantityCorrection) * -1;
+                    return (priceperDealAfter * (Math.Abs(quantityCorrection-quantity))) * -1;
                 default:
                     return 0;
                     break;
@@ -1336,15 +1336,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             switch (correctionType)
             {
                 case "Harga Satuan":
-                    return quantity;
+                    return Math.Abs(quantityCorrection - quantity)*-1;
                 case "Harga Total":
-                    return quantity;
+                    return Math.Abs(quantityCorrection - quantity)*-1;
                 case "Jumlah":
-                    return quantityCorrection;
+                    return Math.Abs(quantityCorrection- quantity)*-1;
                 default:
                     return 0;
                     break;
-
             }
         }
 
