@@ -90,6 +90,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
                 .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garmentProducts"))))
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentProductDataUtil().GetMultipleResultFormatterOkString()) });
 
+            httpClientService
+                .Setup(x => x.SendAsync(It.IsAny<HttpMethod>(), It.Is<string>(s => s.Contains("master/garmentProducts")), It.IsAny<HttpContent>()))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentProductDataUtil().GetMultipleResultFormatterOkString()) });
+
 
             var mapper = new Mock<IMapper>();
             mapper
@@ -1587,7 +1591,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         {
             GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.GetReportFlow(null, null, "", "BB", 1, 25, "{}", 7);
+            var Response = facade.GetReportFlow(null, null, "", "BP", 1, 25, "{}", 7);
             Assert.Empty(Response.Item1);
         }
 
@@ -1657,11 +1661,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             {
                 i.UENItemId = 1;
                 i.ProductCode = "CodeTest123";
+                i.ProductName = "Name123";
             }
             foreach (var i in dataUrn2.Items)
             {
                 i.UENItemId = 1;
                 i.ProductCode = "CodeTestBP123";
+                i.ProductName = "Name123BP";
             }
             //var dataUrn3 = await dataUtilUrn.GetNewData2(nowTicks + 1);
             //dataUrn3.UENNo = "BUK" + dataUrn3.UnitCode;
@@ -1680,8 +1686,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var stockreport = new AccountingStockReportFacade(serviceProvider, dbContext);
             //var Response = stockreport.GetStockReport(7, dataUrn1.UnitCode, null, 1, 25, "{}", new DateTime(2019, 12, 26), new DateTime(2019, 12, 27));
             //var Response = stockreport.GetStockReport("BB", null, null, null, 7);
-            var Response = await stockreport.GetStockReportAsync(7, null, "BB", 1, 25, "{}", null, null);
-            var Response2 = await stockreport.GetStockReportAsync(7, null, "BP", 1, 25, "{}", null, null);
+            var Response = stockreport.GetStockReport(7, null, "BB", 1, 25, "{}", null, null);
+            var Response2 = stockreport.GetStockReport(7, null, "BP", 1, 25, "{}", null, null);
             Assert.NotNull(Response.Item1);
             Assert.NotNull(Response2.Item1);
         }
@@ -1732,11 +1738,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             {
                 i.UENItemId = 1;
                 i.ProductCode = "CodeTest123";
+                i.ProductName = "Name123";
             }
             foreach (var i in dataUrn2.Items)
             {
                 i.UENItemId = 1;
                 i.ProductCode = "CodeTestBP123";
+                i.ProductName = "Name123BP";
             }
             //var dataUrn3 = await dataUtilUrn.GetNewData2(nowTicks + 1);
             //dataUrn3.UENNo = "BUK" + dataUrn3.UnitCode;
@@ -1755,7 +1763,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var stockreport = new AccountingStockReportFacade(serviceProvider, dbContext);
             //var Response = stockreport.GetStockReport(7, dataUrn1.UnitCode, null, 1, 25, "{}", new DateTime(2019, 12, 26), new DateTime(2019, 12, 27));
             //var Response = stockreport.GetStockReport("BB", null, null, null, 7);
-            var Response = await stockreport.GenerateExcelAStockReportAsync("BB", null, null, null, null, null, 7);
+            var Response = stockreport.GenerateExcelAStockReport("BB", null, null, null, null, null, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
         [Fact]
@@ -1809,11 +1817,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             {
                 i.UENItemId = 1;
                 i.ProductCode = "CodeTest123";
+                i.ProductName = "Name123";
             }
             foreach (var i in dataUrn2.Items)
             {
                 i.UENItemId = 1;
                 i.ProductCode = "CodeTestBP123";
+                i.ProductName = "Name123BP";
             }
             await facade.Create(dataUrn1);
             await facade.Create(dataUrn2);
@@ -1825,7 +1835,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             await facadeRC.Create(dataRC.GarmentReceiptCorrection, USERNAME);
             var stockreport = new AccountingStockReportFacade(serviceProvider, dbContext);
             //var Response = stockreport.GenerateExcelAStockReport(null, dataUrn1.UnitCode, new DateTime(2019, 12, 26), new DateTime(2019, 12, 27), 7);
-            var Response = await stockreport.GenerateExcelAStockReportAsync("BB", "BAHAN BAKU", "C2A", "KONFEKSI 2A", null, null, 7);
+            var Response = stockreport.GenerateExcelAStockReport("BB", "BAHAN BAKU", "C2A", "KONFEKSI 2A", null, null, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
         [Fact]
@@ -1879,11 +1889,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             {
                 i.UENItemId = 1;
                 i.ProductCode = "CodeTest123";
+                i.ProductName = "Name123";
             }
             foreach (var i in dataUrn2.Items)
             {
                 i.UENItemId = 1;
                 i.ProductCode = "CodeTestBP123";
+                i.ProductName = "Name123BP";
             }
             await facade.Create(dataUrn1);
             await facade.Create(dataUrn2);
@@ -1895,7 +1907,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             await facadeRC.Create(dataRC.GarmentReceiptCorrection, USERNAME);
             var stockreport = new AccountingStockReportFacade(serviceProvider, dbContext);
             //var Response = stockreport.GenerateExcelAStockReport(null, dataUrn1.UnitCode, new DateTime(2019, 12, 26), new DateTime(2019, 12, 27), 7);
-            var Response = await stockreport.GenerateExcelAStockReportAsync("BB", "BAHAN BAKU", "C2B", "KONFEKSI 2B", null, null, 7);
+            var Response = stockreport.GenerateExcelAStockReport("BB", "BAHAN BAKU", "C2B", "KONFEKSI 2B", null, null, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
         [Fact]
@@ -1949,11 +1961,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             {
                 i.UENItemId = 1;
                 i.ProductCode = "CodeTest123";
+                i.ProductName = "Name123";
             }
             foreach (var i in dataUrn2.Items)
             {
                 i.UENItemId = 1;
                 i.ProductCode = "CodeTestBP123";
+                i.ProductName = "Name123BP";
             }
             await facade.Create(dataUrn1);
             await facade.Create(dataUrn2);
@@ -1965,7 +1979,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             await facadeRC.Create(dataRC.GarmentReceiptCorrection, USERNAME);
             var stockreport = new AccountingStockReportFacade(serviceProvider, dbContext);
             //var Response = stockreport.GenerateExcelAStockReport(null, dataUrn1.UnitCode, new DateTime(2019, 12, 26), new DateTime(2019, 12, 27), 7);
-            var Response = await stockreport.GenerateExcelAStockReportAsync("BB", "BAHAN BAKU", "C2C", "KONFEKSI 2C", null, null, 7);
+            var Response = stockreport.GenerateExcelAStockReport("BB", "BAHAN BAKU", "C2C", "KONFEKSI 2C", null, null, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
         [Fact]
@@ -2019,11 +2033,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             {
                 i.UENItemId = 1;
                 i.ProductCode = "CodeTest123";
+                i.ProductName = "Name123";
             }
             foreach (var i in dataUrn2.Items)
             {
                 i.UENItemId = 1;
                 i.ProductCode = "CodeTestBP123";
+                i.ProductName = "Name123BP";
             }
             await facade.Create(dataUrn1);
             await facade.Create(dataUrn2);
@@ -2035,7 +2051,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             await facadeRC.Create(dataRC.GarmentReceiptCorrection, USERNAME);
             var stockreport = new AccountingStockReportFacade(serviceProvider, dbContext);
             //var Response = stockreport.GenerateExcelAStockReport(null, dataUrn1.UnitCode, new DateTime(2019, 12, 26), new DateTime(2019, 12, 27), 7);
-            var Response = await stockreport.GenerateExcelAStockReportAsync("BB", "BAHAN BAKU", "C1B", "KONFEKSI 1B", null, null, 7);
+            var Response = stockreport.GenerateExcelAStockReport("BB", "BAHAN BAKU", "C1B", "KONFEKSI 1B", null, null, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
         [Fact]
@@ -2089,11 +2105,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             {
                 i.UENItemId = 1;
                 i.ProductCode = "CodeTest123";
+                i.ProductName = "Name123";
             }
             foreach (var i in dataUrn2.Items)
             {
                 i.UENItemId = 1;
                 i.ProductCode = "CodeTestBP123";
+                i.ProductName = "Name123BP";
             }
             await facade.Create(dataUrn1);
             await facade.Create(dataUrn2);
@@ -2105,7 +2123,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             await facadeRC.Create(dataRC.GarmentReceiptCorrection, USERNAME);
             var stockreport = new AccountingStockReportFacade(serviceProvider, dbContext);
             //var Response = stockreport.GenerateExcelAStockReport(null, dataUrn1.UnitCode, new DateTime(2019, 12, 26), new DateTime(2019, 12, 27), 7);
-            var Response = await stockreport.GenerateExcelAStockReportAsync("BB", "BAHAN BAKU", "C1A", "KONFEKSI 1A", new DateTime(1970, 1, 1), DateTime.Now, 7);
+            var Response = stockreport.GenerateExcelAStockReport("BB", "BAHAN BAKU", "C1A", "KONFEKSI 1A", new DateTime(1970, 1, 1), DateTime.Now, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
         #endregion
@@ -2164,11 +2182,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             {
                 i.UENItemId = 1;
                 i.ProductCode = "CodeTest123";
+                i.ProductName = "Name123";
             }
             foreach (var i in dataUrn2.Items)
             {
                 i.UENItemId = 1;
                 i.ProductCode = "CodeTestBP123";
+                i.ProductName = "Name123BP";
             }
             await facade.Create(dataUrn1);
             await facade.Create(dataUrn2);
@@ -2218,11 +2238,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             {
                 i.UENItemId = 1;
                 i.ProductCode = "CodeTest123";
+                i.ProductName = "Name123";
             }
             foreach (var i in dataUrn2.Items)
             {
                 i.UENItemId = 1;
                 i.ProductCode = "CodeTestBP123";
+                i.ProductName = "Name123BP";
             }
             //var dataUrn3 = await dataUtilUrn.GetNewData2(nowTicks + 1);
             //dataUrn3.UENNo = "BUK" + dataUrn3.UnitCode;
