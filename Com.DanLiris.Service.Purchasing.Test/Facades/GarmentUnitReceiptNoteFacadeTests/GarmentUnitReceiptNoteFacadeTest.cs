@@ -1591,7 +1591,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         {
             GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.GetReportFlow(null, null, "", "BP", 1, 25, "{}", 7);
+            var Response = facade.GetReportFlow(null, null, "C2C", "", 1, 25, "{}", 7);
             Assert.Empty(Response.Item1);
         }
 
