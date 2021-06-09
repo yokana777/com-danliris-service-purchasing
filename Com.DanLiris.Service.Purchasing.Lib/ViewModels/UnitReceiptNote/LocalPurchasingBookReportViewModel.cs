@@ -33,7 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
     {
         public long URNId { get; set; }
         public int DataSourceSort { get; set; }
-        public DateTimeOffset ReceiptDate { get; set; }
+        public DateTimeOffset? ReceiptDate { get; set; }
         public string URNNo { get; set; }
         public string ProductName { get; set; }
         public string InvoiceNo { get; set; }
@@ -73,6 +73,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNote
         public int AccountingLayoutIndex { get; set; }
         public string IncomeTaxBy { get; set; }
         public string CorrectionNo { get; set; }
-        public DateTimeOffset CorrectionDate { get; set; }
+        public DateTimeOffset? CorrectionDate { get; set; }
     }
 }
