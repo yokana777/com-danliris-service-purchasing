@@ -236,7 +236,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         garmentUnitReceiptNoteItem.ReceiptCorrection = garmentUnitReceiptNoteItem.ReceiptQuantity;
 
 
-                        //*per 10-06-21 yg PROSES tidak update receiptqty di DO by Rian & Tika IT
+                        //*per 10-06-21 yg PROSES tidak update receiptqty di DO
 
                         if(garmentUnitReceiptNote.URNType != "PROSES")
                         {
