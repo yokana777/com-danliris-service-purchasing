@@ -865,7 +865,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             InvoiceNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.InvoiceNo : "",
                             UPONo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.UPONo : "",
                             VatNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.VatNo : "",
-                            PibDate = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.PibDate : new DateTimeOffset(),
+                            PibDate = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.PibDate : DateTimeOffset.MinValue,
                             //urnUPOItem.UnitPaymentOrder.PibDate,
                             PibNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.PibNo : "",
                             ImportDuty = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.ImportDuty : 0,
@@ -1013,7 +1013,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     URNNo = item.URNNo,
                     IsUseVat = item.UseVat,
                     CurrencyCode = currencyCode,
-                    PIBDate = item.PibDate,
+                    PIBDate = item.PibDate == DateTimeOffset.MinValue? (DateTimeOffset?)null: item.PibDate,
                     PIBNo = item.PibNo,
                     PIBBM = (decimal)item.ImportDuty,
                     PIBIncomeTax = (decimal)item.TotalIncomeTaxAmount,
@@ -1021,7 +1021,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     PIBImportInfo = item.ImportInfo,
                     Remark = item.Remark,
                     Quantity = item.ReceiptQuantity,
-                    DataSourceSort = 1
+                    DataSourceSort = 1,
+                    CorrectionDate = null
                 };
 
                 reportResult.Add(reportItem);
@@ -1096,7 +1097,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             InvoiceNo = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.InvoiceNo : "",
                             UPONo = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.UPONo : "",
                             VatNo = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.VatNo : "",
-                            PibDate = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.PibDate : new DateTimeOffset(),
+                            PibDate = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.PibDate : (DateTimeOffset?)null,
                             //urnUPOItem.UnitPaymentOrder.PibDate,
                             PibNo = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.PibNo : "",
                             ImportDuty = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.ImportDuty : 0,
@@ -1437,7 +1438,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 {
                     var dateReceipt = report.ReceiptDate.HasValue ? report.ReceiptDate.GetValueOrDefault().ToString("dd/MM/yyyy") : string.Empty;
                     var dateCorrection = report.CorrectionDate.HasValue ? report.CorrectionDate.GetValueOrDefault().ToString("dd/MM/yyyy") : string.Empty;
-                    reportDataTable.Rows.Add(dateReceipt, report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo,report.CorrectionNo, dateCorrection, report.AccountingCategoryName, report.CategoryName, report.AccountingUnitName, report.UnitName, report.PIBDate.ToString("dd/MM/yyyy"), report.PIBNo, report.PIBBM, report.PIBIncomeTax, report.PIBVat, report.PIBImportInfo, report.CurrencyCode, report.DPP, report.CurrencyRate, report.Total);
+                    var datePib = report.PIBDate.HasValue ? report.PIBDate.GetValueOrDefault().ToString("dd/MM/yyyy") : string.Empty;
+                    reportDataTable.Rows.Add(dateReceipt, report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo,report.CorrectionNo, dateCorrection, report.AccountingCategoryName, report.CategoryName, report.AccountingUnitName, report.UnitName, datePib, report.PIBNo, report.PIBBM, report.PIBIncomeTax, report.PIBVat, report.PIBImportInfo, report.CurrencyCode, report.DPP, report.CurrencyRate, report.Total);
                 }
                 foreach (var categorySummary in result.CategorySummaries)
                     categoryDataTable.Rows.Add(categorySummary.Category, categorySummary.SubTotal);
