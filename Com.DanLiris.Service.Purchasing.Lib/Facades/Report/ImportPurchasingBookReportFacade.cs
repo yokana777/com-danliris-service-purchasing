@@ -1053,10 +1053,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         join epoDetail in dbContext.ExternalPurchaseOrderDetails on urnWithItem.EPODetailId equals epoDetail.Id into joinExternalPurchaseOrder
                         from urnEPODetail in joinExternalPurchaseOrder.DefaultIfEmpty()
 
-                        join upoItem in dbContext.UnitPaymentOrderItems on urnWithItem.URNId equals upoItem.URNId into joinUnitPaymentOrder
-                        from urnUPOItem in joinUnitPaymentOrder.DefaultIfEmpty()
+                        //join upoItem in dbContext.UnitPaymentOrderItems on urnWithItem.URNId equals upoItem.URNId into joinUnitPaymentOrder
+                        //from urnUPOItem in joinUnitPaymentOrder.DefaultIfEmpty()
 
-                        join upoDetail in dbContext.UnitPaymentOrderDetails on urnUPOItem.Id equals upoDetail.URNItemId into joinUnitPaymentOrderDetails
+                        join upoDetail in dbContext.UnitPaymentOrderDetails on urnEPODetail.Id equals upoDetail.EPODetailId into joinUnitPaymentOrderDetails
                         from urnUPODetail in joinUnitPaymentOrderDetails.DefaultIfEmpty()
 
                             //where urnWithItem.UnitReceiptNote.ReceiptDate >= d1 && urnWithItem.UnitReceiptNote.ReceiptDate <= d2 && urnWithItem.UnitReceiptNote.SupplierIsImport
@@ -1094,16 +1094,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.CurrencyCode,
 
                             // UPO Info
-                            InvoiceNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.InvoiceNo : "",
-                            UPONo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.UPONo : "",
-                            VatNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.VatNo : "",
-                            PibDate = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.PibDate : new DateTimeOffset(),
+                            InvoiceNo = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.InvoiceNo : "",
+                            UPONo = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.UPONo : "",
+                            VatNo = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.VatNo : "",
+                            PibDate = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.PibDate : new DateTimeOffset(),
                             //urnUPOItem.UnitPaymentOrder.PibDate,
-                            PibNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.PibNo : "",
-                            ImportDuty = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.ImportDuty : 0,
-                            TotalIncomeTaxAmount = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.TotalIncomeTaxAmount : 0,
-                            TotalVatAmount = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.TotalVatAmount : 0,
-                            ImportInfo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.ImportInfo : "",
+                            PibNo = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.PibNo : "",
+                            ImportDuty = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.ImportDuty : 0,
+                            TotalIncomeTaxAmount = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.TotalIncomeTaxAmount : 0,
+                            TotalVatAmount = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.TotalVatAmount : 0,
+                            ImportInfo = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.ImportInfo : "",
                             //urnUPOItem.UnitPaymentOrder.InvoiceNo,
                             //urnUPOItem.UnitPaymentOrder.UPONo,
                             //urnUPOItem.UnitPaymentOrder.VatNo,
