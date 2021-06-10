@@ -216,7 +216,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                 foreach (var element in cat)
                 {
-                    cell.Phrase = new Phrase(element.ReceiptDate.GetValueOrDefault().AddHours(timezoneOffset).ToString("yyyy-dd-MM"), _smallerFont);
+                    var dateReceipt = element.ReceiptDate.HasValue ? element.ReceiptDate.GetValueOrDefault().ToString("yyyy-dd-MM") : string.Empty;
+                    var dateCorrection = element.CorrectionDate.HasValue ? element.CorrectionDate.GetValueOrDefault().ToString("yyyy-dd-MM") : string.Empty;
+                    var datePib = element.PIBDate.HasValue ? element.PIBDate.GetValueOrDefault().ToString("yyyy-dd-MM") : string.Empty;
+
+                    cell.Phrase = new Phrase(dateReceipt, _smallerFont);
                     table.AddCell(cell);
 
                     cell.Phrase = new Phrase(element.SupplierCode, _smallerFont);
@@ -251,7 +255,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cell.Phrase = new Phrase(element.AccountingUnitName, _smallerFont);
                     table.AddCell(cell);
 
-                    cell.Phrase = new Phrase(element.PIBDate.AddHours(timezoneOffset).ToString("yyyy-dd-MM"), _smallerFont);
+                    cell.Phrase = new Phrase(datePib, _smallerFont);
                     table.AddCell(cell);
 
                     cell.Phrase = new Phrase(element.PIBNo, _smallerFont);
