@@ -13,9 +13,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210611012844_Initial_Closing_Date")]
+    partial class Initial_Closing_Date
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1519,7 +1520,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("Active");
 
-                    b.Property<DateTimeOffset>("CloseDate");
+                    b.Property<DateTimeOffset>("ClosingDate");
 
                     b.Property<string>("CreatedAgent")
                         .IsRequired()
@@ -1558,7 +1559,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ClosingDate");
+                    b.ToTable("GarmentClosingDates");
                 });
 
             modelBuilder.Entity("Com.DanLiris.Service.Purchasing.Lib.Models.GarmentCorrectionNoteModel.GarmentCorrectionNote", b =>
