@@ -7,6 +7,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentClosingDateModels
 {
     public class GarmentClosingDate : BaseModel
     {
-        public DateTimeOffset ClosingDate { get; set; }
+        public DateTimeOffset CloseDate { get; set; }
     }
 }

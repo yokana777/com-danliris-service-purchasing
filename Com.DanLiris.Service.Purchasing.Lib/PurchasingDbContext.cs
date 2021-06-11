@@ -147,7 +147,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib
 
         //public DbSet<ImportValue> ImportValues { get; set; }
 
-        public DbSet<GarmentClosingDate> GarmentClosingDates { get; set; }
+        public DbSet<GarmentClosingDate> ClosingDate { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

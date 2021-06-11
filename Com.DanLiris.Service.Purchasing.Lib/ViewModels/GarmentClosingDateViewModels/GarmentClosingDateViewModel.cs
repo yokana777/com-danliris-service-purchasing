@@ -8,13 +8,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentClosingDateViewM
 {
     public class GarmentClosingDateViewModel : BaseViewModel, IValidatableObject
     {
-        public DateTimeOffset ClosingDate { get; set; }
+        public DateTimeOffset CloseDate { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (ClosingDate.Equals(DateTimeOffset.MinValue) || ClosingDate == null)
+            if (CloseDate.Equals(DateTimeOffset.MinValue) || CloseDate == null)
             {
-                yield return new ValidationResult("ClosingDate harus diisi", new List<string> { "ClosingDate" });
+                yield return new ValidationResult("CloseDate harus diisi", new List<string> { "CloseDate" });
             }
         }
     }

@@ -50,8 +50,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentClosingDateFacades
                 {
                     if (m.Id != 0)
                     {
-                        var exist = dbSet.Where(a => a.Id == m.Id).Single();
-                        exist.ClosingDate = m.ClosingDate;
+                        var exist = dbSet.Where(a => a.Id == m.Id).AsNoTracking().Single();
+                        exist.CloseDate = m.CloseDate;
                         EntityExtension.FlagForUpdate(m, user, USER_AGENT);
 
                         dbSet.Update(m);
