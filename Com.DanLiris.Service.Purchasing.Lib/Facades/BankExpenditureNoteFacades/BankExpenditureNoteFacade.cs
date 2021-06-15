@@ -358,7 +358,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
             var modelToPost = new JournalTransaction()
             {
-                Date = DateTimeOffset.Now,
+                Date = model.Date,
                 Description = "Bukti Pengeluaran Bank",
                 ReferenceNo = model.DocumentNo,
                 Items = items
@@ -699,7 +699,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 Nominal = model.GrandTotal,
                 CurrencyRate = model.CurrencyRate,
                 ReferenceNo = model.DocumentNo,
-                ReferenceType = "Bayar PPh",
+                ReferenceType = "Bayar Hutang",
                 Remark = model.CurrencyCode != "IDR" ? $"Pembayaran atas {model.BankCurrencyCode} dengan nominal {string.Format("{0:n}", model.GrandTotal)} dan kurs {model.CurrencyCode}" : "",
                 SourceType = "Operasional",
                 Status = "OUT",
