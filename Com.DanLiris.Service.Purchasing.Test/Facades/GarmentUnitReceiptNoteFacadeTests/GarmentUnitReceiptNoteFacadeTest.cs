@@ -2325,7 +2325,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         public async Task Should_Success_Get_Mutation_BPCentral()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var facadeMutation = new MutationBeacukaiFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             foreach (var b in data.Items)
@@ -2341,7 +2341,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         public async Task Should_Success_Get_Excel_Mutation_BPCentral()
         {
             var dbContext = _dbContext(GetCurrentMethod());
-            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var facadeMutation = new MutationBeacukaiFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             foreach (var b in data.Items)
