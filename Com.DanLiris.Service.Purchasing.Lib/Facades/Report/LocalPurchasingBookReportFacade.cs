@@ -864,7 +864,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         join epoDetail in dbContext.ExternalPurchaseOrderDetails on urnWithItem.EPODetailId equals epoDetail.Id into joinExternalPurchaseOrder
                         from urnEPODetail in joinExternalPurchaseOrder.DefaultIfEmpty()
 
-                        join upoItem in dbContext.UnitPaymentOrderItems on urnWithItem.URNId equals upoItem.URNId into joinUnitPaymentOrder
+                        join upoItem in dbContext.UnitPaymentOrderDetails on urnEPODetail.Id equals upoItem.EPODetailId into joinUnitPaymentOrder
                         from urnUPOItem in joinUnitPaymentOrder.DefaultIfEmpty()
 
                         where urnWithItem.UnitReceiptNote.ReceiptDate.Date >= d1.Date && urnWithItem.UnitReceiptNote.ReceiptDate.Date <= d2.Date && !urnWithItem.UnitReceiptNote.SupplierIsImport
@@ -904,12 +904,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.CurrencyCode,
 
                             // UPO Info
-                            InvoiceNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.InvoiceNo : "",
-                            UPONo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.UPONo : "",
-                            VatNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.VatNo : "",
+                            InvoiceNo = urnUPOItem.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrderItem.UnitPaymentOrder.InvoiceNo : "",
+                            UPONo = urnUPOItem.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrderItem.UnitPaymentOrder.UPONo : "",
+                            VatNo = urnUPOItem.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrderItem.UnitPaymentOrder.VatNo : "",
                             urnPR.Remark
                         };
-
 
             if (isValas)
             {
@@ -1053,7 +1052,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     Remark = item.Remark,
                     IncomeTax = incomeTax,
                     IncomeTaxBy = item.IncomeTaxBy,
-                    URNId = item.URNId
+                    URNId = item.URNId,
+                    CorrectionDate = null
                 };
 
                 reportResult.Add(reportItem);
@@ -1083,11 +1083,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         join epoDetail in dbContext.ExternalPurchaseOrderDetails on urnWithItem.EPODetailId equals epoDetail.Id into joinExternalPurchaseOrder
                         from urnEPODetail in joinExternalPurchaseOrder.DefaultIfEmpty()
 
-                        join upoItem in dbContext.UnitPaymentOrderItems on urnWithItem.URNId equals upoItem.URNId into joinUnitPaymentOrder
+                        join upoItem in dbContext.UnitPaymentOrderDetails on urnEPODetail.Id equals upoItem.EPODetailId  into joinUnitPaymentOrder
                         from urnUPOItem in joinUnitPaymentOrder.DefaultIfEmpty()
 
-                        join upoDetail in dbContext.UnitPaymentOrderDetails on urnUPOItem.Id equals upoDetail.URNItemId into joinUnitPaymentOrderDetails
-                        from urnUPODetail in joinUnitPaymentOrderDetails.DefaultIfEmpty()
+                        //join upoDetail in dbContext.UnitPaymentOrderDetails on urnUPOItem.Id equals upoDetail.URNItemId into joinUnitPaymentOrderDetails
+                        //from urnUPODetail in joinUnitPaymentOrderDetails.DefaultIfEmpty()
 
                         where upcCorrection.CorrectionDate.Date >= d1.Date && upcCorrection.CorrectionDate.Date <= d2.Date && !urnWithItem.UnitReceiptNote.SupplierIsImport
                         select new
@@ -1126,9 +1126,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.CurrencyCode,
 
                             // UPO Info
-                            InvoiceNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.InvoiceNo : "",
-                            UPONo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.UPONo : "",
-                            VatNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.VatNo : "",
+                            InvoiceNo = urnUPOItem.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrderItem.UnitPaymentOrder.InvoiceNo : "",
+                            UPONo = urnUPOItem.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrderItem.UnitPaymentOrder.UPONo : "",
+                            VatNo = urnUPOItem.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrderItem.UnitPaymentOrder.VatNo : "",
                             urnPR.Remark,
 
                             //Correction Info
@@ -1140,10 +1140,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             CorrectionPriceTotalBefore = upcCorrectionNoteItem.PriceTotalBefore,
                             CorrectionPriceTotalAfter = upcCorrectionNoteItem.PriceTotalAfter,
                             CorrectionQuantity = upcCorrectionNoteItem.Quantity,
-                            CorrectionReceiptQuantity = urnUPODetail.ReceiptQuantity,
-                            CorrectionQuantityCorrection = urnUPODetail.QuantityCorrection
+                            CorrectionReceiptQuantity = urnUPOItem.ReceiptQuantity,
+                            CorrectionQuantityCorrection = urnUPOItem.QuantityCorrection
                         };
-
 
             if (isValas)
             {
@@ -1168,7 +1167,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             if (categoryFilterIds.Count() > 0)
                 query = query.Where(urn => categoryFilterIds.Contains(urn.CategoryId));
 
-            var queryResult = query.OrderByDescending(item => item.CorrectionDate).ToList();
+            var queryResult = query.ToList().OrderByDescending(item => item.CorrectionDate).ToList() ;
             var currencyTuples = queryResult.Select(item => new Tuple<string, DateTimeOffset>(item.CurrencyCode, item.CorrectionDate));
             var currencies = await _currencyProvider.GetCurrencyByCurrencyCodeDateList(currencyTuples);
 
@@ -1319,11 +1318,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             switch (correctionType)
             {
                 case "Harga Satuan":
-                    return ((pricePerDealBefore - priceperDealAfter)* quantity)*-1;
+                    return ((pricePerDealBefore - priceperDealAfter)* (Math.Abs(quantityCorrection- quantity))) *-1;
                 case "Harga Total":
                     return (priceTotalBefore - priceTotalAfter) * -1;
                 case "Jumlah":
-                    return ((pricePerDealBefore - priceperDealAfter) * quantityCorrection) * -1;
+                    return (priceperDealAfter * (Math.Abs(quantityCorrection-quantity))) * -1;
                 default:
                     return 0;
                     break;
@@ -1336,15 +1335,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             switch (correctionType)
             {
                 case "Harga Satuan":
-                    return quantity;
+                    return Math.Abs(quantityCorrection - quantity)*-1;
                 case "Harga Total":
-                    return quantity;
+                    return Math.Abs(quantityCorrection - quantity)*-1;
                 case "Jumlah":
-                    return quantityCorrection;
+                    return Math.Abs(quantityCorrection- quantity)*-1;
                 default:
                     return 0;
                     break;
-
             }
         }
 
@@ -1495,13 +1493,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             {
                 foreach (var report in result.Reports)
                 {
+                    var dateReceipt = report.ReceiptDate.HasValue ? report.ReceiptDate.GetValueOrDefault().ToString("dd/MM/yyyy"):string.Empty;
+                    var dateCorrection = report.CorrectionDate.HasValue ? report.ReceiptDate.GetValueOrDefault().ToString("dd/MM/yyyy"):string.Empty;
                     if (isValas)
                     {
-                        reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CorrectionNo, report.CorrectionDate.ToString("dd/MM/yyyy"), report.AccountingCategoryName, report.CategoryName, report.AccountingUnitName, report.UnitName, report.Quantity, report.Uom, report.CurrencyCode, report.CurrencyRate, report.DPP, report.DPPCurrency, report.VAT * report.CurrencyRate, report.IncomeTax * report.CurrencyRate, report.TotalCurrency);
+                        reportDataTable.Rows.Add(dateReceipt, report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CorrectionNo, dateCorrection, report.AccountingCategoryName, report.CategoryName, report.AccountingUnitName, report.UnitName, report.Quantity, report.Uom, report.CurrencyCode, report.CurrencyRate, report.DPP, report.DPPCurrency, report.VAT * report.CurrencyRate, report.IncomeTax * report.CurrencyRate, report.TotalCurrency);
                     }
                     else
                     {
-                        reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CorrectionNo, report.CorrectionDate.ToString("dd/MM/yyyy"), report.AccountingCategoryName, report.CategoryName, report.AccountingUnitName, report.UnitName, report.Quantity, report.Uom, report.CurrencyCode, report.DPP, report.VAT, report.IncomeTax, report.Total);
+                        reportDataTable.Rows.Add(dateReceipt, report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CorrectionNo, dateCorrection, report.AccountingCategoryName, report.CategoryName, report.AccountingUnitName, report.UnitName, report.Quantity, report.Uom, report.CurrencyCode, report.DPP, report.VAT, report.IncomeTax, report.Total);
                     }
                 }
                 foreach (var categorySummary in result.CategorySummaries)
