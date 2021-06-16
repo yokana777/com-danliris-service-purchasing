@@ -151,6 +151,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                      b.CreatedUtc.AddHours(offset).Date > lastdate
                                      && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                      && categories1.Contains(a.ProductName)
+                                     && pemasukan.Contains(b.URNType)
                                   select new MutationBBCentralViewModelTemp
                                   {
                                       AdjustmentQty = 0,
@@ -217,6 +218,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                        b.CreatedUtc.AddHours(offset).Date > lastdate
                                        && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                        && categories1.Contains(a.ProductName)
+                                       && pengeluaran.Contains(b.ExpenditureType)
                                       select new MutationBBCentralViewModelTemp
                                       {
                                           AdjustmentQty = 0,
@@ -317,6 +319,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                b.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
                                && b.CreatedUtc.AddHours(offset).Date <= DateTo.Date
                                && categories1.Contains(a.ProductName)
+                               && pemasukan.Contains(b.URNType)
 
                            //group new { a, b, c, d } by new { b.ProductCode, b.ProductName, b.SmallUomUnit, d.SupplierImport } into data
                            select new MutationBBCentralViewModelTemp
@@ -358,6 +361,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                     b.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
                                     && b.CreatedUtc.AddHours(offset).Date <= DateTo.Date
                                     && categories1.Contains(a.ProductName)
+                                    && pengeluaran.Contains(b.ExpenditureType)
                                select new MutationBBCentralViewModelTemp
                                {
                                    AdjustmentQty = 0,
@@ -476,19 +480,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var mm = new MutationBBCentralViewModel();
 
-            mm.AdjustmentQty = Math.Round(mutation.Sum(x => x.AdjustmentQty),2);
-            mm.BeginQty = Math.Round(mutation.Sum(x => x.BeginQty),2);
-            mm.ExpenditureQty = Math.Round(mutation.Sum(x => x.ExpenditureQty), 2);
+            mm.AdjustmentQty = Math.Round(mutation2.Sum(x => x.AdjustmentQty),2);
+            mm.BeginQty = Math.Round(mutation2.Sum(x => x.BeginQty),2);
+            mm.ExpenditureQty = Math.Round(mutation2.Sum(x => x.ExpenditureQty), 2);
             mm.ItemCode = "";
             mm.ItemName = "";
-            mm.LastQty = Math.Round(mutation.Sum(x => x.LastQty), 2);
-            mm.ReceiptQty = Math.Round(mutation.Sum(x => x.ReceiptQty), 2);
+            mm.LastQty = Math.Round(mutation2.Sum(x => x.LastQty), 2);
+            mm.ReceiptQty = Math.Round(mutation2.Sum(x => x.ReceiptQty), 2);
             mm.SupplierType = "";
             mm.UnitQtyName = "";
             mm.OpnameQty = 0;
             mm.Diff = 0;
-            
-            mutation.Add(new MutationBBCentralViewModel {
+
+            mutation2.Add(new MutationBBCentralViewModel {
                 AdjustmentQty = mm.AdjustmentQty,
                 BeginQty = mm.BeginQty,
                 ExpenditureQty = mm.ExpenditureQty,
@@ -502,7 +506,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 Diff = mm.Diff
             });
 
-            return mutation;
+            return mutation2;
 
         }
 
@@ -577,6 +581,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 where a.CreateDate.Value.Date == lastdate
                                 && f.URNType == "PEMBELIAN"
                                 && categories1.Contains(b.ProductName)
+
                                 select new MutationBPCentralViewModelTemp
                                 {
                                     //AdjustmentQty = 0,
@@ -616,6 +621,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                      b.CreatedUtc.AddHours(offset).Date > lastdate
                                      && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                      && categories1.Contains(a.ProductName)
+                                      && pemasukan.Contains(b.URNType)
+                                     
                                   select new MutationBPCentralViewModelTemp
                                   {
                                       //AdjustmentQty = 0,
@@ -657,6 +664,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                        b.CreatedUtc.AddHours(offset).Date > lastdate
                                        && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                        && categories1.Contains(a.ProductName)
+                                       && pengeluaran.Contains(b.ExpenditureType)
                                       select new MutationBPCentralViewModelTemp
                                       {
                                           //AdjustmentQty = 0,
@@ -715,6 +723,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                b.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
                                && b.CreatedUtc.AddHours(offset).Date <= DateTo.Date
                                && categories1.Contains(a.ProductName)
+                                && pemasukan.Contains(b.URNType)
 
                            //group new { a, b, c, d } by new { b.ProductCode, b.ProductName, b.SmallUomUnit, d.SupplierImport } into data
                            select new MutationBPCentralViewModelTemp
@@ -756,6 +765,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                     b.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
                                     && b.CreatedUtc.AddHours(offset).Date <= DateTo.Date
                                     && categories1.Contains(a.ProductName)
+                                    && pengeluaran.Contains(b.ExpenditureType)
                                select new MutationBPCentralViewModelTemp
                                {
                                    //AdjustmentQty = 0,
