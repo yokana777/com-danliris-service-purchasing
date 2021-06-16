@@ -957,11 +957,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 var Width = remark == null ? "-" : remark.Width;
                 var Const = remark == null ? "-" : remark.Const;
                 var Yarn = remark == null ? "-" : remark.Yarn;
+                var Name = remark == null ? "-" : remark.Name;
 
                 stockReportViewModels.Add(new AccountingStockReportViewModel
                 {
                     ProductCode = i.ProductCode,
-                    ProductName = ctg == "BB" ? string.Concat(Composition, "", Width, "", Const, "", Yarn) : remark.Name,
+                    ProductName = ctg == "BB" ? string.Concat(Composition, "", Width, "", Const, "", Yarn) : Name,
                     RO = i.RO,
                     Buyer = i.Buyer,
                     PlanPo = i.PlanPo,
