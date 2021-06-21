@@ -230,13 +230,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
         {
             int Created = 0;
             string username = identityService.Username;
+            TimeSpan timeOffset = new TimeSpan(identityService.TimezoneOffset, 0, 0);
             using (var transaction = dbContext.Database.BeginTransaction())
             {
                 try
                 {
                     EntityExtension.FlagForCreate(model, username, USER_AGENT);
 
-                    model.DocumentNo = await bankDocumentNumberGenerator.GenerateDocumentNumber("K", model.BankCode, username);
+                    model.DocumentNo = await bankDocumentNumberGenerator.GenerateDocumentNumber("K", model.BankCode, username,model.Date.ToOffset(timeOffset).Date);
 
                     if (model.BankCurrencyCode != "IDR")
                     {
@@ -357,7 +358,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
             var modelToPost = new JournalTransaction()
             {
-                Date = DateTimeOffset.Now,
+                Date = model.Date,
                 Description = "Bukti Pengeluaran Bank",
                 ReferenceNo = model.DocumentNo,
                 Items = items
@@ -698,7 +699,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 Nominal = model.GrandTotal,
                 CurrencyRate = model.CurrencyRate,
                 ReferenceNo = model.DocumentNo,
-                ReferenceType = "Bayar PPh",
+                ReferenceType = "Bayar Hutang",
                 Remark = model.CurrencyCode != "IDR" ? $"Pembayaran atas {model.BankCurrencyCode} dengan nominal {string.Format("{0:n}", model.GrandTotal)} dan kurs {model.CurrencyCode}" : "",
                 SourceType = "Operasional",
                 Status = "OUT",
