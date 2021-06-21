@@ -108,7 +108,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades
 
         public Stream Download(DateTimeOffset date, string unit, string storage, string storageName)
         {
-            var data = dbSetDOItem.Where(i => i.UnitCode == unit && i.StorageCode == storage)
+            var data = dbSetDOItem.Where(i => i.UnitCode == unit && i.StorageCode == storage && i.ProductName == (storageName == "GUDANG BAHAN BAKU" ? "FABRIC" : i.ProductName))
                 .Select(i => new
                 {
                     i.Id,
