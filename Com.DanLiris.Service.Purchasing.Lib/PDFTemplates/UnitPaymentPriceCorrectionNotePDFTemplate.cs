@@ -10,11 +10,13 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+using System.Linq;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 {
     public class UnitPaymentPriceCorrectionNotePDFTemplate
     {
+        private readonly CultureInfo _cultureInfo = new CultureInfo("en-us");
         public MemoryStream GeneratePdfTemplate(UnitPaymentCorrectionNoteViewModel viewModel, UnitPaymentOrderViewModel viewModelSpb, string username, int clientTimeZoneOffset, DateTimeOffset? receiptDate)
         {
             Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 14);
@@ -70,7 +72,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellHeaderContentLeft.Phrase = new Phrase("BANARAN, GROGOL, SUKOHARJO", small_normal_font);
                 tableHeader.AddCell(cellHeaderContentLeft);
 
-                cellHeaderContentCenter.Phrase = new Phrase("");
+                cellHeaderContentCenter.Phrase = new Phrase(viewModel.correctionType, small_normal_font);
                 tableHeader.AddCell(cellHeaderContentCenter);
 
                 cellHeaderContentLeft.Phrase = new Phrase("FM-PB-00-06-015/R2", terbilang_bold_font);
@@ -82,7 +84,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellHeaderContentCenter.Phrase = new Phrase("");
                 tableHeader.AddCell(cellHeaderContentCenter);
 
-                cellHeaderContentLeft.Phrase = new Phrase($"SUKOHARJO, {viewModel.correctionDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}" , normal_font);
+                cellHeaderContentLeft.Phrase = new Phrase($"SUKOHARJO, {viewModel.correctionDate.ToOffset(new TimeSpan(clientTimeZoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"))}", normal_font);
                 tableHeader.AddCell(cellHeaderContentLeft);
 
                 cellHeaderContentLeft.Phrase = new Phrase("");
@@ -148,87 +150,174 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 PdfPCell cellLeftMerge = new PdfPCell() { Border = Rectangle.NO_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_TOP, Padding = 5 };
 
 
-                PdfPTable tableContent = new PdfPTable(8);
-                tableContent.SetWidths(new float[] { 1f, 6f, 2f, 1.5f, 2f, 1.5f, 2f, 3f });
-
-                cellCenter.Phrase = new Phrase("No", small_bold_font);
-                tableContent.AddCell(cellCenter);
-                cellCenter.Phrase = new Phrase("Nama Barang", small_bold_font);
-                tableContent.AddCell(cellCenter);
-                cellCenter.Phrase = new Phrase("Jumlah", small_bold_font);
-                tableContent.AddCell(cellCenter);
-                cellCenter.Phrase = new Phrase("Harga Satuan", small_bold_font);
-                cellCenter.Colspan = 2;
-                tableContent.AddCell(cellCenter);
-                cellCenter.Phrase = new Phrase("Harga Total", small_bold_font);
-                cellCenter.Colspan = 2;
-                tableContent.AddCell(cellCenter);
-                cellCenter.Phrase = new Phrase("Nomor Order", small_bold_font);
-                tableContent.AddCell(cellCenter);
-
-                //for (int a = 0; a < 20; a++) // coba kalau banyak baris ^_^
-                for (int indexItem = 0; indexItem < viewModel.items.Count; indexItem++)
+                if (viewModel.correctionType == "Harga Satuan")
                 {
-                    UnitPaymentCorrectionNoteItemViewModel item = viewModel.items[indexItem];
+                    PdfPTable tableContent = new PdfPTable(8);
+                    tableContent.SetWidths(new float[] { 1f, 6f, 2f, 1.5f, 2f, 1.5f, 2f, 3f });
 
-                    cellCenter.Phrase = new Phrase((indexItem + 1).ToString(), normal_font);
-                    cellCenter.Colspan = 0;
+                    cellCenter.Phrase = new Phrase("No", small_bold_font);
+                    tableContent.AddCell(cellCenter);
+                    cellCenter.Phrase = new Phrase("Nama Barang", small_bold_font);
+                    tableContent.AddCell(cellCenter);
+                    cellCenter.Phrase = new Phrase("Jumlah", small_bold_font);
+                    tableContent.AddCell(cellCenter);
+                    cellCenter.Phrase = new Phrase("Harga Satuan SPB", small_bold_font);
+                    tableContent.AddCell(cellCenter);
+                    cellCenter.Phrase = new Phrase("Harga yang Dikoreksi", small_bold_font);
+                    tableContent.AddCell(cellCenter);
+                    cellCenter.Phrase = new Phrase("Nilai Koreksi", small_bold_font);
+                    tableContent.AddCell(cellCenter);
+                    cellCenter.Phrase = new Phrase("Harga Total", small_bold_font);
+                    tableContent.AddCell(cellCenter);
+                    cellCenter.Phrase = new Phrase("Nomor Order", small_bold_font);
                     tableContent.AddCell(cellCenter);
 
-                    cellLeft.Phrase = new Phrase($"{item.product.code} - {item.product.name}", normal_font);
-                    tableContent.AddCell(cellLeft);
-
-                    cellRight.Phrase = new Phrase(string.Format("{0:n2}", item.quantity) +  $" {item.uom.unit}", normal_font);
-                    tableContent.AddCell(cellRight);
-
-                    cellLeftMerge.Phrase = new Phrase($"{item.currency.code}", normal_font);
-                    tableContent.AddCell(cellLeftMerge);
-
-                    double priceCorrectionUnit = item.pricePerDealUnitAfter;
-                    if(viewModel.correctionType=="Harga Satuan")
+                    //for (int a = 0; a < 20; a++) // coba kalau banyak baris ^_^
+                    for (int indexItem = 0; indexItem < viewModel.items.Count; indexItem++)
                     {
-                        priceCorrectionUnit = item.pricePerDealUnitAfter - item.pricePerDealUnitBefore;
+                        UnitPaymentCorrectionNoteItemViewModel item = viewModel.items[indexItem];
+                        var upoDetail = viewModelSpb.items.SelectMany(upoItem => upoItem.unitReceiptNote.items).FirstOrDefault(upoItem => upoItem.Id == item.uPODetailId);
+
+                        cellCenter.Phrase = new Phrase((indexItem + 1).ToString(), normal_font);
+                        cellCenter.Colspan = 0;
+                        tableContent.AddCell(cellCenter);
+
+                        cellLeft.Phrase = new Phrase($"{item.product.code} - {item.product.name}", normal_font);
+                        tableContent.AddCell(cellLeft);
+
+                        cellRight.Phrase = new Phrase(string.Format("{0:n2}", item.quantity) + $" {item.uom.unit}", normal_font);
+                        tableContent.AddCell(cellRight);
+
+                        cellRight.Phrase = new Phrase($"{item.currency.code} {upoDetail.pricePerDealUnit.ToString("N03", _cultureInfo)}", normal_font);
+                        tableContent.AddCell(cellRight);
+
+                        double priceCorrectionUnit = item.pricePerDealUnitAfter;
+                        if (viewModel.correctionType == "Harga Satuan")
+                        {
+                            priceCorrectionUnit = item.pricePerDealUnitAfter - item.pricePerDealUnitBefore;
+                        }
+
+                        cellRight.Phrase = new Phrase($"{item.currency.code} {priceCorrectionUnit.ToString("N03", _cultureInfo)}", normal_font);
+                        tableContent.AddCell(cellRight);
+
+
+
+                        double priceCorrectionTotal = item.priceTotalAfter;
+                        if (viewModel.correctionType == "Harga Total")
+                        {
+                            priceCorrectionTotal = item.priceTotalAfter - item.priceTotalBefore;
+                        }
+                        else if (viewModel.correctionType == "Harga Satuan")
+                        {
+                            priceCorrectionTotal = priceCorrectionUnit * item.quantity;
+                        }
+
+                        cellRight.Phrase = new Phrase($"{item.currency.code} {priceCorrectionTotal.ToString("N03", _cultureInfo)}", normal_font);
+                        tableContent.AddCell(cellRight);
+
+                        cellRight.Phrase = new Phrase($"{item.currency.code} {item.priceTotalBefore.ToString("N03", _cultureInfo)}", normal_font);
+                        tableContent.AddCell(cellRight);
+
+                        cellLeft.Phrase = new Phrase(item.pRNo, normal_font);
+                        tableContent.AddCell(cellLeft);
+
+                        currencyCodePPn = item.currency.code;
+                        currencyDesc = viewModelSpb.currency.description;
+                        currencyCodeTotal = item.currency.code;
+
+                        total += priceCorrectionTotal;
+
                     }
-                    
-                    cellRightMerge.Phrase = new Phrase(string.Format("{0:n4}", priceCorrectionUnit), normal_font);
-                    tableContent.AddCell(cellRightMerge);
+                    totalPPn = (0.1 * total);
+                    double pph = double.Parse(viewModelSpb.incomeTax.rate);
+                    totalPPh = (pph * total) / 100;
+                    totalDibayar = total - totalPPh;
 
-                    cellLeftMerge.Phrase = new Phrase($"{item.currency.code}", normal_font);
-                    tableContent.AddCell(cellLeftMerge);
 
-                    double priceCorrectionTotal = item.priceTotalAfter;
-                    if (viewModel.correctionType == "Harga Total")
-                    {
-                        priceCorrectionTotal = item.priceTotalAfter - item.priceTotalBefore;
-                    }
-                    else if(viewModel.correctionType == "Harga Satuan")
-                    {
-                        priceCorrectionTotal = priceCorrectionUnit * item.quantity;
-                    }
-
-                    cellRightMerge.Phrase = new Phrase($"{priceCorrectionTotal.ToString("N", CultureInfo.InvariantCulture)}", normal_font);
-                    tableContent.AddCell(cellRightMerge);
-
-                    cellLeft.Phrase = new Phrase(item.pRNo, normal_font);
-                    tableContent.AddCell(cellLeft);
-
-                    currencyCodePPn = item.currency.code;
-                    currencyDesc = viewModelSpb.currency.description;
-                    currencyCodeTotal = item.currency.code;
-
-                    total += priceCorrectionTotal;
-
+                    PdfPCell cellContent = new PdfPCell(tableContent);
+                    tableContent.ExtendLastRow = false;
+                    tableContent.SpacingAfter = 5f;
+                    document.Add(tableContent);
                 }
-                totalPPn = (0.1 * total);
-                double pph = double.Parse(viewModelSpb.incomeTax.rate);
-                totalPPh = (pph * total) / 100;
-                totalDibayar = total - totalPPh;
+                else
+                {
+                    PdfPTable tableContent = new PdfPTable(7);
+                    tableContent.SetWidths(new float[] { 1f, 6f, 2f, 1.5f, 2f, 1.5f, 2f });
+
+                    cellCenter.Phrase = new Phrase("No", small_bold_font);
+                    tableContent.AddCell(cellCenter);
+                    cellCenter.Phrase = new Phrase("Nama Barang", small_bold_font);
+                    tableContent.AddCell(cellCenter);
+                    cellCenter.Phrase = new Phrase("Total SPB", small_bold_font);
+                    cellCenter.Colspan = 2;
+                    tableContent.AddCell(cellCenter);
+                    cellCenter.Phrase = new Phrase("Nilai Koreksi", small_bold_font);
+                    cellCenter.Colspan = 2;
+                    tableContent.AddCell(cellCenter);
+                    cellCenter.Phrase = new Phrase("Nomor Order", small_bold_font);
+                    tableContent.AddCell(cellCenter);
+
+                    //for (int a = 0; a < 20; a++) // coba kalau banyak baris ^_^
+                    for (int indexItem = 0; indexItem < viewModel.items.Count; indexItem++)
+                    {
+                        UnitPaymentCorrectionNoteItemViewModel item = viewModel.items[indexItem];
+
+                        cellCenter.Phrase = new Phrase((indexItem + 1).ToString(), normal_font);
+                        cellCenter.Colspan = 0;
+                        tableContent.AddCell(cellCenter);
+
+                        cellLeft.Phrase = new Phrase($"{item.product.code} - {item.product.name}", normal_font);
+                        tableContent.AddCell(cellLeft);
+
+                        cellLeftMerge.Phrase = new Phrase($"{item.currency.code}", normal_font);
+                        tableContent.AddCell(cellLeftMerge);
+
+                        double priceCorrectionUnit = item.pricePerDealUnitAfter;
+                        if (viewModel.correctionType == "Harga Satuan")
+                        {
+                            priceCorrectionUnit = item.pricePerDealUnitAfter - item.pricePerDealUnitBefore;
+                        }
+
+                        cellRightMerge.Phrase = new Phrase(string.Format("{0:n4}", item.priceTotalBefore), normal_font);
+                        tableContent.AddCell(cellRightMerge);
+
+                        cellLeftMerge.Phrase = new Phrase($"{item.currency.code}", normal_font);
+                        tableContent.AddCell(cellLeftMerge);
+
+                        double priceCorrectionTotal = item.priceTotalAfter;
+                        if (viewModel.correctionType == "Harga Total")
+                        {
+                            priceCorrectionTotal = item.priceTotalAfter - item.priceTotalBefore;
+                        }
+                        else if (viewModel.correctionType == "Harga Satuan")
+                        {
+                            priceCorrectionTotal = priceCorrectionUnit * item.quantity;
+                        }
+
+                        cellRightMerge.Phrase = new Phrase($"{priceCorrectionTotal.ToString("N", CultureInfo.InvariantCulture)}", normal_font);
+                        tableContent.AddCell(cellRightMerge);
+
+                        cellLeft.Phrase = new Phrase(item.pRNo, normal_font);
+                        tableContent.AddCell(cellLeft);
+
+                        currencyCodePPn = item.currency.code;
+                        currencyDesc = viewModelSpb.currency.description;
+                        currencyCodeTotal = item.currency.code;
+
+                        total += priceCorrectionTotal;
+
+                    }
+                    totalPPn = (0.1 * total);
+                    double pph = double.Parse(viewModelSpb.incomeTax.rate);
+                    totalPPh = (pph * total) / 100;
+                    totalDibayar = total - totalPPh;
 
 
-                PdfPCell cellContent = new PdfPCell(tableContent);
-                tableContent.ExtendLastRow = false;
-                tableContent.SpacingAfter = 5f;
-                document.Add(tableContent);
+                    PdfPCell cellContent = new PdfPCell(tableContent);
+                    tableContent.ExtendLastRow = false;
+                    tableContent.SpacingAfter = 5f;
+                    document.Add(tableContent);
+                }
 
                 #endregion
 
@@ -310,7 +399,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     tableTotal.AddCell(cellIdentityTotalContentLeft);
                     cellIdentityTotalContentLeft.Phrase = new Phrase($"{currencyCodePPn}", normal_font);
                     tableTotal.AddCell(cellIdentityTotalContentLeft);
-                    cellIdentityTotalContentRight.Phrase = new Phrase((total + totalPPn- totalPPh).ToString("N", CultureInfo.InvariantCulture), normal_font);
+                    cellIdentityTotalContentRight.Phrase = new Phrase((total + totalPPn - totalPPh).ToString("N", CultureInfo.InvariantCulture), normal_font);
                     tableTotal.AddCell(cellIdentityTotalContentRight);
                 }
                 cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
@@ -319,7 +408,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 tableTotal.AddCell(cellIdentityTotalContentLeft);
                 cellIdentityTotalContentLeft.Phrase = new Phrase($"{currencyCodeTotal}", normal_font);
                 tableTotal.AddCell(cellIdentityTotalContentLeft);
-                cellIdentityTotalContentRight.Phrase = new Phrase((total+ totalPPn).ToString("N", CultureInfo.InvariantCulture), normal_font);
+                cellIdentityTotalContentRight.Phrase = new Phrase((total + totalPPn).ToString("N", CultureInfo.InvariantCulture), normal_font);
                 tableTotal.AddCell(cellIdentityTotalContentRight);
 
                 cellIdentityTotalContentLeft.Phrase = new Phrase($"Terbilang : { NumberToTextIDN.terbilang(total + totalPPn - totalPPh)} {currencyDesc.ToLower()}", terbilang_bold_font);
@@ -329,7 +418,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                 cellIdentityTotalContentLeft.Colspan = 3;
                 tableTotal.AddCell(cellIdentityTotalContentLeft);
-                
+
 
                 cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
                 tableTotal.AddCell(cellIdentityTotalContentLeft);

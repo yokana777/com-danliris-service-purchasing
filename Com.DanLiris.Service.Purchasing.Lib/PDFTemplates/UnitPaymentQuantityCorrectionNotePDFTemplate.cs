@@ -11,6 +11,7 @@ using System.IO;
 using System.Text;
 using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
+using System.Linq;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 {
@@ -70,7 +71,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellHeaderContentLeft.Phrase = new Phrase("BANARAN, GROGOL, SUKOHARJO", small_normal_font);
                 tableHeader.AddCell(cellHeaderContentLeft);
 
-                cellHeaderContentCenter.Phrase = new Phrase("");
+                cellHeaderContentCenter.Phrase = new Phrase(viewModel.correctionType, small_normal_font);
                 tableHeader.AddCell(cellHeaderContentCenter);
 
                 cellHeaderContentLeft.Phrase = new Phrase("FM-PB-00-06-015/R2", terbilang_bold_font);
@@ -140,14 +141,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 PdfPCell cellLeftMerge = new PdfPCell() { Border = Rectangle.NO_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_TOP, Padding = 5 };
 
 
-                PdfPTable tableContent = new PdfPTable(8);
-                tableContent.SetWidths(new float[] { 1f, 5f, 2f, 1f, 3f, 1f, 3f, 3f });
+                PdfPTable tableContent = new PdfPTable(9);
+                tableContent.SetWidths(new float[] { 1f, 5f, 2f, 2f, 1f, 3f, 1f, 3f, 3f });
 
                 cellCenter.Phrase = new Phrase("No", small_bold_font);
                 tableContent.AddCell(cellCenter);
                 cellCenter.Phrase = new Phrase("Nama Barang", small_bold_font);
                 tableContent.AddCell(cellCenter);
-                cellCenter.Phrase = new Phrase("Jumlah", small_bold_font);
+                cellCenter.Phrase = new Phrase("Jumlah SPB", small_bold_font);
+                tableContent.AddCell(cellCenter);
+                cellCenter.Phrase = new Phrase("Jumlah Koreks", small_bold_font);
                 tableContent.AddCell(cellCenter);
                 cellCenter.Phrase = new Phrase("Harga Satuan", small_bold_font);
                 cellCenter.Colspan = 2;
@@ -162,6 +165,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 for (int indexItem = 0; indexItem < viewModel.items.Count; indexItem++)
                 {
                     UnitPaymentCorrectionNoteItemViewModel item = viewModel.items[indexItem];
+                    var upoDetail = viewModelSpb.items.SelectMany(upoItem => upoItem.unitReceiptNote.items).FirstOrDefault(upoItem => upoItem.Id == item.uPODetailId);
 
                     cellCenter.Phrase = new Phrase((indexItem + 1).ToString(), normal_font);
                     cellCenter.Colspan = 0;
@@ -169,6 +173,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                     cellLeft.Phrase = new Phrase($"{item.product.code} - {item.product.name}", normal_font);
                     tableContent.AddCell(cellLeft);
+
+                    cellRight.Phrase = new Phrase(string.Format("{0:n2}", (upoDetail.deliveredQuantity * -1)) + $" {item.uom.unit}", normal_font);
+                    tableContent.AddCell(cellRight);
 
                     cellRight.Phrase = new Phrase(string.Format("{0:n2}", (item.quantity * -1)) + $" {item.uom.unit}", normal_font);
                     tableContent.AddCell(cellRight);
@@ -502,7 +509,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                 PdfPTable tableContent = new PdfPTable(7);
 
-                tableContent.SetWidths(new float[] { 2f, 5f, 4f, 1.5f, 4f, 1.5f, 4f});
+                tableContent.SetWidths(new float[] { 2f, 5f, 4f, 1.5f, 4f, 1.5f, 4f });
 
 
                 cellCenter.Phrase = new Phrase("No.", smallest_bold_font);
