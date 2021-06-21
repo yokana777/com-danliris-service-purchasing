@@ -13,7 +13,7 @@ using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestControllerTests
 {
-  //  [Collection("TestServerFixture Collection")]
+    //[Collection("TestServerFixture Collection")]
     public class PurchaseRequestControllerTest
     {
         //private const string MediaType = "application/json";
@@ -36,15 +36,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchaseRequestContro
         //    TestFixture = fixture;
         //}
 
-        //[Fact]
-        //public async Task Should_Success_Get_All_Data()
-        //{
-        //    var response = await this.Client.GetAsync(URI);
-        //    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        ////[Fact]
+        ////public async Task Should_Success_Get_All_Data()
+        ////{
+        ////    var response = await this.Client.GetAsync(URI);
+        ////    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        //    var responseError = await this.Client.GetAsync(URI + "?filter={'IsPosted':}");
-        //    Assert.Equal(HttpStatusCode.InternalServerError, responseError.StatusCode);
-        //}
+        ////    var responseError = await this.Client.GetAsync(URI + "?filter={'IsPosted':}");
+        ////    Assert.Equal(HttpStatusCode.InternalServerError, responseError.StatusCode);
+        ////}
 
         //[Fact]
         //public async Task Should_Success_Get_All_Data()

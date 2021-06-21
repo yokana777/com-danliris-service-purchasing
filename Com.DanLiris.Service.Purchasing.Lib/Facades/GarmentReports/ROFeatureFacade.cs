@@ -115,7 +115,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
                 var masuk = (from a in dbContext.GarmentUnitReceiptNotes
                             join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
-                            where a.URNNo == data.NoBukti && b.POSerialNumber == data.PO
+                            where b.ProductCode == data.KodeBarang && b.ProductName == data.NamaBarang && b.POSerialNumber == data.PO && b.RONo == data.RONo
                             select new {
                                 a.ReceiptDate,
                                 a.URNNo,
@@ -137,11 +137,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
                             }).ToList();
                 var keluar = (from a in dbContext.GarmentUnitExpenditureNotes
-                             join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
-                             join c in dbContext.GarmentUnitDeliveryOrderItems on b.UnitDOItemId equals c.Id
-                             join d in dbContext.GarmentUnitDeliveryOrders on c.UnitDOId equals d.Id
-                             //where b.ProductCode == data.KodeBarang && b.POSerialNumber == data.PO && b.RONo == data.RONo
-                             where c.URNNo == data.NoBukti && b.POSerialNumber == data.PO
+                              join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
+                              join c in dbContext.GarmentUnitDeliveryOrderItems on b.UnitDOItemId equals c.Id
+                              join d in dbContext.GarmentUnitDeliveryOrders on c.UnitDOId equals d.Id
+                              //where b.ProductCode == data.KodeBarang && b.POSerialNumber == data.PO && b.RONo == data.RONo
+                              where b.ProductCode == data.KodeBarang && b.POSerialNumber == data.PO && b.RONo == data.RONo
                               select new
                              {
                                  a.ExpenditureDate,
@@ -149,7 +149,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  a.UENNo,
                                  b.POSerialNumber,
                                  b.ProductCode,
-                                 b.ProductName,
+                                 data.NamaBarang,
                                  Qty = b.Quantity,
                                  UomKeluar = b.UomUnit,
                                  d.RONo,
@@ -157,13 +157,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  c.UomUnit,
                                  d.UnitDONo,
                                  a.ExpenditureType
-                             }).GroupBy(x=> new { x.ExpenditureDate, x.RO, x.UENNo, x.POSerialNumber, x.ProductCode, x.ProductName, x.UomKeluar, x.RONo, x.UomUnit, x.UnitDONo, x.ExpenditureType },(key, group) => new {
+                             }).GroupBy(x=> new { x.ExpenditureDate, x.RO, x.UENNo, x.POSerialNumber, x.ProductCode, x.NamaBarang, x.UomKeluar, x.RONo, x.UomUnit, x.UnitDONo, x.ExpenditureType },(key, group) => new {
                                  ExpenditureDate = key.ExpenditureDate,
                                  RO = key.RONo,
                                  UENNo = key.UENNo,
                                  POSerialNumber = key.POSerialNumber,
                                  ProductCode = key.ProductCode,
-                                 ProductName = key.ProductName,
+                                 ProductName = key.NamaBarang,
                                  Qty = group.Sum(x=>x.Qty),
                                  UomKeluar = key.UomKeluar,
                                  RONo = key.RONo,

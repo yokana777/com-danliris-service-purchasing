@@ -24,8 +24,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
 
         public async Task<string> GenerateDocumentNumber(string Type, string BankCode, string Username)
         {
-            string result = "";
-            BankDocumentNumber lastData = await dbSet.Where(w => w.BankCode.Equals(BankCode) && w.Type.Equals(Type)).OrderByDescending(o => o.LastModifiedUtc).FirstOrDefaultAsync();
+            var result = "";
+            var lastData = await dbSet.Where(w => w.BankCode.Equals(BankCode) && w.Type.Equals(Type)).OrderByDescending(o => o.LastModifiedUtc).FirstOrDefaultAsync();
 
             DateTime Now = DateTime.Now;
 
@@ -33,7 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
             {
 
                 result = $"{Now.ToString("yy")}{Now.ToString("MM")}{BankCode}{Type}0001";
-                BankDocumentNumber bankDocumentNumber = new BankDocumentNumber()
+                var bankDocumentNumber = new BankDocumentNumber()
                 {
                     BankCode = BankCode,
                     Type = Type,
@@ -70,10 +70,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
             return result;
         }
 
-        public async Task<string> GenerateDocumentNumber(string Type, string BankCode, string Username,DateTime Date)
+        public async Task<string> GenerateDocumentNumber(string Type, string BankCode, string Username, DateTime Date)
         {
-            string result = "";
-            BankDocumentNumber lastData = await dbSet.Where(w => w.BankCode.Equals(BankCode) && w.Type.Equals(Type) &&(w.Month== Date.Month && w.Year == Date.Year)).OrderByDescending(o => o.LastModifiedUtc).FirstOrDefaultAsync();
+            var result = "";
+            var lastData = await dbSet.Where(w => w.BankCode.Equals(BankCode) && w.Type.Equals(Type) && (w.Month == Date.Month && w.Year == Date.Year)).OrderByDescending(o => o.LastModifiedUtc).FirstOrDefaultAsync();
 
             DateTime Now = Date;
 
@@ -81,7 +81,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
             {
 
                 result = $"{Now.ToString("yy")}{Now.ToString("MM")}{BankCode}{Type}0001";
-                BankDocumentNumber bankDocumentNumber = new BankDocumentNumber()
+                var bankDocumentNumber = new BankDocumentNumber()
                 {
                     BankCode = BankCode,
                     Type = Type,
@@ -104,8 +104,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Helpers
                 //}
                 //else
                 //{
-                    lastData.LastDocumentNumber += 1;
-                    result = $"{Now.ToString("yy")}{Now.ToString("MM")}{BankCode}{Type}{lastData.LastDocumentNumber.ToString().PadLeft(4, '0')}";
+                lastData.LastDocumentNumber += 1;
+                result = $"{Now.ToString("yy")}{Now.ToString("MM")}{BankCode}{Type}{lastData.LastDocumentNumber.ToString().PadLeft(4, '0')}";
                 //}
                 EntityExtension.FlagForUpdate(lastData, Username, USER_AGENT);
                 lastData.LastModifiedUtc = Date;

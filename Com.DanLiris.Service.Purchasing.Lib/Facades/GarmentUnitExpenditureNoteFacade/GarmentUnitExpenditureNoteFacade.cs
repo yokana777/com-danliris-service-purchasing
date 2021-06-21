@@ -479,7 +479,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 PRId = garmentPurchaseRequestItem.GarmentPRId,
                                 PRNo = garmentPurchaseRequest.PRNo,
                                 PRItemId = item.PRItemId,
-                                POId = garmentInternalPurchaseOrderItem.GPOId,
+                                POId = garmentInternalPurchaseOrderItem == null ? 0 : garmentInternalPurchaseOrderItem.GPOId,
                                 POItemId = item.POItemId,
                                 POSerialNumber = item.POSerialNumber,
                                 ProductId = item.ProductId,
@@ -635,8 +635,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         List<GarmentUnitExpenditureNoteItem> garmentUENItems = new List<GarmentUnitExpenditureNoteItem>();
                         foreach(var unitDOItem in garmentUnitDO.Items)
                         {
-                            GarmentInternalPurchaseOrderItem gpoItem = dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(a => a.Id == unitDOItem.POItemId);
-                            GarmentInternalPurchaseOrder garmentInternalPurchaseOrder = dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(a => a.Id == gpoItem.GPOId);
+                            GarmentPurchaseRequest garmentPurchaseRequest = dbContext.GarmentPurchaseRequests.FirstOrDefault(a => a.RONo == unitDOItem.RONo);
+                            //GarmentInternalPurchaseOrderItem gpoItem = dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(a => a.Id == unitDOItem.POItemId);
+                            //GarmentInternalPurchaseOrder garmentInternalPurchaseOrder = dbContext.GarmentInternalPurchaseOrders.FirstOrDefault(a => a.Id == gpoItem.GPOId);
+
                             GarmentUnitReceiptNoteItem gUrnItem = garmentUnitReceiptNote.Items.FirstOrDefault(a => a.Id == unitDOItem.URNItemId);
                             GarmentUnitExpenditureNoteItem gUenItem1 = garmentUnitExpenditureNote.Items.FirstOrDefault(a => a.Id == gUrnItem.UENItemId);
 
@@ -659,8 +661,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 UomUnit= unitDOItem.UomUnit,
                                 PricePerDealUnit= unitDOItem.PricePerDealUnit,
                                 FabricType= unitDOItem.FabricType,
-                                BuyerId=long.Parse(garmentInternalPurchaseOrder.BuyerId),
-                                BuyerCode= garmentInternalPurchaseOrder.BuyerCode,
+                                BuyerId=long.Parse(garmentPurchaseRequest.BuyerId),
+                                BuyerCode= garmentPurchaseRequest.BuyerCode,
                                 DOCurrencyRate= unitDOItem.DOCurrencyRate,
                                 BasicPrice= gUenItem1.BasicPrice,
                                 Conversion= gUenItem1.Conversion

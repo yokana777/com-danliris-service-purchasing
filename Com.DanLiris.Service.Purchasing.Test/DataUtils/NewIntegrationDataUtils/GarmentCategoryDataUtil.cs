@@ -16,12 +16,39 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
 
             var data = new GarmentCategoryViewModel
             {
-                Code = $"Code{nowTicks}",
-                CodeRequirement = $"CodeRequirement{nowTicks}",
-                Name = $"Name{nowTicks}",
+                Code = "Code123",
+                CodeRequirement = "BB",
+                Name = "Name123",
             };
             return data;
         }
+
+        public GarmentCategoryViewModel GetNewDataBP()
+        {
+            long nowTicks = DateTimeOffset.Now.Ticks;
+
+            var data = new GarmentCategoryViewModel
+            {
+                Code = "Code123BP",
+                CodeRequirement = "BP",
+                Name = "Name123BP",
+            };
+            return data;
+        }
+
+        public GarmentCategoryViewModel GetNewDataBE()
+        {
+            long nowTicks = DateTimeOffset.Now.Ticks;
+
+            var data = new GarmentCategoryViewModel
+            {
+                Code = "Code123BE",
+                CodeRequirement = "BE",
+                Name = "Name123BE",
+            };
+            return data;
+        }
+
 
         public Dictionary<string, object> GetResultFormatterOk()
         {
@@ -44,7 +71,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
 
         public Dictionary<string, object> GetMultipleResultFormatterOk()
         {
-            var data = new List<GarmentCategoryViewModel> { GetNewData() };
+            var data = new List<GarmentCategoryViewModel>();
+            data.Add(GetNewData());
+            data.Add(GetNewDataBP());
+            data.Add(GetNewDataBE());
+            //var data = new List<GarmentCategoryViewModel> { GetNewData() };
 
             Dictionary<string, object> result =
                 new ResultFormatter("1.0", General.OK_STATUS_CODE, General.OK_MESSAGE)

@@ -78,6 +78,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchaseFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPaymentReport;
 using Microsoft.ApplicationInsights.AspNetCore;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentClosingDateFacades;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -123,6 +124,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IBankExpenditureNoteFacade, BankExpenditureNoteFacade>()
                 .AddTransient<IBankDocumentNumberGenerator, BankDocumentNumberGenerator>()
                 .AddTransient<PurchasingDocumentExpeditionReportFacade>()
+                .AddTransient<IPurchasingDocumentExpeditionFacade, PurchasingDocumentExpeditionFacade>()
                 .AddTransient<IPPHBankExpenditureNoteFacade, PPHBankExpenditureNoteFacade>()
                 .AddTransient<IPPHBankExpenditureNoteReportFacade, PPHBankExpenditureNoteReportFacade>()
                 .AddTransient<IUnitPaymentOrderPaidStatusReportFacade, UnitPaymentOrderPaidStatusReportFacade>()
@@ -213,7 +215,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IGarmentDispositionPaymentReportService, GarmentDispositionPaymentReportService>()
                 .AddTransient<IROFeatureFacade, ROFeatureFacade>()
                 .AddTransient<IGarmentBC23ReportFacade, GarmentBC23ReportFacade>()
-                .AddTransient<IMutationBeacukaiFacade, MutationBeacukaiFacade>();
+                .AddTransient<IMutationBeacukaiFacade, MutationBeacukaiFacade>()
+                .AddTransient<IGarmentClosingDateFacade, GarmentClosingDateFacade>();
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)

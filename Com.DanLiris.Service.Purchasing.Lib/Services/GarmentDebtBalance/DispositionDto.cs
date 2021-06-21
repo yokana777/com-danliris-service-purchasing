@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance
 {
@@ -14,5 +15,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance
         public int DispositionId { get; private set; }
         public string DispositionNo { get; private set; }
         public List<MemoDetail> MemoDetails { get; private set; }
+
+        public void OrderByInternalNoteNo()
+        {
+            MemoDetails = MemoDetails.OrderBy(element => element.InternalNoteNo).ToList();
+        }
     }
 }

@@ -141,6 +141,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 try
                 {
                     EntityExtension.FlagForCreate(model, user, USER_AGENT);
+                    model.Date = DateTimeOffset.UtcNow;
                     //model.UPONo = await GenerateNo(model, isImport, clientTimeZoneOffset);
                     foreach (var item in model.Items)
                     {
@@ -1178,9 +1179,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 MissingMemberHandling = MissingMemberHandling.Ignore
             };
 
-            var divisions = JsonConvert.DeserializeObject<List<IdCOAResult>>(_jsonDivisions, jsonSerializerSettings);
-            var units = JsonConvert.DeserializeObject<List<IdCOAResult>>(_jsonUnits, jsonSerializerSettings);
-            var categories = JsonConvert.DeserializeObject<List<CategoryCOAResult>>(_jsonCategories, jsonSerializerSettings);
+            var divisions = JsonConvert.DeserializeObject<List<IdCOAResult>>(_jsonDivisions ?? "[]", jsonSerializerSettings);
+            var units = JsonConvert.DeserializeObject<List<IdCOAResult>>(_jsonUnits ?? "[]", jsonSerializerSettings);
+            var categories = JsonConvert.DeserializeObject<List<CategoryCOAResult>>(_jsonCategories ?? "[]", jsonSerializerSettings);
 
             //journal
             var inVATCOA = "1509.00";
