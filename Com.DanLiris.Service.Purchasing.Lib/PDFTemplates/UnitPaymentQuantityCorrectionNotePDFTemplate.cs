@@ -167,6 +167,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     UnitPaymentCorrectionNoteItemViewModel item = viewModel.items[indexItem];
                     var upoDetail = viewModelSpb.items.SelectMany(upoItem => upoItem.unitReceiptNote.items).FirstOrDefault(upoItem => upoItem.Id == item.uPODetailId);
 
+                    if (upoDetail == null)
+                        upoDetail = new UnitPaymentOrderDetailViewModel();
+
                     cellCenter.Phrase = new Phrase((indexItem + 1).ToString(), normal_font);
                     cellCenter.Colspan = 0;
                     tableContent.AddCell(cellCenter);
