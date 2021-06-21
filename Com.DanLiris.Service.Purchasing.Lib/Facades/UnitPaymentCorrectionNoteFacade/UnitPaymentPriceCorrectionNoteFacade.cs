@@ -359,7 +359,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     }
                     else if (unitPaymentCorrection.CorrectionType == "Jumlah")
                     {
-                        grandTotal = (decimal)(unitPaymentOrderDetail.QuantityCorrection * unitPaymentOrderDetail.PricePerDealUnit);
+                        grandTotal = (decimal)(unitPaymentCorrectionItem.Quantity * unitPaymentOrderDetail.PricePerDealUnit);
                     }
 
                     if (grandTotal != 0)

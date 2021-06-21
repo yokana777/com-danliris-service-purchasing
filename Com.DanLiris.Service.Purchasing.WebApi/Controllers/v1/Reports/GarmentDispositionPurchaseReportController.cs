@@ -156,12 +156,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
                 worksheet.Cells[row, col, row, maxCol].Style.Font.Size = 14;
                 row++;
 
-                worksheet.Cells[row, col].Value = "Tanggal Awal Disposisi : " + dateFrom.GetValueOrDefault().ToString("dd MMM yyyy");
+                worksheet.Cells[row, col].Value = "Tanggal Awal Disposisi : " + (dateFrom.HasValue? dateFrom.GetValueOrDefault().ToString("dd MMM yyyy"):"");
                 worksheet.Cells[row, col, row, maxCol].Merge = true;
                 worksheet.Cells[row, col, row, maxCol].Style.Font.Size = 14;
                 row++;
 
-                worksheet.Cells[row, col].Value = "Tanggal Akhir Disposisi : " + dateTo.GetValueOrDefault().ToString("dd MMM yyyy");
+                worksheet.Cells[row, col].Value = "Tanggal Akhir Disposisi : " + (dateTo.HasValue? dateTo.GetValueOrDefault().ToString("dd MMM yyyy"):"");
                 worksheet.Cells[row, col, row, maxCol].Merge = true;
                 worksheet.Cells[row, col, row, maxCol].Style.Font.Size = 14;
                 row++;
