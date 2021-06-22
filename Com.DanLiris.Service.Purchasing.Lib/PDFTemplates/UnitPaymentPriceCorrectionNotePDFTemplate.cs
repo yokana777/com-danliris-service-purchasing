@@ -206,14 +206,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
 
                         double priceCorrectionTotal = item.priceTotalAfter;
-                        if (viewModel.correctionType == "Harga Total")
-                        {
-                            priceCorrectionTotal = item.priceTotalAfter - item.priceTotalBefore;
-                        }
-                        else if (viewModel.correctionType == "Harga Satuan")
-                        {
-                            priceCorrectionTotal = priceCorrectionUnit * item.quantity;
-                        }
+                        //if (viewModel.correctionType == "Harga Total")
+                        //{
+                        //    priceCorrectionTotal = item.priceTotalAfter - item.priceTotalBefore;
+                        //}
+                        //else if (viewModel.correctionType == "Harga Satuan")
+                        //{
+                        priceCorrectionTotal = priceCorrectionUnit * item.quantity;
+                        //}
 
                         cellRight.Phrase = new Phrase($"{item.currency.code} {priceCorrectionTotal.ToString("N03", _cultureInfo)}", normal_font);
                         tableContent.AddCell(cellRight);
@@ -276,10 +276,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         tableContent.AddCell(cellLeftMerge);
 
                         double priceCorrectionUnit = item.pricePerDealUnitAfter;
-                        if (viewModel.correctionType == "Harga Satuan")
-                        {
-                            priceCorrectionUnit = item.pricePerDealUnitAfter - item.pricePerDealUnitBefore;
-                        }
+                        //if (viewModel.correctionType == "Harga Satuan")
+                        //{
+                        //    priceCorrectionUnit = item.pricePerDealUnitAfter - item.pricePerDealUnitBefore;
+                        //}
 
                         cellRightMerge.Phrase = new Phrase(string.Format("{0:n4}", item.priceTotalBefore), normal_font);
                         tableContent.AddCell(cellRightMerge);
@@ -292,10 +292,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         {
                             priceCorrectionTotal = item.priceTotalAfter - item.priceTotalBefore;
                         }
-                        else if (viewModel.correctionType == "Harga Satuan")
-                        {
-                            priceCorrectionTotal = priceCorrectionUnit * item.quantity;
-                        }
+                        //else if (viewModel.correctionType == "Harga Satuan")
+                        //{
+                        //    priceCorrectionTotal = priceCorrectionUnit * item.quantity;
+                        //}
 
                         cellRightMerge.Phrase = new Phrase($"{priceCorrectionTotal.ToString("N", CultureInfo.InvariantCulture)}", normal_font);
                         tableContent.AddCell(cellRightMerge);
