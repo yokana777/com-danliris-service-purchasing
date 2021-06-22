@@ -1190,7 +1190,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             var reportResult = new List<PurchasingReport>();
             foreach (var item in queryResult)
             {
-                var currency = currencies.Where(entity => entity.Code == item.CurrencyCode && entity.Date <= item.CorrectionDate).OrderByDescending(entity => entity.Date).FirstOrDefault();
+                //var purchaseRequest = purchaseRequests.FirstOrDefault(f => f.Id.Equals(urnItem.PRId));
+                //var unitPaymentOrder = unitPaymentOrders.FirstOrDefault(f => f.URNId.Equals(urnItem.URNId));
+                //var epoItem = epoItems.FirstOrDefault(f => f.epoDetailIds.Contains(urnItem.EPODetailId));
+                //var epoDetail = epoItem.Details.FirstOrDefault(f => f.Id.Equals(urnItem.EPODetailId));
+                //var selectedCurrencies = currencies.Where(element => element.Code == item.CurrencyCode).ToList();
+                //var currency = selectedCurrencies.OrderBy(entity => (entity.Date - item.ReceiptDate).Duration()).FirstOrDefault();
+                var currency = currencies.Where(entity=> entity.Code == item.CurrencyCode && entity.Date <= item.ReceiptDate).ToList().Select(o => new { Diffs = Math.Abs((o.Date.Date - item.ReceiptDate.DateTime.Date).Days), o.Date, o.Code, o.Rate }).OrderBy(o => o.Diffs).FirstOrDefault();
 
 
                 int.TryParse(item.UnitId, out var unitId);
