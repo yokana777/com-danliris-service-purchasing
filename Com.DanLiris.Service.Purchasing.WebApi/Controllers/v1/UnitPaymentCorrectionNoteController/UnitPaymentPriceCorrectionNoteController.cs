@@ -94,7 +94,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody]UnitPaymentCorrectionNoteViewModel vm)
+        public async Task<IActionResult> Create([FromBody] UnitPaymentCorrectionNoteViewModel vm)
         {
             identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
@@ -170,41 +170,41 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitPaymentCorre
 
                 UnitPaymentCorrectionNoteViewModel viewModel = _mapper.Map<UnitPaymentCorrectionNoteViewModel>(model);
 
-                if (indexAcceptPdf < 0)
+                //if (indexAcceptPdf < 0)
+                //{
+                //    return Ok(new
+                //    {
+                //        apiVersion = ApiVersion,
+                //        statusCode = General.OK_STATUS_CODE,
+                //        message = General.OK_MESSAGE,
+                //        data = viewModel,
+                //    });
+                //}
+                //else
+                //{
+                SupplierViewModel supplier = _facade.GetSupplier(viewModel.supplier._id);
+
+                viewModel.supplier.address = supplier == null ? "" : supplier.address;
+                int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+                UnitPaymentOrder spbModel = _spbFacade.ReadById((int)model.UPOId);
+                UnitPaymentOrderViewModel viewModelSpb = _mapper.Map<UnitPaymentOrderViewModel>(spbModel);
+                DateTimeOffset? receiptDate = null;
+                var today = new DateTime(1970, 1, 1);
+                foreach (var item in model.Items)
                 {
-                    return Ok(new
-                    {
-                        apiVersion = ApiVersion,
-                        statusCode = General.OK_STATUS_CODE,
-                        message = General.OK_MESSAGE,
-                        data = viewModel,
-                    });
+                    Lib.Models.UnitReceiptNoteModel.UnitReceiptNote urnModel = _facade.GetUrn(item.URNNo);
+
+                    if (receiptDate == null || urnModel.ReceiptDate > receiptDate)
+                        receiptDate = urnModel == null ? today : urnModel.ReceiptDate;
                 }
-                else
+                UnitPaymentPriceCorrectionNotePDFTemplate PdfTemplate = new UnitPaymentPriceCorrectionNotePDFTemplate();
+                MemoryStream stream = PdfTemplate.GeneratePdfTemplate(viewModel, viewModelSpb, identityService.Username, clientTimeZoneOffset, receiptDate);
+
+                return new FileStreamResult(stream, "application/pdf")
                 {
-                    SupplierViewModel supplier = _facade.GetSupplier(viewModel.supplier._id);
-
-                    viewModel.supplier.address = supplier == null ? "" : supplier.address;
-                    int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
-                    UnitPaymentOrder spbModel = _spbFacade.ReadById((int)model.UPOId);
-                    UnitPaymentOrderViewModel viewModelSpb = _mapper.Map<UnitPaymentOrderViewModel>(spbModel);
-                    DateTimeOffset? receiptDate = null;
-                    var today = new DateTime(1970, 1, 1);
-                    foreach (var item in model.Items)
-                    {
-                        Lib.Models.UnitReceiptNoteModel.UnitReceiptNote urnModel = _facade.GetUrn(item.URNNo);
-
-                        if (receiptDate==null || urnModel.ReceiptDate> receiptDate)
-                            receiptDate =urnModel==null ?today:  urnModel.ReceiptDate;
-                    }
-                    UnitPaymentPriceCorrectionNotePDFTemplate PdfTemplate = new UnitPaymentPriceCorrectionNotePDFTemplate();
-                    MemoryStream stream = PdfTemplate.GeneratePdfTemplate(viewModel, viewModelSpb, identityService.Username, clientTimeZoneOffset, receiptDate);
-
-                    return new FileStreamResult(stream, "application/pdf")
-                    {
-                        FileDownloadName = $"{model.UPCNo}.pdf"
-                    };
-                }
+                    FileDownloadName = $"{model.UPCNo}.pdf"
+                };
+                //}
             }
             catch (Exception e)
             {
