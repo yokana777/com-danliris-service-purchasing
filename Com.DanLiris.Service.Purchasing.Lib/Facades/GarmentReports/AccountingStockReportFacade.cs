@@ -34,10 +34,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             this.dbSet = dbContext.Set<GarmentDeliveryOrder>();
         }
 
-        public async Task<Tuple<List<AccountingStockReportViewModel>, int>> GetStockReportAsync(int offset, string unitcode, string tipebarang, int page, int size, string Order, DateTime? dateFrom, DateTime? dateTo)
+        public Tuple<List<AccountingStockReportViewModel>, int> GetStockReport(int offset, string unitcode, string tipebarang, int page, int size, string Order, DateTime? dateFrom, DateTime? dateTo)
         {
             
-            List<AccountingStockReportViewModel> Query = await GetStockQueryAsync(tipebarang, unitcode, dateFrom, dateTo, offset);
+            List<AccountingStockReportViewModel> Query = GetStockQuery(tipebarang, unitcode, dateFrom, dateTo, offset);
             //Query = Query.Where(x => (x.BeginningBalanceQty != 0) || (x.BeginningBalancePrice != 0) || (x.EndingBalancePrice > 0) || (x.EndingBalanceQty > 0) || (x.ExpendKon1APrice > 0) || (x.ExpendKon1AQty > 0) ||
             //(x.ExpendKon1BPrice > 0) || (x.ExpendKon1BQty > 0) || (x.ExpendKon2APrice > 0) || (x.ExpendKon2AQty > 0) || (x.ExpendKon2BPrice > 0) || (x.ExpendKon2BQty > 0) || (x.ExpendKon2CPrice > 0) || (x.ExpendKon2CQty > 0) ||
             //(x.ExpendProcessPrice > 0) || (x.ExpendProcessQty > 0) || (x.ExpendRestPrice > 0) || (x.ExpendRestQty > 0) || (x.ExpendReturPrice > 0) || (x.ExpendReturQty > 0) || (x.ExpendSamplePrice > 0) || (x.ExpendSampleQty > 0) ||
@@ -51,20 +51,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             //int TotalData = Data.Count();
             return Tuple.Create(Data, TotalData);
         }
-        public async Task<List<AccountingStockReportViewModel>> GetStockQueryAsync(string ctg, string unitcode, DateTime? datefrom, DateTime? dateto, int offset)
+        public List<AccountingStockReportViewModel> GetStockQuery(string ctg, string unitcode, DateTime? datefrom, DateTime? dateto, int offset)
         {
             DateTime DateFrom = datefrom == null ? new DateTime(1970, 1, 1) : (DateTime)datefrom;
             DateTime DateTo = dateto == null ? DateTime.Now : (DateTime)dateto;
 
-            var categories = GetProductCodes(1, int.MaxValue, "{}", "{}");
+            string filter = (string.IsNullOrWhiteSpace(ctg) ? "{}" : "{" + "'" + "CodeRequirement" + "'" + ":" + "'" + ctg + "'" + "}");
 
-            var categories1 = ctg == "BB" ? categories.Where(x => x.CodeRequirement == "BB").Select(x => x.Name).ToArray() : ctg == "BP" ? categories.Where(x => x.CodeRequirement == "BP").Select(x => x.Name).ToArray() : ctg == "BE" ? categories.Where(x => x.CodeRequirement == "BE").Select(x => x.Name).ToArray() : categories.Select(x=>x.Name).ToArray();
+            var categories = GetProductCodes(1, int.MaxValue, "{}", filter);
 
-            string filter = ctg == "BB" ? "{" + "'" + "ProductType" + "'" + ":" + "'FABRIC'" + "}" : "{" + "'" + "ProductType" + "'" + ":" + "'NON FABRIC'" + "}";
+            var categories1 = categories.Select(x => x.Name).ToArray();
 
-            var product = GetProductCode(1, int.MaxValue, "{}", filter);
+            //var categories1 = ctg == "BB" ? categories.Where(x => x.CodeRequirement == "BB").Select(x => x.Name).ToArray() : ctg == "BP" ? categories.Where(x => x.CodeRequirement == "BP").Select(x => x.Name).ToArray() : ctg == "BE" ? categories.Where(x => x.CodeRequirement == "BE").Select(x => x.Name).ToArray() : categories.Select(x=>x.Name).ToArray();
 
-            var Codes = product.Where(x => categories1.Contains(x.Name)).ToList();
+            //string filter = ctg == "BB" ? "{" + "'" + "ProductType" + "'" + ":" + "'FABRIC'" + "}" : "{" + "'" + "ProductType" + "'" + ":" + "'NON FABRIC'" + "}";
+
+            //var product = GetProductCode(1, int.MaxValue, "{}", filter);
+
+            //var Codes = product.Where(x => categories1.Contains(x.Name)).ToList();
 
             //var lastdate = dbContext.BalanceStocks.OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault() == null ? new DateTime(1970, 1, 1) : dbContext.BalanceStocks.OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault();
 
@@ -78,11 +82,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 join e in dbContext.GarmentUnitReceiptNoteItems on (long)a.EPOItemId equals e.EPOItemId
                                 join f in dbContext.GarmentUnitReceiptNotes on e.URNId equals f.Id
                                 join g in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RO equals g.RONo
-                                join h in Codes on b.ProductCode equals h.Code
+                                //join h in Codes on b.ProductCode equals h.Code
                                 where a.CreateDate.Value.Date == lastdate
                                 && f.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? f.UnitCode : unitcode)
                                 && f.URNType == "PEMBELIAN"
-                                //&& categories1.Contains(b.ProductName)
+                                && categories1.Contains(b.ProductName)
 
                                 select new AccountingStockTempViewModel
                                 {
@@ -137,12 +141,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                             join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                             join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
-                            join h in Codes on a.ProductCode equals h.Code
+                            //join h in Codes on a.ProductCode equals h.Code
                             where a.IsDeleted == false && b.IsDeleted == false
                               &&
                               b.CreatedUtc.AddHours(offset).Date > lastdate
                               && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                               && b.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitCode : unitcode)
+                              && categories1.Contains(a.ProductName)
                             select new AccountingStockTempViewModel
                             {
                                 ProductCode = a.ProductCode,
@@ -242,13 +247,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             join b in dbContext.GarmentUnitExpenditureNotes on a.UENId equals b.Id
                             join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                             join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
-                            join h in Codes on a.ProductCode equals h.Code
+                            //join h in Codes on a.ProductCode equals h.Code
                             join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
                             where a.IsDeleted == false && b.IsDeleted == false
                                &&
                                b.CreatedUtc.AddHours(offset).Date > lastdate
                                && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                && b.UnitSenderCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitSenderCode : unitcode)
+                               && categories1.Contains(a.ProductName)
                             select new AccountingStockTempViewModel
                             {
                                 ProductCode = a.ProductCode,
@@ -351,13 +357,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                              join e in dbContext.GarmentReceiptCorrectionItems on b.Id equals e.URNItemId
                              join f in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RONo equals f.RONo
-                             join h in Codes on b.ProductCode equals h.Code
+                             //join h in Codes on b.ProductCode equals h.Code
                              where
                              a.IsDeleted == false && b.IsDeleted == false
                              &&
                              a.CreatedUtc.AddHours(offset).Date > lastdate
                              && a.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                              && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
+                             && categories1.Contains(b.ProductName)
                              select new AccountingStockTempViewModel
                              {
                                  ProductCode = b.ProductCode,
@@ -511,13 +518,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                           join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
                           join g in dbContext.GarmentUnitExpenditureNotes on b.UENId equals g.Id into UEN
                           from dd in UEN.DefaultIfEmpty()
-                          join h in Codes on a.ProductCode equals h.Code
+                          //join h in Codes on a.ProductCode equals h.Code
                           where a.IsDeleted == false && b.IsDeleted == false
                             &&
                             b.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
                             && b.CreatedUtc.AddHours(offset).Date <= DateTo.Date
                             && b.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitCode : unitcode)
-                        select new AccountingStockTempViewModel
+                            && categories1.Contains(a.ProductName)
+                          select new AccountingStockTempViewModel
                         {
                             ProductCode = a.ProductCode,
                             //ProductName = a.ProductName,
@@ -617,14 +625,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                           join b in dbContext.GarmentUnitExpenditureNotes on a.UENId equals b.Id
                           join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                           join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
-                          join h in Codes on a.ProductCode equals h.Code
+                          //join h in Codes on a.ProductCode equals h.Code
                           join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
                           where a.IsDeleted == false && b.IsDeleted == false
                              &&
                              b.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
                              && b.CreatedUtc.AddHours(offset).Date <= DateTo.Date
                              && b.UnitSenderCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitSenderCode : unitcode)
-                         select new AccountingStockTempViewModel
+                             && categories1.Contains(a.ProductName)
+                          select new AccountingStockTempViewModel
                          {
                              ProductCode = a.ProductCode,
                              //ProductName = a.ProductName,
@@ -726,13 +735,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                            join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                            join e in dbContext.GarmentReceiptCorrectionItems on b.Id equals e.URNItemId
                            join f in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RONo equals f.RONo
-                           join h in Codes on b.ProductCode equals h.Code
+                           //join h in Codes on b.ProductCode equals h.Code
                            where
                            a.IsDeleted == false && b.IsDeleted == false
                            &&
                            a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
                            && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
                            && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
+                           && categories1.Contains(b.ProductName)
                            select new AccountingStockTempViewModel
                            {
                                ProductCode = b.ProductCode,
@@ -931,7 +941,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             List<AccountingStockReportViewModel> stockReportViewModels = new List<AccountingStockReportViewModel>();
 
-            foreach(var i in SaldoAkhirs)
+            var productCodes = string.Join(",", SaldoAkhirs.Select(x => x.ProductCode).Distinct().ToList());
+
+            var Codes = GetProductCode(productCodes);
+
+            foreach (var i in SaldoAkhirs)
             {
                 var BeginningBalanceQty = i.BeginningBalanceQty > 0 ? i.BeginningBalanceQty : 0;
                 var BeginningBalancePrice = (i.BeginningBalanceQty > 0 && i.BeginningBalancePrice > 0) ? i.BeginningBalancePrice : 0;
@@ -943,11 +957,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 var Width = remark == null ? "-" : remark.Width;
                 var Const = remark == null ? "-" : remark.Const;
                 var Yarn = remark == null ? "-" : remark.Yarn;
+                var Name = remark == null ? "-" : remark.Name;
 
                 stockReportViewModels.Add(new AccountingStockReportViewModel
                 {
                     ProductCode = i.ProductCode,
-                    ProductName = ctg == "BB" ? string.Concat(Composition, "", Width, "", Const, "", Yarn) : remark.Name,
+                    ProductName = ctg == "BB" ? string.Concat(Composition, "", Width, "", Const, "", Yarn) : Name,
                     RO = i.RO,
                     Buyer = i.Buyer,
                     PlanPo = i.PlanPo,
@@ -1017,45 +1032,45 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 Buyer = "",
                 PlanPo = "",
                 NoArticle = "",
-                BeginningBalanceQty = Math.Round(SaldoAkhirs.Sum(X => X.BeginningBalanceQty), 2),
+                BeginningBalanceQty = Math.Round(stockReportViewModels.Sum(X => X.BeginningBalanceQty), 2),
                 BeginningBalanceUom = "",
-                BeginningBalancePrice = Math.Round(SaldoAkhirs.Sum(X => X.BeginningBalancePrice), 2),
-                ReceiptCorrectionQty = Math.Round(SaldoAkhirs.Sum(X => X.ReceiptCorrectionQty), 2),
-                ReceiptPurchaseQty = Math.Round(SaldoAkhirs.Sum(X => X.ReceiptPurchaseQty), 2),
-                ReceiptProcessQty = Math.Round(SaldoAkhirs.Sum(X => X.ReceiptProcessQty), 2),
-                ReceiptKon2AQty = Math.Round(SaldoAkhirs.Sum(X => X.ReceiptKon2AQty), 2),
-                ReceiptKon2BQty = Math.Round(SaldoAkhirs.Sum(X => X.ReceiptKon2BQty), 2),
-                ReceiptKon2CQty = Math.Round(SaldoAkhirs.Sum(X => X.ReceiptKon2CQty), 2),
-                ReceiptKon1AQty = Math.Round(SaldoAkhirs.Sum(X => X.ReceiptKon1AQty), 2),
-                ReceiptKon1BQty = Math.Round(SaldoAkhirs.Sum(X => X.ReceiptKon1BQty), 2),
-                ReceiptCorrectionPrice = Math.Round(SaldoAkhirs.Sum(X => X.ReceiptCorrectionPrice), 2),
-                ReceiptPurchasePrice = Math.Round(SaldoAkhirs.Sum(X => X.ReceiptPurchasePrice), 2),
-                ReceiptProcessPrice = Math.Round(SaldoAkhirs.Sum(X => X.ReceiptProcessPrice), 2),
-                ReceiptKon2APrice = Math.Round(SaldoAkhirs.Sum(X => X.ReceiptKon2APrice), 2),
-                ReceiptKon2BPrice = Math.Round(SaldoAkhirs.Sum(X => X.ReceiptKon2BPrice), 2),
-                ReceiptKon2CPrice = Math.Round(SaldoAkhirs.Sum(X => X.ReceiptKon2CPrice), 2),
-                ReceiptKon1APrice = Math.Round(SaldoAkhirs.Sum(X => X.ReceiptKon1APrice), 2),
-                ReceiptKon1BPrice = Math.Round(SaldoAkhirs.Sum(X => X.ReceiptKon1BPrice), 2),
-                ExpendReturQty = Math.Round(SaldoAkhirs.Sum(X => X.ExpendReturQty), 2),
-                ExpendRestQty = Math.Round(SaldoAkhirs.Sum(X => X.ExpendRestQty), 2),
-                ExpendProcessQty = Math.Round(SaldoAkhirs.Sum(X => X.ExpendProcessQty), 2),
-                ExpendSampleQty = Math.Round(SaldoAkhirs.Sum(X => X.ExpendSampleQty), 2),
-                ExpendKon2AQty = Math.Round(SaldoAkhirs.Sum(X => X.ExpendKon2AQty), 2),
-                ExpendKon2BQty = Math.Round(SaldoAkhirs.Sum(X => X.ExpendKon2BQty), 2),
-                ExpendKon2CQty = Math.Round(SaldoAkhirs.Sum(X => X.ExpendKon2CQty), 2),
-                ExpendKon1AQty = Math.Round(SaldoAkhirs.Sum(X => X.ExpendKon1AQty), 2),
-                ExpendKon1BQty = Math.Round(SaldoAkhirs.Sum(X => X.ExpendKon1BQty), 2),
-                ExpendReturPrice = Math.Round(SaldoAkhirs.Sum(X => X.ExpendReturPrice), 2),
-                ExpendRestPrice = Math.Round(SaldoAkhirs.Sum(X => X.ExpendRestPrice), 2),
-                ExpendProcessPrice = Math.Round(SaldoAkhirs.Sum(X => X.ExpendProcessPrice), 2),
-                ExpendSamplePrice = Math.Round(SaldoAkhirs.Sum(X => X.ExpendSamplePrice), 2),
-                ExpendKon2APrice = Math.Round(SaldoAkhirs.Sum(X => X.ExpendKon2APrice), 2),
-                ExpendKon2BPrice = Math.Round(SaldoAkhirs.Sum(X => X.ExpendKon2BPrice), 2),
-                ExpendKon2CPrice = Math.Round(SaldoAkhirs.Sum(X => X.ExpendKon2CPrice), 2),
-                ExpendKon1APrice = Math.Round(SaldoAkhirs.Sum(X => X.ExpendKon1APrice), 2),
-                ExpendKon1BPrice = Math.Round(SaldoAkhirs.Sum(X => X.ExpendKon1BPrice), 2),
-                EndingBalanceQty = Math.Round(SaldoAkhirs.Sum(X => X.EndingBalanceQty), 2),
-                EndingBalancePrice = Math.Round(SaldoAkhirs.Sum(X => X.EndingBalancePrice), 2),
+                BeginningBalancePrice = Math.Round(stockReportViewModels.Sum(X => X.BeginningBalancePrice), 2),
+                ReceiptCorrectionQty = Math.Round(stockReportViewModels.Sum(X => X.ReceiptCorrectionQty), 2),
+                ReceiptPurchaseQty = Math.Round(stockReportViewModels.Sum(X => X.ReceiptPurchaseQty), 2),
+                ReceiptProcessQty = Math.Round(stockReportViewModels.Sum(X => X.ReceiptProcessQty), 2),
+                ReceiptKon2AQty = Math.Round(stockReportViewModels.Sum(X => X.ReceiptKon2AQty), 2),
+                ReceiptKon2BQty = Math.Round(stockReportViewModels.Sum(X => X.ReceiptKon2BQty), 2),
+                ReceiptKon2CQty = Math.Round(stockReportViewModels.Sum(X => X.ReceiptKon2CQty), 2),
+                ReceiptKon1AQty = Math.Round(stockReportViewModels.Sum(X => X.ReceiptKon1AQty), 2),
+                ReceiptKon1BQty = Math.Round(stockReportViewModels.Sum(X => X.ReceiptKon1BQty), 2),
+                ReceiptCorrectionPrice = Math.Round(stockReportViewModels.Sum(X => X.ReceiptCorrectionPrice), 2),
+                ReceiptPurchasePrice = Math.Round(stockReportViewModels.Sum(X => X.ReceiptPurchasePrice), 2),
+                ReceiptProcessPrice = Math.Round(stockReportViewModels.Sum(X => X.ReceiptProcessPrice), 2),
+                ReceiptKon2APrice = Math.Round(stockReportViewModels.Sum(X => X.ReceiptKon2APrice), 2),
+                ReceiptKon2BPrice = Math.Round(stockReportViewModels.Sum(X => X.ReceiptKon2BPrice), 2),
+                ReceiptKon2CPrice = Math.Round(stockReportViewModels.Sum(X => X.ReceiptKon2CPrice), 2),
+                ReceiptKon1APrice = Math.Round(stockReportViewModels.Sum(X => X.ReceiptKon1APrice), 2),
+                ReceiptKon1BPrice = Math.Round(stockReportViewModels.Sum(X => X.ReceiptKon1BPrice), 2),
+                ExpendReturQty = Math.Round(stockReportViewModels.Sum(X => X.ExpendReturQty), 2),
+                ExpendRestQty = Math.Round(stockReportViewModels.Sum(X => X.ExpendRestQty), 2),
+                ExpendProcessQty = Math.Round(stockReportViewModels.Sum(X => X.ExpendProcessQty), 2),
+                ExpendSampleQty = Math.Round(stockReportViewModels.Sum(X => X.ExpendSampleQty), 2),
+                ExpendKon2AQty = Math.Round(stockReportViewModels.Sum(X => X.ExpendKon2AQty), 2),
+                ExpendKon2BQty = Math.Round(stockReportViewModels.Sum(X => X.ExpendKon2BQty), 2),
+                ExpendKon2CQty = Math.Round(stockReportViewModels.Sum(X => X.ExpendKon2CQty), 2),
+                ExpendKon1AQty = Math.Round(stockReportViewModels.Sum(X => X.ExpendKon1AQty), 2),
+                ExpendKon1BQty = Math.Round(stockReportViewModels.Sum(X => X.ExpendKon1BQty), 2),
+                ExpendReturPrice = Math.Round(stockReportViewModels.Sum(X => X.ExpendReturPrice), 2),
+                ExpendRestPrice = Math.Round(stockReportViewModels.Sum(X => X.ExpendRestPrice), 2),
+                ExpendProcessPrice = Math.Round(stockReportViewModels.Sum(X => X.ExpendProcessPrice), 2),
+                ExpendSamplePrice = Math.Round(stockReportViewModels.Sum(X => X.ExpendSamplePrice), 2),
+                ExpendKon2APrice = Math.Round(stockReportViewModels.Sum(X => X.ExpendKon2APrice), 2),
+                ExpendKon2BPrice = Math.Round(stockReportViewModels.Sum(X => X.ExpendKon2BPrice), 2),
+                ExpendKon2CPrice = Math.Round(stockReportViewModels.Sum(X => X.ExpendKon2CPrice), 2),
+                ExpendKon1APrice = Math.Round(stockReportViewModels.Sum(X => X.ExpendKon1APrice), 2),
+                ExpendKon1BPrice = Math.Round(stockReportViewModels.Sum(X => X.ExpendKon1BPrice), 2),
+                EndingBalanceQty = Math.Round(stockReportViewModels.Sum(X => X.EndingBalanceQty), 2),
+                EndingBalancePrice = Math.Round(stockReportViewModels.Sum(X => X.EndingBalancePrice), 2),
 
             };
 
@@ -1067,9 +1082,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             return stockReportViewModels;
 
         }
-        public async Task<MemoryStream> GenerateExcelAStockReportAsync(string ctg, string categoryname, string unitcode, string unitname, DateTime? datefrom, DateTime? dateto, int offset)
+        public MemoryStream GenerateExcelAStockReport(string ctg, string categoryname, string unitcode, string unitname, DateTime? datefrom, DateTime? dateto, int offset)
         {
-            var Query = await GetStockQueryAsync(ctg, unitcode, datefrom, dateto, offset);
+            var Query = GetStockQuery(ctg, unitcode, datefrom, dateto, offset);
             //Query = Query.Where(x => (x.BeginningBalanceQty != 0) || (x.BeginningBalancePrice != 0) || (x.EndingBalancePrice > 0) || (x.EndingBalanceQty > 0) || (x.ExpendKon1APrice > 0) || (x.ExpendKon1AQty > 0) ||
             //(x.ExpendKon1BPrice > 0) || (x.ExpendKon1BQty > 0) || (x.ExpendKon2APrice > 0) || (x.ExpendKon2AQty > 0) || (x.ExpendKon2BPrice > 0) || (x.ExpendKon2BQty > 0) || (x.ExpendKon2CPrice > 0) || (x.ExpendKon2CQty > 0) ||
             //(x.ExpendProcessPrice > 0) || (x.ExpendProcessQty > 0) || (x.ExpendRestPrice > 0) || (x.ExpendRestQty > 0) || (x.ExpendReturPrice > 0) || (x.ExpendReturQty > 0) || (x.ExpendSamplePrice > 0) || (x.ExpendSampleQty > 0) ||
@@ -1426,18 +1441,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             }
         }
 
-        private List<GarmentProductViewModel> GetProductCode(int page, int size, string order, string filter)
+        private List<GarmentProductViewModel> GetProductCode(string codes)
         {
             IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
 
-            if (httpClient != null)
+            var httpContent = new StringContent(JsonConvert.SerializeObject(codes), Encoding.UTF8, "application/json");
+
+            var garmentProductionUri = APIEndpoint.Core + $"master/garmentProducts/byCode";
+            var httpResponse = httpClient.SendAsync(HttpMethod.Get, garmentProductionUri, httpContent).Result;
+
+            if (httpResponse.IsSuccessStatusCode)
             {
-                var garmentSupplierUri = APIEndpoint.Core + $"master/garmentProducts";
-                string queryUri = "?page=" + page + "&size=" + size + "&order=" + order + "&filter=" + filter;
-                string uri = garmentSupplierUri + queryUri;
-                var response = httpClient.GetAsync($"{uri}").Result.Content.ReadAsStringAsync().Result;
-                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response);
-                List<GarmentProductViewModel> viewModel = JsonConvert.DeserializeObject<List<GarmentProductViewModel>>(result.GetValueOrDefault("data").ToString());
+                var content = httpResponse.Content.ReadAsStringAsync().Result;
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+
+                List<GarmentProductViewModel> viewModel;
+                if (result.GetValueOrDefault("data") == null)
+                {
+                    viewModel = null;
+                }
+                else
+                {
+                    viewModel = JsonConvert.DeserializeObject<List<GarmentProductViewModel>>(result.GetValueOrDefault("data").ToString());
+
+                }
                 return viewModel;
             }
             else

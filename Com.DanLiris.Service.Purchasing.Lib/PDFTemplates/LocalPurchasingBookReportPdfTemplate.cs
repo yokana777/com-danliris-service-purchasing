@@ -283,7 +283,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                 foreach (var data in cat)
                 {
-                    cell.Phrase = new Phrase(data.ReceiptDate.AddHours(timezoneOffset).ToString("yyyy-dd-MM"), _smallerFont);
+                    cell.Phrase = new Phrase(data.ReceiptDate.GetValueOrDefault().AddHours(timezoneOffset).ToString("yyyy-dd-MM"), _smallerFont);
                     table.AddCell(cell);
 
                     cell.Phrase = new Phrase(data.SupplierCode, _smallerFont);

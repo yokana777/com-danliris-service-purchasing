@@ -1059,7 +1059,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         from urnUPODetail in joinUnitPaymentOrderDetails.DefaultIfEmpty()
 
                             //where urnWithItem.UnitReceiptNote.ReceiptDate >= d1 && urnWithItem.UnitReceiptNote.ReceiptDate <= d2 && urnWithItem.UnitReceiptNote.SupplierIsImport
-                        where upcCorrection.CorrectionDate.Date >= d1.Date && upcCorrection.CorrectionDate.Date <= d2.Date && !urnWithItem.UnitReceiptNote.SupplierIsImport
+                        where upcCorrection.CorrectionDate.Date >= d1.Date && upcCorrection.CorrectionDate.Date <= d2.Date && urnWithItem.UnitReceiptNote.SupplierIsImport
 
                         select new
                         {
@@ -1276,8 +1276,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
         public async Task<LocalPurchasingBookReportViewModel> GetReportDataV2(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, int divisionId)
         {
-            var dataReceiptNote = await GetReportDataImportPurchasing(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo,divisionId);
-            var dataReceiptNoteCorrection = await GetReportDataImportPurchasingCorrection(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo,  divisionId);
+            var dataReceiptNote = Task.Run(()=> GetReportDataImportPurchasing(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo,divisionId)).Result;
+            var dataReceiptNoteCorrection = Task.Run(()=> GetReportDataImportPurchasingCorrection(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo,  divisionId)).Result;
 
             var reportReceipt = new List<PurchasingReport>();
             reportReceipt.AddRange(dataReceiptNote);
@@ -1435,7 +1435,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             {
                 foreach (var report in result.Reports)
                 {
-                    reportDataTable.Rows.Add(report.ReceiptDate.ToString("dd/MM/yyyy"), report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo,report.CorrectionNo,report.CorrectionDate, report.AccountingCategoryName, report.CategoryName, report.AccountingUnitName, report.UnitName, report.PIBDate.ToString("dd/MM/yyyy"), report.PIBNo, report.PIBBM, report.PIBIncomeTax, report.PIBVat, report.PIBImportInfo, report.CurrencyCode, report.DPP, report.CurrencyRate, report.Total);
+                    var dateReceipt = report.ReceiptDate.HasValue ? report.ReceiptDate.GetValueOrDefault().ToString("dd/MM/yyyy") : string.Empty;
+                    var dateCorrection = report.CorrectionDate.HasValue ? report.CorrectionDate.GetValueOrDefault().ToString("dd/MM/yyyy") : string.Empty;
+                    reportDataTable.Rows.Add(dateReceipt, report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo,report.CorrectionNo, dateCorrection, report.AccountingCategoryName, report.CategoryName, report.AccountingUnitName, report.UnitName, report.PIBDate.ToString("dd/MM/yyyy"), report.PIBNo, report.PIBBM, report.PIBIncomeTax, report.PIBVat, report.PIBImportInfo, report.CurrencyCode, report.DPP, report.CurrencyRate, report.Total);
                 }
                 foreach (var categorySummary in result.CategorySummaries)
                     categoryDataTable.Rows.Add(categorySummary.Category, categorySummary.SubTotal);

@@ -216,7 +216,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                 foreach (var element in cat)
                 {
-                    cell.Phrase = new Phrase(element.ReceiptDate.AddHours(timezoneOffset).ToString("yyyy-dd-MM"), _smallerFont);
+                    cell.Phrase = new Phrase(element.ReceiptDate.GetValueOrDefault().AddHours(timezoneOffset).ToString("yyyy-dd-MM"), _smallerFont);
                     table.AddCell(cell);
 
                     cell.Phrase = new Phrase(element.SupplierCode, _smallerFont);

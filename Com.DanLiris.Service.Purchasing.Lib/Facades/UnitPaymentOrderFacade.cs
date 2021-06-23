@@ -141,6 +141,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 try
                 {
                     EntityExtension.FlagForCreate(model, user, USER_AGENT);
+                    model.Date = DateTimeOffset.UtcNow;
                     //model.UPONo = await GenerateNo(model, isImport, clientTimeZoneOffset);
                     foreach (var item in model.Items)
                     {
