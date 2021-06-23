@@ -290,7 +290,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         double priceCorrectionTotal = item.priceTotalAfter;
                         if (viewModel.correctionType == "Harga Total")
                         {
-                            priceCorrectionTotal = item.priceTotalAfter - item.priceTotalBefore;
+                            priceCorrectionTotal = item.priceTotalBefore - item.priceTotalAfter;
                         }
                         //else if (viewModel.correctionType == "Harga Satuan")
                         //{
