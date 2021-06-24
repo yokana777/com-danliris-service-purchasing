@@ -150,7 +150,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 tableContent.AddCell(cellCenter);
                 cellCenter.Phrase = new Phrase("Jumlah SPB", small_bold_font);
                 tableContent.AddCell(cellCenter);
-                cellCenter.Phrase = new Phrase("Jumlah Koreks", small_bold_font);
+                cellCenter.Phrase = new Phrase("Jumlah Retur", small_bold_font);
                 tableContent.AddCell(cellCenter);
                 cellCenter.Phrase = new Phrase("Harga Satuan", small_bold_font);
                 cellCenter.Colspan = 2;
