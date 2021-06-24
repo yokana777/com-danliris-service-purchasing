@@ -245,7 +245,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 else
                 {
                     PdfPTable tableContent = new PdfPTable(7);
-                    tableContent.SetWidths(new float[] { 1f, 6f, 0.6f, 2f, 0.6f, 1.5f, 2f });
+                    tableContent.SetWidths(new float[] { 1f, 6f, 0.6f, 2f, 0.6f, 2f, 2f });
 
                     cellCenter.Phrase = new Phrase("No", small_bold_font);
                     tableContent.AddCell(cellCenter);
