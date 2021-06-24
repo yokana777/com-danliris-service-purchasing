@@ -177,7 +177,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellLeft.Phrase = new Phrase($"{item.product.code} - {item.product.name}", normal_font);
                     tableContent.AddCell(cellLeft);
 
-                    cellRight.Phrase = new Phrase(string.Format("{0:n2}", (upoDetail.deliveredQuantity * -1)) + $" {item.uom.unit}", normal_font);
+                    cellRight.Phrase = new Phrase(string.Format("{0:n2}", upoDetail.deliveredQuantity) + $" {item.uom.unit}", normal_font);
                     tableContent.AddCell(cellRight);
 
                     cellRight.Phrase = new Phrase(string.Format("{0:n2}", (item.quantity * -1)) + $" {item.uom.unit}", normal_font);
