@@ -32,6 +32,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.BalanceStockModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentStockOpnameModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.BudgetCashflowWorstCaseModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentClosingDateModels;
 //using Com.DanLiris.Service.Purchasing.Lib.Models.ImportValueModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib
@@ -145,6 +146,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib
         public DbSet<GarmentDispositionPurchaseDetail> GarmentDispositionPurchaseDetailss { get; set; }
 
         //public DbSet<ImportValue> ImportValues { get; set; }
+
+        public DbSet<GarmentClosingDate> ClosingDate { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

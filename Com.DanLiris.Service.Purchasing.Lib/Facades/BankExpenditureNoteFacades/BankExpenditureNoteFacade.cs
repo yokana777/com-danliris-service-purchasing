@@ -313,7 +313,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                         {
                             Code = COAGenerator.GetDebtCOA(model.SupplierImport, detail.DivisionName, datum.UnitCode)
                         },
-                        Debit = Convert.ToDecimal(datum.Total + (datum.Total * 0.1)),
+                        //Debit = Convert.ToDecimal(datum.Total + (datum.Total * 0.1)),
+                        Debit = Convert.ToDecimal(datum.Total),
                         Remark = detail.UnitPaymentOrderNo + " / " + detail.InvoiceNo
                     };
 
@@ -330,10 +331,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                         }
                     }
 
-                    if (!string.IsNullOrWhiteSpace(vatCOA))
-                    {
-                        item.Debit += Convert.ToDecimal(datum.Total * 0.1);
-                    }
+                    //if (!string.IsNullOrWhiteSpace(vatCOA))
+                    //{
+                    //    item.Debit += Convert.ToDecimal(datum.Total * 0.1);
+                    //}
 
                     items.Add(item);
                 }
@@ -358,7 +359,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
             var modelToPost = new JournalTransaction()
             {
-                Date = DateTimeOffset.Now,
+                Date = model.Date,
                 Description = "Bukti Pengeluaran Bank",
                 ReferenceNo = model.DocumentNo,
                 Items = items
@@ -699,7 +700,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 Nominal = model.GrandTotal,
                 CurrencyRate = model.CurrencyRate,
                 ReferenceNo = model.DocumentNo,
-                ReferenceType = "Bayar PPh",
+                ReferenceType = "Bayar Hutang",
                 Remark = model.CurrencyCode != "IDR" ? $"Pembayaran atas {model.BankCurrencyCode} dengan nominal {string.Format("{0:n}", model.GrandTotal)} dan kurs {model.CurrencyCode}" : "",
                 SourceType = "Operasional",
                 Status = "OUT",

@@ -155,10 +155,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                         {
                             throw new Exception("garmentUnitDeliveryOrderItem.DOCurrencyRate tidak boleh 0");
                         }
-                        GarmentUnitReceiptNote garmentUnitReceiptNote = dbContext.GarmentUnitReceiptNotes.Single(s => s.Id == garmentUnitDeliveryOrderItem.URNId);
+                        GarmentUnitReceiptNote garmentUnitReceiptNote = dbContext.GarmentUnitReceiptNotes.IgnoreQueryFilters().Single(s => s.Id == garmentUnitDeliveryOrderItem.URNId);
                         garmentUnitReceiptNote.IsUnitDO = true;
 
-                        GarmentUnitReceiptNoteItem garmentUnitReceiptNoteItem = dbContext.GarmentUnitReceiptNoteItems.Single(s => s.Id == garmentUnitDeliveryOrderItem.URNItemId);
+                        GarmentUnitReceiptNoteItem garmentUnitReceiptNoteItem = dbContext.GarmentUnitReceiptNoteItems.IgnoreQueryFilters().Single(s => s.Id == garmentUnitDeliveryOrderItem.URNItemId);
                         garmentUnitReceiptNoteItem.OrderQuantity = garmentUnitReceiptNoteItem.OrderQuantity + (decimal)garmentUnitDeliveryOrderItem.Quantity;
 
                         EntityExtension.FlagForUpdate(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
@@ -464,8 +464,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                         i.DOCurrency,
                         Buyer = new
                         {
-                            Id = dbContext.GarmentInternalPurchaseOrders.Where(m => m.Items.Any(k => k.PO_SerialNumber == i.POSerialNumber)).Select(m => m.BuyerId).FirstOrDefault(),
-                            Code = dbContext.GarmentInternalPurchaseOrders.Where(m => m.Items.Any(k => k.PO_SerialNumber == i.POSerialNumber)).Select(m => m.BuyerCode).FirstOrDefault()
+                            Id = dbContext.GarmentPurchaseRequests.Where(m => m.RONo == i.RONo).Select(m => m.BuyerId).FirstOrDefault(),
+                            Code = dbContext.GarmentPurchaseRequests.Where(m => m.RONo == i.RONo).Select(m => m.BuyerCode).FirstOrDefault()
                         },
                     }).ToList()
                 }).ToList()

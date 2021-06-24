@@ -85,6 +85,67 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
             }
         }
 
+        private UnitPaymentCorrectionNoteViewModel ViewModelTotal
+        {
+            get
+            {
+                return new UnitPaymentCorrectionNoteViewModel
+                {
+                    UId = null,
+                    division = new DivisionViewModel
+                    {
+                        _id = "DivisionId",
+                        name = "DivisionName",
+                        code = "DivisionCode"
+                    },
+                    supplier = new SupplierViewModel
+                    {
+                        _id = "SupplierId",
+                        name = "SupplierName",
+                        code = "SupplierCode"
+                    },
+                    category = new CategoryViewModel
+                    {
+                        _id = "CategoryId",
+                        name = "CategoryName",
+                        code = "CategoryCode"
+                    },
+                    correctionType = "Harga Total",
+                    correctionDate = new DateTimeOffset(),
+                    items = new List<UnitPaymentCorrectionNoteItemViewModel>()
+                    {
+                        new UnitPaymentCorrectionNoteItemViewModel()
+                        {
+                            ePONo ="123",
+                            quantity = 1,
+                            product = new ProductViewModel
+                            {
+                                _id = "ProductId",
+                                name = "ProductName",
+                                code = "ProductCode",
+                            },
+                            uom = new UomViewModel
+                            {
+                                _id = "UomId",
+                                unit = "UomUnit"
+                            },
+                            currency = new CurrencyViewModel
+                            {
+                                _id = "CurrencyId",
+                                code = "CurrencyCode",
+                                description = "CurrencyDescription",
+                                rate = 0.1
+                            },
+                            pricePerDealUnitAfter=2000,
+                            pricePerDealUnitBefore=3000,
+                            priceTotalAfter=1700,
+                            priceTotalBefore=3000
+                        }
+                    }
+                };
+            }
+        }
+
         private UnitPaymentOrderViewModel ViewModelSpb
         {
             get
@@ -518,9 +579,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
             mockFacadeSpb.Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(ModelSpb);
 
+            ViewModel.correctionType = "Harga Total";
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<UnitPaymentCorrectionNoteViewModel>(It.IsAny<UnitPaymentCorrectionNote>()))
-                .Returns(ViewModel);
+                .Returns(ViewModelTotal);
 
             ViewModel.correctionType = "Harga Total";
             var mockMapperSpb = new Mock<IMapper>();
