@@ -163,11 +163,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     tableContent.AddCell(cellCenter);
                     cellCenter.Phrase = new Phrase("Harga Satuan SPB", small_bold_font);
                     tableContent.AddCell(cellCenter);
-                    cellCenter.Phrase = new Phrase("Harga yang Dikoreksi", small_bold_font);
+                    cellCenter.Phrase = new Phrase("Harga Baru", small_bold_font);
+                    tableContent.AddCell(cellCenter);
+                    cellCenter.Phrase = new Phrase("Harga Koreksi", small_bold_font);
                     tableContent.AddCell(cellCenter);
                     cellCenter.Phrase = new Phrase("Nilai Koreksi", small_bold_font);
-                    tableContent.AddCell(cellCenter);
-                    cellCenter.Phrase = new Phrase("Harga Total", small_bold_font);
                     tableContent.AddCell(cellCenter);
                     cellCenter.Phrase = new Phrase("Nomor Order", small_bold_font);
                     tableContent.AddCell(cellCenter);
