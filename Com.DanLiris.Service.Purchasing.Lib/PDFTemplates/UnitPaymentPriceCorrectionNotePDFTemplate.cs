@@ -163,11 +163,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     tableContent.AddCell(cellCenter);
                     cellCenter.Phrase = new Phrase("Harga Satuan SPB", small_bold_font);
                     tableContent.AddCell(cellCenter);
-                    cellCenter.Phrase = new Phrase("Harga yang Dikoreksi", small_bold_font);
+                    cellCenter.Phrase = new Phrase("Harga Baru", small_bold_font);
+                    tableContent.AddCell(cellCenter);
+                    cellCenter.Phrase = new Phrase("Harga Koreksi", small_bold_font);
                     tableContent.AddCell(cellCenter);
                     cellCenter.Phrase = new Phrase("Nilai Koreksi", small_bold_font);
-                    tableContent.AddCell(cellCenter);
-                    cellCenter.Phrase = new Phrase("Harga Total", small_bold_font);
                     tableContent.AddCell(cellCenter);
                     cellCenter.Phrase = new Phrase("Nomor Order", small_bold_font);
                     tableContent.AddCell(cellCenter);
@@ -245,7 +245,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 else
                 {
                     PdfPTable tableContent = new PdfPTable(7);
-                    tableContent.SetWidths(new float[] { 1f, 6f, 2f, 1.5f, 2f, 1.5f, 2f });
+                    tableContent.SetWidths(new float[] { 1f, 6f, 0.6f, 2f, 0.6f, 1.5f, 2f });
 
                     cellCenter.Phrase = new Phrase("No", small_bold_font);
                     tableContent.AddCell(cellCenter);
@@ -290,7 +290,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         double priceCorrectionTotal = item.priceTotalAfter;
                         if (viewModel.correctionType == "Harga Total")
                         {
-                            priceCorrectionTotal = item.priceTotalBefore - item.priceTotalAfter;
+                            priceCorrectionTotal = item.priceTotalAfter - item.priceTotalBefore;
                         }
                         //else if (viewModel.correctionType == "Harga Satuan")
                         //{
