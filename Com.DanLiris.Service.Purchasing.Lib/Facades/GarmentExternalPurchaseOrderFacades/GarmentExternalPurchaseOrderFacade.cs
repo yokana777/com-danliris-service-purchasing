@@ -1261,6 +1261,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                          {
                              Id = i.Id,
                              PO_SerialNumber = i.PO_SerialNumber,
+                             UENItemId = i.UENItemId,
                              ProductCode = i.ProductCode,
                              ProductId = i.ProductId,
                              ProductName = i.ProductName,
@@ -1286,7 +1287,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                          select new GarmentExternalPurchaseOrderItem
                          {
                              Id = i.Id,
-                             RONo= i.RONo
+                             PO_SerialNumber = i.PO_SerialNumber,
+                             UENItemId = i.UENItemId,
+                             RONo = i.RONo
                          });
 
             List<GarmentExternalPurchaseOrderItem> ListData = new List<GarmentExternalPurchaseOrderItem>(QueryItem.OrderBy(o => o.RONo).Take(size));
