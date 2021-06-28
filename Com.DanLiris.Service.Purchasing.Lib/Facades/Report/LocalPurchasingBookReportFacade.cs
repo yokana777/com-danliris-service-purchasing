@@ -864,7 +864,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         join epoDetail in dbContext.ExternalPurchaseOrderDetails on urnWithItem.EPODetailId equals epoDetail.Id into joinExternalPurchaseOrder
                         from urnEPODetail in joinExternalPurchaseOrder.DefaultIfEmpty()
 
-                        join upoItem in dbContext.UnitPaymentOrderDetails on urnEPODetail.Id equals upoItem.EPODetailId into joinUnitPaymentOrder
+                        join upoItem in dbContext.UnitPaymentOrderDetails on urnWithItem.Id equals upoItem.URNItemId into joinUnitPaymentOrder
                         from urnUPOItem in joinUnitPaymentOrder.DefaultIfEmpty()
 
                         where urnWithItem.UnitReceiptNote.ReceiptDate.ToUniversalTime().Date >= d1.Date && urnWithItem.UnitReceiptNote.ReceiptDate.ToUniversalTime().Date <= d2.Date && !urnWithItem.UnitReceiptNote.SupplierIsImport
