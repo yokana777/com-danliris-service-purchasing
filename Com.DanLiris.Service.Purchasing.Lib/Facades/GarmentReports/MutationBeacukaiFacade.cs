@@ -162,14 +162,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
                                }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBBCentralViewModelTemp
                                {
-                                   AdjustmentQty = group.Sum(x => x.AdjustmentQty),
-                                   BeginQty = group.Sum(x => x.BeginQty),
-                                   ExpenditureQty = group.Sum(x => x.ExpenditureQty),
+                                   AdjustmentQty = Math.Round(group.Sum(x => x.AdjustmentQty), 2),
+                                   BeginQty = Math.Round(group.Sum(x => x.BeginQty), 2),
+                                   ExpenditureQty = Math.Round(group.Sum(x => x.ExpenditureQty), 2),
                                    ItemCode = key.ItemCode,
                                    ItemName = key.ItemName,
-                                   LastQty = group.Sum(x => x.LastQty),
-                                   OpnameQty = group.Sum(x => x.OpnameQty),
-                                   ReceiptQty = group.Sum(x => x.ReceiptQty),
+                                   LastQty = Math.Round(group.Sum(x => x.LastQty), 2),
+                                   OpnameQty = Math.Round(group.Sum(x => x.OpnameQty), 2),
+                                   ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
                                    SupplierType = key.SupplierType,
                                    UnitQtyName = key.UnitQtyName
 
@@ -201,14 +201,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                       UnitQtyName = a.SmallUomUnit
                                   }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBBCentralViewModelTemp
                                   {
-                                      AdjustmentQty = group.Sum(x => x.AdjustmentQty),
-                                      BeginQty = group.Sum(x => x.BeginQty),
-                                      ExpenditureQty = group.Sum(x => x.ExpenditureQty),
+                                      AdjustmentQty = Math.Round(group.Sum(x => x.AdjustmentQty), 2),
+                                      BeginQty = Math.Round(group.Sum(x => x.BeginQty), 2),
+                                      ExpenditureQty = Math.Round(group.Sum(x => x.ExpenditureQty), 2),
                                       ItemCode = key.ItemCode,
                                       ItemName = key.ItemName,
-                                      LastQty = group.Sum(x => x.LastQty),
-                                      OpnameQty = group.Sum(x => x.OpnameQty),
-                                      ReceiptQty = group.Sum(x => x.ReceiptQty),
+                                      LastQty = Math.Round(group.Sum(x => x.LastQty), 2),
+                                      OpnameQty = Math.Round(group.Sum(x => x.OpnameQty), 2),
+                                      ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
                                       SupplierType = key.SupplierType,
                                       UnitQtyName = key.UnitQtyName
 
@@ -269,14 +269,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
                                       }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBBCentralViewModelTemp
                                       {
-                                          AdjustmentQty = group.Sum(x => x.AdjustmentQty),
-                                          BeginQty = group.Sum(x => x.BeginQty),
-                                          ExpenditureQty = group.Sum(x => x.ExpenditureQty),
+                                          AdjustmentQty = Math.Round(group.Sum(x => x.AdjustmentQty), 2),
+                                          BeginQty = Math.Round(group.Sum(x => x.BeginQty), 2),
+                                          ExpenditureQty = Math.Round(group.Sum(x => x.ExpenditureQty), 2),
                                           ItemCode = key.ItemCode,
                                           ItemName = key.ItemName,
-                                          LastQty = group.Sum(x => x.LastQty),
-                                          OpnameQty = group.Sum(x => x.OpnameQty),
-                                          ReceiptQty = group.Sum(x => x.ReceiptQty),
+                                          LastQty = Math.Round(group.Sum(x => x.LastQty), 2),
+                                          OpnameQty = Math.Round(group.Sum(x => x.OpnameQty), 2),
+                                          ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
                                           SupplierType = key.SupplierType,
                                           UnitQtyName = key.UnitQtyName
 
@@ -371,14 +371,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                UnitQtyName = a.SmallUomUnit
                            }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBBCentralViewModelTemp
                            {
-                               AdjustmentQty = group.Sum(x => x.AdjustmentQty),
-                               BeginQty = group.Sum(x => x.BeginQty),
-                               ExpenditureQty = group.Sum(x => x.ExpenditureQty),
+                               AdjustmentQty = Math.Round(group.Sum(x => x.AdjustmentQty), 2),
+                               BeginQty = Math.Round(group.Sum(x => x.BeginQty), 2),
+                               ExpenditureQty = Math.Round(group.Sum(x => x.ExpenditureQty), 2),
                                ItemCode = key.ItemCode,
                                ItemName = key.ItemName,
-                               LastQty = group.Sum(x => x.LastQty),
-                               OpnameQty = group.Sum(x => x.OpnameQty),
-                               ReceiptQty = group.Sum(x => x.ReceiptQty),
+                               LastQty = Math.Round(group.Sum(x => x.LastQty), 2),
+                               OpnameQty = Math.Round(group.Sum(x => x.OpnameQty), 2),
+                               ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
                                SupplierType = key.SupplierType,
                                UnitQtyName = key.UnitQtyName
 
@@ -411,14 +411,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                    UnitQtyName = a.UomUnit
                                }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBBCentralViewModelTemp
                                {
-                                   AdjustmentQty = group.Sum(x => x.AdjustmentQty),
-                                   BeginQty = group.Sum(x => x.BeginQty),
-                                   ExpenditureQty = group.Sum(x => x.ExpenditureQty),
+                                   AdjustmentQty = Math.Round(group.Sum(x => x.AdjustmentQty), 2),
+                                   BeginQty = Math.Round(group.Sum(x => x.BeginQty), 2),
+                                   ExpenditureQty = Math.Round(group.Sum(x => x.ExpenditureQty), 2),
                                    ItemCode = key.ItemCode,
                                    ItemName = key.ItemName,
-                                   LastQty = group.Sum(x => x.LastQty),
-                                   OpnameQty = group.Sum(x => x.OpnameQty),
-                                   ReceiptQty = group.Sum(x => x.ReceiptQty),
+                                   LastQty = Math.Round(group.Sum(x => x.LastQty), 2),
+                                   OpnameQty = Math.Round(group.Sum(x => x.OpnameQty), 2),
+                                   ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty),2),
                                    SupplierType = key.SupplierType,
                                    UnitQtyName = key.UnitQtyName
 
@@ -633,13 +633,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBPCentralViewModelTemp
                                 {
                                     //AdjustmentQty = group.Sum(x => x.AdjustmentQty),
-                                    BeginQty = group.Sum(x => x.BeginQty),
-                                    ExpenditureQty = group.Sum(x => x.ExpenditureQty),
+                                    BeginQty = Math.Round(group.Sum(x => x.BeginQty),2),
+                                    ExpenditureQty = Math.Round(group.Sum(x => x.ExpenditureQty),2),
                                     ItemCode = key.ItemCode,
                                     ItemName = key.ItemName,
                                     //LastQty = group.Sum(x => x.LastQty),
                                     //OpnameQty = group.Sum(x => x.OpnameQty),
-                                    ReceiptQty = group.Sum(x => x.ReceiptQty),
+                                    ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
                                     SupplierType = key.SupplierType,
                                     UnitQtyName = key.UnitQtyName
 
@@ -710,13 +710,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                   }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBPCentralViewModelTemp
                                   {
                                       //AdjustmentQty = group.Sum(x => x.AdjustmentQty),
-                                      BeginQty = group.Sum(x => x.BeginQty),
-                                      ExpenditureQty = group.Sum(x => x.ExpenditureQty),
+                                      BeginQty = Math.Round(group.Sum(x => x.BeginQty), 2),
+                                      ExpenditureQty = Math.Round(group.Sum(x => x.ExpenditureQty), 2),
                                       ItemCode = key.ItemCode,
                                       ItemName = key.ItemName,
                                       //LastQty = group.Sum(x => x.LastQty),
                                       //OpnameQty = group.Sum(x => x.OpnameQty),
-                                      ReceiptQty = group.Sum(x => x.ReceiptQty),
+                                      ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
                                       SupplierType = key.SupplierType,
                                       UnitQtyName = key.UnitQtyName
 
@@ -754,13 +754,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                       }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBPCentralViewModelTemp
                                       {
                                           //AdjustmentQty = group.Sum(x => x.AdjustmentQty),
-                                          BeginQty = group.Sum(x => x.BeginQty),
-                                          ExpenditureQty = group.Sum(x => x.ExpenditureQty),
+                                          BeginQty = Math.Round(group.Sum(x => x.BeginQty), 2),
+                                          ExpenditureQty = Math.Round(group.Sum(x => x.ExpenditureQty), 2),
                                           ItemCode = key.ItemCode,
                                           ItemName = key.ItemName,
                                           //LastQty = group.Sum(x => x.LastQty),
                                           //OpnameQty = group.Sum(x => x.OpnameQty),
-                                          ReceiptQty = group.Sum(x => x.ReceiptQty),
+                                          ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
                                           SupplierType = key.SupplierType,
                                           UnitQtyName = key.UnitQtyName
 
@@ -814,13 +814,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                            }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBPCentralViewModelTemp
                            {
                                //AdjustmentQty = group.Sum(x => x.AdjustmentQty),
-                               BeginQty = group.Sum(x => x.BeginQty),
-                               ExpenditureQty = group.Sum(x => x.ExpenditureQty),
+                               BeginQty = Math.Round(group.Sum(x => x.BeginQty), 2),
+                               ExpenditureQty = Math.Round(group.Sum(x => x.ExpenditureQty), 2),
                                ItemCode = key.ItemCode,
                                ItemName = key.ItemName,
                                //LastQty = group.Sum(x => x.LastQty),
                                //OpnameQty = group.Sum(x => x.OpnameQty),
-                               ReceiptQty = group.Sum(x => x.ReceiptQty),
+                               ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
                                //SupplierType = key.SupplierType,
                                UnitQtyName = key.UnitQtyName
 
@@ -854,13 +854,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBPCentralViewModelTemp
                                {
                                    //AdjustmentQty = group.Sum(x => x.AdjustmentQty),
-                                   BeginQty = group.Sum(x => x.BeginQty),
-                                   ExpenditureQty = group.Sum(x => x.ExpenditureQty),
+                                   BeginQty = Math.Round(group.Sum(x => x.BeginQty), 2),
+                                   ExpenditureQty = Math.Round(group.Sum(x => x.ExpenditureQty), 2),
                                    ItemCode = key.ItemCode,
                                    ItemName = key.ItemName,
                                    //LastQty = group.Sum(x => x.LastQty),
                                    //OpnameQty = group.Sum(x => x.OpnameQty),
-                                   ReceiptQty = group.Sum(x => x.ReceiptQty),
+                                   ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
                                    SupplierType = key.SupplierType,
                                    UnitQtyName = key.UnitQtyName
 
