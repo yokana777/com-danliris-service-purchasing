@@ -259,6 +259,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             return new GarmentUnitExpenditureNoteDataUtil(facade, garmentUnitDeliveryOrderDatautil);
         }
 
+
+        [Fact]
+        public async Task Should_Success_Get_Data_By_PO()
+        {
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.GetBasicPriceByPOSerialNumber(data.Items.First().POSerialNumber);
+            Assert.NotEqual(0, Response.Id);
+        }
+
         //      [Fact]
         //      public async Task Should_Success_Get_All_Data()
         //      {
@@ -1137,6 +1147,5 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         //      }
 
 
-        
     }
 }

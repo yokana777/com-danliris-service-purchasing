@@ -119,6 +119,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
 
             foreach (var item in garmentUnitReceiptNote1.Items)
             {
+                var garmentDOItems = UNDataUtil.ReadDOItemsByURNItemId((int)item.Id);
                 garmentUnitDeliveryOrder.Items.Add(
                     new GarmentUnitDeliveryOrderItem
                     {
@@ -141,7 +142,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
                         UomUnit = item.UomUnit,
                         ReturUomId = item.UomId,
                         ReturUomUnit = item.UomUnit,
-                        DOCurrencyRate = garmentUnitReceiptNote1.DOCurrencyRate
+                        DOCurrencyRate = garmentUnitReceiptNote1.DOCurrencyRate,
+                        DOItemsId = (int)garmentDOItems.Id
                     });
             }
 
@@ -150,6 +152,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
 
             foreach (var item in garmentUnitReceiptNote2.Items)
             {
+                var garmentDOItems = UNDataUtil.ReadDOItemsByURNItemId((int)item.Id);
                 garmentUnitDeliveryOrder.Items.Add(
                     new GarmentUnitDeliveryOrderItem
                     {
@@ -173,6 +176,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
                         DOCurrencyRate = garmentUnitReceiptNote1.DOCurrencyRate,
                         ReturUomId = item.UomId,
                         ReturUomUnit = item.UomUnit,
+                        DOItemsId = (int)garmentDOItems.Id
                     });
             }
 
@@ -208,6 +212,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
 
             foreach (var item in garmentUnitReceiptNote1.Items)
             {
+                var garmentDOItems = UNDataUtil.ReadDOItemsByURNItemId((int)item.Id);
                 garmentUnitDeliveryOrder.Items.Add(
                     new GarmentUnitDeliveryOrderItem
                     {
@@ -230,7 +235,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
                         UomUnit = item.UomUnit,
                         ReturUomId = item.UomId,
                         ReturUomUnit = item.UomUnit,
-                        DOCurrencyRate = garmentUnitReceiptNote1.DOCurrencyRate
+                        DOCurrencyRate = garmentUnitReceiptNote1.DOCurrencyRate,
+                        DOItemsId = (int)garmentDOItems.Id
                     });
             }
 
@@ -239,6 +245,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
 
             foreach (var item in garmentUnitReceiptNote2.Items)
             {
+                var garmentDOItems = UNDataUtil.ReadDOItemsByURNItemId((int)item.Id);
                 garmentUnitDeliveryOrder.Items.Add(
                     new GarmentUnitDeliveryOrderItem
                     {
@@ -262,6 +269,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
                         DOCurrencyRate = garmentUnitReceiptNote1.DOCurrencyRate,
                         ReturUomId = item.UomId,
                         ReturUomUnit = item.UomUnit,
+                        DOItemsId = (int)garmentDOItems.Id
                     });
             }
 
