@@ -865,7 +865,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             InvoiceNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.InvoiceNo : "",
                             UPONo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.UPONo : "",
                             VatNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.VatNo : "",
-                            PibDate = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.PibDate : new DateTimeOffset(),
+                            PibDate = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.PibDate : DateTimeOffset.MinValue,
                             //urnUPOItem.UnitPaymentOrder.PibDate,
                             PibNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.PibNo : "",
                             ImportDuty = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.ImportDuty : 0,
@@ -1013,7 +1013,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     URNNo = item.URNNo,
                     IsUseVat = item.UseVat,
                     CurrencyCode = currencyCode,
-                    PIBDate = item.PibDate,
+                    PIBDate = item.PibDate == DateTimeOffset.MinValue? (DateTimeOffset?)null: item.PibDate,
                     PIBNo = item.PibNo,
                     PIBBM = (decimal)item.ImportDuty,
                     PIBIncomeTax = (decimal)item.TotalIncomeTaxAmount,
@@ -1021,7 +1021,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     PIBImportInfo = item.ImportInfo,
                     Remark = item.Remark,
                     Quantity = item.ReceiptQuantity,
-                    DataSourceSort = 1
+                    DataSourceSort = 1,
+                    CorrectionDate = null
                 };
 
                 reportResult.Add(reportItem);
@@ -1052,10 +1053,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         join epoDetail in dbContext.ExternalPurchaseOrderDetails on urnWithItem.EPODetailId equals epoDetail.Id into joinExternalPurchaseOrder
                         from urnEPODetail in joinExternalPurchaseOrder.DefaultIfEmpty()
 
-                        join upoItem in dbContext.UnitPaymentOrderItems on urnWithItem.URNId equals upoItem.URNId into joinUnitPaymentOrder
-                        from urnUPOItem in joinUnitPaymentOrder.DefaultIfEmpty()
+                        //join upoItem in dbContext.UnitPaymentOrderItems on urnWithItem.URNId equals upoItem.URNId into joinUnitPaymentOrder
+                        //from urnUPOItem in joinUnitPaymentOrder.DefaultIfEmpty()
 
-                        join upoDetail in dbContext.UnitPaymentOrderDetails on urnUPOItem.Id equals upoDetail.URNItemId into joinUnitPaymentOrderDetails
+                        join upoDetail in dbContext.UnitPaymentOrderDetails on urnEPODetail.Id equals upoDetail.EPODetailId into joinUnitPaymentOrderDetails
                         from urnUPODetail in joinUnitPaymentOrderDetails.DefaultIfEmpty()
 
                             //where urnWithItem.UnitReceiptNote.ReceiptDate >= d1 && urnWithItem.UnitReceiptNote.ReceiptDate <= d2 && urnWithItem.UnitReceiptNote.SupplierIsImport
@@ -1093,16 +1094,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.CurrencyCode,
 
                             // UPO Info
-                            InvoiceNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.InvoiceNo : "",
-                            UPONo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.UPONo : "",
-                            VatNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.VatNo : "",
-                            PibDate = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.PibDate : new DateTimeOffset(),
+                            InvoiceNo = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.InvoiceNo : "",
+                            UPONo = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.UPONo : "",
+                            VatNo = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.VatNo : "",
+                            PibDate = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.PibDate : new DateTimeOffset(),
                             //urnUPOItem.UnitPaymentOrder.PibDate,
-                            PibNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.PibNo : "",
-                            ImportDuty = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.ImportDuty : 0,
-                            TotalIncomeTaxAmount = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.TotalIncomeTaxAmount : 0,
-                            TotalVatAmount = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.TotalVatAmount : 0,
-                            ImportInfo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.ImportInfo : "",
+                            PibNo = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.PibNo : "",
+                            ImportDuty = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.ImportDuty : 0,
+                            TotalIncomeTaxAmount = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.TotalIncomeTaxAmount : 0,
+                            TotalVatAmount = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.TotalVatAmount : 0,
+                            ImportInfo = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.ImportInfo : "",
                             //urnUPOItem.UnitPaymentOrder.InvoiceNo,
                             //urnUPOItem.UnitPaymentOrder.UPONo,
                             //urnUPOItem.UnitPaymentOrder.VatNo,
@@ -1437,7 +1438,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 {
                     var dateReceipt = report.ReceiptDate.HasValue ? report.ReceiptDate.GetValueOrDefault().ToString("dd/MM/yyyy") : string.Empty;
                     var dateCorrection = report.CorrectionDate.HasValue ? report.CorrectionDate.GetValueOrDefault().ToString("dd/MM/yyyy") : string.Empty;
-                    reportDataTable.Rows.Add(dateReceipt, report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo,report.CorrectionNo, dateCorrection, report.AccountingCategoryName, report.CategoryName, report.AccountingUnitName, report.UnitName, report.PIBDate.ToString("dd/MM/yyyy"), report.PIBNo, report.PIBBM, report.PIBIncomeTax, report.PIBVat, report.PIBImportInfo, report.CurrencyCode, report.DPP, report.CurrencyRate, report.Total);
+                    var datePib = report.PIBDate.HasValue ? report.PIBDate.GetValueOrDefault().ToString("dd/MM/yyyy") : string.Empty;
+                    reportDataTable.Rows.Add(dateReceipt, report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo,report.CorrectionNo, dateCorrection, report.AccountingCategoryName, report.CategoryName, report.AccountingUnitName, report.UnitName, datePib, report.PIBNo, report.PIBBM, report.PIBIncomeTax, report.PIBVat, report.PIBImportInfo, report.CurrencyCode, report.DPP, report.CurrencyRate, report.Total);
                 }
                 foreach (var categorySummary in result.CategorySummaries)
                     categoryDataTable.Rows.Add(categorySummary.Category, categorySummary.SubTotal);
