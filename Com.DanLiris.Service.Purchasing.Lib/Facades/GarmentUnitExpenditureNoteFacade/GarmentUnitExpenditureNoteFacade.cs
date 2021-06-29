@@ -1848,5 +1848,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
             return Updated;
         }
+
+        public GarmentUnitExpenditureNoteItem GetBasicPriceByPOSerialNumber(string po)
+        {
+            var uenItem = dbContext.GarmentUnitExpenditureNoteItems.Where(a => a.POSerialNumber == po).OrderByDescending(a => a.CreatedUtc).FirstOrDefault();
+
+            return uenItem;
+        }
     }
 }
