@@ -20,12 +20,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
             this.UNDataUtil = UNDataUtil;
         }
 
-        public async Task<GarmentUnitDeliveryOrder> GetNewData()
+        public async Task<GarmentUnitDeliveryOrder> GetNewData(GarmentUnitReceiptNote unitReceiptNote1 = null)
         {
             DateTimeOffset now = DateTimeOffset.Now;
             long nowTicks = now.Ticks;
 
-            var garmentUnitReceiptNote = await Task.Run(() => UNDataUtil.GetTestDataWithStorage(nowTicks));
+            var garmentUnitReceiptNote = unitReceiptNote1 ?? await Task.Run(() => UNDataUtil.GetTestDataWithStorage(nowTicks));
 
             GarmentUnitDeliveryOrder garmentUnitDeliveryOrder = new GarmentUnitDeliveryOrder
             {

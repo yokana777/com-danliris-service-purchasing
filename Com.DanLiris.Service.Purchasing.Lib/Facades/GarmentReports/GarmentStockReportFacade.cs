@@ -51,9 +51,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             //var Codes = product.Where(x => categories1.Contains(x.Name)).ToList();
 
-            var lastdate = dbContext.GarmentStockOpnames.OrderByDescending(x => x.Date).Select(x => x.Date).FirstOrDefault();
+            //var lastdate = ctg == "BB" ? dbContext.BalanceStocks.Where(x => x.PeriodeYear == "2018").OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault() : dbContext.BalanceStocks.OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault();
 
-            //var lastdate = dbContext.BalanceStocks.Where(x => x.PeriodeYear == "2018").FirstOrDefault().CreateDate;
+            var lastdate = dbContext.GarmentStockOpnames.OrderByDescending(x => x.Date).Select(x => x.Date).FirstOrDefault();
 
             //var BalaceStock = (from a in dbContext.BalanceStocks
             //                   join b in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on (long)a.EPOItemId equals b.Id
@@ -134,8 +134,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
                                });
 
-            var BC2 = BalanceStock.Where(x => x.PlanPo == "PM191003145").ToList();
-
             var SATerima = (from a in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa)
                             join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
                             join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
@@ -186,7 +184,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 RO = key.RO
                             });
 
-            var BC3 = SATerima.Where(x => x.PlanPo == "PM191003145").ToList();
 
             var SAKeluar = (from a in (from aa in dbContext.GarmentUnitExpenditureNoteItems select aa)
                             join b in dbContext.GarmentUnitExpenditureNotes on a.UENId equals b.Id
@@ -237,8 +234,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 RO = key.RO
                             });
 
-            var BC4 = SAKeluar.Where(x => x.PlanPo == "PM191003145").ToList();
-
             var SAKoreksi = (from a in dbContext.GarmentUnitReceiptNotes
                              join b in (from aa in dbContext.GarmentUnitReceiptNoteItems  select aa) on a.Id equals b.URNId
                              join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
@@ -255,7 +250,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              && categories1.Contains(b.ProductName)
                              select new GarmentStockReportViewModelTemp
                              {
-                                 BeginningBalanceQty = Math.Round((decimal)e.SmallQuantity,2),
+                                 BeginningBalanceQty = Math.Round((decimal)e.SmallQuantity, 2),
                                  BeginningBalanceUom = b.SmallUomUnit,
                                  Buyer = f.BuyerCode,
                                  EndingBalanceQty = 0,

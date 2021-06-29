@@ -72,6 +72,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             //var lastdate = dbContext.BalanceStocks.OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault() == null ? new DateTime(1970, 1, 1) : dbContext.BalanceStocks.OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault();
 
+
+            //var lastdate = ctg == "BB" ? dbContext.BalanceStocks.Where(x => x.PeriodeYear == "2018").OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault() : dbContext.BalanceStocks.OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault();
             var lastdate = dbContext.GarmentStockOpnames.OrderByDescending(x => x.Date).Select(x => x.Date).FirstOrDefault();
 
             var BalanceStock = (from a in dbContext.GarmentStockOpnames
@@ -137,7 +139,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                     Buyer = key.Buyer,
                                     PlanPo = key.PlanPo,
                                     NoArticle = key.NoArticle,
-                                    BeginningBalanceQty = Math.Round(group.Sum(x => x.BeginningBalanceQty),2),
+                                    BeginningBalanceQty = Math.Round(group.Sum(x => x.BeginningBalanceQty), 2),
                                     BeginningBalanceUom = key.BeginningBalanceUom,
                                     BeginningBalancePrice = group.Sum(x => x.BeginningBalancePrice),
                                     ReceiptCorrectionQty = group.Sum(x => x.ReceiptCorrectionQty),
@@ -477,7 +479,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  Buyer = f.BuyerCode,
                                  PlanPo = b.POSerialNumber,
                                  NoArticle = f.Article,
-                                 BeginningBalanceQty = Math.Round((decimal)e.SmallQuantity,2),
+                                 BeginningBalanceQty = Math.Round((decimal)e.SmallQuantity, 2),
                                  BeginningBalanceUom = b.SmallUomUnit,
                                  BeginningBalancePrice = Math.Round(((e.PricePerDealUnit / (e.Conversion == 0 ? 1 : e.Conversion)) * b.DOCurrencyRate) * (e.SmallQuantity), 2),
                                  ReceiptCorrectionQty = 0,
@@ -686,7 +688,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             BeginningBalanceQty = group.Sum(x => x.BeginningBalanceQty),
                             BeginningBalanceUom = key.BeginningBalanceUom,
                             BeginningBalancePrice = group.Sum(x => x.BeginningBalancePrice),
-                            ReceiptCorrectionQty = Math.Round(group.Sum(x => x.ReceiptCorrectionQty),2),
+                            ReceiptCorrectionQty = Math.Round(group.Sum(x => x.ReceiptCorrectionQty), 2),
                             ReceiptPurchaseQty = Math.Round(group.Sum(x => x.ReceiptPurchaseQty), 2),
                             ReceiptProcessQty = Math.Round(group.Sum(x => x.ReceiptProcessQty), 2),
                             ReceiptKon2AQty = Math.Round(group.Sum(x => x.ReceiptKon2AQty), 2),
@@ -763,7 +765,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              ReceiptKon2CPrice = 0,
                              ReceiptKon1APrice = 0,
                              ReceiptKon1BPrice = 0,
-                             ExpendReturQty = b.ExpenditureType == "EXTERNAL" ? Math.Round(a.Quantity,2) : 0,
+                             ExpendReturQty = b.ExpenditureType == "EXTERNAL" ? Math.Round(a.Quantity, 2) : 0,
                              ExpendRestQty = b.ExpenditureType == "SISA" ? Math.Round(a.Quantity, 2) : 0,
                              ExpendProcessQty = b.ExpenditureType == "PROSES" ? Math.Round(a.Quantity, 2) : 0,
                              ExpendSampleQty = b.ExpenditureType == "SAMPLE" ? Math.Round(a.Quantity, 2) : 0,
@@ -810,7 +812,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              ReceiptKon2CPrice = group.Sum(x => x.ReceiptKon2CPrice),
                              ReceiptKon1APrice = group.Sum(x => x.ReceiptKon1APrice),
                              ReceiptKon1BPrice = group.Sum(x => x.ReceiptKon1BPrice),
-                             ExpendReturQty = Math.Round(group.Sum(x => x.ExpendReturQty),2),
+                             ExpendReturQty = Math.Round(group.Sum(x => x.ExpendReturQty), 2),
                              ExpendRestQty = Math.Round(group.Sum(x => x.ExpendRestQty), 2),
                              ExpendProcessQty = Math.Round(group.Sum(x => x.ExpendProcessQty), 2),
                              ExpendSampleQty = Math.Round(group.Sum(x => x.ExpendSampleQty), 2),
@@ -857,7 +859,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                BeginningBalanceQty = 0,
                                BeginningBalanceUom = b.SmallUomUnit,
                                BeginningBalancePrice = 0,
-                               ReceiptCorrectionQty = Math.Round((decimal)e.SmallQuantity,2),
+                               ReceiptCorrectionQty = Math.Round((decimal)e.SmallQuantity, 2),,
                                ReceiptPurchaseQty = 0,
                                ReceiptProcessQty = 0,
                                ReceiptKon2AQty = 0,
