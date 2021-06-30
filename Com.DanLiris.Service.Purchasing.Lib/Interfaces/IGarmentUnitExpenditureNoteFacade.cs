@@ -27,5 +27,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         GarmentUnitExpenditureNote ReadByUENId(int id);
         Tuple<List<MonitoringOutViewModel>, int> GetReportOut(DateTime? dateFrom, DateTime? dateTo, string type, int page, int size, string Order, int offset);
         MemoryStream GenerateExcelMonOut(DateTime? dateFrom, DateTime? dateTo, string category, int offset);
+
+        GarmentUnitExpenditureNoteItem GetBasicPriceByPOSerialNumber(string po);
     }
 }

@@ -850,5 +850,38 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
             var response = await controller.PatchOne(It.IsAny<long>(), It.IsAny<JsonPatchDocument<GarmentUnitExpenditureNote>>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
+
+        [Fact]
+        public void Should_Success_Get_BasicPriceBy_POSerialNumber()
+        {
+            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
+            mockFacadeUnitDO.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(ModelUnitDO);
+            var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+            mockFacade.Setup(x => x.GetBasicPriceByPOSerialNumber(It.IsAny<string>()))
+                .Returns(new GarmentUnitExpenditureNoteItem());
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<GarmentUnitExpenditureNoteItemViewModel>(It.IsAny<GarmentUnitExpenditureNoteItemViewModel>()))
+                .Returns(new GarmentUnitExpenditureNoteItemViewModel());
+
+            GarmentUnitExpenditureNoteController controller = GetController(mockFacade, mockFacadeUnitDO, null, mockMapper);
+
+            var response = controller.GetBasicPrice(It.IsAny<string>());
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+
+        [Fact]
+        public void Should_Error_Get_BasicPriceBy_POSerialNumber()
+        {
+
+            var mockFacadeUnitDO = new Mock<IGarmentUnitDeliveryOrderFacade>();
+            var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+            var mockMapper = new Mock<IMapper>();
+            GarmentUnitExpenditureNoteController controller = new GarmentUnitExpenditureNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, mockFacadeUnitDO.Object);
+            var response = controller.GetBasicPrice(It.IsAny<string>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
     }
 }

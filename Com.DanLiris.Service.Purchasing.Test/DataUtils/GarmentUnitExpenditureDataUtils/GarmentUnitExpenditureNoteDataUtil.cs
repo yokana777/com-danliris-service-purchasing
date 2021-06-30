@@ -20,11 +20,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
             this.garmentUnitDeliveryOrderDataUtil = garmentUnitDeliveryOrderDataUtil;
         }
 
-        public async Task<GarmentUnitExpenditureNote> GetNewData()
+        public async Task<GarmentUnitExpenditureNote> GetNewData(GarmentUnitDeliveryOrder garmentunitdeliveryorder = null)
         {
             long nowTicks = DateTimeOffset.Now.Ticks;
 
-            var garmentUnitDeliveryOrder = await Task.Run(() => garmentUnitDeliveryOrderDataUtil.GetTestDataMultipleItem());
+            var garmentUnitDeliveryOrder = garmentunitdeliveryorder ?? await Task.Run(() => garmentUnitDeliveryOrderDataUtil.GetTestDataMultipleItem());
 
             var garmentUnitExpenditureNote = new GarmentUnitExpenditureNote
             {

@@ -22,10 +22,23 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
                 LastModifiedBy = $"LastModifiedBy{nowTicks}",
                 LastModifiedUtc = new DateTime(1970, 1, 1),
                 IsDeleted = false,
-                RONo = $"RONo{nowTicks}",
-                Invoice = $"Invoice{nowTicks}",
+                RONo = "RONo123",
+                Invoice = "Invoice123",
                 ExpenditureGoodNo = $"ExpenditureGoodNo{nowTicks}",
                 Article = $"Article{nowTicks}",
+                Comodity = new GarmentComodity {
+                    Code = "ComodityCode",
+                    Id = 1,
+                    Name = "ComodityName"
+                },
+                ExpenditureDate = DateTime.Now,
+                ExpenditureType = "EXPORT",
+                Buyer = new Buyer
+                {
+                    Code = "BuyerCode",
+                    Id = 1,
+                    Name = "BuyerName"
+                },
                 TotalQuantity = 120,
             };
             return data;
@@ -60,11 +73,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
         }
         public Dictionary<string, object> GetMultipleResultFormatterOk()
         {
+            List<GarmentExpenditureGoodViewModel> garmentExpenditureGoods = new List<GarmentExpenditureGoodViewModel>();
+            garmentExpenditureGoods.Add(GetNewData());
+            garmentExpenditureGoods.Add(GetNewData());
             var data = new List<GarmentExpenditureGoodViewModel> { GetNewData() };
 
             Dictionary<string, object> result =
                 new ResultFormatter("1.0", General.OK_STATUS_CODE, General.OK_MESSAGE)
-                .Ok(data);
+                .Ok(garmentExpenditureGoods);
 
             return result;
         }
