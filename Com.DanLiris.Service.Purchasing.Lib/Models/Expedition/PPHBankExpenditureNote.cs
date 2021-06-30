@@ -25,6 +25,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.Expedition
         public double? CurrencyRate { get; set; }
         public bool IsPosted { get; set; }
         public virtual ICollection<PPHBankExpenditureNoteItem> Items { get; set; }
+        public string DivisionName { get; set; }
+        public string DivisionCode { get; set; }
+        public string DivisionId { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

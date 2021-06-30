@@ -15,6 +15,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
         public bool IsPosted { get; set; }
         public NewIntegrationViewModel.AccountBankViewModel Bank { get; set; }
         public IncomeTaxExpeditionViewModel IncomeTax { get; set; }
+        public NewIntegrationViewModel.DivisionViewModel Division { get; set; }
         public string Currency { get; set; }
         public string BGNo { get; set; }
         public double TotalDPP { get; set; }
@@ -37,9 +38,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
                 yield return new ValidationResult("Bank is required", new List<string> { "Bank" });
             }
 
-            if (IncomeTax == null)
+            if (Division == null)
             {
-                yield return new ValidationResult("Income Tax is required", new List<string> { "IncomeTax" });
+                yield return new ValidationResult("Division is required", new List<string> { "Division" });
             }
 
             if (PPHBankExpenditureNoteItems.Count == 0)
@@ -147,6 +148,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
                 IncomeTaxRate = IncomeTax.rate,
                 BGNo = BGNo,
                 Currency = Currency,
+                DivisionId = Division.Id,
+                DivisionCode = Division.Code,
+                DivisionName = Division.Name,
                 Items = new List<PPHBankExpenditureNoteItem>()
             };
 

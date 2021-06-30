@@ -284,25 +284,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  RO = key.RO
                              });
 
-            var SaldoAwal1 = BalaceStock.Concat(SATerima).Concat(SAKeluar).Concat(SAKoreksi).AsEnumerable();
-            var SaldoAwal12 = SaldoAwal1.GroupBy(x => new { x.BeginningBalanceUom, x.Buyer, x.EndingUom, x.ExpandUom, x.NoArticle, x.PaymentMethod, x.PlanPo, x.ProductCode, /*x.ProductName,*/ x.ReceiptUom, x.RO }, (key, group) => new GarmentStockReportViewModelTemp
-            {
-                BeginningBalanceQty = Math.Round(group.Sum(x => x.BeginningBalanceQty), 2),
-                BeginningBalanceUom = key.BeginningBalanceUom,
-                Buyer = key.Buyer,
-                EndingBalanceQty = Math.Round(group.Sum(x => x.BeginningBalanceQty), 2),
-                EndingUom = key.EndingUom,
-                ExpandUom = key.ExpandUom,
-                ExpendQty = Math.Round(group.Sum(x => x.ExpendQty), 2),
-                NoArticle = key.NoArticle,
-                PaymentMethod = key.PaymentMethod,
-                PlanPo = key.PlanPo,
-                ProductCode = key.ProductCode,
-                ReceiptCorrectionQty = Math.Round(group.Sum(x => x.ReceiptCorrectionQty), 2),
-                ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
-                ReceiptUom = key.ReceiptUom,
-                RO = key.RO
-            }).ToList();
+            //var SaldoAwal1 = BalaceStock.Concat(SATerima).Concat(SAKeluar).Concat(SAKoreksi).AsEnumerable();
+            //var SaldoAwal12 = SaldoAwal1.GroupBy(x => new { x.BeginningBalanceUom, x.Buyer, x.EndingUom, x.ExpandUom, x.NoArticle, x.PaymentMethod, x.PlanPo, x.ProductCode, /*x.ProductName,*/ x.ReceiptUom, x.RO }, (key, group) => new GarmentStockReportViewModelTemp
+            //{
+            //    BeginningBalanceQty = Math.Round(group.Sum(x => x.BeginningBalanceQty), 2),
+            //    BeginningBalanceUom = key.BeginningBalanceUom,
+            //    Buyer = key.Buyer,
+            //    EndingBalanceQty = Math.Round(group.Sum(x => x.BeginningBalanceQty), 2),
+            //    EndingUom = key.EndingUom,
+            //    ExpandUom = key.ExpandUom,
+            //    ExpendQty = Math.Round(group.Sum(x => x.ExpendQty), 2),
+            //    NoArticle = key.NoArticle,
+            //    PaymentMethod = key.PaymentMethod,
+            //    PlanPo = key.PlanPo,
+            //    ProductCode = key.ProductCode,
+            //    ReceiptCorrectionQty = Math.Round(group.Sum(x => x.ReceiptCorrectionQty), 2),
+            //    ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
+            //    ReceiptUom = key.ReceiptUom,
+            //    RO = key.RO
+            //}).ToList();
 
             var Terima = (from a in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa)
                             join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
@@ -473,68 +473,68 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 RO = key.RO
             }).ToList();
 
-            var SaldoAkhir1 = SaldoAwal12.Concat(SaldoFiltered1).AsEnumerable();
-            var stock = SaldoAkhir1.GroupBy(x => new { x.BeginningBalanceUom, x.Buyer, x.EndingUom, x.ExpandUom, x.NoArticle, x.PaymentMethod, x.PlanPo, x.ProductCode, /*x.ProductName,*/ x.ReceiptUom, x.RO }, (key, group) => new GarmentStockReportViewModelTemp
-            {
-                BeginningBalanceQty = Math.Round(group.Sum(x => x.BeginningBalanceQty), 2),
-                BeginningBalanceUom = key.BeginningBalanceUom,
-                Buyer = key.Buyer,
-                EndingBalanceQty = Math.Round(group.Sum(x => x.BeginningBalanceQty + x.ReceiptQty + x.ReceiptCorrectionQty - (decimal)x.ExpendQty), 2),
-                EndingUom = key.EndingUom,
-                ExpandUom = key.ExpandUom,
-                ExpendQty = Math.Round(group.Sum(x => x.ExpendQty), 2),
-                NoArticle = key.NoArticle,
-                PaymentMethod = key.PaymentMethod,
-                PlanPo = key.PlanPo,
-                ProductCode = key.ProductCode,
-                //ProductName = key.ProductName,
-                ReceiptCorrectionQty = Math.Round(group.Sum(x => x.ReceiptCorrectionQty), 2),
-                ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
-                ReceiptUom = key.ReceiptUom,
-                RO = key.RO
-            }).ToList();
+            //var SaldoAkhir1 = SaldoAwal12.Concat(SaldoFiltered1).AsEnumerable();
+            //var stock = SaldoAkhir1.GroupBy(x => new { x.BeginningBalanceUom, x.Buyer, x.EndingUom, x.ExpandUom, x.NoArticle, x.PaymentMethod, x.PlanPo, x.ProductCode, /*x.ProductName,*/ x.ReceiptUom, x.RO }, (key, group) => new GarmentStockReportViewModelTemp
+            //{
+            //    BeginningBalanceQty = Math.Round(group.Sum(x => x.BeginningBalanceQty), 2),
+            //    BeginningBalanceUom = key.BeginningBalanceUom,
+            //    Buyer = key.Buyer,
+            //    EndingBalanceQty = Math.Round(group.Sum(x => x.BeginningBalanceQty + x.ReceiptQty + x.ReceiptCorrectionQty - (decimal)x.ExpendQty), 2),
+            //    EndingUom = key.EndingUom,
+            //    ExpandUom = key.ExpandUom,
+            //    ExpendQty = Math.Round(group.Sum(x => x.ExpendQty), 2),
+            //    NoArticle = key.NoArticle,
+            //    PaymentMethod = key.PaymentMethod,
+            //    PlanPo = key.PlanPo,
+            //    ProductCode = key.ProductCode,
+            //    //ProductName = key.ProductName,
+            //    ReceiptCorrectionQty = Math.Round(group.Sum(x => x.ReceiptCorrectionQty), 2),
+            //    ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
+            //    ReceiptUom = key.ReceiptUom,
+            //    RO = key.RO
+            //}).ToList();
 
 
             List<GarmentStockReportViewModel> stock1 = new List<GarmentStockReportViewModel>();
 
-            var PrdoctCodes = string.Join(",", stock.Select(x => x.ProductCode).Distinct().ToList());
+            //var PrdoctCodes = string.Join(",", stock.Select(x => x.ProductCode).Distinct().ToList());
 
-            var Codes = GetProductCode(PrdoctCodes);
+            //var Codes = GetProductCode(PrdoctCodes);
 
-            foreach (var i in stock)
-            {
-                var BeginningBalanceQty = i.BeginningBalanceQty > 0 ? i.BeginningBalanceQty : 0;
-                var EndingBalanceQty = i.EndingBalanceQty > 0 ? i.EndingBalanceQty : 0;
-                var remark = Codes.FirstOrDefault(x => x.Code == i.ProductCode);
+            //foreach (var i in stock)
+            //{
+            //    var BeginningBalanceQty = i.BeginningBalanceQty > 0 ? i.BeginningBalanceQty : 0;
+            //    var EndingBalanceQty = i.EndingBalanceQty > 0 ? i.EndingBalanceQty : 0;
+            //    var remark = Codes.FirstOrDefault(x => x.Code == i.ProductCode);
 
-                var Composition = remark == null ? "-" : remark.Composition;
-                var Width = remark == null ? "-" : remark.Width;
-                var Const = remark == null ? "-" : remark.Const;
-                var Yarn = remark == null ? "-" : remark.Yarn;
+            //    var Composition = remark == null ? "-" : remark.Composition;
+            //    var Width = remark == null ? "-" : remark.Width;
+            //    var Const = remark == null ? "-" : remark.Const;
+            //    var Yarn = remark == null ? "-" : remark.Yarn;
 
-                stock1.Add(new GarmentStockReportViewModel
-                {
-                    BeginningBalanceQty = BeginningBalanceQty,
-                    BeginningBalanceUom = i.BeginningBalanceUom,
-                    Buyer = i.Buyer,
-                    EndingBalanceQty = EndingBalanceQty,
-                    EndingUom = i.EndingUom,
-                    ExpandUom = i.ExpandUom,
-                    ExpendQty = i.ExpendQty,
-                    NoArticle = i.NoArticle,
-                    PaymentMethod = i.PaymentMethod,
-                    PlanPo = i.PlanPo,
-                    ProductCode = i.ProductCode,
-                    ProductRemark = ctg == "BB" ? string.Concat(Composition, "", Width, "", Const, "", Yarn) : remark.Name,
-                    ReceiptCorrectionQty = i.ReceiptCorrectionQty,
-                    ReceiptQty = i.ReceiptQty,
-                    ReceiptUom = i.ReceiptUom,
-                    RO = i.RO
+            //    stock1.Add(new GarmentStockReportViewModel
+            //    {
+            //        BeginningBalanceQty = BeginningBalanceQty,
+            //        BeginningBalanceUom = i.BeginningBalanceUom,
+            //        Buyer = i.Buyer,
+            //        EndingBalanceQty = EndingBalanceQty,
+            //        EndingUom = i.EndingUom,
+            //        ExpandUom = i.ExpandUom,
+            //        ExpendQty = i.ExpendQty,
+            //        NoArticle = i.NoArticle,
+            //        PaymentMethod = i.PaymentMethod,
+            //        PlanPo = i.PlanPo,
+            //        ProductCode = i.ProductCode,
+            //        ProductRemark = ctg == "BB" ? string.Concat(Composition, "", Width, "", Const, "", Yarn) : remark.Name,
+            //        ReceiptCorrectionQty = i.ReceiptCorrectionQty,
+            //        ReceiptQty = i.ReceiptQty,
+            //        ReceiptUom = i.ReceiptUom,
+            //        RO = i.RO
 
-                });
+            //    });
 
 
-            }
+            //}
 
             stock1 = stock1.Where(x => (x.ProductCode != "EMB001") && (x.ProductCode != "WSH001") && (x.ProductCode != "PRC001") && (x.ProductCode != "APL001") && (x.ProductCode != "QLT001") && (x.ProductCode != "SMT001") && (x.ProductCode != "GMT001") && (x.ProductCode != "PRN001") && (x.ProductCode != "SMP001")).ToList(); ;
             stock1 = stock1.Where(x => (x.BeginningBalanceQty > 0) || (x.EndingBalanceQty > 0) || (x.ReceiptCorrectionQty > 0) || (x.ReceiptQty > 0) || (x.ExpendQty > 0)).ToList();
