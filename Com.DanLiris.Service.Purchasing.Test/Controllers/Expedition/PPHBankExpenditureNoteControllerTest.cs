@@ -71,6 +71,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
                     Date = DateTimeOffset.UtcNow,
                     IncomeTax = new IncomeTaxExpeditionViewModel(),
                     Bank = new Lib.ViewModels.NewIntegrationViewModel.AccountBankViewModel() { Currency = new Lib.ViewModels.NewIntegrationViewModel.CurrencyViewModel() },
+                    Division = new Lib.ViewModels.NewIntegrationViewModel.DivisionViewModel(),
                     PPHBankExpenditureNoteItems = new List<UnitPaymentOrderViewModel>() { new UnitPaymentOrderViewModel() { Items = new List<UnitPaymentOrderItemViewModel>() { new UnitPaymentOrderItemViewModel() } } }
                 };
             }
