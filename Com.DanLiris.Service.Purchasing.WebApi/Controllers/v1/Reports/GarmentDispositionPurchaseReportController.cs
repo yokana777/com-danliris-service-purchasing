@@ -38,6 +38,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Reports
             _identityService.TimezoneOffset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
         }
 
+        [HttpGet]
         public IActionResult Get([FromQuery] string username, [FromQuery] int supplierId, [FromQuery] DateTimeOffset? dateFrom, [FromQuery] DateTimeOffset? dateTo, [FromQuery] int page, [FromQuery] int size)
         {
             try
