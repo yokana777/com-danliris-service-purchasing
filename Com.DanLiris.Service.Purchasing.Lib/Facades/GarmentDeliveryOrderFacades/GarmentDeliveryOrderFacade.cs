@@ -2163,7 +2163,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              dealQuantity = gdo.dealQuantity,
                              uomUnit = gdo.uomUnit,
                              createdUtc = gdo.createdUtc,
-                             EPOcreatedBy = gdo.createdBy,
+                             EPOcreatedBy = gdo.EPOcreatedBy,
                              INNo = gdo.INNo,
                              TermPayment = gdo.TermPayment,
                              URNType = gdo.URNType,
