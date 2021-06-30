@@ -200,7 +200,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                             priceCorrectionUnit = item.pricePerDealUnitAfter - item.pricePerDealUnitBefore;
                         }
 
-                        cellRight.Phrase = new Phrase($"{item.currency.code} {priceCorrectionUnit.ToString("N03", _cultureInfo)}", normal_font);
+                        cellRight.Phrase = new Phrase($"{item.currency.code} {item.pricePerDealUnitAfter.ToString("N03", _cultureInfo)}", normal_font);
                         tableContent.AddCell(cellRight);
 
 
@@ -215,10 +215,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         priceCorrectionTotal = priceCorrectionUnit * item.quantity;
                         //}
 
-                        cellRight.Phrase = new Phrase($"{item.currency.code} {priceCorrectionTotal.ToString("N03", _cultureInfo)}", normal_font);
+                        cellRight.Phrase = new Phrase($"{item.currency.code} {priceCorrectionUnit.ToString("N03", _cultureInfo)}", normal_font);
                         tableContent.AddCell(cellRight);
 
-                        cellRight.Phrase = new Phrase($"{item.currency.code} {item.priceTotalBefore.ToString("N03", _cultureInfo)}", normal_font);
+                        cellRight.Phrase = new Phrase($"{item.currency.code} {priceCorrectionTotal.ToString("N03", _cultureInfo)}", normal_font);
                         tableContent.AddCell(cellRight);
 
                         cellLeft.Phrase = new Phrase(item.pRNo, normal_font);

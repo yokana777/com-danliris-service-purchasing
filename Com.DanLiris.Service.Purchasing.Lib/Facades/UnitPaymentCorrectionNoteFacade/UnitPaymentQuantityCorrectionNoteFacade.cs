@@ -665,7 +665,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     UnitPaymentCorrectionMutation = dppAmount + vatAmount,
                     UnitPaymentCorrectionNo = unitPaymentCorrectionNote.UPCNo,
                     UnitPaymentCorrectionPPN = vatAmount,
-                    UnitReceiptNoteNo = unitPaymentCorrectionNoteItem.URNNo
+                    UnitReceiptNoteNo = unitPaymentCorrectionNoteItem.URNNo,
+                    UnitPaymentCorrectionDate = unitPaymentCorrectionNote.CorrectionDate
                 };
 
                 var uri = "creditor-account/unit-payment-correction";
