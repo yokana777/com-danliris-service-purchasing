@@ -25,7 +25,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.Expedition
         public double? CurrencyRate { get; set; }
         public bool IsPosted { get; set; }
         public virtual ICollection<PPHBankExpenditureNoteItem> Items { get; set; }
+        [MaxLength(128)]
         public string DivisionName { get; set; }
+        [MaxLength(128)]
         public string DivisionCode { get; set; }
         public string DivisionId { get; set; }
 
