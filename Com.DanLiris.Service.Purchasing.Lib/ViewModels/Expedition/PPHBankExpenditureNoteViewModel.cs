@@ -81,6 +81,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
                 name = model.IncomeTaxName,
                 rate = model.IncomeTaxRate
             };
+            Division = new NewIntegrationViewModel.DivisionViewModel()
+            {
+                Code = model.DivisionCode,
+                Id = model.DivisionId,
+                Name = model.DivisionName
+            };
             BGNo = model.BGNo;
             Currency = model.Currency;
             PPHBankExpenditureNoteItems = new List<UnitPaymentOrderViewModel>();
@@ -143,9 +149,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
                 BankName = Bank.BankName,
                 BankAccountName = Bank.AccountName,
                 BankAccountNumber = Bank.AccountNumber,
-                IncomeTaxId = IncomeTax._id,
-                IncomeTaxName = IncomeTax.name,
-                IncomeTaxRate = IncomeTax.rate,
+                //IncomeTaxId = IncomeTax._id,
+                //IncomeTaxName = IncomeTax.name,
+                //IncomeTaxRate = IncomeTax.rate,
                 BGNo = BGNo,
                 Currency = Currency,
                 DivisionId = Division.Id,
