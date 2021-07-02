@@ -553,7 +553,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     double bJQty = item.BJQty == "BJQty0" ? 0 : Convert.ToDouble(item.BJQty);
                     double eksporQty = item.EksporQty == "EksporQty0" ? 0 : Convert.ToDouble(item.EksporQty);
                     double sampleQty = item.SampleQty == "SampleQty0" ? 0 : Convert.ToDouble(item.SampleQty);
-                    result.Rows.Add(item.count, item.BCType, item.BCNo, bcdate, item.BonNo, item.ROJob, 
+                    result.Rows.Add(item.count, item.BCType, item.BCNo, bcdate, item.BonNo, rojob, 
                         item.PO, item.ItemCode, item.ItemName, 
                         item.ReceiptQty, 
                         item.SatuanReceipt, buk,

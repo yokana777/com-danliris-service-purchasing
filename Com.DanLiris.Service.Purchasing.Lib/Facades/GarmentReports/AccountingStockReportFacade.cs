@@ -859,7 +859,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                BeginningBalanceQty = 0,
                                BeginningBalanceUom = b.SmallUomUnit,
                                BeginningBalancePrice = 0,
-                               ReceiptCorrectionQty = Math.Round((decimal)e.SmallQuantity, 2),,
+                               ReceiptCorrectionQty = Math.Round((decimal)e.SmallQuantity, 2),
                                ReceiptPurchaseQty = 0,
                                ReceiptProcessQty = 0,
                                ReceiptKon2AQty = 0,
