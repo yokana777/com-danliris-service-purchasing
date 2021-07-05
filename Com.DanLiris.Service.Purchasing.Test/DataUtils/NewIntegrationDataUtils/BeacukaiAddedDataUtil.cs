@@ -63,9 +63,27 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
             return result;
         }
 
+        public Dictionary<string, object> GetNullOk()
+        {
+            //var data = new List<BeacukaiAddedViewModel> { GetNewData() };
+
+            Dictionary<string, object> result =
+                new ResultFormatter("1.0", General.OK_STATUS_CODE, General.OK_MESSAGE)
+                .Ok(null);
+
+            return result;
+        }
+
         public string GetMultipleResultFormatterOkString()
         {
             var result = GetMultipleResultFormatterOk();
+
+            return JsonConvert.SerializeObject(result);
+        }
+
+        public string GetNullFormatterOkString()
+        {
+            var result = GetNullOk();
 
             return JsonConvert.SerializeObject(result);
         }

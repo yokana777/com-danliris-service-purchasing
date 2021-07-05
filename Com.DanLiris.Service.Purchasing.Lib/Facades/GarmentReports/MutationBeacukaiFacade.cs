@@ -310,29 +310,49 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             //                                   UnitQtyName = b.UomUnit
             //                               });
 
-            //var ReceiptCorrectionBalance = (from a in (from aa in dbContext.GarmentReceiptCorrections where aa.CreatedUtc.Date > lastdate && aa.CreatedUtc.Date < DateFrom.Date
-            //                                           && aa.UId == null && aa.IsDeleted == false select aa)
-            //                                join b in (from bb in dbContext.GarmentReceiptCorrectionItems where categories1.Contains(bb.ProductName) && bb.IsDeleted == false select bb) on a.Id equals b.CorrectionId
-            //                                join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
-            //                                join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
-            //                                select new MutationBBCentralViewModelTemp
-            //                                {
-            //                                    AdjustmentQty = 0,
-            //                                    BeginQty = (double)b.SmallQuantity,
-            //                                    ExpenditureQty = 0,
-            //                                    ItemCode = b.ProductCode,
-            //                                    ItemName = b.ProductName,
-            //                                    LastQty = 0,
-            //                                    OpnameQty = 0,
-            //                                    ReceiptQty = 0,
-            //                                    SupplierType = d.SupplierImport == false ? "LOKAL" : "IMPORT",
-            //                                    UnitQtyName = b.UomUnit
+            var ReceiptCorrectionBalance = (from a in dbContext.GarmentUnitReceiptNotes
+                                            join b in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa) on a.Id equals b.URNId
+                                            join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
+                                            join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
+                                            join e in dbContext.GarmentReceiptCorrectionItems on b.Id equals e.URNItemId
+                                            join f in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RONo equals f.RONo
+                                            where
+                                            a.IsDeleted == false && b.IsDeleted == false
+                                               &&
+                                               a.CreatedUtc.AddHours(offset).Date > lastdate
+                                               && a.CreatedUtc.AddHours(offset).Date < DateFrom.Date
+                                               && categories1.Contains(b.ProductName)
+                                               && pemasukan.Contains(a.URNType)
+                                            select new MutationBBCentralViewModelTemp
+                                            {
+                                                AdjustmentQty = 0,
+                                                BeginQty = (double)e.SmallQuantity,
+                                                ExpenditureQty = 0,
+                                                ItemCode = b.ProductCode,
+                                                ItemName = b.ProductName,
+                                                LastQty = 0,
+                                                OpnameQty = 0,
+                                                ReceiptQty = 0,
+                                                SupplierType = d.SupplierImport == false ? "LOKAL" : "IMPORT",
+                                                UnitQtyName = b.UomUnit
+                                            }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBBCentralViewModelTemp
+                                            {
+                                                AdjustmentQty = Math.Round(group.Sum(x => x.AdjustmentQty), 2),
+                                                BeginQty = Math.Round(group.Sum(x => x.BeginQty), 2),
+                                                ExpenditureQty = Math.Round(group.Sum(x => x.ExpenditureQty), 2),
+                                                ItemCode = key.ItemCode,
+                                                ItemName = key.ItemName,
+                                                LastQty = Math.Round(group.Sum(x => x.LastQty), 2),
+                                                OpnameQty = Math.Round(group.Sum(x => x.OpnameQty), 2),
+                                                ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
+                                                SupplierType = key.SupplierType,
+                                                UnitQtyName = key.UnitQtyName
 
-            //                                });
+                                            });
 
 
             #endregion
-            var SAwal = BalanceStock.Concat(ReceiptBalance).Concat(ExpenditureBalance).AsEnumerable();
+            var SAwal = BalanceStock.Concat(ReceiptBalance).Concat(ExpenditureBalance).Concat(ReceiptCorrectionBalance).AsEnumerable();
             var SaldoAwal = SAwal.GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBBCentralViewModelTemp
             {
                 AdjustmentQty = group.Sum(x => x.AdjustmentQty),
@@ -431,27 +451,48 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
 
 
-            //var ReceiptCorrection = (from a in (from aa in dbContext.GarmentReceiptCorrections where aa.CreatedUtc.Date >= DateFrom.Date && aa.CreatedUtc.Date <= DateTo.Date
-            //                                    && aa.UId == null && aa.IsDeleted == false select aa)
-            //                                join b in (from bb in dbContext.GarmentReceiptCorrectionItems where categories1.Contains(bb.ProductName) && bb.IsDeleted == false select bb) on a.Id equals b.CorrectionId
-            //                                join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
-            //                                join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
-            //                         //where b.ProductCode == "TC07547"
-            //                         select new MutationBBCentralViewModelTemp
-            //                                {
-            //                                    AdjustmentQty = 0,
-            //                                    BeginQty = 0,
-            //                                    ExpenditureQty = b.SmallQuantity,
-            //                                    ItemCode = b.ProductCode,
-            //                                    ItemName = b.ProductName,
-            //                                    LastQty = 0,
-            //                                    OpnameQty = 0,
-            //                                    ReceiptQty = b.SmallQuantity,
-            //                                    SupplierType = d.SupplierImport == false ? "LOKAL" : "IMPORT",
-            //                                    UnitQtyName = b.UomUnit
-            //                                });
+            var ReceiptCorrection = (from a in dbContext.GarmentUnitReceiptNotes
+                                     join b in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa) on a.Id equals b.URNId
+                                     join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
+                                     join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
+                                     join e in dbContext.GarmentReceiptCorrectionItems on b.Id equals e.URNItemId
+                                     join f in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RONo equals f.RONo
+                                     //join h in Codes on b.ProductCode equals h.Code
+                                     where a.IsDeleted == false && b.IsDeleted == false
+                                          &&
+                                          a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
+                                          && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+                                          && categories1.Contains(b.ProductName)
+                                          && pemasukan.Contains(a.URNType)
+                                     //where b.ProductCode == "TC07547"
+                                     select new MutationBBCentralViewModelTemp
+                                     {
+                                         AdjustmentQty = Math.Round(e.SmallQuantity,2),
+                                         BeginQty = 0,
+                                         ExpenditureQty = 0,
+                                         ItemCode = b.ProductCode,
+                                         ItemName = b.ProductName,
+                                         LastQty = 0,
+                                         OpnameQty = 0,
+                                         ReceiptQty = 0,
+                                         SupplierType = d.SupplierImport == false ? "LOKAL" : "IMPORT",
+                                         UnitQtyName = b.UomUnit
+                                     }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBBCentralViewModelTemp
+                                     {
+                                         AdjustmentQty = Math.Round(group.Sum(x => x.AdjustmentQty), 2),
+                                         BeginQty = Math.Round(group.Sum(x => x.BeginQty), 2),
+                                         ExpenditureQty = Math.Round(group.Sum(x => x.ExpenditureQty), 2),
+                                         ItemCode = key.ItemCode,
+                                         ItemName = key.ItemName,
+                                         LastQty = Math.Round(group.Sum(x => x.LastQty), 2),
+                                         OpnameQty = Math.Round(group.Sum(x => x.OpnameQty), 2),
+                                         ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
+                                         SupplierType = key.SupplierType,
+                                         UnitQtyName = key.UnitQtyName
 
-            var SFiltered = Receipt.Concat(Expenditure).AsEnumerable();
+                                     });
+
+            var SFiltered = Receipt.Concat(Expenditure).Concat(ReceiptCorrection).AsEnumerable();
             var SaldoFilterd = SFiltered.GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBBCentralViewModelTemp
             {
                 AdjustmentQty = group.Sum(x => x.AdjustmentQty),
@@ -478,7 +519,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 ExpenditureQty = Math.Round(Convert.ToDouble(group.Sum(x => x.ExpenditureQty)), 2),
                 ItemCode = key.ItemCode,
                 ItemName = key.ItemName,
-                LastQty = Math.Round(Convert.ToDouble(group.Sum(x => x.BeginQty + x.ReceiptQty - x.ExpenditureQty - x.AdjustmentQty - x.OpnameQty)), 2),
+                LastQty = Math.Round(Convert.ToDouble(group.Sum(x => x.BeginQty + x.ReceiptQty + x.AdjustmentQty - x.ExpenditureQty - x.OpnameQty)), 2),
                 ReceiptQty = Math.Round(Convert.ToDouble(group.Sum(x => x.ReceiptQty)), 2),
                 SupplierType = key.SupplierType,
                 UnitQtyName = key.UnitQtyName,
@@ -490,7 +531,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             foreach (var i in mutation)
             {
-                var AdjustmentQty = i.AdjustmentQty > 0 ? i.AdjustmentQty : 0;
+                //var AdjustmentQty = i.AdjustmentQty > 0 ? i.AdjustmentQty : 0;
                 var BeginQty = i.BeginQty > 0 ? i.BeginQty : 0;
                 var ExpenditureQty = i.ExpenditureQty > 0 ? i.ExpenditureQty : 0;
                 var LastQty = i.LastQty > 0 ? i.LastQty : 0;
@@ -500,7 +541,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
                 mutation2.Add(new MutationBBCentralViewModel
                 {
-                    AdjustmentQty = AdjustmentQty,
+                    AdjustmentQty = i.AdjustmentQty,
                     BeginQty = BeginQty,
                     ExpenditureQty = ExpenditureQty,
                     ItemCode = i.ItemCode,
@@ -605,10 +646,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             var coderequirement = new[] { "BP", "BE" };
             var categories1 = categories.Where(x => coderequirement.Contains(x.CodeRequirement)).Select(x => x.Name).ToArray();
 
-            List<MutationBPCentralViewModelTemp> saldoawalreceipt = new List<MutationBPCentralViewModelTemp>();
-            List<MutationBPCentralViewModelTemp> saldoawalexpenditure = new List<MutationBPCentralViewModelTemp>();
-            List<MutationBPCentralViewModelTemp> saldoawalreceiptcorrection = new List<MutationBPCentralViewModelTemp>();
-
             #region Balance
             //var lastdate = dbContext.BalanceStocks.OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault();
 
@@ -663,27 +700,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  && a.IsDeleted == false && b.IsDeleted == false
                                 && categories1.Contains(b.ProductName)
                                 && pemasukan.Contains(g.URNType)
-                                select new MutationBPCentralViewModelTemp
+                                select new MutationBPCentralViewModel
                                 {
-                                    //AdjustmentQty = 0,
+                                    AdjustmentQty = 0,
                                     BeginQty = (double)b.Quantity,
                                     ExpenditureQty = 0,
                                     ItemCode = b.ProductCode,
                                     ItemName = b.ProductName,
-                                    //LastQty = 0,
-                                    //OpnameQty = 0,
+                                    LastQty = 0,
+                                    OpnameQty = 0,
                                     ReceiptQty = 0,
-                                    SupplierType = f.SupplierImport,
+                                    SupplierType = f.SupplierImport == false ? "LOKAL" : "IMPORT",
                                     UnitQtyName = b.SmallUomUnit
-                                }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBPCentralViewModelTemp
+                                }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBPCentralViewModel
                                 {
-                                    //AdjustmentQty = group.Sum(x => x.AdjustmentQty),
+                                    AdjustmentQty = group.Sum(x => x.AdjustmentQty),
                                     BeginQty = Math.Round(group.Sum(x => x.BeginQty), 2),
                                     ExpenditureQty = Math.Round(group.Sum(x => x.ExpenditureQty), 2),
                                     ItemCode = key.ItemCode,
                                     ItemName = key.ItemName,
-                                    //LastQty = group.Sum(x => x.LastQty),
-                                    //OpnameQty = group.Sum(x => x.OpnameQty),
+                                    LastQty = group.Sum(x => x.LastQty),
+                                    OpnameQty = group.Sum(x => x.OpnameQty),
                                     ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
                                     SupplierType = key.SupplierType,
                                     UnitQtyName = key.UnitQtyName
@@ -741,26 +778,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                      && categories1.Contains(a.ProductName)
                                       && pemasukan.Contains(b.URNType)
                                      
-                                  select new MutationBPCentralViewModelTemp
+                                  select new MutationBPCentralViewModel
                                   {
-                                      //AdjustmentQty = 0,
+                                      AdjustmentQty = 0,
                                       BeginQty = (double)(a.ReceiptQuantity * a.Conversion),
                                       ExpenditureQty = 0,
                                       ItemCode = a.ProductCode,
                                       ItemName = a.ProductName,
-                                      //OpnameQty = 0,
-                                      //ReceiptQty = 0,
-                                      SupplierType = d.SupplierImport,
+                                      OpnameQty = 0,
+                                      ReceiptQty = 0,
+                                      SupplierType = d.SupplierImport == false ? "LOKAL" : "IMPORT",
                                       UnitQtyName = a.SmallUomUnit
-                                  }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBPCentralViewModelTemp
+                                  }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBPCentralViewModel
                                   {
-                                      //AdjustmentQty = group.Sum(x => x.AdjustmentQty),
+                                      AdjustmentQty = group.Sum(x => x.AdjustmentQty),
                                       BeginQty = Math.Round(group.Sum(x => x.BeginQty), 2),
                                       ExpenditureQty = Math.Round(group.Sum(x => x.ExpenditureQty), 2),
                                       ItemCode = key.ItemCode,
                                       ItemName = key.ItemName,
-                                      //LastQty = group.Sum(x => x.LastQty),
-                                      //OpnameQty = group.Sum(x => x.OpnameQty),
+                                      LastQty = group.Sum(x => x.LastQty),
+                                      OpnameQty = group.Sum(x => x.OpnameQty),
                                       ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
                                       SupplierType = key.SupplierType,
                                       UnitQtyName = key.UnitQtyName
@@ -783,47 +820,87 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                        && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                        && categories1.Contains(a.ProductName)
                                        && pengeluaran.Contains(b.ExpenditureType)
-                                      select new MutationBPCentralViewModelTemp
+                                      select new MutationBPCentralViewModel
                                       {
-                                          //AdjustmentQty = 0,
+                                          AdjustmentQty = 0,
                                           BeginQty = (double)a.Quantity * -1,
                                           ExpenditureQty = 0,
                                           ItemCode = a.ProductCode,
                                           ItemName = a.ProductName,
-                                          //LastQty = 0,
-                                          //OpnameQty = 0,
+                                          LastQty = 0,
+                                          OpnameQty = 0,
                                           ReceiptQty = 0,
-                                          SupplierType = d.SupplierImport,
+                                          SupplierType = d.SupplierImport == false ? "LOKAL" : "IMPORT",
                                           UnitQtyName = a.UomUnit
 
-                                      }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBPCentralViewModelTemp
+                                      }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBPCentralViewModel
                                       {
-                                          //AdjustmentQty = group.Sum(x => x.AdjustmentQty),
+                                          AdjustmentQty = group.Sum(x => x.AdjustmentQty),
                                           BeginQty = Math.Round(group.Sum(x => x.BeginQty), 2),
                                           ExpenditureQty = Math.Round(group.Sum(x => x.ExpenditureQty), 2),
                                           ItemCode = key.ItemCode,
                                           ItemName = key.ItemName,
-                                          //LastQty = group.Sum(x => x.LastQty),
-                                          //OpnameQty = group.Sum(x => x.OpnameQty),
+                                          LastQty = group.Sum(x => x.LastQty),
+                                          OpnameQty = group.Sum(x => x.OpnameQty),
                                           ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
                                           SupplierType = key.SupplierType,
                                           UnitQtyName = key.UnitQtyName
 
                                       });
 
+            var ReceiptCorrectionBalance = (from a in dbContext.GarmentUnitReceiptNotes
+                                            join b in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa) on a.Id equals b.URNId
+                                            join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
+                                            join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
+                                            join e in dbContext.GarmentReceiptCorrectionItems on b.Id equals e.URNItemId
+                                            join f in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RONo equals f.RONo
+                                            where
+                                            a.IsDeleted == false && b.IsDeleted == false
+                                               &&
+                                               a.CreatedUtc.AddHours(offset).Date > lastdate
+                                               && a.CreatedUtc.AddHours(offset).Date < DateFrom.Date
+                                               && categories1.Contains(b.ProductName)
+                                               && pemasukan.Contains(a.URNType)
+                                            select new MutationBPCentralViewModel
+                                            {
+                                                AdjustmentQty = 0,
+                                                BeginQty = (double)e.SmallQuantity,
+                                                ExpenditureQty = 0,
+                                                ItemCode = b.ProductCode,
+                                                ItemName = b.ProductName,
+                                                LastQty = 0,
+                                                OpnameQty = 0,
+                                                ReceiptQty = 0,
+                                                SupplierType = d.SupplierImport == false ? "LOKAL" : "IMPORT",
+                                                UnitQtyName = b.UomUnit
+                                            }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBPCentralViewModel
+                                            {
+                                                AdjustmentQty = Math.Round(group.Sum(x => x.AdjustmentQty), 2),
+                                                BeginQty = Math.Round(group.Sum(x => x.BeginQty), 2),
+                                                ExpenditureQty = Math.Round(group.Sum(x => x.ExpenditureQty), 2),
+                                                ItemCode = key.ItemCode,
+                                                ItemName = key.ItemName,
+                                                LastQty = Math.Round(group.Sum(x => x.LastQty), 2),
+                                                OpnameQty = Math.Round(group.Sum(x => x.OpnameQty), 2),
+                                                ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
+                                                SupplierType = key.SupplierType,
+                                                UnitQtyName = key.UnitQtyName
+
+                                            });
+
 
 
             #endregion
-            var SAwal = BalanceStock.Concat(ReceiptBalance).Concat(ExpenditureBalance).AsEnumerable();
-            var SaldoAwal = SAwal.GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBPCentralViewModelTemp
+            var SAwal = BalanceStock.Concat(ReceiptBalance).Concat(ExpenditureBalance).Concat(ReceiptCorrectionBalance).AsEnumerable();
+            var SaldoAwal = SAwal.GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBPCentralViewModel
             {
-                //AdjustmentQty = group.Sum(x => x.AdjustmentQty),
+                AdjustmentQty = group.Sum(x => x.AdjustmentQty),
                 BeginQty = group.Sum(x => x.BeginQty),
                 ExpenditureQty = group.Sum(x => x.ExpenditureQty),
                 ItemCode = key.ItemCode,
                 ItemName = key.ItemName,
-                //LastQty = group.Sum(x => x.LastQty),
-                //OpnameQty = group.Sum(x => x.OpnameQty),
+                LastQty = group.Sum(x => x.LastQty),
+                OpnameQty = group.Sum(x => x.OpnameQty),
                 ReceiptQty = group.Sum(x => x.ReceiptQty),
                 SupplierType = key.SupplierType,
                 UnitQtyName = key.UnitQtyName
@@ -844,29 +921,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 && pemasukan.Contains(b.URNType)
 
                            //group new { a, b, c, d } by new { b.ProductCode, b.ProductName, b.SmallUomUnit, d.SupplierImport } into data
-                           select new MutationBPCentralViewModelTemp
+                           select new MutationBPCentralViewModel
                            {
-                               //AdjustmentQty = 0,
+                               AdjustmentQty = 0,
                                BeginQty = 0,
                                ExpenditureQty = 0,
                                ItemCode = a.ProductCode,
                                ItemName = a.ProductName,
-                               //LastQty = 0,
-                               //OpnameQty = 0,
+                               LastQty = 0,
+                               OpnameQty = 0,
                                ReceiptQty = (double)(a.ReceiptQuantity * a.Conversion),
-                               SupplierType = d.SupplierImport,
+                               SupplierType = d.SupplierImport == false ? "LOKAL" : "IMPORT",
                                UnitQtyName = a.SmallUomUnit
-                           }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBPCentralViewModelTemp
+                           }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBPCentralViewModel
                            {
-                               //AdjustmentQty = group.Sum(x => x.AdjustmentQty),
+                               AdjustmentQty = group.Sum(x => x.AdjustmentQty),
                                BeginQty = Math.Round(group.Sum(x => x.BeginQty), 2),
                                ExpenditureQty = Math.Round(group.Sum(x => x.ExpenditureQty), 2),
                                ItemCode = key.ItemCode,
                                ItemName = key.ItemName,
-                               //LastQty = group.Sum(x => x.LastQty),
-                               //OpnameQty = group.Sum(x => x.OpnameQty),
+                               LastQty = group.Sum(x => x.LastQty),
+                               OpnameQty = group.Sum(x => x.OpnameQty),
                                ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
-                               //SupplierType = key.SupplierType,
+                               SupplierType = key.SupplierType,
                                UnitQtyName = key.UnitQtyName
 
                            });
@@ -884,27 +961,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                     && b.CreatedUtc.AddHours(offset).Date <= DateTo.Date
                                     && categories1.Contains(a.ProductName)
                                     && pengeluaran.Contains(b.ExpenditureType)
-                               select new MutationBPCentralViewModelTemp
+                               select new MutationBPCentralViewModel
                                {
-                                   //AdjustmentQty = 0,
+                                   AdjustmentQty = 0,
                                    BeginQty = 0,
                                    ExpenditureQty = (double)a.Quantity,
                                    ItemCode = a.ProductCode,
                                    ItemName = a.ProductName,
-                                   //LastQty = 0,
-                                   //OpnameQty = 0,
+                                   LastQty = 0,
+                                   OpnameQty = 0,
                                    ReceiptQty = 0,
-                                   SupplierType = d.SupplierImport,
+                                   SupplierType = d.SupplierImport == false ? "LOKAL" : "IMPORT",
                                    UnitQtyName = a.UomUnit
-                               }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBPCentralViewModelTemp
+                               }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBPCentralViewModel
                                {
-                                   //AdjustmentQty = group.Sum(x => x.AdjustmentQty),
+                                   AdjustmentQty = group.Sum(x => x.AdjustmentQty),
                                    BeginQty = Math.Round(group.Sum(x => x.BeginQty), 2),
                                    ExpenditureQty = Math.Round(group.Sum(x => x.ExpenditureQty), 2),
                                    ItemCode = key.ItemCode,
                                    ItemName = key.ItemName,
-                                   //LastQty = group.Sum(x => x.LastQty),
-                                   //OpnameQty = group.Sum(x => x.OpnameQty),
+                                   LastQty = group.Sum(x => x.LastQty),
+                                   OpnameQty = group.Sum(x => x.OpnameQty),
                                    ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
                                    SupplierType = key.SupplierType,
                                    UnitQtyName = key.UnitQtyName
@@ -912,37 +989,58 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                });
 
 
-            //var ReceiptCorrection = (from a in (from aa in dbContext.GarmentReceiptCorrections where aa.CreatedUtc.Date >= DateFrom.Date
-            //                                     && aa.CreatedUtc.Date <= DateTo.Date && aa.UId == null && aa.IsDeleted == false
-            //                                    select aa)
-            //                         join b in (from bb in dbContext.GarmentReceiptCorrectionItems where categories1.Contains(bb.ProductName) && bb.IsDeleted == false select bb) on a.Id equals b.CorrectionId
-            //                         join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
-            //                         join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
+            var ReceiptCorrection = (from a in dbContext.GarmentUnitReceiptNotes
+                                     join b in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa) on a.Id equals b.URNId
+                                     join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
+                                     join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
+                                     join e in dbContext.GarmentReceiptCorrectionItems on b.Id equals e.URNItemId
+                                     join f in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RONo equals f.RONo
+                                     //join h in Codes on b.ProductCode equals h.Code
+                                     where a.IsDeleted == false && b.IsDeleted == false
+                                          &&
+                                          a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
+                                          && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+                                          && categories1.Contains(b.ProductName)
+                                          && pemasukan.Contains(a.URNType)
+                                     //where b.ProductCode == "TC07547"
+                                     select new MutationBPCentralViewModel
+                                     {
+                                         AdjustmentQty = Math.Round(e.SmallQuantity, 2),
+                                         BeginQty = 0,
+                                         ExpenditureQty = 0,
+                                         ItemCode = b.ProductCode,
+                                         ItemName = b.ProductName,
+                                         LastQty = 0,
+                                         OpnameQty = 0,
+                                         ReceiptQty = 0,
+                                         SupplierType = d.SupplierImport == false ? "LOKAL" : "IMPORT",
+                                         UnitQtyName = b.UomUnit
+                                     }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBPCentralViewModel
+                                     {
+                                         AdjustmentQty = group.Sum(x => x.AdjustmentQty),
+                                         BeginQty = Math.Round(group.Sum(x => x.BeginQty), 2),
+                                         ExpenditureQty = Math.Round(group.Sum(x => x.ExpenditureQty), 2),
+                                         ItemCode = key.ItemCode,
+                                         ItemName = key.ItemName,
+                                         LastQty = group.Sum(x => x.LastQty),
+                                         OpnameQty = group.Sum(x => x.OpnameQty),
+                                         ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
+                                         SupplierType = key.SupplierType,
+                                         UnitQtyName = key.UnitQtyName
 
-            //                         select new MutationBPCentralViewModelTemp
-            //                         {
-            //                             ItemCode = b.ProductCode,
-            //                             BeginQty = 0,
-            //                             ExpenditureQty = b.SmallQuantity < 0 ? b.SmallQuantity * -1 : 0,
-            //                             ItemName = b.ProductName,
-            //                             ReceiptQty = b.SmallQuantity > 0 ? b.SmallQuantity : 0,
-            //                             SupplierType = d.SupplierImport,
-            //                             UnitQtyName = b.UomUnit
-            //                         }
-            //                         );
-
+                                     });
             #endregion
 
-            var SFiltered = Receipt.Concat(Expenditure).AsEnumerable();
-            var SaldoFilterd = SFiltered.GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBPCentralViewModelTemp
+            var SFiltered = Receipt.Concat(Expenditure).Concat(ReceiptCorrection).AsEnumerable();
+            var SaldoFilterd = SFiltered.GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBPCentralViewModel
             {
-                //AdjustmentQty = group.Sum(x => x.AdjustmentQty),
+                AdjustmentQty = group.Sum(x => x.AdjustmentQty),
                 BeginQty = group.Sum(x => x.BeginQty),
                 ExpenditureQty = group.Sum(x => x.ExpenditureQty),
                 ItemCode = key.ItemCode,
                 ItemName = key.ItemName,
-                //LastQty = group.Sum(x => x.LastQty),
-                //OpnameQty = group.Sum(x => x.OpnameQty),
+                LastQty = group.Sum(x => x.LastQty),
+                OpnameQty = group.Sum(x => x.OpnameQty),
                 ReceiptQty = group.Sum(x => x.ReceiptQty),
                 SupplierType = key.SupplierType,
                 UnitQtyName = key.UnitQtyName
@@ -951,19 +1049,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var dataUnion = SaldoAwal.Concat(SaldoFilterd).AsEnumerable();
 
-            var mutationgroup = dataUnion.GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBPCentralViewModelTemp
+            var mutationgroup = dataUnion.GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBPCentralViewModel
             {
-                //AdjustmentQty = Math.Round(group.Sum(x => x.AdjustmentQty), 2),
+                AdjustmentQty = Math.Round(group.Sum(x => x.AdjustmentQty), 2),
                 BeginQty = Math.Round(group.Sum(x => x.BeginQty), 2),
                 ExpenditureQty = Math.Round(group.Sum(x => x.ExpenditureQty), 2),
                 ItemCode = key.ItemCode,
                 ItemName = key.ItemName,
-                //LastQty = Math.Round(group.Sum(x => x.BeginQty) + group.Sum(x => x.ReceiptQty) - group.Sum(x => x.ExpenditureQty) + group.Sum(x => x.AdjustmentQty) + group.Sum(x => x.OpnameQty), 2),
+                LastQty = Math.Round(group.Sum(x => x.BeginQty) + group.Sum(x => x.ReceiptQty) - group.Sum(x => x.ExpenditureQty) + group.Sum(x => x.AdjustmentQty) + group.Sum(x => x.OpnameQty), 2),
                 ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
                 SupplierType = key.SupplierType,
                 UnitQtyName = key.UnitQtyName,
-                //OpnameQty = Math.Round(group.Sum(x => x.OpnameQty), 2),
-                // Diff = Math.Round(group.Sum(x => x.Diff), 2)
+                OpnameQty = Math.Round(group.Sum(x => x.OpnameQty), 2),
+                Diff = Math.Round(group.Sum(x => x.Diff), 2)
             });
 
             List<MutationBPCentralViewModel> mutations = new List<MutationBPCentralViewModel>();
@@ -973,21 +1071,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 //var AdjustmentQty = item.AdjustmentQty > 0 ? item.AdjustmentQty : 0;
                 var BeginQty = item.BeginQty > 0 ? item.BeginQty : 0;
                 var ExpenditureQty = item.ExpenditureQty > 0 ? item.ExpenditureQty : 0;
-                //var LastQty = item.LastQty > 0 ? item.LastQty : 0;
+                var LastQty = item.LastQty > 0 ? item.LastQty : 0;
                 var ReceiptQty = item.ReceiptQty > 0 ? item.ReceiptQty : 0;
-                //var OpnameQty = item.OpnameQty > 0 ? item.OpnameQty : 0;
-                //var Diff = item.Diff > 0 ? item.Diff : 0;
+                var OpnameQty = item.OpnameQty > 0 ? item.OpnameQty : 0;
+                var Diff = item.Diff > 0 ? item.Diff : 0;
 
                 MutationBPCentralViewModel mutation = new MutationBPCentralViewModel()
                 {
-                    AdjustmentQty = 0,
+                    AdjustmentQty = item.AdjustmentQty,
                     BeginQty = BeginQty,
                     ExpenditureQty = ExpenditureQty,
                     ItemCode = item.ItemCode,
                     ItemName = item.ItemName,
-                    LastQty = Math.Round((BeginQty + ReceiptQty) - (ExpenditureQty + 0 + 0), 2),
+                    LastQty = Math.Round((BeginQty + ReceiptQty + item.AdjustmentQty) - (ExpenditureQty + OpnameQty), 2),
                     ReceiptQty = ReceiptQty,
-                    SupplierType = item.SupplierType == true ? "IMPORT" : "LOKAL",
+                    SupplierType = item.SupplierType,
                     UnitQtyName = item.UnitQtyName,
                     OpnameQty = 0,
                     Diff = 0
