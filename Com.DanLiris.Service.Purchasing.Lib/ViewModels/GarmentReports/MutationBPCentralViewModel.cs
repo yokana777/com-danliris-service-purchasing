@@ -18,15 +18,4 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public double OpnameQty { get; set; }
         public double Diff { get; set; }
     }
-
-    public class MutationBPCentralViewModelTemp
-    {
-        public string ItemCode { get; set; }
-        public string ItemName { get; set; }
-        public bool SupplierType { get; set; }
-        public string UnitQtyName { get; set; }
-        public double BeginQty { get; set; }
-        public double ReceiptQty { get; set; }
-        public double ExpenditureQty { get; set; }
-    }
 }

@@ -1,4 +1,4 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel.BeacukaiAdded;
+﻿using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel.GarmentPreparing;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Newtonsoft.Json;
 using System;
@@ -7,20 +7,21 @@ using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
 {
-    public class BeacukaiAddedDataUtil
+    public class GarmentPreparingDataUtil
     {
-        public BeacukaiAddedViewModel GetNewData()
+        public GarmentPreparingViewModel GetNewData()
         {
             long nowTicks = DateTimeOffset.Now.Ticks;
 
-            var data = new BeacukaiAddedViewModel
+            var data = new GarmentPreparingViewModel
             {
-                BCDate = DateTime.Now,
-                BCNo = "BCNo123",
-                BonNo = "Invoice123",
-                ItemCode = "ItemCode",
-                BCType = "BC 30",
-                Quantity = 1
+                Article = "",
+                CreatedBy ="",
+                ProductCode = "ProductCode1",
+                IsCuttingIn = true,
+                Quantity = 20,
+                RemainingQuantity = 0,
+                RONo = "RONo123"
             };
             return data;
         }
@@ -30,7 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
             return GetResultFormatterOk(GetNewData());
         }
 
-        public Dictionary<string, object> GetResultFormatterOk(BeacukaiAddedViewModel garmentExpenditureGoodViewModel)
+        public Dictionary<string, object> GetResultFormatterOk(GarmentPreparingViewModel garmentExpenditureGoodViewModel)
         {
             var data = garmentExpenditureGoodViewModel;
 
@@ -46,7 +47,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
             return GetResultFormatterOkString(GetNewData());
         }
 
-        public string GetResultFormatterOkString(BeacukaiAddedViewModel garmentExpenditureGoodViewModel)
+        public string GetResultFormatterOkString(GarmentPreparingViewModel garmentExpenditureGoodViewModel)
         {
             var result = GetResultFormatterOk(garmentExpenditureGoodViewModel);
 
@@ -54,7 +55,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
         }
         public Dictionary<string, object> GetMultipleResultFormatterOk()
         {
-            var data = new List<BeacukaiAddedViewModel> { GetNewData() };
+            var data = new List<GarmentPreparingViewModel> { GetNewData() };
 
             Dictionary<string, object> result =
                 new ResultFormatter("1.0", General.OK_STATUS_CODE, General.OK_MESSAGE)
@@ -63,9 +64,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
             return result;
         }
 
-        public Dictionary<string, object> GetNullOk()
+        public Dictionary<string, object> GetNullFormatterOk()
         {
-            //var data = new List<BeacukaiAddedViewModel> { GetNewData() };
+            //var data = new List<GarmentPreparingViewModel> { GetNewData() };
 
             Dictionary<string, object> result =
                 new ResultFormatter("1.0", General.OK_STATUS_CODE, General.OK_MESSAGE)
@@ -83,7 +84,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
 
         public string GetNullFormatterOkString()
         {
-            var result = GetNullOk();
+            var result = GetNullFormatterOk();
 
             return JsonConvert.SerializeObject(result);
         }

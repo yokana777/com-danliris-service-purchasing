@@ -10,7 +10,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
     {
         Tuple<List<TraceableInBeacukaiViewModel>, int> GetReportTraceableIN(string filter, string tipe, string tipebc);
         MemoryStream GetTraceableInExcel(string filter, string tipe, string tipebc);
-        List<TraceableOutBeacukaiDetailViewModel> getQueryDetail(string RO);
+        //List<TraceableOutBeacukaiDetailViewModel> getQueryDetail(string RO);
         List<TraceableOutBeacukaiViewModel> getQueryTraceableOut(string bcno);
         MemoryStream GetExceltraceOut(string bcno);
     }
