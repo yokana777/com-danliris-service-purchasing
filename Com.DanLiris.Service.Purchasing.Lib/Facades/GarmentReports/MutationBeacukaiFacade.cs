@@ -144,14 +144,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             var BalanceStock = (from a in dbContext.GarmentStockOpnames
                                join b in dbContext.GarmentStockOpnameItems on a.Id equals b.GarmentStockOpnameId
                                join c in dbContext.GarmentUnitReceiptNoteItems on b.URNItemId equals c.Id
+                               join g in dbContext.GarmentUnitReceiptNotes on c.URNId equals g.Id
                                join d in dbContext.GarmentExternalPurchaseOrderItems on c.EPOItemId equals d.Id
                                join e in dbContext.GarmentExternalPurchaseOrders on d.GarmentEPOId equals e.Id
-                               where a.Date.Date == lastdate.Date
-                                && categories1.Contains(b.ProductName)
+                               join h in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RO equals h.RONo
+                                where a.Date.Date == lastdate.Date
+                               && a.IsDeleted == false && b.IsDeleted == false
+                               && categories1.Contains(b.ProductName)
+                               && pemasukan.Contains(g.URNType)
                                select new MutationBBCentralViewModelTemp
                                {
                                    AdjustmentQty = 0,
-                                   BeginQty = (double)b.Quantity,
+                                   BeginQty = Math.Round((double)b.Quantity,2),
                                    ExpenditureQty = 0,
                                    ItemCode = b.ProductCode,
                                    ItemName = b.ProductName,
@@ -191,7 +195,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                   select new MutationBBCentralViewModelTemp
                                   {
                                       AdjustmentQty = 0,
-                                      BeginQty = (double)(a.ReceiptQuantity * a.Conversion),
+                                      BeginQty = Math.Round((double)(a.ReceiptQuantity * a.Conversion),2),
                                       ExpenditureQty = 0,
                                       ItemCode = a.ProductCode,
                                       ItemName = a.ProductName,
@@ -651,12 +655,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             var BalanceStock = (from a in dbContext.GarmentStockOpnames
                                 join b in dbContext.GarmentStockOpnameItems on a.Id equals b.GarmentStockOpnameId
                                 join c in dbContext.GarmentUnitReceiptNoteItems on b.URNItemId equals c.Id
+                                join g in dbContext.GarmentUnitReceiptNotes on c.URNId equals g.Id
                                 join e in dbContext.GarmentExternalPurchaseOrderItems on c.EPOItemId equals e.Id
                                 join f in dbContext.GarmentExternalPurchaseOrders on e.GarmentEPOId equals f.Id
-                                //join g in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RO equals g.RONo
+                                join h in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RO equals h.RONo
                                 where a.Date.Date == lastdate.Date
-                                && a.IsDeleted == false && b.IsDeleted == false
+                                 && a.IsDeleted == false && b.IsDeleted == false
                                 && categories1.Contains(b.ProductName)
+                                && pemasukan.Contains(g.URNType)
                                 select new MutationBPCentralViewModelTemp
                                 {
                                     //AdjustmentQty = 0,

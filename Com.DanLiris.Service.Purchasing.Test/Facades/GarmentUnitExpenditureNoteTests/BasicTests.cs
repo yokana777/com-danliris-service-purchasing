@@ -90,6 +90,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                 .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("expenditure-goods"))))
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentExpenditureGoodDataUtil().GetMultipleResultFormatterOkString()) });
 
+            httpClientService
+                .Setup(x => x.SendAsync(It.IsAny<HttpMethod>(), It.Is<string>(s => s.Contains("preparings/byRONO")), It.IsAny<HttpContent>()))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentPreparingDataUtil().GetMultipleResultFormatterOkString()) });
 
             //httpClientService
             //    .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-categories"))))
@@ -1418,9 +1421,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         {
             var facadeTraceable = new TraceableBeacukaiFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
 
-            var response = facadeTraceable.getQueryTraceableOut("BCNo123");
+            
 
-            Assert.NotNull(response);
+            
 
             var facade = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datauitlDO = dataUtilDO(facade, GetCurrentMethod());
@@ -1457,10 +1460,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             await garmentUnitExpenditureNoteFacade.Create(datauen);
 
 
-            var response2 = facadeTraceable.getQueryDetail("RONo123");
+            var response = facadeTraceable.getQueryTraceableOut("BCNo123");
 
 
-            Assert.NotNull(response2);
+            Assert.NotNull(response);
+            //var response2 = facadeTraceable.getQueryDetail("RONo123");
+
+
+            //Assert.NotNull(response2);
 
         }
 
