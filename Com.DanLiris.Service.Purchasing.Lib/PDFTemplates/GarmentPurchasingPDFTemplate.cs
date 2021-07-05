@@ -46,6 +46,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             Document document = new Document(PageSize.A4, 30, 30, 30, 30);
             MemoryStream stream = new MemoryStream();
             PdfWriter writer = PdfWriter.GetInstance(document, stream);
+            writer.PageEvent = new TextEvents(viewModel.DispositionNo);
             document.Open();
 
             string fmString = "FM-PB-00-06-011";
