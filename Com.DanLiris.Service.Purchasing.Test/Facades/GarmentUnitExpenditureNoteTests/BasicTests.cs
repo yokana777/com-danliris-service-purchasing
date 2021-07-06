@@ -1133,65 +1133,68 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
         //      //
         //      //
-        //      [Fact]
-        //      public async Task Should_Success_GetReport_Realization_CMT()
-        //      {
-        //          var dbContext = _dbContext(GetCurrentMethod());
-        //          var Facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-        //          var dtUnitExpenditureNote = await dataUtil(Facade, GetCurrentMethod()).GetNewDataForPreparing();
+        [Fact]
+        public async Task Should_Success_GetReport_Realization_CMT()
+        {
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautIlUEN = dataUtil(facade, GetCurrentMethod());
+            GarmentUnitExpenditureNote data = await dataUtil(facade, GetCurrentMethod()).GetNewDataForPreparing();
 
-        //          var garmentExpenditureGoodDataUtil = new GarmentExpenditureGoodDataUtil();
-        //          var gegData = garmentExpenditureGoodDataUtil.GetNewData();
-        //          gegData.RONo = dtUnitExpenditureNote.Items.First().RONo;
+            await facade.Create(data);
 
-        //          var reportService = new GarmentRealizationCMTReportFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var garmentExpenditureGoodDataUtil = new GarmentExpenditureGoodDataUtil();
+            var gegData = garmentExpenditureGoodDataUtil.GetNewData();
+            gegData.RONo = data.Items.First().RONo;
 
-        //          var dateTo = DateTime.UtcNow.AddDays(1);
-        //          var dateFrom = dateTo.AddDays(-30);
-        //          var results = reportService.GetReport(dateFrom, dateTo, 0, 1, 25, "", 0);
+            var reportService = new GarmentRealizationCMTReportFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
 
-        //          Assert.NotNull(results);
-        //      }
+            var dateTo = DateTime.Now.AddDays(1);
+            var dateFrom = dateTo.AddDays(-30);
+            var results = reportService.GetReport(dateFrom, dateTo, 0, 1, 25, "", 0);
 
-        //      [Fact]
-        //      public async Task Should_Success_GetXls_Realization_CMT()
-        //      {
-        //          var dbContext = _dbContext(GetCurrentMethod());
-        //          var Facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-        //          var dtUnitExpenditureNote = await dataUtil(Facade, GetCurrentMethod()).GetNewDataForPreparing();
+            Assert.NotNull(results);
+        }
 
-        //          var garmentExpenditureGoodDataUtil = new GarmentExpenditureGoodDataUtil();
-        //          var gegData = garmentExpenditureGoodDataUtil.GetNewData();
-        //          gegData.RONo = dtUnitExpenditureNote.Items.First().RONo;
+        [Fact]
+        public async Task Should_Success_GetXls_Realization_CMT()
+        {
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datautIlUEN = dataUtil(facade, GetCurrentMethod());
+            GarmentUnitExpenditureNote data = await dataUtil(facade, GetCurrentMethod()).GetNewDataForPreparing();
 
-        //          var reportService = new GarmentRealizationCMTReportFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            await facade.Create(data);
 
-        //          var dateTo = DateTime.UtcNow.AddDays(1);
-        //          var dateFrom = dateTo.AddDays(-30);
-        //          var results = reportService.GenerateExcel(dateFrom, dateTo, 0, 0, null);
+            var garmentExpenditureGoodDataUtil = new GarmentExpenditureGoodDataUtil();
+            var gegData = garmentExpenditureGoodDataUtil.GetNewData();
+            gegData.RONo = data.Items.First().RONo;
 
-        //          Assert.NotNull(results);
-        //      }
+            var reportService = new GarmentRealizationCMTReportFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
 
-        //      [Fact]
-        //      public async Task Should_Success_GetXls_Realization_CMT_Null_Result()
-        //      {
-        //          var dbContext = _dbContext(GetCurrentMethod());
-        //          var Facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-        //          var dtUnitExpenditureNote = await dataUtil(Facade, GetCurrentMethod()).GetNewDataForPreparing();
+            var dateTo = DateTime.Now.AddDays(1);
+            var dateFrom = dateTo.AddDays(-30);
 
-        //          var garmentExpenditureGoodDataUtil = new GarmentExpenditureGoodDataUtil();
-        //          var gegData = garmentExpenditureGoodDataUtil.GetNewData();
-        //          gegData.RONo = dtUnitExpenditureNote.Items.First().RONo;
+            var results = reportService.GenerateExcel(dateFrom, dateTo, 0, 0, null);
 
-        //          var reportService = new GarmentRealizationCMTReportFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            Assert.NotNull(results);
+        }
 
-        //          var dateTo = DateTime.UtcNow.AddDays(1);
-        //          var dateFrom = dateTo.AddDays(-30);
-        //          var results = reportService.GenerateExcel(null, null, 0, 0, null);
+        [Fact]
+        public async Task Should_Success_GetXls_Realization_CMT_Null_Result()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var Facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var dtUnitExpenditureNote = await dataUtil(Facade, GetCurrentMethod()).GetNewDataForPreparing();
 
-        //          Assert.NotNull(results);
-        //      }
+            var garmentExpenditureGoodDataUtil = new GarmentExpenditureGoodDataUtil();
+            var gegData = garmentExpenditureGoodDataUtil.GetNewData();
+            gegData.RONo = dtUnitExpenditureNote.Items.First().RONo;
+
+            var reportService = new GarmentRealizationCMTReportFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            var results = reportService.GenerateExcel(null, null, 0, 0, null);
+
+            Assert.NotNull(results);
+        }
         #region traceable
         [Fact]
         public async Task Should_Success_Get_Traceable_In_By_BCNo()
