@@ -143,12 +143,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var BalanceStock = (from a in dbContext.GarmentStockOpnames
                                join b in dbContext.GarmentStockOpnameItems on a.Id equals b.GarmentStockOpnameId
+                               join i in dbContext.GarmentDOItems on b.DOItemId equals i.Id
                                join c in dbContext.GarmentUnitReceiptNoteItems on b.URNItemId equals c.Id
                                join g in dbContext.GarmentUnitReceiptNotes on c.URNId equals g.Id
                                join d in dbContext.GarmentExternalPurchaseOrderItems on c.EPOItemId equals d.Id
                                join e in dbContext.GarmentExternalPurchaseOrders on d.GarmentEPOId equals e.Id
                                join h in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RO equals h.RONo
                                 where a.Date.Date == lastdate.Date
+                                && i.CreatedUtc < DateTo.Date
                                && a.IsDeleted == false && b.IsDeleted == false
                                && categories1.Contains(b.ProductName)
                                && pemasukan.Contains(g.URNType)
@@ -691,12 +693,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var BalanceStock = (from a in dbContext.GarmentStockOpnames
                                 join b in dbContext.GarmentStockOpnameItems on a.Id equals b.GarmentStockOpnameId
+                                join i in dbContext.GarmentDOItems on b.DOItemId equals i.Id
                                 join c in dbContext.GarmentUnitReceiptNoteItems on b.URNItemId equals c.Id
                                 join g in dbContext.GarmentUnitReceiptNotes on c.URNId equals g.Id
                                 join e in dbContext.GarmentExternalPurchaseOrderItems on c.EPOItemId equals e.Id
                                 join f in dbContext.GarmentExternalPurchaseOrders on e.GarmentEPOId equals f.Id
                                 join h in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RO equals h.RONo
                                 where a.Date.Date == lastdate.Date
+                                && i.CreatedUtc < DateTo.Date
                                  && a.IsDeleted == false && b.IsDeleted == false
                                 && categories1.Contains(b.ProductName)
                                 && pemasukan.Contains(g.URNType)
