@@ -274,17 +274,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades
             {
                 validationResults.Add(new ValidationResult("Tanggal harus diisi", new List<string> { "date" }));
             }
-            else if (!string.IsNullOrWhiteSpace(data.UnitCode) && !string.IsNullOrWhiteSpace(data.StorageCode))
-            {
-                var lastData = GetLastDataByUnitStorage(data.UnitCode, data.StorageCode);
-                if (lastData != null)
-                {
-                    if (data.Date <= lastData.Date)
-                    {
-                        validationResults.Add(new ValidationResult("Tanggal harus lebih dari " + lastData.Date.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("dd MMMM yyyy", CultureInfo.CreateSpecificCulture("id-ID")), new List<string> { "date" }));
-                    }
-                }
-            }
+            //else if (!string.IsNullOrWhiteSpace(data.UnitCode) && !string.IsNullOrWhiteSpace(data.StorageCode))
+            //{
+            //    var lastData = GetLastDataByUnitStorage(data.UnitCode, data.StorageCode);
+            //    if (lastData != null)
+            //    {
+            //        if (data.Date <= lastData.Date)
+            //        {
+            //            validationResults.Add(new ValidationResult("Tanggal harus lebih dari " + lastData.Date.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("dd MMMM yyyy", CultureInfo.CreateSpecificCulture("id-ID")), new List<string> { "date" }));
+            //        }
+            //    }
+            //}
 
             if (string.IsNullOrWhiteSpace(data.UnitCode))
             {
