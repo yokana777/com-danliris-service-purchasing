@@ -94,7 +94,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                join i in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on h.EPOItemId equals i.Id
                                join j in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on i.GarmentEPOId equals j.Id
                                where a.Date.Date == lastdate.Date
-                               && i.CreatedUtc.Year <= DateTo.Date.Year
+                               && c.CreatedUtc.Year <= DateTo.Date.Year
                                && a.IsDeleted == false && b.IsDeleted == false
                                && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
                                && categories1.Contains(b.ProductName)

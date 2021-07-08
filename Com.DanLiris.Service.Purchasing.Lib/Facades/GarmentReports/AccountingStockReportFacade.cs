@@ -82,10 +82,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 join g in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RO equals g.RONo
                                 join d in dbContext.GarmentUnitReceiptNoteItems on b.URNItemId equals d.Id
                                 join f in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals f.Id
-                                join g in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on f.GarmentEPOId equals g.Id
+                                join h in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on f.GarmentEPOId equals h.Id
                                 where a.IsDeleted == false && b.IsDeleted == false
                                 && a.Date.Date == lastdate.Date
-                                && i.CreatedUtc.Year <= DateTo.Date.Year
+                                && c.CreatedUtc.Year <= DateTo.Date.Year
                                 && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
                                 && categories1.Contains(b.ProductName)
                                 select new AccountingStockTempViewModel
