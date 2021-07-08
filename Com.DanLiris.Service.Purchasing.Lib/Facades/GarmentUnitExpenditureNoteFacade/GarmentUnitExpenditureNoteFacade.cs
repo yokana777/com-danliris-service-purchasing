@@ -1658,7 +1658,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             ItemCode = a.ProductCode,
                             ItemName = a.ProductName,
                             PONo = a.POSerialNumber,
-                            Quantity = a.UomUnit == "YARD" ? (double)a.Quantity * 0.9144 : (double)a.Quantity,
+                            Quantity = Math.Round(a.UomUnit == "YARD" ? (double)a.Quantity * 0.9144 : (double)a.Quantity,2),
                             Storage = b.StorageName,
                             UENNo = b.UENNo,
                             UnitCode = b.UnitRequestCode,
@@ -1666,7 +1666,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             UnitQtyName = a.UomUnit == "YARD" ? "MT" : a.UomUnit,
                             ExDate = b.ExpenditureDate
                         };
-           
+            Data1 = Data1.Where(x => (x.ItemCode != "APL001") && (x.ItemCode != "EMB001") && (x.ItemCode != "GMT001") && (x.ItemCode != "PRN001") && (x.ItemCode != "SMP001") && (x.ItemCode != "WSH001"));
             var Query = Data1;
             //var Query = type == "FABRIC" ? from a in dbContext.GarmentUnitExpenditureNotes
             //                               join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
