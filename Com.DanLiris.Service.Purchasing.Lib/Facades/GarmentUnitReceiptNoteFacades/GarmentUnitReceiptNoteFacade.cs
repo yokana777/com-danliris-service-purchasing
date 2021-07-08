@@ -1833,6 +1833,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                             KodeBarang = a.ProductCode,
                             Supplier = b.SupplierName
                         };
+            Data1 = Data1.Where(x => (x.KodeBarang != "APL001") && (x.KodeBarang != "EMB001") && (x.KodeBarang != "GMT001") && (x.KodeBarang != "PRN001") && (x.KodeBarang != "SMP001") && (x.KodeBarang != "WSH001"));
             var Query = Data1;
             //var Query = type == "FABRIC" ? from a in dbContext.GarmentUnitReceiptNotes
             //                               join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
