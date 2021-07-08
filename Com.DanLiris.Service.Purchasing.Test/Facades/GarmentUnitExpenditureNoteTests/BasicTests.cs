@@ -929,24 +929,24 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         //      }
 
         //      #endregion
-        //      [Fact]
-        //      public async Task Should_Success_Get_Monitoring_Out()
-        //      {
-        //          var dbContext = _dbContext(GetCurrentMethod());
-        //          var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-        //          var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
-        //          var Response = facade.GetReportOut(null, null, "", 1, 25, "{}", 7);
-        //          Assert.NotNull(Response.Item1);
-        //      }
-        //      [Fact]
-        //      public async Task Should_Success_Get_Excel_Monitoring_Out()
-        //      {
-        //          var dbContext = _dbContext(GetCurrentMethod());
-        //          var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-        //          var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
-        //          var Response = facade.GenerateExcelMonOut(null, null, "", 7);
-        //          Assert.IsType<MemoryStream>(Response);
-        //      }
+        [Fact]
+        public async Task Should_Success_Get_Monitoring_Out()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.GetReportOut(null, null, "", 1, 25, "{}", 7);
+            Assert.NotNull(Response.Item1);
+        }
+        [Fact]
+        public async Task Should_Success_Get_Excel_Monitoring_Out()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.GenerateExcelMonOut(null, null, "", 7);
+            Assert.IsType<MemoryStream>(Response);
+        }
 
         //      [Fact]
         //      public async void Should_Success_Patch_One()

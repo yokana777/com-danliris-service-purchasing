@@ -2330,7 +2330,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
             foreach (var b in data.Items)
             {
-                b.ProductName = "Name123";
+                b.ProductName = "Name123BP";
             }
 
             await facade.Create(data);
