@@ -749,7 +749,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
 
         }
-
         String NumberFormat(double? numb)
         {
 
