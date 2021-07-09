@@ -296,17 +296,55 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDispositionCon
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
-        //[Fact]
-        //public async Task GetById_Should_Success_IfPDF()
-        //{
-        //    _serviceMock = SetDefaultSuccessService();
-        //    SetDefaultServiceMockProvider(_serviceMock, _serviceExternalMock, _mapperMock);
-        //    SetDefaultControllerPdf(_serviceProviderMock, _serviceMock, _serviceExternalMock, _mapperMock);
+        [Fact]
+        public async Task GetById_Should_Success_IfPDF()
+        {
+            _serviceMock = SetDefaultSuccessService();
+            SetDefaultServiceMockProvider(_serviceMock, _serviceExternalMock, _mapperMock);
+            _serviceMock
+                .Setup(service => service.GetFormById(It.IsAny<int>(), It.IsAny<bool>()))
+                .ReturnsAsync(new FormDto()
+                {
+                    Bank = "Bank",
+                    Category = "Category",
+                    ConfirmationOrderNo = "ConfirmationOrderNo",
+                    CurrencyCode = "CurrencyCode",
+                    CurrencyName = "CurrencyName",
+                    DispositionNo = "DispositionNo",
+                    PaymentType = "Type",
+                    Position = PurchasingGarmentExpeditionPosition.VerificationAccepted,
+                    ProformaNo = "ProformaNo",
+                    Remark = "Remark",
+                    SupplierCode = "SupplierCode",
+                    SupplierName = "SupplierName",
+                    Items = new List<FormItemDto>()
+                    {
+                        new FormItemDto()
+                        {
+                            CurrencyCode = "CurrencyCode",
+                            EPONo = "EPONo",
+                            IncomeTaxName = "IncomeTaxName",
+                            Details = new List<FormDetailDto>()
+                            {
+                                new FormDetailDto()
+                                {
+                                    IPONo = "IPONo",
+                                    ProductName = "ProductName",
+                                    RONo = "RONo",
+                                    QTYUnit = "Unit",
+                                    UnitCode = "Unit",
+                                    UnitName = "Unit"
+                                }
+                            }
+                        }
+                    }
+                });
+            SetDefaultControllerPdf(_serviceProviderMock, _serviceMock, _serviceExternalMock, _mapperMock);
 
-        //    var response = await _controller.GetById(It.IsAny<int>(), It.IsAny<bool>());
+            var response = await _controller.GetById(It.IsAny<int>(), It.IsAny<bool>());
 
-        //    Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
-        //}
+            Assert.NotNull(response);
+        }
 
         [Fact]
         public async Task GetById_Should_Exception_IfPDF()

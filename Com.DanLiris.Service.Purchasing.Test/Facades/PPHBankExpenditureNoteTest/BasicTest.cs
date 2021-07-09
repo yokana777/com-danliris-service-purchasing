@@ -150,7 +150,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
             _dataUtil(facade, GetCurrentMethod());
             PurchasingDocumentExpedition model = await pdaDataUtil.GetCashierTestData();
 
-            var Response = facade.GetUnitPaymentOrder(null, null, model.IncomeTaxName, model.IncomeTaxRate, model.Currency);
+            var Response = facade.GetUnitPaymentOrder(null, null, model.IncomeTaxName, model.IncomeTaxRate, model.Currency, model.DivisionCode);
             Assert.NotEmpty(Response);
         }
 
@@ -184,7 +184,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
             _dataUtil(facade, GetCurrentMethod());
             PurchasingDocumentExpedition model = await pdaDataUtil.GetCashierTestData();
 
-            var Response = facade.GetUnitPaymentOrder(model.DueDate, model.DueDate, model.IncomeTaxName, model.IncomeTaxRate, model.Currency);
+            var Response = facade.GetUnitPaymentOrder(model.DueDate, model.DueDate, model.IncomeTaxName, model.IncomeTaxRate, model.Currency, model.DivisionCode);
             Assert.NotEmpty(Response);
         }
 
