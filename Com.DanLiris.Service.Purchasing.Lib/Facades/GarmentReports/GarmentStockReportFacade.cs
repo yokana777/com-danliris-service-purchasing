@@ -750,42 +750,56 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
         }
 
-        String NumberFormat(double? numb)
-        {
-
-            var number = string.Format("{0:0,0.00}", numb);
-
-            return number;
-        }
-
-        private class SaldoAwal {
-            
-            public long EPOID { get; set; }
-            public long EPOItemId { get; set; }
-            public double BeginningBalanceQty { get; set; }
-            public decimal BeginningBaancePrice { get; set; }
-
-        }
 
 
         private List<GarmentCategoryViewModel> GetProductCategories(int page, int size, string order, string filter)
         {
             IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
-            if (httpClient != null)
+
+
+            var garmentSupplierUri = APIEndpoint.Core + $"master/garment-categories";
+            string queryUri = "?page=" + page + "&size=" + size + "&order=" + order + "&filter=" + filter;
+            string uri = garmentSupplierUri + queryUri;
+            var httpResponse = httpClient.GetAsync($"{uri}").Result;
+
+            if (httpResponse.IsSuccessStatusCode)
             {
-                var garmentSupplierUri = APIEndpoint.Core + $"master/garment-categories";
-                string queryUri = "?page=" + page + "&size=" + size + "&order=" + order + "&filter=" + filter;
-                string uri = garmentSupplierUri + queryUri;
-                var response = httpClient.GetAsync($"{uri}").Result.Content.ReadAsStringAsync();
-                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
-                List<GarmentCategoryViewModel> viewModel = JsonConvert.DeserializeObject<List<GarmentCategoryViewModel>>(result.GetValueOrDefault("data").ToString());
+                var content = httpResponse.Content.ReadAsStringAsync().Result;
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+
+                List<GarmentCategoryViewModel> viewModel;
+                if (result.GetValueOrDefault("data") == null)
+                {
+                    viewModel = new List<GarmentCategoryViewModel>();
+                }
+                else
+                {
+                    viewModel = JsonConvert.DeserializeObject<List<GarmentCategoryViewModel>>(result.GetValueOrDefault("data").ToString());
+
+                }
                 return viewModel;
             }
             else
             {
-                List<GarmentCategoryViewModel> viewModel = null;
+                List<GarmentCategoryViewModel> viewModel = new List<GarmentCategoryViewModel>();
                 return viewModel;
             }
+
+            //if (httpClient != null)
+            //{
+            //    var garmentSupplierUri = APIEndpoint.Core + $"master/garment-categories";
+            //    string queryUri = "?page=" + page + "&size=" + size + "&order=" + order + "&filter=" + filter;
+            //    string uri = garmentSupplierUri + queryUri;
+            //    var response = httpClient.GetAsync($"{uri}").Result.Content.ReadAsStringAsync();
+            //    Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
+            //    List<GarmentCategoryViewModel> viewModel = JsonConvert.DeserializeObject<List<GarmentCategoryViewModel>>(result.GetValueOrDefault("data").ToString());
+            //    return viewModel;
+            //}
+            //else
+            //{
+            //    List<GarmentCategoryViewModel> viewModel = null;
+            //    return viewModel;
+            //}
         }
 
         private List<GarmentProductViewModel> GetProductCode(string codes)
@@ -805,7 +819,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 List<GarmentProductViewModel> viewModel;
                 if (result.GetValueOrDefault("data") == null)
                 {
-                    viewModel = null;
+                    viewModel = new List<GarmentProductViewModel>();
                 }
                 else
                 {
@@ -816,7 +830,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             }
             else
             {
-                List<GarmentProductViewModel> viewModel = null;
+                List<GarmentProductViewModel> viewModel = new List<GarmentProductViewModel>();
                 return viewModel;
             }
         }
