@@ -245,11 +245,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades
                     item.URNItemId = DOItem.URNItemId;
                     item.RO = DOItem.RO;
 
-                    if (item.BeforeQuantity != item.Quantity)
-                    {
-                        DOItem.RemainingQuantity = item.Quantity;
-                        EntityExtension.FlagForUpdate(DOItem, identityService.Username, USER_AGENT);
-                    }
+                    DOItem.RemainingQuantity = item.Quantity;
+                    EntityExtension.FlagForUpdate(DOItem, identityService.Username, USER_AGENT);
+                    //if (item.BeforeQuantity != item.Quantity)
+                    //{
+                    //    DOItem.RemainingQuantity = item.Quantity;
+                    //    EntityExtension.FlagForUpdate(DOItem, identityService.Username, USER_AGENT);
+                    //}
                 }
 
                 var urnItem = dbSetUnitReceiptNoteItems.FirstOrDefault(urni => urni.Id == item.URNItemId);
