@@ -1812,8 +1812,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         //&& (type == "FABRIC" ? b.ProductName == "FABRIC" : type == "NON FABRIC" ? b.ProductName != "FABRIC" : b.ProductName == b.ProductName)
                         && categories1.Contains(a.ProductName)
                         && a.ProductName != "PROCESS"
-                        && b.CreatedUtc.Date >= DateFrom.Date
-                        && b.CreatedUtc.Date <= DateTo.Date
+                        && b.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
+                        && b.CreatedUtc.AddHours(offset).Date <= DateTo.Date
                         select new GarmentUnitReceiptNoteINReportViewModel
                         {
                             NoSuratJalan = b.DONo,
@@ -1833,7 +1833,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                             KodeBarang = a.ProductCode,
                             Supplier = b.SupplierName
                         };
+
             Data1 = Data1.Where(x => (x.KodeBarang != "APL001") && (x.KodeBarang != "EMB001") && (x.KodeBarang != "GMT001") && (x.KodeBarang != "PRN001") && (x.KodeBarang != "SMP001") && (x.KodeBarang != "WSH001"));
+
+
+           
+           
+            
             var Query = Data1;
             //var Query = type == "FABRIC" ? from a in dbContext.GarmentUnitReceiptNotes
             //                               join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
