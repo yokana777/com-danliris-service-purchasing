@@ -17,6 +17,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public DateTime BCDate { get; set; }
         public string RO { get; set; }
         public string UnitQtyName { get; set; }
+        public List<TraceableOutBeacukaiDetailViewModel> rincian { get; set; }
     }
 
     public class TraceableOutBeacukaiDetailViewModel

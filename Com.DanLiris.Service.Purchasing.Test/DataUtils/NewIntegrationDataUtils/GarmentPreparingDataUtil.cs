@@ -1,4 +1,4 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel.GarmentCuttingOut;
+﻿using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel.GarmentPreparing;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Newtonsoft.Json;
 using System;
@@ -7,21 +7,21 @@ using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
 {
-    public class GarmentCuttingOutDataUtil
+    public class GarmentPreparingDataUtil
     {
-        public GarmentCuttingOutViewModel GetNewData()
+        public GarmentPreparingViewModel GetNewData()
         {
             long nowTicks = DateTimeOffset.Now.Ticks;
 
-            var data = new GarmentCuttingOutViewModel
+            var data = new GarmentPreparingViewModel
             {
-                Article = $"Artcle{nowTicks}",
-                CuttingOutDate = DateTime.Now,
-                CuttingOutType = "CutOut",
-                CutOutNo = $"CutOutNo{nowTicks}",
-                RONo = "RONo123",
-                TotalCuttingOutQuantity = 20,
-
+                Article = "",
+                CreatedBy ="",
+                ProductCode = "ProductCode1",
+                IsCuttingIn = true,
+                Quantity = 20,
+                RemainingQuantity = 0,
+                RONo = "RONo123"
             };
             return data;
         }
@@ -31,7 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
             return GetResultFormatterOk(GetNewData());
         }
 
-        public Dictionary<string, object> GetResultFormatterOk(GarmentCuttingOutViewModel garmentExpenditureGoodViewModel)
+        public Dictionary<string, object> GetResultFormatterOk(GarmentPreparingViewModel garmentExpenditureGoodViewModel)
         {
             var data = garmentExpenditureGoodViewModel;
 
@@ -47,7 +47,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
             return GetResultFormatterOkString(GetNewData());
         }
 
-        public string GetResultFormatterOkString(GarmentCuttingOutViewModel garmentExpenditureGoodViewModel)
+        public string GetResultFormatterOkString(GarmentPreparingViewModel garmentExpenditureGoodViewModel)
         {
             var result = GetResultFormatterOk(garmentExpenditureGoodViewModel);
 
@@ -55,7 +55,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
         }
         public Dictionary<string, object> GetMultipleResultFormatterOk()
         {
-            var data = new List<GarmentCuttingOutViewModel> { GetNewData() };
+            var data = new List<GarmentPreparingViewModel> { GetNewData() };
 
             Dictionary<string, object> result =
                 new ResultFormatter("1.0", General.OK_STATUS_CODE, General.OK_MESSAGE)
@@ -66,10 +66,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
 
         public Dictionary<string, object> GetNullFormatterOk()
         {
-            //List<GarmentExpenditureGoodViewModel> garmentExpenditureGoods = new List<GarmentExpenditureGoodViewModel>();
-            //garmentExpenditureGoods.Add(GetNewData());
-            //garmentExpenditureGoods.Add(GetNewData());
-            //var data = new List<GarmentExpenditureGoodViewModel> { GetNewData() };
+            //var data = new List<GarmentPreparingViewModel> { GetNewData() };
 
             Dictionary<string, object> result =
                 new ResultFormatter("1.0", General.OK_STATUS_CODE, General.OK_MESSAGE)

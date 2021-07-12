@@ -99,7 +99,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
             int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
             string accept = Request.Headers["Accept"];
 
-            
+
 
             try
             {
@@ -159,35 +159,35 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
             }
         }
 
-        [HttpGet("out/detail")]
-        public IActionResult GettraceOutDetail(string ro)
-        {
-            int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
-            string accept = Request.Headers["Accept"];
+        //[HttpGet("out/detail")]
+        //public IActionResult GettraceOutDetail(string ro)
+        //{
+        //    int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+        //    string accept = Request.Headers["Accept"];
 
             
 
-            try
-            {
-                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
-                identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
-                identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
+        //    try
+        //    {
+        //        identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+        //        identityService.TimezoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+        //        identityService.Token = Request.Headers["Authorization"].First().Replace("Bearer ", "");
 
-                var data2 = _facade.getQueryDetail(ro);
-                return Ok(new
-                {
-                    apiVersion = ApiVersion,
-                    data = data2,
+        //        var data2 = _facade.getQueryDetail(ro);
+        //        return Ok(new
+        //        {
+        //            apiVersion = ApiVersion,
+        //            data = data2,
 
-                });
-            }
-            catch (Exception e)
-            {
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-                    .Fail();
-                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-            }
-        }
+        //        });
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Dictionary<string, object> Result =
+        //            new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+        //            .Fail();
+        //        return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+        //    }
+        //}
     }
 }

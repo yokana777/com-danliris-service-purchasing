@@ -109,6 +109,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades
         public Stream Download(DateTimeOffset date, string unit, string storage, string storageName)
         {
             var data = dbSetDOItem.Where(i => i.UnitCode == unit && i.StorageCode == storage && i.ProductName == (storageName == "GUDANG BAHAN BAKU" ? "FABRIC" : i.ProductName))
+                .Where(i => i.CreatedUtc <= date.DateTime)
                 .Select(i => new
                 {
                     i.Id,
@@ -245,11 +246,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades
                     item.URNItemId = DOItem.URNItemId;
                     item.RO = DOItem.RO;
 
-                    if (item.BeforeQuantity != item.Quantity)
-                    {
-                        DOItem.RemainingQuantity = item.Quantity;
-                        EntityExtension.FlagForUpdate(DOItem, identityService.Username, USER_AGENT);
-                    }
+                    DOItem.RemainingQuantity = item.Quantity;
+                    EntityExtension.FlagForUpdate(DOItem, identityService.Username, USER_AGENT);
+                    //if (item.BeforeQuantity != item.Quantity)
+                    //{
+                    //    DOItem.RemainingQuantity = item.Quantity;
+                    //    EntityExtension.FlagForUpdate(DOItem, identityService.Username, USER_AGENT);
+                    //}
                 }
 
                 var urnItem = dbSetUnitReceiptNoteItems.FirstOrDefault(urni => urni.Id == item.URNItemId);
@@ -274,17 +277,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentStockOpnameFacades
             {
                 validationResults.Add(new ValidationResult("Tanggal harus diisi", new List<string> { "date" }));
             }
-            else if (!string.IsNullOrWhiteSpace(data.UnitCode) && !string.IsNullOrWhiteSpace(data.StorageCode))
-            {
-                var lastData = GetLastDataByUnitStorage(data.UnitCode, data.StorageCode);
-                if (lastData != null)
-                {
-                    if (data.Date <= lastData.Date)
-                    {
-                        validationResults.Add(new ValidationResult("Tanggal harus lebih dari " + lastData.Date.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("dd MMMM yyyy", CultureInfo.CreateSpecificCulture("id-ID")), new List<string> { "date" }));
-                    }
-                }
-            }
+            //else if (!string.IsNullOrWhiteSpace(data.UnitCode) && !string.IsNullOrWhiteSpace(data.StorageCode))
+            //{
+            //    var lastData = GetLastDataByUnitStorage(data.UnitCode, data.StorageCode);
+            //    if (lastData != null)
+            //    {
+            //        if (data.Date <= lastData.Date)
+            //        {
+            //            validationResults.Add(new ValidationResult("Tanggal harus lebih dari " + lastData.Date.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("dd MMMM yyyy", CultureInfo.CreateSpecificCulture("id-ID")), new List<string> { "date" }));
+            //        }
+            //    }
+            //}
 
             if (string.IsNullOrWhiteSpace(data.UnitCode))
             {
