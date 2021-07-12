@@ -45,6 +45,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var categories1 = categories.Select(x => x.Name).ToArray();
 
+            var lastdate = dbContext.GarmentStockOpnames.OrderByDescending(x => x.Date).Select(x => x.Date).FirstOrDefault();
+
             var BalanceStock = (from a in dbContext.GarmentStockOpnames
                                join b in dbContext.GarmentStockOpnameItems on a.Id equals b.GarmentStockOpnameId
                                join c in dbContext.GarmentDOItems on b.DOItemId equals c.Id
