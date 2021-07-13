@@ -38,26 +38,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPCell cellLeftMerge = new PdfPCell() { Border = Rectangle.NO_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_TOP, Padding = 5 };
 
 
-            Document document = new Document(PageSize.A4, 30, 30, 100, 30);
+            Document document = new Document(PageSize.A4, 30, 30, 30, 30);
             MemoryStream stream = new MemoryStream();
             PdfWriter writer = PdfWriter.GetInstance(document, stream);
-            writer.PageEvent = new TextEvents(viewModel.DispositionNo);
+            //writer.PageEvent = new TextEvents(viewModel.DispositionNo);
             document.Open();
 
             string fmString = "FM-PB-00-06-011";
             Paragraph fm = new Paragraph(fmString, bold_font4) { Alignment = Element.ALIGN_RIGHT };
 
-            //string titleString = "DISPOSISI PEMBAYARAN";
-            //Paragraph title = new Paragraph(titleString, bold_font4) { Alignment = Element.ALIGN_CENTER };
+            string titleString = "DISPOSISI PEMBAYARAN";
+            Paragraph title = new Paragraph(titleString, bold_font4) { Alignment = Element.ALIGN_CENTER };
 
-            //document.Add(title);
+            document.Add(title);
             bold_font.SetStyle(Font.NORMAL);
 
 
-            //string NoString = "NO : " + viewModel.DispositionNo;
-            //Paragraph dispoNumber = new Paragraph(NoString, bold_font4) { Alignment = Element.ALIGN_CENTER };
-            //dispoNumber.SpacingAfter = 20f;
-            //document.Add(dispoNumber);
+            string NoString = "NO : " + viewModel.DispositionNo;
+            Paragraph dispoNumber = new Paragraph(NoString, bold_font4) { Alignment = Element.ALIGN_CENTER };
+            dispoNumber.SpacingAfter = 20f;
+            document.Add(dispoNumber);
 
 
 
@@ -598,7 +598,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 _cb.BeginText();
                 _cb.SetFontAndSize(_baseFont, 11);
                 _cb.SetTextMatrix(document.PageSize.GetRight(document.PageSize.Width / 2), document.PageSize.GetTop(20));
-                _cb.ShowText(p1Header);
+                _cb.ShowTextAligned(Element.ALIGN_CENTER, "DISPOSISI PEMBAYARAN", document.PageSize.GetRight(document.PageSize.Width / 2), document.PageSize.GetTop(50), 0);
+                _cb.ShowTextAligned(Element.ALIGN_CENTER, $"NO : {_documentNo}", document.PageSize.GetRight(document.PageSize.Width / 2), document.PageSize.GetTop(62), 0);
+                //_cb.ShowText(p1Header);
                 _cb.EndText();
                 var len = _baseFont.GetWidthPoint(p1Header, 12);
                 //Adds "12" in Page 1 of 12
@@ -609,11 +611,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             {
                 _cb.BeginText();
                 _cb.SetFontAndSize(_baseFont, 11);
-                _cb.SetTextMatrix(document.PageSize.GetRight(150), document.PageSize.GetBottom(5));
-                _cb.ShowText(text);
+                _cb.ShowTextAligned(Element.ALIGN_CENTER, text, document.PageSize.GetRight(document.PageSize.Width / 2), document.PageSize.GetBottom(10), 0);
+                //_cb.ShowText(text);
                 _cb.EndText();
                 var len1 = _baseFont.GetWidthPoint(text, 12);
-                _cb.AddTemplate(_footerTemplate, document.PageSize.GetRight(150) + len1, document.PageSize.GetBottom(5));
+                _cb.AddTemplate(_footerTemplate, document.PageSize.GetRight(document.PageSize.Width / 2) + len1, document.PageSize.GetBottom(10));
             }
 
             //set the alignment of all three cells and set border to 0
@@ -658,6 +660,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         {
             base.OnCloseDocument(writer, document);
 
+            //_headerTemplate.al
             //_headerTemplate.BeginText();
             //_headerTemplate.SetFontAndSize(_baseFont, 12);
             //_headerTemplate.SetTextMatrix(0, 0);
