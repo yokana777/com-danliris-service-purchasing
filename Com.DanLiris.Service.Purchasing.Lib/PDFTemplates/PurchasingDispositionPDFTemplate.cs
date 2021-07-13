@@ -38,7 +38,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPCell cellLeftMerge = new PdfPCell() { Border = Rectangle.NO_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_TOP, Padding = 5 };
 
 
-            Document document = new Document(PageSize.A4, 30, 30, 30, 30);
+            Document document = new Document(PageSize.A4, 30, 30, 100, 30);
             MemoryStream stream = new MemoryStream();
             PdfWriter writer = PdfWriter.GetInstance(document, stream);
             writer.PageEvent = new TextEvents(viewModel.DispositionNo);
@@ -47,17 +47,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             string fmString = "FM-PB-00-06-011";
             Paragraph fm = new Paragraph(fmString, bold_font4) { Alignment = Element.ALIGN_RIGHT };
 
-            string titleString = "DISPOSISI PEMBAYARAN";
-            Paragraph title = new Paragraph(titleString, bold_font4) { Alignment = Element.ALIGN_CENTER };
+            //string titleString = "DISPOSISI PEMBAYARAN";
+            //Paragraph title = new Paragraph(titleString, bold_font4) { Alignment = Element.ALIGN_CENTER };
 
-            document.Add(title);
+            //document.Add(title);
             bold_font.SetStyle(Font.NORMAL);
 
 
-            string NoString = "NO : " + viewModel.DispositionNo;
-            Paragraph dispoNumber = new Paragraph(NoString, bold_font4) { Alignment = Element.ALIGN_CENTER };
-            dispoNumber.SpacingAfter = 20f;
-            document.Add(dispoNumber);
+            //string NoString = "NO : " + viewModel.DispositionNo;
+            //Paragraph dispoNumber = new Paragraph(NoString, bold_font4) { Alignment = Element.ALIGN_CENTER };
+            //dispoNumber.SpacingAfter = 20f;
+            //document.Add(dispoNumber);
 
 
 
@@ -559,7 +559,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             try
             {
                 _printTime = DateTime.Now;
-                _baseFont = BaseFont.CreateFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+                _baseFont = BaseFont.CreateFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
                 _cb = writer.DirectContent;
                 _headerTemplate = _cb.CreateTemplate(100, 100);
                 _footerTemplate = _cb.CreateTemplate(50, 50);
@@ -577,10 +577,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             base.OnEndPage(writer, document);
             var baseFontNormal = new Font(Font.HELVETICA, 12f, Font.NORMAL, BaseColor.Black);
             var baseFontBig = new Font(Font.HELVETICA, 12f, Font.BOLD, BaseColor.Black);
-            var p1Header = $"No: {_documentNo}";
+            var p1Header = $"DISPOSISI PEMBAYARAN\nNO : {_documentNo}";
 
-            if (writer.PageNumber == 1)
-                p1Header = "";
+            //if (writer.PageNumber == 1)
+            //    p1Header = "";
 
             //Create PdfTable object
             var pdfTab = new PdfPTable(3);
@@ -596,19 +596,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             ////Add paging to header
             {
                 _cb.BeginText();
-                _cb.SetFontAndSize(_baseFont, 12);
-                _cb.SetTextMatrix(document.PageSize.GetRight(150), document.PageSize.GetTop(15));
+                _cb.SetFontAndSize(_baseFont, 11);
+                _cb.SetTextMatrix(document.PageSize.GetRight(document.PageSize.Width / 2), document.PageSize.GetTop(20));
                 _cb.ShowText(p1Header);
                 _cb.EndText();
-                var len = _baseFont.GetWidthPoint(text, 12);
+                var len = _baseFont.GetWidthPoint(p1Header, 12);
                 //Adds "12" in Page 1 of 12
-                _cb.AddTemplate(_headerTemplate, document.PageSize.GetRight(150) + len, document.PageSize.GetTop(15));
+                _cb.AddTemplate(_headerTemplate, document.PageSize.GetRight(150) + len, document.PageSize.GetTop(20));
             }
 
             //Add paging to footer
             {
                 _cb.BeginText();
-                _cb.SetFontAndSize(_baseFont, 12);
+                _cb.SetFontAndSize(_baseFont, 11);
                 _cb.SetTextMatrix(document.PageSize.GetRight(150), document.PageSize.GetBottom(5));
                 _cb.ShowText(text);
                 _cb.EndText();
