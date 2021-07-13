@@ -567,7 +567,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
 
         public List<PurchasingDispositionViewModel> GetTotalPaidPrice(List<PurchasingDispositionViewModel> data)
         {
-            var dbSet = dbContext.PurchasingDispositionDetails.AsNoTracking();
+            var dbSet = dbContext.PurchasingDispositionDetails.Select(entity => new { entity.ProductId, entity.PRId, entity.PaidPrice }).AsNoTracking();
 
             foreach (var purchasingDisposition in data)
             {
