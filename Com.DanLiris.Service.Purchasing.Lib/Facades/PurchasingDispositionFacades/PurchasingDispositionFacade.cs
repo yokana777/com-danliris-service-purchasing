@@ -33,7 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
 
             List<string> searchAttributes = new List<string>()
             {
-                "DispositionNo","SupplierName","Items.EPONo","CurrencyCode","DivisionName","CategoryName"
+                "DispositionNo","SupplierName","CurrencyCode","DivisionName","CategoryName"
             };
 
             Query = QueryHelper<PurchasingDisposition>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -202,7 +202,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
 
             List<string> searchAttributes = new List<string>()
             {
-                "DispositionNo","SupplierName","Items.EPONo","CurrencyCode","DivisionName","CategoryName"
+                "DispositionNo","SupplierName","CurrencyCode","DivisionName","CategoryName"
             };
 
             Query = QueryHelper<PurchasingDisposition>.ConfigureSearch(Query, searchAttributes, Keyword);
