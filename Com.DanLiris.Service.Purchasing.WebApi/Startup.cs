@@ -105,7 +105,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             APIEndpoint.Core = Configuration.GetValue<string>(Constant.CORE_ENDPOINT) ?? Configuration[Constant.CORE_ENDPOINT];
             APIEndpoint.Inventory = Configuration.GetValue<string>(Constant.INVENTORY_ENDPOINT) ?? Configuration[Constant.INVENTORY_ENDPOINT];
             APIEndpoint.Finance = Configuration.GetValue<string>(Constant.FINANCE_ENDPOINT) ?? Configuration[Constant.FINANCE_ENDPOINT];
-            APIEndpoint.CustomsReport = Configuration.GetValue<string>(Constant.CUSTOMSREPORT_ENDPOINT) ?? Configuration[Constant.FINANCE_ENDPOINT];
+            APIEndpoint.CustomsReport = Configuration.GetValue<string>(Constant.CUSTOMSREPORT_ENDPOINT) ?? Configuration[Constant.CUSTOMSREPORT_ENDPOINT];
             APIEndpoint.Sales = Configuration.GetValue<string>(Constant.SALES_ENDPOINT) ?? Configuration[Constant.SALES_ENDPOINT];
             APIEndpoint.Auth = Configuration.GetValue<string>(Constant.AUTH_ENDPOINT) ?? Configuration[Constant.AUTH_ENDPOINT];
             APIEndpoint.GarmentProduction = Configuration.GetValue<string>(Constant.GARMENT_PRODUCTION_ENDPOINT) ?? Configuration[Constant.GARMENT_PRODUCTION_ENDPOINT];
@@ -214,6 +214,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IGarmentDispositionPurchaseFacade, GarmentDispositionPurchaseFacade>()
                 .AddTransient<IGarmentDispositionPaymentReportService, GarmentDispositionPaymentReportService>()
                 .AddTransient<IROFeatureFacade, ROFeatureFacade>()
+                .AddTransient<ITraceableBeacukaiFacade, TraceableBeacukaiFacade>()
                 .AddTransient<IGarmentBC23ReportFacade, GarmentBC23ReportFacade>()
                 .AddTransient<IMutationBeacukaiFacade, MutationBeacukaiFacade>()
                 .AddTransient<IGarmentClosingDateFacade, GarmentClosingDateFacade>();

@@ -163,11 +163,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     tableContent.AddCell(cellCenter);
                     cellCenter.Phrase = new Phrase("Harga Satuan SPB", small_bold_font);
                     tableContent.AddCell(cellCenter);
-                    cellCenter.Phrase = new Phrase("Harga yang Dikoreksi", small_bold_font);
+                    cellCenter.Phrase = new Phrase("Harga Baru", small_bold_font);
+                    tableContent.AddCell(cellCenter);
+                    cellCenter.Phrase = new Phrase("Harga Koreksi", small_bold_font);
                     tableContent.AddCell(cellCenter);
                     cellCenter.Phrase = new Phrase("Nilai Koreksi", small_bold_font);
-                    tableContent.AddCell(cellCenter);
-                    cellCenter.Phrase = new Phrase("Harga Total", small_bold_font);
                     tableContent.AddCell(cellCenter);
                     cellCenter.Phrase = new Phrase("Nomor Order", small_bold_font);
                     tableContent.AddCell(cellCenter);
@@ -200,7 +200,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                             priceCorrectionUnit = item.pricePerDealUnitAfter - item.pricePerDealUnitBefore;
                         }
 
-                        cellRight.Phrase = new Phrase($"{item.currency.code} {priceCorrectionUnit.ToString("N03", _cultureInfo)}", normal_font);
+                        cellRight.Phrase = new Phrase($"{item.currency.code} {item.pricePerDealUnitAfter.ToString("N03", _cultureInfo)}", normal_font);
                         tableContent.AddCell(cellRight);
 
 
@@ -215,10 +215,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         priceCorrectionTotal = priceCorrectionUnit * item.quantity;
                         //}
 
-                        cellRight.Phrase = new Phrase($"{item.currency.code} {priceCorrectionTotal.ToString("N03", _cultureInfo)}", normal_font);
+                        cellRight.Phrase = new Phrase($"{item.currency.code} {priceCorrectionUnit.ToString("N03", _cultureInfo)}", normal_font);
                         tableContent.AddCell(cellRight);
 
-                        cellRight.Phrase = new Phrase($"{item.currency.code} {item.priceTotalBefore.ToString("N03", _cultureInfo)}", normal_font);
+                        cellRight.Phrase = new Phrase($"{item.currency.code} {priceCorrectionTotal.ToString("N03", _cultureInfo)}", normal_font);
                         tableContent.AddCell(cellRight);
 
                         cellLeft.Phrase = new Phrase(item.pRNo, normal_font);

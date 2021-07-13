@@ -42,6 +42,10 @@ using System.IO;
 using Microsoft.AspNetCore.JsonPatch;
 using System.Data;
 using System.Data.SqlClient;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentBeacukaiDataUtils;
+using Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNoteTests
 {
@@ -64,6 +68,31 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             httpClientService
                 .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("expenditure-goods/byRO"))))
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentExpenditureGoodDataUtil().GetMultipleResultFormatterOkString()) });
+            httpClientService
+                .Setup(x => x.SendAsync(It.IsAny<HttpMethod>(), It.Is<string>(s => s.Contains("customs-reports/getPEB")), It.IsAny<HttpContent>()))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new BeacukaiAddedDataUtil().GetMultipleResultFormatterOkString()) });
+            httpClientService
+                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("customs-reports/getPEB"))))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new BeacukaiAddedDataUtil().GetMultipleResultFormatterOkString()) });
+            httpClientService
+                .Setup(x => x.SendAsync(It.IsAny<HttpMethod>(), It.Is<string>(s => s.Contains("finishing-outs/for-traceable")), It.IsAny<HttpContent>()))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentFinishingOutDataUtil().GetMultipleResultFormatterOkString()) });
+            httpClientService
+                .Setup(x => x.SendAsync(It.IsAny<HttpMethod>(), It.Is<string>(s => s.Contains("cutting-outs/for-traceable")), It.IsAny<HttpContent>()))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentCuttingOutDataUtil().GetMultipleResultFormatterOkString()) });
+            httpClientService
+                .Setup(x => x.SendAsync(It.IsAny<HttpMethod>(), It.Is<string>(s => s.Contains("expenditure-goods/traceable-by-ro")), It.IsAny<HttpContent>()))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentExpenditureGoodDataUtil().GetMultipleResultFormatterOkString()) });
+            httpClientService
+                .Setup(x => x.PostAsync(It.Is<string>(s => s.Contains("garment-debt-balances/customs")), It.IsAny<HttpContent>()))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.Created));
+            httpClientService
+                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("expenditure-goods"))))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentExpenditureGoodDataUtil().GetMultipleResultFormatterOkString()) });
+
+            httpClientService
+                .Setup(x => x.SendAsync(It.IsAny<HttpMethod>(), It.Is<string>(s => s.Contains("preparings/byRONO")), It.IsAny<HttpContent>()))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentPreparingDataUtil().GetMultipleResultFormatterOkString()) });
 
             //httpClientService
             //    .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-categories"))))
@@ -103,6 +132,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                 .Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(new GarmentUnitDeliveryOrder());
 
+            var mockDebtBalanceService = new Mock<IGarmentDebtBalanceService>();
+            mockDebtBalanceService
+                .Setup(x => x.CreateFromCustoms(It.IsAny<CustomsFormDto>()))
+                .ReturnsAsync(1);
+
             var serviceProviderMock = new Mock<IServiceProvider>();
             serviceProviderMock
                 .Setup(x => x.GetService(typeof(IdentityService)))
@@ -116,6 +150,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             serviceProviderMock
                 .Setup(x => x.GetService(typeof(IGarmentDeliveryOrderFacade)))
                 .Returns(mockGarmentDeliveryOrderFacade.Object);
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IGarmentDebtBalanceService)))
+                .Returns(mockDebtBalanceService.Object);
 
 
             return serviceProviderMock.Object;
@@ -259,6 +296,29 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             return new GarmentUnitExpenditureNoteDataUtil(facade, garmentUnitDeliveryOrderDatautil);
         }
 
+        private GarmentDeliveryOrderDataUtil dataUtilDO(GarmentDeliveryOrderFacade facade, string testName)
+        {
+            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(GetServiceProvider(), _dbContext(testName));
+            var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
+
+            var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));
+            var garmentInternalPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
+
+            var garmentExternalPurchaseOrderFacade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(testName));
+            var garmentExternalPurchaseOrderDataUtil = new GarmentExternalPurchaseOrderDataUtil(garmentExternalPurchaseOrderFacade, garmentInternalPurchaseOrderDataUtil);
+
+            return new GarmentDeliveryOrderDataUtil(facade, garmentExternalPurchaseOrderDataUtil);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Data_By_PO()
+        {
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.GetBasicPriceByPOSerialNumber(data.Items.First().POSerialNumber);
+            Assert.NotEqual(0, Response.Id);
+        }
+
         //      [Fact]
         //      public async Task Should_Success_Get_All_Data()
         //      {
@@ -286,14 +346,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         //          Assert.NotEqual(0, Response.Id);
         //      }
 
-        //      [Fact]
-        //      public async Task Should_Success_Create_Data()
-        //      {
-        //          var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-        //          var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
-        //          var Response = await facade.Create(data);
-        //          Assert.NotEqual(0, Response);
-        //      }
+        //[Fact]
+        //public async Task Should_Success_Create_Data()
+        //{
+        //    var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+        //    var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
+        //    var Response = await facade.Create(data);
+        //    Assert.NotEqual(0, Response);
+        //}
 
         //      [Fact]
         //      public async Task Should_Success_Create_Data_External()
@@ -1135,8 +1195,537 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
         //          Assert.NotNull(results);
         //      }
+        #region traceable
+        [Fact]
+        public async Task Should_Success_Get_Traceable_In_By_BCNo()
+        {
+
+            var facade = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datauitlDO = dataUtilDO(facade, GetCurrentMethod());
+            GarmentDeliveryOrder data = await dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+
+            await facade.Create(data, "Unit Test");
+
+            var facadeBC = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datauitlDO, facadeBC);
+            var dataBC = await datautilBC.GetNewData(USERNAME, data);
+
+            dataBC.CustomsType = "BC 23";
+            dataBC.BeacukaiNo = "BeacukaiNo";
+
+            await facadeBC.Create(dataBC, USERNAME);
+
+            var garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(GetCurrentMethod()));
+            var garmentUnitReceiptNoteDatautil = new GarmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, datauitlDO);
+
+            var garmentUnitDeliveryOrderFacade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var garmentUnitDeliveryOrderDatautil = new GarmentUnitDeliveryOrderDataUtil(garmentUnitDeliveryOrderFacade, garmentUnitReceiptNoteDatautil);
+
+            var garmentUnitExpenditureNoteFacade = new GarmentUnitExpenditureNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(GetCurrentMethod()));
+            var garmentUnitExpenditureNoteDatautil = new GarmentUnitExpenditureNoteDataUtil(garmentUnitExpenditureNoteFacade, garmentUnitDeliveryOrderDatautil);
+
+            var dataurn = await garmentUnitReceiptNoteDatautil.GetNewData(null, data);
+            await garmentUnitReceiptNoteFacade.Create(dataurn);
+
+            var dataunitDO = await garmentUnitDeliveryOrderDatautil.GetNewData(dataurn);
+            dataunitDO.RONo = "RONo123";
+            await garmentUnitDeliveryOrderFacade.Create(dataunitDO);
+
+            var datauen = await garmentUnitExpenditureNoteDatautil.GetNewData(dataunitDO);
+            await garmentUnitExpenditureNoteFacade.Create(datauen);
+
+            var facadeTraceable = new TraceableBeacukaiFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            var Response = facadeTraceable.GetReportTraceableIN(dataBC.BeacukaiNo, "BCNo", dataBC.CustomsType);
+
+            Assert.NotNull(Response.Item1);
 
 
-        
+        }
+        [Fact]
+        public async Task Should_Success_Get_Traceable_In_By_RONo()
+        {
+
+            var facade = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datauitlDO = dataUtilDO(facade, GetCurrentMethod());
+            GarmentDeliveryOrder data = await dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+
+            await facade.Create(data, "Unit Test");
+
+            var facadeBC = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datauitlDO, facadeBC);
+            var dataBC = await datautilBC.GetNewData(USERNAME, data);
+
+            dataBC.CustomsType = "BC 23";
+            dataBC.BeacukaiNo = "BeacukaiNo";
+
+            await facadeBC.Create(dataBC, USERNAME);
+
+            var garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(GetCurrentMethod()));
+            var garmentUnitReceiptNoteDatautil = new GarmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, datauitlDO);
+
+            var garmentUnitDeliveryOrderFacade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var garmentUnitDeliveryOrderDatautil = new GarmentUnitDeliveryOrderDataUtil(garmentUnitDeliveryOrderFacade, garmentUnitReceiptNoteDatautil);
+
+            var garmentUnitExpenditureNoteFacade = new GarmentUnitExpenditureNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(GetCurrentMethod()));
+            var garmentUnitExpenditureNoteDatautil = new GarmentUnitExpenditureNoteDataUtil(garmentUnitExpenditureNoteFacade, garmentUnitDeliveryOrderDatautil);
+
+            var dataurn = await garmentUnitReceiptNoteDatautil.GetNewData(null, data);
+            await garmentUnitReceiptNoteFacade.Create(dataurn);
+
+            var dataunitDO = await garmentUnitDeliveryOrderDatautil.GetNewData(dataurn);
+            dataunitDO.RONo = "RONo123";
+            await garmentUnitDeliveryOrderFacade.Create(dataunitDO);
+
+            var datauen = await garmentUnitExpenditureNoteDatautil.GetNewData(dataunitDO);
+            await garmentUnitExpenditureNoteFacade.Create(datauen);
+
+            var facadeTraceable = new TraceableBeacukaiFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            var Response = facadeTraceable.GetReportTraceableIN(dataBC.BeacukaiNo, "RONo", dataunitDO.RONo);
+
+            Assert.NotNull(Response.Item1);
+
+
+        }
+        [Fact]
+        public async Task Should_Success_Get_Excel_Traceable_In_By_BCNo()
+        {
+
+            var facade = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datauitlDO = dataUtilDO(facade, GetCurrentMethod());
+            GarmentDeliveryOrder data = await dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+
+            await facade.Create(data, "Unit Test");
+
+            var facadeBC = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datauitlDO, facadeBC);
+            var dataBC = await datautilBC.GetNewData(USERNAME, data);
+
+            dataBC.CustomsType = "BC 23";
+            dataBC.BeacukaiNo = "BeacukaiNo";
+
+            await facadeBC.Create(dataBC, USERNAME);
+
+            var garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(GetCurrentMethod()));
+            var garmentUnitReceiptNoteDatautil = new GarmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, datauitlDO);
+
+            var garmentUnitDeliveryOrderFacade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var garmentUnitDeliveryOrderDatautil = new GarmentUnitDeliveryOrderDataUtil(garmentUnitDeliveryOrderFacade, garmentUnitReceiptNoteDatautil);
+
+            var garmentUnitExpenditureNoteFacade = new GarmentUnitExpenditureNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(GetCurrentMethod()));
+            var garmentUnitExpenditureNoteDatautil = new GarmentUnitExpenditureNoteDataUtil(garmentUnitExpenditureNoteFacade, garmentUnitDeliveryOrderDatautil);
+
+            var dataurn = await garmentUnitReceiptNoteDatautil.GetNewData(null, data);
+            await garmentUnitReceiptNoteFacade.Create(dataurn);
+
+            var dataunitDO = await garmentUnitDeliveryOrderDatautil.GetNewData(dataurn);
+            dataunitDO.RONo = "RONo123";
+            await garmentUnitDeliveryOrderFacade.Create(dataunitDO);
+
+            var datauen = await garmentUnitExpenditureNoteDatautil.GetNewData(dataunitDO);
+            await garmentUnitExpenditureNoteFacade.Create(datauen);
+
+            var facadeTraceable = new TraceableBeacukaiFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            var Response = facadeTraceable.GetTraceableInExcel(dataBC.BeacukaiNo, "BCNo", dataBC.CustomsType);
+
+            Assert.IsType<MemoryStream>(Response);
+
+
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Excel_Null_BUK_Traceable_In_By_BCNo()
+        {
+            var httpClientService = new Mock<IHttpClientService>();
+
+            httpClientService
+                .Setup(x => x.SendAsync(It.IsAny<HttpMethod>(), It.Is<string>(s => s.Contains("customs-reports/getPEB")), It.IsAny<HttpContent>()))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+            httpClientService
+                .Setup(x => x.SendAsync(It.IsAny<HttpMethod>(), It.Is<string>(s => s.Contains("finishing-outs/for-traceable")), It.IsAny<HttpContent>()))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+            httpClientService
+                .Setup(x => x.SendAsync(It.IsAny<HttpMethod>(), It.Is<string>(s => s.Contains("cutting-outs/for-traceable")), It.IsAny<HttpContent>()))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+            httpClientService
+                .Setup(x => x.SendAsync(It.IsAny<HttpMethod>(), It.Is<string>(s => s.Contains("expenditure-goods/traceable-by-ro")), It.IsAny<HttpContent>()))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+            httpClientService
+                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-suppliers"))))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new SupplierDataUtil().GetResultFormatterOkString()) });
+            httpClientService
+                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-currencies"))))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new CurrencyDataUtil().GetMultipleResultFormatterOkString()) });
+
+            var serviceProviderMock = new Mock<IServiceProvider>();
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IdentityService)))
+                .Returns(new IdentityService { Username = "Username" });
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(httpClientService.Object);
+
+            var mockGarmentDeliveryOrderFacade = new Mock<IGarmentUnitDeliveryOrderFacade>();
+            mockGarmentDeliveryOrderFacade
+                .Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(new GarmentUnitDeliveryOrder());
+            var mockDebtBalanceService = new Mock<IGarmentDebtBalanceService>();
+            mockDebtBalanceService
+                .Setup(x => x.CreateFromCustoms(It.IsAny<CustomsFormDto>()))
+                .ReturnsAsync(1);
+
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IGarmentDeliveryOrderFacade)))
+                .Returns(mockGarmentDeliveryOrderFacade.Object);
+
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IGarmentDebtBalanceService)))
+                .Returns(mockDebtBalanceService.Object);
+
+
+
+            var facade = new GarmentDeliveryOrderFacade(serviceProviderMock.Object, _dbContext(GetCurrentMethod()));
+            var datauitlDO = dataUtilDO(facade, GetCurrentMethod());
+            GarmentDeliveryOrder data = await dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+
+            await facade.Create(data, "Unit Test");
+
+            var facadeBC = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), serviceProviderMock.Object);
+            var datautilBC = new GarmentBeacukaiDataUtil(datauitlDO, facadeBC);
+            var dataBC = await datautilBC.GetNewData(USERNAME, data);
+
+            dataBC.CustomsType = "BC 23";
+            dataBC.BeacukaiNo = "BeacukaiNo";
+
+            await facadeBC.Create(dataBC, USERNAME);
+
+            var garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(GetCurrentMethod()));
+            var garmentUnitReceiptNoteDatautil = new GarmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, datauitlDO);
+
+            var dataurn = await garmentUnitReceiptNoteDatautil.GetNewData(null, data);
+            await garmentUnitReceiptNoteFacade.Create(dataurn);
+
+            var facadeTraceable = new TraceableBeacukaiFacade(serviceProviderMock.Object, _dbContext(GetCurrentMethod()));
+
+            var Response = facadeTraceable.GetTraceableInExcel(dataBC.BeacukaiNo, "BCNo", dataBC.CustomsType);
+
+            Assert.IsType<MemoryStream>(Response);
+
+
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Traceable_Out()
+        {
+            var facadeTraceable = new TraceableBeacukaiFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            
+
+            
+
+            var facade = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datauitlDO = dataUtilDO(facade, GetCurrentMethod());
+            GarmentDeliveryOrder data = await dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+
+            await facade.Create(data, "Unit Test");
+
+            var facadeBC = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datauitlDO, facadeBC);
+            var dataBC = await datautilBC.GetNewData(USERNAME, data);
+
+            dataBC.CustomsType = "BC 23";
+            dataBC.BeacukaiNo = "BeacukaiNo";
+
+            await facadeBC.Create(dataBC, USERNAME);
+
+            var garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(GetCurrentMethod()));
+            var garmentUnitReceiptNoteDatautil = new GarmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, datauitlDO);
+
+            var garmentUnitDeliveryOrderFacade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var garmentUnitDeliveryOrderDatautil = new GarmentUnitDeliveryOrderDataUtil(garmentUnitDeliveryOrderFacade, garmentUnitReceiptNoteDatautil);
+
+            var garmentUnitExpenditureNoteFacade = new GarmentUnitExpenditureNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(GetCurrentMethod()));
+            var garmentUnitExpenditureNoteDatautil = new GarmentUnitExpenditureNoteDataUtil(garmentUnitExpenditureNoteFacade, garmentUnitDeliveryOrderDatautil);
+
+            var dataurn = await garmentUnitReceiptNoteDatautil.GetNewData(null, data);
+            await garmentUnitReceiptNoteFacade.Create(dataurn);
+
+            var dataunitDO = await garmentUnitDeliveryOrderDatautil.GetNewData(dataurn);
+            dataunitDO.RONo = "RONo123";
+            await garmentUnitDeliveryOrderFacade.Create(dataunitDO);
+
+            var datauen = await garmentUnitExpenditureNoteDatautil.GetNewData(dataunitDO);
+            await garmentUnitExpenditureNoteFacade.Create(datauen);
+
+
+            var response = facadeTraceable.getQueryTraceableOut("BCNo123");
+
+
+            Assert.NotNull(response);
+            //var response2 = facadeTraceable.getQueryDetail("RONo123");
+
+
+            //Assert.NotNull(response2);
+
+        }
+
+
+        [Fact]
+        public async Task Should_Success_Get_Traceable_Out_INternalServerError_Response()
+        {
+            var httpClientService = new Mock<IHttpClientService>();
+
+
+            httpClientService
+                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("customs-reports/getPEB/byBCNo"))))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+
+            httpClientService
+                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("expenditure-goods"))))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+
+            httpClientService
+                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-suppliers"))))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new SupplierDataUtil().GetResultFormatterOkString()) });
+            httpClientService
+                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-currencies"))))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new CurrencyDataUtil().GetMultipleResultFormatterOkString()) });
+            httpClientService
+               .Setup(x => x.SendAsync(It.IsAny<HttpMethod>(), It.Is<string>(s => s.Contains("preparings/byRONO")), It.IsAny<HttpContent>()))
+               .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+
+
+            var serviceProviderMock = new Mock<IServiceProvider>();
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IdentityService)))
+                .Returns(new IdentityService { Username = "Username" });
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(httpClientService.Object);
+
+            var mockGarmentDeliveryOrderFacade = new Mock<IGarmentUnitDeliveryOrderFacade>();
+            mockGarmentDeliveryOrderFacade
+                .Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(new GarmentUnitDeliveryOrder());
+            var mockDebtBalanceService = new Mock<IGarmentDebtBalanceService>();
+            mockDebtBalanceService
+                .Setup(x => x.CreateFromCustoms(It.IsAny<CustomsFormDto>()))
+                .ReturnsAsync(1);
+
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IGarmentDeliveryOrderFacade)))
+                .Returns(mockGarmentDeliveryOrderFacade.Object);
+
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IGarmentDebtBalanceService)))
+                .Returns(mockDebtBalanceService.Object);
+
+
+            var facadeTraceable = new TraceableBeacukaiFacade(serviceProviderMock.Object, _dbContext(GetCurrentMethod()));
+
+
+
+
+
+            var facade = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datauitlDO = dataUtilDO(facade, GetCurrentMethod());
+            GarmentDeliveryOrder data = await dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+
+            await facade.Create(data, "Unit Test");
+
+            var facadeBC = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datauitlDO, facadeBC);
+            var dataBC = await datautilBC.GetNewData(USERNAME, data);
+
+            dataBC.CustomsType = "BC 23";
+            dataBC.BeacukaiNo = "BeacukaiNo";
+
+            await facadeBC.Create(dataBC, USERNAME);
+
+            var garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(GetCurrentMethod()));
+            var garmentUnitReceiptNoteDatautil = new GarmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, datauitlDO);
+
+            var garmentUnitDeliveryOrderFacade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var garmentUnitDeliveryOrderDatautil = new GarmentUnitDeliveryOrderDataUtil(garmentUnitDeliveryOrderFacade, garmentUnitReceiptNoteDatautil);
+
+            var garmentUnitExpenditureNoteFacade = new GarmentUnitExpenditureNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(GetCurrentMethod()));
+            var garmentUnitExpenditureNoteDatautil = new GarmentUnitExpenditureNoteDataUtil(garmentUnitExpenditureNoteFacade, garmentUnitDeliveryOrderDatautil);
+
+            var dataurn = await garmentUnitReceiptNoteDatautil.GetNewData(null, data);
+            await garmentUnitReceiptNoteFacade.Create(dataurn);
+
+            var dataunitDO = await garmentUnitDeliveryOrderDatautil.GetNewData(dataurn);
+            dataunitDO.RONo = "RONo123";
+            await garmentUnitDeliveryOrderFacade.Create(dataunitDO);
+
+            var datauen = await garmentUnitExpenditureNoteDatautil.GetNewData(dataunitDO);
+            await garmentUnitExpenditureNoteFacade.Create(datauen);
+
+
+            var response = facadeTraceable.getQueryTraceableOut("BCNo123");
+
+
+            Assert.NotNull(response);
+            //var response2 = facadeTraceable.getQueryDetail("RONo123");
+
+
+            //Assert.NotNull(response2);
+
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Traceable_Out_Null_Response()
+        {
+            var httpClientService = new Mock<IHttpClientService>();
+
+
+            httpClientService
+                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("customs-reports/getPEB/byBCNo"))))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new BeacukaiAddedDataUtil().GetNullFormatterOkString()) });
+
+            httpClientService
+                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("expenditure-goods"))))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentExpenditureGoodDataUtil().GetNullFormatterOkString()) });
+
+            httpClientService
+                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-suppliers"))))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new SupplierDataUtil().GetResultFormatterOkString()) });
+            httpClientService
+                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-currencies"))))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new CurrencyDataUtil().GetMultipleResultFormatterOkString()) });
+            httpClientService
+               .Setup(x => x.SendAsync(It.IsAny<HttpMethod>(), It.Is<string>(s => s.Contains("preparings/byRONO")), It.IsAny<HttpContent>()))
+               .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentPreparingDataUtil().GetNullFormatterOkString()) });
+
+
+            var serviceProviderMock = new Mock<IServiceProvider>();
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IdentityService)))
+                .Returns(new IdentityService { Username = "Username" });
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(httpClientService.Object);
+
+            var mockGarmentDeliveryOrderFacade = new Mock<IGarmentUnitDeliveryOrderFacade>();
+            mockGarmentDeliveryOrderFacade
+                .Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(new GarmentUnitDeliveryOrder());
+            var mockDebtBalanceService = new Mock<IGarmentDebtBalanceService>();
+            mockDebtBalanceService
+                .Setup(x => x.CreateFromCustoms(It.IsAny<CustomsFormDto>()))
+                .ReturnsAsync(1);
+
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IGarmentDeliveryOrderFacade)))
+                .Returns(mockGarmentDeliveryOrderFacade.Object);
+
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IGarmentDebtBalanceService)))
+                .Returns(mockDebtBalanceService.Object);
+
+
+            var facadeTraceable = new TraceableBeacukaiFacade(serviceProviderMock.Object, _dbContext(GetCurrentMethod()));
+
+
+
+
+
+            var facade = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datauitlDO = dataUtilDO(facade, GetCurrentMethod());
+            GarmentDeliveryOrder data = await dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+
+            await facade.Create(data, "Unit Test");
+
+            var facadeBC = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datauitlDO, facadeBC);
+            var dataBC = await datautilBC.GetNewData(USERNAME, data);
+
+            dataBC.CustomsType = "BC 23";
+            dataBC.BeacukaiNo = "BeacukaiNo";
+
+            await facadeBC.Create(dataBC, USERNAME);
+
+            var garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(GetCurrentMethod()));
+            var garmentUnitReceiptNoteDatautil = new GarmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, datauitlDO);
+
+            var garmentUnitDeliveryOrderFacade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var garmentUnitDeliveryOrderDatautil = new GarmentUnitDeliveryOrderDataUtil(garmentUnitDeliveryOrderFacade, garmentUnitReceiptNoteDatautil);
+
+            var garmentUnitExpenditureNoteFacade = new GarmentUnitExpenditureNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(GetCurrentMethod()));
+            var garmentUnitExpenditureNoteDatautil = new GarmentUnitExpenditureNoteDataUtil(garmentUnitExpenditureNoteFacade, garmentUnitDeliveryOrderDatautil);
+
+            var dataurn = await garmentUnitReceiptNoteDatautil.GetNewData(null, data);
+            await garmentUnitReceiptNoteFacade.Create(dataurn);
+
+            var dataunitDO = await garmentUnitDeliveryOrderDatautil.GetNewData(dataurn);
+            dataunitDO.RONo = "RONo123";
+            await garmentUnitDeliveryOrderFacade.Create(dataunitDO);
+
+            var datauen = await garmentUnitExpenditureNoteDatautil.GetNewData(dataunitDO);
+            await garmentUnitExpenditureNoteFacade.Create(datauen);
+
+
+            var response = facadeTraceable.getQueryTraceableOut("BCNo123");
+
+
+            Assert.NotNull(response);
+            //var response2 = facadeTraceable.getQueryDetail("RONo123");
+
+
+            //Assert.NotNull(response2);
+
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Excel_Traceable_Out()
+        {
+            var facadeTraceable = new TraceableBeacukaiFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            var facade = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datauitlDO = dataUtilDO(facade, GetCurrentMethod());
+            GarmentDeliveryOrder data = await dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+
+            await facade.Create(data, "Unit Test");
+
+            var facadeBC = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datauitlDO, facadeBC);
+            var dataBC = await datautilBC.GetNewData(USERNAME, data);
+
+            dataBC.CustomsType = "BC 23";
+            dataBC.BeacukaiNo = "BeacukaiNo";
+
+            await facadeBC.Create(dataBC, USERNAME);
+
+            var garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(GetCurrentMethod()));
+            var garmentUnitReceiptNoteDatautil = new GarmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, datauitlDO);
+
+            var garmentUnitDeliveryOrderFacade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var garmentUnitDeliveryOrderDatautil = new GarmentUnitDeliveryOrderDataUtil(garmentUnitDeliveryOrderFacade, garmentUnitReceiptNoteDatautil);
+
+            var garmentUnitExpenditureNoteFacade = new GarmentUnitExpenditureNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(GetCurrentMethod()));
+            var garmentUnitExpenditureNoteDatautil = new GarmentUnitExpenditureNoteDataUtil(garmentUnitExpenditureNoteFacade, garmentUnitDeliveryOrderDatautil);
+
+            var dataurn = await garmentUnitReceiptNoteDatautil.GetNewData(null, data);
+            await garmentUnitReceiptNoteFacade.Create(dataurn);
+
+            var dataunitDO = await garmentUnitDeliveryOrderDatautil.GetNewData(dataurn);
+            dataunitDO.RONo = "RONo123";
+            await garmentUnitDeliveryOrderFacade.Create(dataunitDO);
+
+            var datauen = await garmentUnitExpenditureNoteDatautil.GetNewData(dataunitDO);
+            await garmentUnitExpenditureNoteFacade.Create(datauen);
+
+
+            var response2 = facadeTraceable.GetExceltraceOut("BCNo123");
+
+
+            Assert.IsType<MemoryStream>(response2);
+
+        }
+        #endregion
+
+
     }
 }

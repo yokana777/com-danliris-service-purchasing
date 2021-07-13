@@ -72,33 +72,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             //var lastdate = dbContext.BalanceStocks.OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault() == null ? new DateTime(1970, 1, 1) : dbContext.BalanceStocks.OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault();
 
-            var lastdate = ctg == "BB" ? dbContext.BalanceStocks.Where(x => x.PeriodeYear == "2018").OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault() : dbContext.BalanceStocks.OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault();
 
+            //var lastdate = ctg == "BB" ? dbContext.BalanceStocks.Where(x => x.PeriodeYear == "2018").OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault() : dbContext.BalanceStocks.OrderByDescending(x => x.CreateDate).Select(x => x.CreateDate).FirstOrDefault();
+            var lastdate = dbContext.GarmentStockOpnames.OrderByDescending(x => x.Date).Select(x => x.Date).FirstOrDefault();
 
-
-            var BalanceStock = (from a in dbContext.BalanceStocks
-                                join b in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on (long)a.EPOItemId equals b.Id
-                                join c in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on b.GarmentEPOId equals c.Id
-                                join e in dbContext.GarmentUnitReceiptNoteItems on (long)a.EPOItemId equals e.EPOItemId
-                                join f in dbContext.GarmentUnitReceiptNotes on e.URNId equals f.Id
-                                join g in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RO equals g.RONo
-                                //join h in Codes on b.ProductCode equals h.Code
-                                where a.CreateDate.Value.Date == lastdate
-                                && f.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? f.UnitCode : unitcode)
-                                && f.URNType == "PEMBELIAN"
+            var BalanceStock = (from a in dbContext.GarmentStockOpnames
+                                join b in dbContext.GarmentStockOpnameItems on a.Id equals b.GarmentStockOpnameId
+                                join g in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RO equals g.RONo
+                                join d in dbContext.GarmentUnitReceiptNoteItems on b.URNItemId equals d.Id
+                                where a.IsDeleted == false && b.IsDeleted == false
+                                && a.Date.Date == lastdate.Date
+                                && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
                                 && categories1.Contains(b.ProductName)
-
                                 select new AccountingStockTempViewModel
                                 {
                                     ProductCode = b.ProductCode,
                                     //ProductName = b.ProductName,
-                                    RO = a.RO,
+                                    RO = b.RO,
                                     Buyer = g.BuyerCode,
-                                    PlanPo = b.PO_SerialNumber,
+                                    PlanPo = b.POSerialNumber,
                                     NoArticle = g.Article,
-                                    BeginningBalanceQty = Convert.ToDecimal(a.CloseStock),
+                                    BeginningBalanceQty = b.Quantity,
                                     BeginningBalanceUom = b.SmallUomUnit,
-                                    BeginningBalancePrice = Convert.ToDouble(a.ClosePrice),
+                                    BeginningBalancePrice = Math.Round(((decimal.ToDouble(d.PricePerDealUnit) / (d.Conversion == 0 ? 1 : decimal.ToDouble(d.Conversion))) * d.DOCurrencyRate) * decimal.ToDouble(b.Quantity), 2),
                                     ReceiptCorrectionQty = 0,
                                     ReceiptPurchaseQty = 0,
                                     ReceiptProcessQty = 0,
@@ -135,7 +131,115 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                     ExpendKon1BPrice = 0,
                                     EndingBalanceQty = 0,
                                     EndingBalancePrice = 0,
-                                }).Distinct();
+                                }).GroupBy(x => new { x.ProductCode, x.RO, x.Buyer, x.PlanPo, x.NoArticle, x.BeginningBalanceUom }, (key, group) => new AccountingStockTempViewModel
+                                {
+                                    ProductCode = key.ProductCode,
+                                    //ProductName = b.ProductName,
+                                    RO = key.RO,
+                                    Buyer = key.Buyer,
+                                    PlanPo = key.PlanPo,
+                                    NoArticle = key.NoArticle,
+                                    BeginningBalanceQty = Math.Round(group.Sum(x => x.BeginningBalanceQty), 2),
+                                    BeginningBalanceUom = key.BeginningBalanceUom,
+                                    BeginningBalancePrice = group.Sum(x => x.BeginningBalancePrice),
+                                    ReceiptCorrectionQty = group.Sum(x => x.ReceiptCorrectionQty),
+                                    ReceiptPurchaseQty = group.Sum(x => x.ReceiptPurchaseQty),
+                                    ReceiptProcessQty = group.Sum(x => x.ReceiptProcessQty),
+                                    ReceiptKon2AQty = group.Sum(x => x.ReceiptKon2AQty),
+                                    ReceiptKon2BQty = group.Sum(x => x.ReceiptKon2BQty),
+                                    ReceiptKon2CQty = group.Sum(x => x.ReceiptKon2CQty),
+                                    ReceiptKon1AQty = group.Sum(x => x.ReceiptKon1AQty),
+                                    ReceiptKon1BQty = group.Sum(x => x.ReceiptKon1BQty),
+                                    ReceiptCorrectionPrice = group.Sum(x => x.ReceiptCorrectionPrice),
+                                    ReceiptPurchasePrice = group.Sum(x => x.ReceiptPurchasePrice),
+                                    ReceiptProcessPrice = group.Sum(x => x.ReceiptProcessPrice),
+                                    ReceiptKon2APrice = group.Sum(x => x.ReceiptKon2APrice),
+                                    ReceiptKon2BPrice = group.Sum(x => x.ReceiptKon2BPrice),
+                                    ReceiptKon2CPrice = group.Sum(x => x.ReceiptKon2CPrice),
+                                    ReceiptKon1APrice = group.Sum(x => x.ReceiptKon1APrice),
+                                    ReceiptKon1BPrice = group.Sum(x => x.ReceiptKon1BPrice),
+                                    ExpendReturQty = group.Sum(x => x.ExpendReturQty),
+                                    ExpendRestQty = group.Sum(x => x.ExpendRestQty),
+                                    ExpendProcessQty = group.Sum(x => x.ExpendProcessQty),
+                                    ExpendSampleQty = group.Sum(x => x.ExpendSampleQty),
+                                    ExpendKon2AQty = group.Sum(x => x.ExpendKon2AQty),
+                                    ExpendKon2BQty = group.Sum(x => x.ExpendKon2BQty),
+                                    ExpendKon2CQty = group.Sum(x => x.ExpendKon2CQty),
+                                    ExpendKon1AQty = group.Sum(x => x.ExpendKon1AQty),
+                                    ExpendKon1BQty = group.Sum(x => x.ExpendKon1BQty),
+                                    ExpendReturPrice = group.Sum(x => x.ExpendReturPrice),
+                                    ExpendRestPrice = group.Sum(x => x.ExpendRestPrice),
+                                    ExpendProcessPrice = group.Sum(x => x.ExpendProcessPrice),
+                                    ExpendSamplePrice = group.Sum(x => x.ExpendSamplePrice),
+                                    ExpendKon2APrice = group.Sum(x => x.ExpendKon2APrice),
+                                    ExpendKon2BPrice = group.Sum(x => x.ExpendKon2BPrice),
+                                    ExpendKon2CPrice = group.Sum(x => x.ExpendKon2CPrice),
+                                    ExpendKon1APrice = group.Sum(x => x.ExpendKon1APrice),
+                                    ExpendKon1BPrice = group.Sum(x => x.ExpendKon1BPrice),
+                                    EndingBalanceQty = group.Sum(x => x.EndingBalanceQty),
+                                    EndingBalancePrice = group.Sum(x => x.EndingBalancePrice),
+                                });
+
+            //var BalanceStock = (from a in dbContext.BalanceStocks
+            //                    join b in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on (long)a.EPOItemId equals b.Id
+            //                    join c in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on b.GarmentEPOId equals c.Id
+            //                    join e in dbContext.GarmentUnitReceiptNoteItems on (long)a.EPOItemId equals e.EPOItemId
+            //                    join f in dbContext.GarmentUnitReceiptNotes on e.URNId equals f.Id
+            //                    join g in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RO equals g.RONo
+            //                    //join h in Codes on b.ProductCode equals h.Code
+            //                    where a.CreateDate.Value.Date == lastdate
+            //                    && f.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? f.UnitCode : unitcode)
+            //                    && f.URNType == "PEMBELIAN"
+            //                    && categories1.Contains(b.ProductName)
+
+            //                    select new AccountingStockTempViewModel
+            //                    {
+            //                        ProductCode = b.ProductCode,
+            //                        //ProductName = b.ProductName,
+            //                        RO = a.RO,
+            //                        Buyer = g.BuyerCode,
+            //                        PlanPo = b.PO_SerialNumber,
+            //                        NoArticle = g.Article,
+            //                        BeginningBalanceQty = Convert.ToDecimal(a.CloseStock),
+            //                        BeginningBalanceUom = b.SmallUomUnit,
+            //                        BeginningBalancePrice = Convert.ToDouble(a.ClosePrice),
+            //                        ReceiptCorrectionQty = 0,
+            //                        ReceiptPurchaseQty = 0,
+            //                        ReceiptProcessQty = 0,
+            //                        ReceiptKon2AQty = 0,
+            //                        ReceiptKon2BQty = 0,
+            //                        ReceiptKon2CQty = 0,
+            //                        ReceiptKon1AQty = 0,
+            //                        ReceiptKon1BQty = 0,
+            //                        ReceiptCorrectionPrice = 0,
+            //                        ReceiptPurchasePrice = 0,
+            //                        ReceiptProcessPrice = 0,
+            //                        ReceiptKon2APrice = 0,
+            //                        ReceiptKon2BPrice = 0,
+            //                        ReceiptKon2CPrice = 0,
+            //                        ReceiptKon1APrice = 0,
+            //                        ReceiptKon1BPrice = 0,
+            //                        ExpendReturQty = 0,
+            //                        ExpendRestQty = 0,
+            //                        ExpendProcessQty = 0,
+            //                        ExpendSampleQty = 0,
+            //                        ExpendKon2AQty = 0,
+            //                        ExpendKon2BQty = 0,
+            //                        ExpendKon2CQty = 0,
+            //                        ExpendKon1AQty = 0,
+            //                        ExpendKon1BQty = 0,
+            //                        ExpendReturPrice = 0,
+            //                        ExpendRestPrice = 0,
+            //                        ExpendProcessPrice = 0,
+            //                        ExpendSamplePrice = 0,
+            //                        ExpendKon2APrice = 0,
+            //                        ExpendKon2BPrice = 0,
+            //                        ExpendKon2CPrice = 0,
+            //                        ExpendKon1APrice = 0,
+            //                        ExpendKon1BPrice = 0,
+            //                        EndingBalanceQty = 0,
+            //                        EndingBalancePrice = 0,
+            //                    }).Distinct();
             var SATerima = (from a in (from aa in dbContext.GarmentUnitReceiptNoteItems  select aa)
                             join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
                             join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
@@ -144,7 +248,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             //join h in Codes on a.ProductCode equals h.Code
                             where a.IsDeleted == false && b.IsDeleted == false
                               &&
-                              b.CreatedUtc.AddHours(offset).Date > lastdate
+                              b.CreatedUtc.AddHours(offset).Date > lastdate.Date
                               && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                               && b.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitCode : unitcode)
                               && categories1.Contains(a.ProductName)
@@ -249,11 +353,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                             //join h in Codes on a.ProductCode equals h.Code
                             join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
-                            where a.IsDeleted == false && b.IsDeleted == false
+                            where
+                            a.IsDeleted == false && b.IsDeleted == false
                                &&
-                               b.CreatedUtc.AddHours(offset).Date > lastdate
+                               b.CreatedUtc.AddHours(offset).Date > lastdate.Date
                                && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
-                               && b.UnitSenderCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitSenderCode : unitcode)
+                               && 
+                               b.UnitSenderCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitSenderCode : unitcode)
                                && categories1.Contains(a.ProductName)
                             select new AccountingStockTempViewModel
                             {
@@ -263,7 +369,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 Buyer = a.BuyerCode,
                                 PlanPo = a.POSerialNumber,
                                 NoArticle = e.Article,
-                                BeginningBalanceQty = (decimal)a.Quantity * -1,
+                                BeginningBalanceQty = Convert.ToDecimal(a.Quantity * -1),
                                 BeginningBalanceUom = a.UomUnit,
                                 BeginningBalancePrice = Math.Round(a.Quantity * ((double)a.BasicPrice / (a.Conversion == 0 ? 1 : (double)a.Conversion)), 2) * -1,
                                 ReceiptCorrectionQty = 0,
@@ -302,7 +408,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 ExpendKon1BPrice = 0,
                                 EndingBalanceQty = 0,
                                 EndingBalancePrice = 0,
-                            }).GroupBy(x => new { x.ProductCode, /*x.ProductName,*/ x.BeginningBalanceUom, x.Buyer, x.NoArticle, x.PlanPo, x.RO }, (key, group) => new AccountingStockTempViewModel
+                            })
+                            .GroupBy(x => new { x.ProductCode, /*x.ProductName,*/ x.BeginningBalanceUom, x.Buyer, x.NoArticle, x.PlanPo, x.RO }, (key, group) => new AccountingStockTempViewModel
                             {
                                 ProductCode = key.ProductCode,
                                 //ProductName = key.ProductName,
@@ -310,7 +417,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 Buyer = key.Buyer,
                                 PlanPo = key.PlanPo,
                                 NoArticle = key.NoArticle,
-                                BeginningBalanceQty = group.Sum(x => x.BeginningBalanceQty),
+                                BeginningBalanceQty = Math.Round(group.Sum(x => x.BeginningBalanceQty), 2),
                                 BeginningBalanceUom = key.BeginningBalanceUom,
                                 BeginningBalancePrice = group.Sum(x => x.BeginningBalancePrice),
                                 ReceiptCorrectionQty = group.Sum(x => x.ReceiptCorrectionQty),
@@ -350,7 +457,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 EndingBalanceQty = group.Sum(x => x.EndingBalanceQty),
                                 EndingBalancePrice = group.Sum(x => x.EndingBalancePrice),
                             });
-
             var SAKoreksi = (from a in dbContext.GarmentUnitReceiptNotes
                              join b in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa) on a.Id equals b.URNId
                              join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
@@ -361,7 +467,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              where
                              a.IsDeleted == false && b.IsDeleted == false
                              &&
-                             a.CreatedUtc.AddHours(offset).Date > lastdate
+                             a.CreatedUtc.AddHours(offset).Date > lastdate.Date
                              && a.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                              && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
                              && categories1.Contains(b.ProductName)
@@ -373,7 +479,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  Buyer = f.BuyerCode,
                                  PlanPo = b.POSerialNumber,
                                  NoArticle = f.Article,
-                                 BeginningBalanceQty = (decimal)e.SmallQuantity,
+                                 BeginningBalanceQty = Math.Round((decimal)e.SmallQuantity, 2),
                                  BeginningBalanceUom = b.SmallUomUnit,
                                  BeginningBalancePrice = Math.Round(((e.PricePerDealUnit / (e.Conversion == 0 ? 1 : e.Conversion)) * b.DOCurrencyRate) * (e.SmallQuantity), 2),
                                  ReceiptCorrectionQty = 0,
@@ -460,7 +566,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  EndingBalanceQty = group.Sum(x => x.EndingBalanceQty),
                                  EndingBalancePrice = group.Sum(x => x.EndingBalancePrice),
                              });
-            //var t = BalanceStock.Concat(SATerima).Con
             var SaldoAwal1 = BalanceStock.Concat(SATerima).Concat(SAKeluar).Concat(SAKoreksi).AsEnumerable();
             var SaldoAwal = SaldoAwal1.GroupBy(x => new { x.ProductCode, /*x.ProductName,*/ x.BeginningBalanceUom, x.Buyer, x.NoArticle, x.PlanPo, x.RO }, (key, group) => new AccountingStockTempViewModel
             {
@@ -583,22 +688,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             BeginningBalanceQty = group.Sum(x => x.BeginningBalanceQty),
                             BeginningBalanceUom = key.BeginningBalanceUom,
                             BeginningBalancePrice = group.Sum(x => x.BeginningBalancePrice),
-                            ReceiptCorrectionQty = group.Sum(x => x.ReceiptCorrectionQty),
-                            ReceiptPurchaseQty = group.Sum(x => x.ReceiptPurchaseQty),
-                            ReceiptProcessQty = group.Sum(x => x.ReceiptProcessQty),
-                            ReceiptKon2AQty = group.Sum(x => x.ReceiptKon2AQty),
-                            ReceiptKon2BQty = group.Sum(x => x.ReceiptKon2BQty),
-                            ReceiptKon2CQty = group.Sum(x => x.ReceiptKon2CQty),
-                            ReceiptKon1AQty = group.Sum(x => x.ReceiptKon1AQty),
-                            ReceiptKon1BQty = group.Sum(x => x.ReceiptKon1BQty),
-                            ReceiptCorrectionPrice = group.Sum(x => x.ReceiptCorrectionPrice),
-                            ReceiptPurchasePrice = group.Sum(x => x.ReceiptPurchasePrice),
-                            ReceiptProcessPrice = group.Sum(x => x.ReceiptProcessPrice),
-                            ReceiptKon2APrice = group.Sum(x => x.ReceiptKon2APrice),
-                            ReceiptKon2BPrice = group.Sum(x => x.ReceiptKon2BPrice),
-                            ReceiptKon2CPrice = group.Sum(x => x.ReceiptKon2CPrice),
-                            ReceiptKon1APrice = group.Sum(x => x.ReceiptKon1APrice),
-                            ReceiptKon1BPrice = group.Sum(x => x.ReceiptKon1BPrice),
+                            ReceiptCorrectionQty = Math.Round(group.Sum(x => x.ReceiptCorrectionQty), 2),
+                            ReceiptPurchaseQty = Math.Round(group.Sum(x => x.ReceiptPurchaseQty), 2),
+                            ReceiptProcessQty = Math.Round(group.Sum(x => x.ReceiptProcessQty), 2),
+                            ReceiptKon2AQty = Math.Round(group.Sum(x => x.ReceiptKon2AQty), 2),
+                            ReceiptKon2BQty = Math.Round(group.Sum(x => x.ReceiptKon2BQty), 2),
+                            ReceiptKon2CQty = Math.Round(group.Sum(x => x.ReceiptKon2CQty), 2),
+                            ReceiptKon1AQty = Math.Round(group.Sum(x => x.ReceiptKon1AQty), 2),
+                            ReceiptKon1BQty = Math.Round(group.Sum(x => x.ReceiptKon1BQty), 2),
+                            ReceiptCorrectionPrice = Math.Round(group.Sum(x => x.ReceiptCorrectionPrice), 2),
+                            ReceiptPurchasePrice = Math.Round(group.Sum(x => x.ReceiptPurchasePrice), 2),
+                            ReceiptProcessPrice = Math.Round(group.Sum(x => x.ReceiptProcessPrice), 2),
+                            ReceiptKon2APrice = Math.Round(group.Sum(x => x.ReceiptKon2APrice), 2),
+                            ReceiptKon2BPrice = Math.Round(group.Sum(x => x.ReceiptKon2BPrice), 2),
+                            ReceiptKon2CPrice = Math.Round(group.Sum(x => x.ReceiptKon2CPrice), 2),
+                            ReceiptKon1APrice = Math.Round(group.Sum(x => x.ReceiptKon1APrice), 2),
+                            ReceiptKon1BPrice = Math.Round(group.Sum(x => x.ReceiptKon1BPrice), 2),
                             ExpendReturQty = group.Sum(x => x.ExpendReturQty),
                             ExpendRestQty = group.Sum(x => x.ExpendRestQty),
                             ExpendProcessQty = group.Sum(x => x.ExpendProcessQty),
@@ -660,19 +765,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              ReceiptKon2CPrice = 0,
                              ReceiptKon1APrice = 0,
                              ReceiptKon1BPrice = 0,
-                             ExpendReturQty = b.ExpenditureType == "EXTERNAL" ? a.Quantity : 0,
-                             ExpendRestQty = 0,
-                             ExpendProcessQty = b.ExpenditureType == "PROSES" ? a.Quantity : 0,
-                             ExpendSampleQty = b.ExpenditureType == "SAMPLE" ? a.Quantity : 0,
-                             ExpendKon2AQty = (b.ExpenditureType == "GUDANG LAIN" || b.ExpenditureType == "TRANSFER") && b.UnitRequestName == "CENTRAL 2A" ? a.Quantity : 0,
-                             ExpendKon2BQty = (b.ExpenditureType == "GUDANG LAIN" || b.ExpenditureType == "TRANSFER") && b.UnitRequestName == "CENTRAL 2B" ? a.Quantity : 0,
-                             ExpendKon2CQty = (b.ExpenditureType == "GUDANG LAIN" || b.ExpenditureType == "TRANSFER") && b.UnitRequestName == "CENTRAL 2C/EX. K4" ? a.Quantity : 0,
-                             ExpendKon1AQty = (b.ExpenditureType == "GUDANG LAIN" || b.ExpenditureType == "TRANSFER") && b.UnitRequestName == "CENTRAL 1A/EX. K3" ? a.Quantity : 0,
-                             ExpendKon1BQty = (b.ExpenditureType == "GUDANG LAIN" || b.ExpenditureType == "TRANSFER") && b.UnitRequestName == "CENTRAL 1B" ? a.Quantity : 0,
+                             ExpendReturQty = b.ExpenditureType == "EXTERNAL" ? Math.Round(a.Quantity, 2) : 0,
+                             ExpendRestQty = b.ExpenditureType == "SISA" ? Math.Round(a.Quantity, 2) : 0,
+                             ExpendProcessQty = b.ExpenditureType == "PROSES" ? Math.Round(a.Quantity, 2) : 0,
+                             ExpendSampleQty = b.ExpenditureType == "SAMPLE" ? Math.Round(a.Quantity, 2) : 0,
+                             ExpendKon2AQty = (b.ExpenditureType == "GUDANG LAIN" || b.ExpenditureType == "TRANSFER") && b.UnitRequestName == "CENTRAL 2A" ? Math.Round(a.Quantity, 2) : 0,
+                             ExpendKon2BQty = (b.ExpenditureType == "GUDANG LAIN" || b.ExpenditureType == "TRANSFER") && b.UnitRequestName == "CENTRAL 2B" ? Math.Round(a.Quantity, 2) : 0,
+                             ExpendKon2CQty = (b.ExpenditureType == "GUDANG LAIN" || b.ExpenditureType == "TRANSFER") && b.UnitRequestName == "CENTRAL 2C/EX. K4" ? Math.Round(a.Quantity, 2) : 0,
+                             ExpendKon1AQty = (b.ExpenditureType == "GUDANG LAIN" || b.ExpenditureType == "TRANSFER") && b.UnitRequestName == "CENTRAL 1A/EX. K3" ? Math.Round(a.Quantity, 2) : 0,
+                             ExpendKon1BQty = (b.ExpenditureType == "GUDANG LAIN" || b.ExpenditureType == "TRANSFER") && b.UnitRequestName == "CENTRAL 1B" ? Math.Round(a.Quantity, 2) : 0,
                              ExpendReturPrice = b.ExpenditureType == "EXTERNAL" ? a.Quantity * a.PricePerDealUnit * (double)a.DOCurrencyRate : 0,
-                             ExpendRestPrice = 0,
-                             ExpendProcessPrice = b.ExpenditureType == "PROSES" ? a.Quantity * ((double)a.BasicPrice / (a.Conversion == 0 ? 1 : (double)a.Conversion)) : 0,
-                             ExpendSamplePrice = b.ExpenditureType == "SAMPLE" ? a.Quantity * ((double)a.BasicPrice / (a.Conversion == 0 ? 1 : (double)a.Conversion)) : 0,
+                             ExpendRestPrice = b.ExpenditureType == "SISA" ? a.Quantity * a.PricePerDealUnit * (double)a.DOCurrencyRate : 0,
+                             ExpendProcessPrice = b.ExpenditureType == "PROSES" ? Math.Round(a.Quantity * ((double)a.BasicPrice / (a.Conversion == 0 ? 1 : (double)a.Conversion)),2) : 0,
+                             ExpendSamplePrice = b.ExpenditureType == "SAMPLE" ? Math.Round(a.Quantity * ((double)a.BasicPrice / (a.Conversion == 0 ? 1 : (double)a.Conversion)),2) : 0,
                              ExpendKon2APrice = (b.ExpenditureType == "GUDANG LAIN" || b.ExpenditureType == "TRANSFER") && b.UnitRequestName == "CENTRAL 2A" ? Math.Round(a.Quantity * ((double)a.BasicPrice / (a.Conversion == 0 ? 1 : (double)a.Conversion)),2) : 0,
                              ExpendKon2BPrice = (b.ExpenditureType == "GUDANG LAIN" || b.ExpenditureType == "TRANSFER") && b.UnitRequestName == "CENTRAL 2B" ? Math.Round(a.Quantity * ((double)a.BasicPrice / (a.Conversion == 0 ? 1 : (double)a.Conversion)),2): 0,
                              ExpendKon2CPrice = (b.ExpenditureType == "GUDANG LAIN" || b.ExpenditureType == "TRANSFER") && b.UnitRequestName == "CENTRAL 2C/EX. K4" ? Math.Round(a.Quantity * ((double)a.BasicPrice / (a.Conversion == 0 ? 1 : (double)a.Conversion)), 2) : 0,
@@ -707,24 +812,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              ReceiptKon2CPrice = group.Sum(x => x.ReceiptKon2CPrice),
                              ReceiptKon1APrice = group.Sum(x => x.ReceiptKon1APrice),
                              ReceiptKon1BPrice = group.Sum(x => x.ReceiptKon1BPrice),
-                             ExpendReturQty = group.Sum(x => x.ExpendReturQty),
-                             ExpendRestQty = group.Sum(x => x.ExpendRestQty),
-                             ExpendProcessQty = group.Sum(x => x.ExpendProcessQty),
-                             ExpendSampleQty = group.Sum(x => x.ExpendSampleQty),
-                             ExpendKon2AQty = group.Sum(x => x.ExpendKon2AQty),
-                             ExpendKon2BQty = group.Sum(x => x.ExpendKon2BQty),
-                             ExpendKon2CQty = group.Sum(x => x.ExpendKon2CQty),
-                             ExpendKon1AQty = group.Sum(x => x.ExpendKon1AQty),
-                             ExpendKon1BQty = group.Sum(x => x.ExpendKon1BQty),
-                             ExpendReturPrice = group.Sum(x => x.ExpendReturPrice),
-                             ExpendRestPrice = group.Sum(x => x.ExpendRestPrice),
-                             ExpendProcessPrice = group.Sum(x => x.ExpendProcessPrice),
-                             ExpendSamplePrice = group.Sum(x => x.ExpendSamplePrice),
-                             ExpendKon2APrice = group.Sum(x => x.ExpendKon2APrice),
-                             ExpendKon2BPrice = group.Sum(x => x.ExpendKon2BPrice),
-                             ExpendKon2CPrice = group.Sum(x => x.ExpendKon2CPrice),
-                             ExpendKon1APrice = group.Sum(x => x.ExpendKon1APrice),
-                             ExpendKon1BPrice = group.Sum(x => x.ExpendKon1BPrice),
+                             ExpendReturQty = Math.Round(group.Sum(x => x.ExpendReturQty), 2),
+                             ExpendRestQty = Math.Round(group.Sum(x => x.ExpendRestQty), 2),
+                             ExpendProcessQty = Math.Round(group.Sum(x => x.ExpendProcessQty), 2),
+                             ExpendSampleQty = Math.Round(group.Sum(x => x.ExpendSampleQty), 2),
+                             ExpendKon2AQty = Math.Round(group.Sum(x => x.ExpendKon2AQty), 2),
+                             ExpendKon2BQty = Math.Round(group.Sum(x => x.ExpendKon2BQty), 2),
+                             ExpendKon2CQty = Math.Round(group.Sum(x => x.ExpendKon2CQty), 2),
+                             ExpendKon1AQty = Math.Round(group.Sum(x => x.ExpendKon1AQty), 2),
+                             ExpendKon1BQty = Math.Round(group.Sum(x => x.ExpendKon1BQty), 2),
+                             ExpendReturPrice = Math.Round(group.Sum(x => x.ExpendReturPrice), 2),
+                             ExpendRestPrice = Math.Round(group.Sum(x => x.ExpendRestPrice), 2),
+                             ExpendProcessPrice = Math.Round(group.Sum(x => x.ExpendProcessPrice), 2),
+                             ExpendSamplePrice = Math.Round(group.Sum(x => x.ExpendSamplePrice), 2),
+                             ExpendKon2APrice = Math.Round(group.Sum(x => x.ExpendKon2APrice), 2),
+                             ExpendKon2BPrice = Math.Round(group.Sum(x => x.ExpendKon2BPrice), 2),
+                             ExpendKon2CPrice = Math.Round(group.Sum(x => x.ExpendKon2CPrice), 2),
+                             ExpendKon1APrice = Math.Round(group.Sum(x => x.ExpendKon1APrice), 2),
+                             ExpendKon1BPrice = Math.Round(group.Sum(x => x.ExpendKon1BPrice), 2),
                              EndingBalanceQty = group.Sum(x => x.EndingBalanceQty),
                              EndingBalancePrice = group.Sum(x => x.EndingBalancePrice),
                          });
@@ -754,7 +859,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                BeginningBalanceQty = 0,
                                BeginningBalanceUom = b.SmallUomUnit,
                                BeginningBalancePrice = 0,
-                               ReceiptCorrectionQty = (decimal)e.SmallQuantity,
+                               ReceiptCorrectionQty = Math.Round((decimal)e.SmallQuantity, 2),
                                ReceiptPurchaseQty = 0,
                                ReceiptProcessQty = 0,
                                ReceiptKon2AQty = 0,
@@ -801,7 +906,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                BeginningBalanceQty = group.Sum(x => x.BeginningBalanceQty),
                                BeginningBalanceUom = key.BeginningBalanceUom,
                                BeginningBalancePrice = group.Sum(x => x.BeginningBalancePrice),
-                               ReceiptCorrectionQty = group.Sum(x => x.ReceiptCorrectionQty),
+                               ReceiptCorrectionQty = Math.Round(group.Sum(x => x.ReceiptCorrectionQty),2),
                                ReceiptPurchaseQty = group.Sum(x => x.ReceiptPurchaseQty),
                                ReceiptProcessQty = group.Sum(x => x.ReceiptProcessQty),
                                ReceiptKon2AQty = group.Sum(x => x.ReceiptKon2AQty),
@@ -809,7 +914,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                ReceiptKon2CQty = group.Sum(x => x.ReceiptKon2CQty),
                                ReceiptKon1AQty = group.Sum(x => x.ReceiptKon1AQty),
                                ReceiptKon1BQty = group.Sum(x => x.ReceiptKon1BQty),
-                               ReceiptCorrectionPrice = group.Sum(x => x.ReceiptCorrectionPrice),
+                               ReceiptCorrectionPrice = Math.Round(group.Sum(x => x.ReceiptCorrectionPrice), 2),
                                ReceiptPurchasePrice = group.Sum(x => x.ReceiptPurchasePrice),
                                ReceiptProcessPrice = group.Sum(x => x.ReceiptProcessPrice),
                                ReceiptKon2APrice = group.Sum(x => x.ReceiptKon2APrice),

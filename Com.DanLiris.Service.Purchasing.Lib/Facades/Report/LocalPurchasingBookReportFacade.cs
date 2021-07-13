@@ -864,10 +864,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         join epoDetail in dbContext.ExternalPurchaseOrderDetails on urnWithItem.EPODetailId equals epoDetail.Id into joinExternalPurchaseOrder
                         from urnEPODetail in joinExternalPurchaseOrder.DefaultIfEmpty()
 
-                        join upoItem in dbContext.UnitPaymentOrderDetails on urnEPODetail.Id equals upoItem.EPODetailId into joinUnitPaymentOrder
+                        join upoItem in dbContext.UnitPaymentOrderDetails on urnWithItem.Id equals upoItem.URNItemId into joinUnitPaymentOrder
                         from urnUPOItem in joinUnitPaymentOrder.DefaultIfEmpty()
 
-                        where urnWithItem.UnitReceiptNote.ReceiptDate.Date >= d1.Date && urnWithItem.UnitReceiptNote.ReceiptDate.Date <= d2.Date && !urnWithItem.UnitReceiptNote.SupplierIsImport
+                        where urnWithItem.UnitReceiptNote.ReceiptDate.ToUniversalTime().Date >= d1.Date && urnWithItem.UnitReceiptNote.ReceiptDate.ToUniversalTime().Date <= d2.Date && !urnWithItem.UnitReceiptNote.SupplierIsImport
                         select new
                         {
                             // PR Info
@@ -1083,13 +1083,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         join epoDetail in dbContext.ExternalPurchaseOrderDetails on urnWithItem.EPODetailId equals epoDetail.Id into joinExternalPurchaseOrder
                         from urnEPODetail in joinExternalPurchaseOrder.DefaultIfEmpty()
 
-                        join upoItem in dbContext.UnitPaymentOrderDetails on urnEPODetail.Id equals upoItem.EPODetailId  into joinUnitPaymentOrder
-                        from urnUPOItem in joinUnitPaymentOrder.DefaultIfEmpty()
+                        //join upoItem in dbContext.UnitPaymentOrderDetails on upcCorrection.UPOId equals upoItem.Id  into joinUnitPaymentOrder
+                        //from urnUPOItem in joinUnitPaymentOrder.DefaultIfEmpty()
 
                         //join upoDetail in dbContext.UnitPaymentOrderDetails on urnUPOItem.Id equals upoDetail.URNItemId into joinUnitPaymentOrderDetails
                         //from urnUPODetail in joinUnitPaymentOrderDetails.DefaultIfEmpty()
 
-                        where upcCorrection.CorrectionDate.Date >= d1.Date && upcCorrection.CorrectionDate.Date <= d2.Date && !urnWithItem.UnitReceiptNote.SupplierIsImport
+                        where upcCorrection.CorrectionDate.ToUniversalTime().Date >= d1.Date && upcCorrection.CorrectionDate.ToUniversalTime().Date <= d2.Date && !urnWithItem.UnitReceiptNote.SupplierIsImport
                         select new
                         {
                             // PR Info
@@ -1126,9 +1126,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.CurrencyCode,
 
                             // UPO Info
-                            InvoiceNo = urnUPOItem.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrderItem.UnitPaymentOrder.InvoiceNo : "",
-                            UPONo = urnUPOItem.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrderItem.UnitPaymentOrder.UPONo : "",
-                            VatNo = urnUPOItem.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrderItem.UnitPaymentOrder.VatNo : "",
+                            InvoiceNo = joinUpcUpoDetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? joinUpcUpoDetail.UnitPaymentOrderItem.UnitPaymentOrder.InvoiceNo : "",
+                            UPONo = joinUpcUpoDetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? joinUpcUpoDetail.UnitPaymentOrderItem.UnitPaymentOrder.UPONo : "",
+                            VatNo = joinUpcUpoDetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? joinUpcUpoDetail.UnitPaymentOrderItem.UnitPaymentOrder.VatNo : "",
                             urnPR.Remark,
 
                             //Correction Info
@@ -1140,8 +1140,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             CorrectionPriceTotalBefore = upcCorrectionNoteItem.PriceTotalBefore,
                             CorrectionPriceTotalAfter = upcCorrectionNoteItem.PriceTotalAfter,
                             CorrectionQuantity = upcCorrectionNoteItem.Quantity,
-                            CorrectionReceiptQuantity = urnUPOItem.ReceiptQuantity,
-                            CorrectionQuantityCorrection = urnUPOItem.QuantityCorrection
+                            CorrectionReceiptQuantity = joinUpcUpoDetail.ReceiptQuantity,
+                            CorrectionQuantityCorrection = joinUpcUpoDetail.QuantityCorrection
                         };
 
             if (isValas)
@@ -1324,15 +1324,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             switch (correctionType)
             {
                 case "Harga Satuan":
-                    return ((pricePerDealBefore - priceperDealAfter)* (Math.Abs(quantityCorrection- quantity))) *-1;
+                    return ((priceperDealAfter-pricePerDealBefore)* receiptQuantity) ;
                 case "Harga Total":
-                    return (priceTotalBefore - priceTotalAfter) * -1;
+                    return (priceTotalAfter - priceTotalBefore) ;
                 case "Jumlah":
-                    return (priceperDealAfter * (Math.Abs(quantityCorrection-quantity))) * -1;
+                    //return (priceperDealAfter * (Math.Abs(quantityCorrection-quantity)))*-1 ;
+                    return priceTotalAfter  * -1;
                 default:
                     return 0;
-                    break;
-
             }
         }
 
@@ -1341,11 +1340,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             switch (correctionType)
             {
                 case "Harga Satuan":
-                    return Math.Abs(quantityCorrection - quantity)*-1;
+                    return receiptQuantity;
                 case "Harga Total":
-                    return Math.Abs(quantityCorrection - quantity)*-1;
+                    return receiptQuantity;
                 case "Jumlah":
-                    return Math.Abs(quantityCorrection- quantity)*-1;
+                    return quantity *-1;
                 default:
                     return 0;
                     break;

@@ -1097,7 +1097,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             InvoiceNo = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.InvoiceNo : "",
                             UPONo = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.UPONo : "",
                             VatNo = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.VatNo : "",
-                            PibDate = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.PibDate : (DateTimeOffset?)null,
+                            PibDate = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.PibDate : new DateTimeOffset(),
                             //urnUPOItem.UnitPaymentOrder.PibDate,
                             PibNo = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.PibNo : "",
                             ImportDuty = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.ImportDuty : 0,

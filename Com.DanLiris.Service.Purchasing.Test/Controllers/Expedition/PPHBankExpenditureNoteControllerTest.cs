@@ -71,6 +71,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
                     Date = DateTimeOffset.UtcNow,
                     IncomeTax = new IncomeTaxExpeditionViewModel(),
                     Bank = new Lib.ViewModels.NewIntegrationViewModel.AccountBankViewModel() { Currency = new Lib.ViewModels.NewIntegrationViewModel.CurrencyViewModel() },
+                    Division = new Lib.ViewModels.NewIntegrationViewModel.DivisionViewModel(),
                     PPHBankExpenditureNoteItems = new List<UnitPaymentOrderViewModel>() { new UnitPaymentOrderViewModel() { Items = new List<UnitPaymentOrderItemViewModel>() { new UnitPaymentOrderItemViewModel() } } }
                 };
             }
@@ -127,7 +128,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
         public void Should_Success_Get_Unit_Payment_Order()
         {
             var mockFacade = new Mock<IPPHBankExpenditureNoteFacade>();
-            mockFacade.Setup(x => x.GetUnitPaymentOrder(null, null, "IncomeTaxName", 2, "IDR"))
+            mockFacade.Setup(x => x.GetUnitPaymentOrder(null, null, "IncomeTaxName", 2, "IDR", "DivisionCode"))
                 .Returns(
                     new List<object>() { new { Id = 1,
                         No = "UPONO",
@@ -149,7 +150,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.Expedition
                });
 
             PPHBankExpenditureNoteController controller = new PPHBankExpenditureNoteController(GetServiceProvider().Object, mockFacade.Object);
-            var response = controller.GetUPO(null, null, "IncomeTaxName", 2, "IDR");
+            var response = controller.GetUPO(null, null, "IncomeTaxName", 2, "IDR", "DivisionCode");
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
 

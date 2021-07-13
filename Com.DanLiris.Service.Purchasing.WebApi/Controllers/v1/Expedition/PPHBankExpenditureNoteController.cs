@@ -38,9 +38,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.Expedition
         }
 
         [HttpGet("loader/unit-payment-orders")]
-        public ActionResult GetUPO(DateTimeOffset? dateFrom, DateTimeOffset? dateTo, string incomeTaxName, double incomeTaxRate, string currency)
+        public ActionResult GetUPO(DateTimeOffset? dateFrom, DateTimeOffset? dateTo, string incomeTaxName, double incomeTaxRate, string currency, string divisionCode)
         {
-            List<object> Data = this.PPHBankExpenditureNoteFacade.GetUnitPaymentOrder(dateFrom, dateTo, incomeTaxName, incomeTaxRate, currency);
+            List<object> Data = this.PPHBankExpenditureNoteFacade.GetUnitPaymentOrder(dateFrom, dateTo, incomeTaxName, incomeTaxRate, currency, divisionCode);
 
             return Ok(new
             {
