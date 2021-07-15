@@ -153,7 +153,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                && i.CreatedUtc.Year <= DateTo.Date.Year
                                && a.IsDeleted == false && b.IsDeleted == false
                                && categories1.Contains(b.ProductName)
-                               && pemasukan.Contains(g.URNType)
+                               //&& pemasukan.Contains(g.URNType)
                                 select new MutationBBCentralViewModelTemp
                                {
                                    AdjustmentQty = 0,
@@ -193,7 +193,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                      b.CreatedUtc.AddHours(offset).Date > lastdate.Date
                                      && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                      && categories1.Contains(a.ProductName)
-                                  && pemasukan.Contains(b.URNType)
+                                  //&& pemasukan.Contains(b.URNType)
                                   select new MutationBBCentralViewModelTemp
                                   {
                                       AdjustmentQty = 0,
@@ -236,7 +236,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                        b.CreatedUtc.AddHours(offset).Date > lastdate.Date
                                        && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                        && categories1.Contains(a.ProductName)
-                                      && pengeluaran.Contains(b.ExpenditureType)
+                                      //&& pengeluaran.Contains(b.ExpenditureType)
                                       select new MutationBBCentralViewModelTemp
                                       {
                                           AdjustmentQty = 0,
@@ -280,7 +280,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                                g.CreatedUtc.AddHours(offset).Date > lastdate.Date
                                                && g.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                                && categories1.Contains(b.ProductName)
-                                            && pemasukan.Contains(a.URNType)
+                                            //&& pemasukan.Contains(a.URNType)
                                             select new MutationBBCentralViewModelTemp
                                             {
                                                 AdjustmentQty = 0,
@@ -662,7 +662,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 && i.CreatedUtc.Year <= DateTo.Date.Year
                                 && a.IsDeleted == false && b.IsDeleted == false
                                 && categories1.Contains(b.ProductName)
-                                && pemasukan.Contains(g.URNType)
+                                //&& pemasukan.Contains(g.URNType)
                                 select new MutationBPCentralViewModel
                                 {
                                     AdjustmentQty = 0,
@@ -702,7 +702,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                      b.CreatedUtc.AddHours(offset).Date > lastdate.Date
                                      && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                      && categories1.Contains(a.ProductName)
-                                  && pemasukan.Contains(b.URNType)
+                                  //&& pemasukan.Contains(b.URNType)
                                   select new MutationBPCentralViewModel
                                   {
                                       AdjustmentQty = 0,
@@ -744,7 +744,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                        b.CreatedUtc.AddHours(offset).Date > lastdate.Date
                                        && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                        && categories1.Contains(a.ProductName)
-                                      && pengeluaran.Contains(b.ExpenditureType)
+                                      //&& pengeluaran.Contains(b.ExpenditureType)
                                       select new MutationBPCentralViewModel
                                       {
                                           AdjustmentQty = 0,
@@ -786,7 +786,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                                g.CreatedUtc.AddHours(offset).Date > lastdate.Date
                                                && g.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                                && categories1.Contains(b.ProductName)
-                                            && pemasukan.Contains(a.URNType)
+                                            //&& pemasukan.Contains(a.URNType)
                                             select new MutationBPCentralViewModel
                                             {
                                                 AdjustmentQty = 0,
