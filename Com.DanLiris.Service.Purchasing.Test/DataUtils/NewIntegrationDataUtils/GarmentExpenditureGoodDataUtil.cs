@@ -74,8 +74,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
         public Dictionary<string, object> GetMultipleResultFormatterOk()
         {
             List<GarmentExpenditureGoodViewModel> garmentExpenditureGoods = new List<GarmentExpenditureGoodViewModel>();
+            var newData = GetNewData();
+            newData.Invoice = "Invoice1234";
             garmentExpenditureGoods.Add(GetNewData());
-            garmentExpenditureGoods.Add(GetNewData());
+            garmentExpenditureGoods.Add(newData);
             var data = new List<GarmentExpenditureGoodViewModel> { GetNewData() };
 
             Dictionary<string, object> result =

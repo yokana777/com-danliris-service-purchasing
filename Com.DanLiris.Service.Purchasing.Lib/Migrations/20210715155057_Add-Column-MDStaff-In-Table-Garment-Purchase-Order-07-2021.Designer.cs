@@ -13,9 +13,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210715155057_Add-Column-MDStaff-In-Table-Garment-Purchase-Order-07-2021")]
+    partial class AddColumnMDStaffInTableGarmentPurchaseOrder072021
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -769,14 +770,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<DateTime>("DeletedUtc");
-
-                    b.Property<string>("DivisionCode")
-                        .HasMaxLength(128);
-
-                    b.Property<string>("DivisionId");
-
-                    b.Property<string>("DivisionName")
-                        .HasMaxLength(128);
 
                     b.Property<string>("IncomeTaxId");
 
