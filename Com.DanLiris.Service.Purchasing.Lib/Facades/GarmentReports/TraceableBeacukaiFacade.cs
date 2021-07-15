@@ -293,7 +293,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              SatuanBUK = a.SatuanBUK,
                              SatuanReceipt = a.SatuanReceipt,
                              SampleQty = bb == null ? 0 : bb.ExpenditureType == "SAMPLE" ? bb.TotalQuantity : 0,
-                             Invoice = bb.Invoice == null ? "invo-" : bb.Invoice,
+                             Invoice = bb == null ? "invo-" : bb.Invoice != null ? bb.Invoice : "invo-",
                              //PEB = cc != null ? cc.BCNo : "peb-",
                              //PEBDate = cc != null ? cc.BCDate : new DateTimeOffset(new DateTime(1970, 1, 1)),
                              //EksporQty = cc != null ? cc.Quantity : 0
