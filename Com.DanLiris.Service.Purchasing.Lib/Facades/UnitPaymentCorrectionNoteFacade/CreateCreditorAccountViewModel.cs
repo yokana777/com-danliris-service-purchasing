@@ -1,4 +1,6 @@
-﻿namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteFacade
+﻿using System;
+
+namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteFacade
 {
     public class CreateCreditorAccountViewModel
     {
@@ -8,5 +10,6 @@
         public decimal UnitPaymentCorrectionDPP { get; set; }
         public decimal UnitPaymentCorrectionPPN { get; set; }
         public decimal UnitPaymentCorrectionMutation { get; set; }
+        public DateTimeOffset UnitPaymentCorrectionDate { get; set; }
     }
 }
