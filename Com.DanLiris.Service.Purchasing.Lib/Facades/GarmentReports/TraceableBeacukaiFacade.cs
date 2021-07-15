@@ -293,7 +293,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              SatuanBUK = a.SatuanBUK,
                              SatuanReceipt = a.SatuanReceipt,
                              SampleQty = bb == null ? 0 : bb.ExpenditureType == "SAMPLE" ? bb.TotalQuantity : 0,
-                             Invoice = bb == null ? "invo-" : bb.Invoice,
+                             Invoice = bb.Invoice == null ? "invo-" : bb.Invoice,
                              //PEB = cc != null ? cc.BCNo : "peb-",
                              //PEBDate = cc != null ? cc.BCDate : new DateTimeOffset(new DateTime(1970, 1, 1)),
                              //EksporQty = cc != null ? cc.Quantity : 0
@@ -765,40 +765,40 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     {
                         invoicespan[a.Invoice + a.ROJob] = 1;
                     }
-                    if (pebnospan.TryGetValue(a.PEB + a.ROJob, out value))
+                    if (pebnospan.TryGetValue(a.PEB + a.ROJob + a.Invoice, out value))
                     {
-                        pebnospan[a.PEB + a.ROJob]++;
+                        pebnospan[a.PEB + a.ROJob + a.Invoice]++;
                     }
                     else
                     {
-                        pebnospan[a.PEB + a.ROJob] = 1;
+                        pebnospan[a.PEB + a.ROJob + a.Invoice] = 1;
                     }
 
-                    if (pebdatespan.TryGetValue(a.PEBDate.ToString() + a.ROJob, out value))
+                    if (pebdatespan.TryGetValue(a.PEBDate.ToString() + a.ROJob + a.Invoice, out value))
                     {
-                        pebdatespan[a.PEBDate.ToString() + a.ROJob]++;
+                        pebdatespan[a.PEBDate.ToString() + a.ROJob + a.Invoice]++;
                     }
                     else
                     {
-                        pebdatespan[a.PEBDate.ToString() + a.ROJob] = 1;
+                        pebdatespan[a.PEBDate.ToString() + a.ROJob + a.Invoice] = 1;
                     }
 
-                    if (eksporqtyspan.TryGetValue(a.EksporQty.ToString() + a.ROJob, out value))
+                    if (eksporqtyspan.TryGetValue(a.EksporQty.ToString() + a.ROJob + a.Invoice, out value))
                     {
-                        eksporqtyspan[a.EksporQty.ToString() + a.ROJob]++;
+                        eksporqtyspan[a.EksporQty.ToString() + a.ROJob + a.Invoice]++;
                     }
                     else
                     {
-                        eksporqtyspan[a.EksporQty.ToString() + a.ROJob] = 1;
+                        eksporqtyspan[a.EksporQty.ToString() + a.ROJob + a.Invoice] = 1;
                     }
 
-                    if (samppleqtyspan.TryGetValue(a.SampleQty.ToString() + a.ROJob, out value))
+                    if (samppleqtyspan.TryGetValue(a.SampleQty.ToString() + a.ROJob + a.Invoice, out value))
                     {
-                        samppleqtyspan[a.SampleQty.ToString() + a.ROJob]++;
+                        samppleqtyspan[a.SampleQty.ToString() + a.ROJob + a.Invoice]++;
                     }
                     else
                     {
-                        samppleqtyspan[a.SampleQty.ToString() + a.ROJob] = 1;
+                        samppleqtyspan[a.SampleQty.ToString() + a.ROJob + a.Invoice] = 1;
                     }
 
                     if (pospan.TryGetValue(a.PO + a.ROJob, out value))
