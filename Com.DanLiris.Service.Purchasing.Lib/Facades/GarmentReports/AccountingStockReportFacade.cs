@@ -850,8 +850,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                            where
                            a.IsDeleted == false && b.IsDeleted == false
                            &&
-                           g.CreatedUtc.AddHours(offset).Date > lastdate.Date
-                           && g.CreatedUtc.AddHours(offset).Date < DateFrom.Date
+                           g.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
+                           && g.CreatedUtc.AddHours(offset).Date <= DateTo.Date
                            && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
                            && categories1.Contains(b.ProductName)
                            select new AccountingStockTempViewModel
