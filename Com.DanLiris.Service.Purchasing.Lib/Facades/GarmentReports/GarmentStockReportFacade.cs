@@ -97,6 +97,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
                                });
 
+
             var SATerima = (from a in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa)
                             join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
                             join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
@@ -146,6 +147,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 ReceiptUom = key.ReceiptUom,
                                 RO = key.RO
                             });
+
 
 
             var SAKeluar = (from a in (from aa in dbContext.GarmentUnitExpenditureNoteItems select aa)
@@ -198,7 +200,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             });
 
 
-            
 
             var SAKoreksi = (from a in dbContext.GarmentUnitReceiptNotes
                              join b in (from aa in dbContext.GarmentUnitReceiptNoteItems  select aa) on a.Id equals b.URNId
@@ -250,7 +251,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  ReceiptUom = key.ReceiptUom,
                                  RO = key.RO
                              });
-
 
             var SaldoAwal1 = BalanceStock.Concat(SATerima).Concat(SAKeluar).Concat(SAKoreksi).AsEnumerable();
             var SaldoAwal12 = SaldoAwal1.GroupBy(x => new { x.BeginningBalanceUom, x.Buyer, x.EndingUom, x.ExpandUom, x.NoArticle, x.PaymentMethod, x.PlanPo, x.ProductCode, /*x.ProductName,*/ x.ReceiptUom, x.RO }, (key, group) => new GarmentStockReportViewModelTemp
@@ -379,8 +379,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                            where
                              a.IsDeleted == false && b.IsDeleted == false
                              &&
-                             g.CreatedUtc.AddHours(offset).Date > lastdate.Date
-                             && g.CreatedUtc.AddHours(offset).Date < DateFrom.Date
+                             g.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
+                             && g.CreatedUtc.AddHours(offset).Date <= DateTo.Date
                              && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
                              && categories1.Contains(b.ProductName)
                            select new GarmentStockReportViewModelTemp
