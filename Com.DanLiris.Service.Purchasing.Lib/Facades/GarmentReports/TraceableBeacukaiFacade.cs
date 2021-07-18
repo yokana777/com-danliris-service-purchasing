@@ -684,21 +684,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     {
                         rojobspan[a.ROJob + a.PO] = 1;
                     }
-                    if (itemcodespan.TryGetValue(a.ItemCode, out value))
+                    if (itemcodespan.TryGetValue(a.ItemCode + a.PO, out value))
                     {
-                        itemcodespan[a.ItemCode]++;
+                        itemcodespan[a.ItemCode + a.PO]++;
                     }
                     else
                     {
-                        itemcodespan[a.ItemCode] = 1;
+                        itemcodespan[a.ItemCode + a.PO] = 1;
                     }
-                    if (itemnamespan.TryGetValue(a.ItemName, out value))
+                    if (itemnamespan.TryGetValue(a.ItemName + a.PO, out value))
                     {
-                        itemnamespan[a.ItemName]++;
+                        itemnamespan[a.ItemName + a.PO]++;
                     }
                     else
                     {
-                        itemnamespan[a.ItemName] = 1;
+                        itemnamespan[a.ItemName + a.PO] = 1;
                     }
 
                     if (qtyreceiptspan.TryGetValue(a.ReceiptQty + "bum" + a.PO + a.ROJob, out value))
@@ -709,13 +709,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     {
                         qtyreceiptspan[a.ReceiptQty + "bum" + a.PO + a.ROJob] = 1;
                     }
-                    if (satuanreceiptspan.TryGetValue(a.SatuanReceipt, out value))
+                    if (satuanreceiptspan.TryGetValue(a.SatuanReceipt + "uomreceipt", out value))
                     {
-                        satuanreceiptspan[a.SatuanReceipt]++;
+                        satuanreceiptspan[a.SatuanReceipt + "uomreceipt"]++;
                     }
                     else
                     {
-                        satuanreceiptspan[a.SatuanReceipt] = 1;
+                        satuanreceiptspan[a.SatuanReceipt + "uomreceipt"] = 1;
                     }
                     if (nobukspan.TryGetValue(a.BUK + a.QtyBUK, out value))
                     {
@@ -733,13 +733,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     {
                         sisaspan[a.Sisa.ToString() + "sisa" + a.PO + a.ROJob] = 1;
                     }
-                    if (satuanbukspan.TryGetValue(a.SatuanBUK, out value))
+                    if (satuanbukspan.TryGetValue(a.SatuanBUK + "uombuk", out value))
                     {
-                        satuanbukspan[a.SatuanBUK]++;
+                        satuanbukspan[a.SatuanBUK + "uombuk"]++;
                     }
                     else
                     {
-                        satuanbukspan[a.SatuanBUK] = 1;
+                        satuanbukspan[a.SatuanBUK + "uombuk"] = 1;
                     }
                     if (produksiQtyspan.TryGetValue(a.ProduksiQty.ToString() + a.ROJob, out value))
                     {
