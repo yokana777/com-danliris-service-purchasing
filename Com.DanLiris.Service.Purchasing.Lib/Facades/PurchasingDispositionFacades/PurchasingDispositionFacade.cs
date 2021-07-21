@@ -1,4 +1,5 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel;
@@ -589,6 +590,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
             EntityExtension.FlagForUpdate(model, user, "Facade");
             dbContext.PurchasingDispositions.Update(model);
             return dbContext.SaveChangesAsync();
+        }
+
+        public GarmentReportCMTFacade.ReadResponse<DispositionMemoLoaderDto> GetDispositionMemoLoader(int dispositionId)
+        {
+            var disposition = dbContext.PurchasingDispositions.FirstOrDefault(entity => entity.Id == dispositionId);
+
+            if (disposition != null)
+            {
+                var dispositionItems = dbContext.PurchasingDispositionItems.Where(entity => entity.PurchasingDispositionId == dispositionId).ToList();
+
+                foreach (var dispositionItem in dispositionItems)
+                {
+                    var unitPaymentOrders = dbContext.UnitPaymentOrderDetails.Where(entity => entity.EPONo == dispositionItem.EPONo).Select(entity => entity.UPOItemId).ToList();
+                }
+
+                return new GarmentReportCMTFacade.ReadResponse<DispositionMemoLoaderDto>(new List<DispositionMemoLoaderDto>(), 0, new Dictionary<string, string>());
+            }
+            else
+            {
+                return new GarmentReportCMTFacade.ReadResponse<DispositionMemoLoaderDto>(new List<DispositionMemoLoaderDto>(), 0, new Dictionary<string, string>());
+            }
         }
     }
 }
