@@ -585,7 +585,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                              BankName = string.Concat(a.BankAccountName, " - ", a.BankName, " - ", a.BankAccountNumber, " - ", a.BankCurrencyCode),
                              DPP = c.TotalPaid - c.Vat,
                              VAT = c.Vat,
-                             TotalPaid = c.TotalPaid,
+                             TotalPaid = c.TotalPaid - c.IncomeTax,
                              InvoiceNumber = c.InvoiceNo,
                              DivisionCode = c.DivisionCode
                          }
@@ -619,7 +619,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                              BankName = string.Concat(a.BankAccountName, " - ", a.BankName, " - ", a.BankAccountNumber, " - ", a.BankCurrencyCode),
                              DPP = c.TotalPaid - c.Vat,
                              VAT = c.Vat,
-                             TotalPaid = c.TotalPaid,
+                             TotalPaid = c.TotalPaid - c.IncomeTax,
                              InvoiceNumber = c.InvoiceNo,
                              DivisionCode = c.DivisionCode,
                              TotalDPP = c.TotalPaid - c.Vat,
