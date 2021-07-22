@@ -480,5 +480,38 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
         }
+
+        [HttpGet("memo-spb-loader")]
+        public IActionResult GetMemoSPBLoader(string keyword)
+        {
+            try
+            {
+                var result = facade.GetUnitPaymentOrderMemoLoader(keyword);
+                var info = new Dictionary<string, object>
+                    {
+                        { "count", result.Data.Count },
+                        { "total", result.TotalData },
+                        { "order", result.Order},
+                        { "page", 1 },
+                        { "size", 10 }
+                    };
+
+                var response = new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(result.Data, info);
+                return Ok(response);
+
+                //Dictionary<string, object> Result =
+                //    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                //    .Ok(viewModel);
+                //return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
     }
 }
