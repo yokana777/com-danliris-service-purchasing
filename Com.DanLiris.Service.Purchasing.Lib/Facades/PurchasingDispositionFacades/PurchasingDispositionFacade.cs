@@ -592,24 +592,37 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
             return dbContext.SaveChangesAsync();
         }
 
-        public GarmentReportCMTFacade.ReadResponse<DispositionMemoLoaderDto> GetDispositionMemoLoader(int dispositionId)
+        public DispositionMemoLoaderDto GetDispositionMemoLoader(int dispositionId)
         {
             var disposition = dbContext.PurchasingDispositions.FirstOrDefault(entity => entity.Id == dispositionId);
 
+            var result = (DispositionMemoLoaderDto)null;
             if (disposition != null)
             {
                 var dispositionItems = dbContext.PurchasingDispositionItems.Where(entity => entity.PurchasingDispositionId == dispositionId).ToList();
 
                 foreach (var dispositionItem in dispositionItems)
                 {
-                    var unitPaymentOrders = dbContext.UnitPaymentOrderDetails.Where(entity => entity.EPONo == dispositionItem.EPONo).Select(entity => entity.UPOItemId).ToList();
+                    var upoItemIds = dbContext.UnitPaymentOrderDetails.Where(entity => entity.EPONo == dispositionItem.EPONo).Select(entity => entity.UPOItemId).ToList();
+                    var upoIds = dbContext.UnitPaymentOrderItems.Where(entity => upoItemIds.Contains(entity.Id)).Select(entity => entity.UPOId).ToList();
+                    var unitPaymentOrder = dbContext.UnitPaymentOrders.FirstOrDefault(entity => upoIds.Contains(entity.Id));
+
+                    if (unitPaymentOrder != null)
+                    {
+                        var upoDto = new UnitPaymentOrderDto((int)unitPaymentOrder.Id, unitPaymentOrder.UPONo, unitPaymentOrder.Date);
+                        var urnIds = dbContext.UnitPaymentOrderItems.Where(entity => entity.UPOId == unitPaymentOrder.Id).Select(entity => entity.URNId).ToList();
+                        var unitReceiptNotes = dbContext.UnitReceiptNotes.Where(entity => urnIds.Contains(entity.Id)).ToList();
+                        var urnDto = unitReceiptNotes.Select(element => new UnitReceiptNoteDto((int)element.Id, element.URNNo, element.ReceiptDate)).ToList();
+                        result = new DispositionMemoLoaderDto(upoDto, urnDto);
+                        break;
+                    }
                 }
 
-                return new GarmentReportCMTFacade.ReadResponse<DispositionMemoLoaderDto>(new List<DispositionMemoLoaderDto>(), 0, new Dictionary<string, string>());
+                return result;
             }
             else
             {
-                return new GarmentReportCMTFacade.ReadResponse<DispositionMemoLoaderDto>(new List<DispositionMemoLoaderDto>(), 0, new Dictionary<string, string>());
+                return result;
             }
         }
     }

@@ -22,7 +22,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         IQueryable<PurchasingDisposition> ReadByDisposition(string Keyword = null, string Filter = "{}");
         Task<int> UpdatePosition(PurchasingDispositionUpdatePositionPostedViewModel data, string user);
         List<PurchasingDispositionViewModel> GetTotalPaidPrice(List<PurchasingDispositionViewModel> data);
-        ReadResponse<DispositionMemoLoaderDto> GetDispositionMemoLoader(int dispositionId);
+        DispositionMemoLoaderDto GetDispositionMemoLoader(int dispositionId);
 
     }
 }
