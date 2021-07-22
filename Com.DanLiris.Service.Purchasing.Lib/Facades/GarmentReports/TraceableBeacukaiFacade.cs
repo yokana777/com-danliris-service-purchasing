@@ -576,27 +576,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             result.Columns.Add(new DataColumn() { ColumnName = "Ekspor Qty", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Sample Qty", DataType = typeof(Double) });
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", 0, "", 
-                    "No BUK", 0, 0, "", 0, 0, "", "", "", 0, 0); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", 0, 
+                    "","No BUK", 0, 0, "", 0, 0, "", "", "", 0, 0); // to allow column name to be generated properly for empty data as template
             else
             {
-                var docNo = Query.ToArray();
-                var q = Query.ToList();
-                var index = 0;
-                foreach (TraceableInBeacukaiViewModel a in q)
-                {
-                    TraceableInBeacukaiViewModel dup = Array.Find(docNo, o => o.BCType == a.BCType && o.BCNo == a.BCNo && o.BonNo == o.BonNo);
-                    if (dup != null)
-                    {
-                        if (dup.count == 0)
-                        {
-                            index++;
-                            dup.count = index;
-                        }
-                    }
-                    a.count = dup.count;
-                }
-                Query = q;
+                //var docNo = Query.ToArray();
+                //var q = Query.ToList();
+                //var index = 0;
+                //foreach (TraceableInBeacukaiViewModel a in q)
+                //{
+                //    TraceableInBeacukaiViewModel dup = Array.Find(docNo, o => o.BCType == a.BCType && o.BCNo == a.BCNo && o.BonNo == o.BonNo);
+                //    if (dup != null)
+                //    {
+                //        if (dup.count == 0)
+                //        {
+                //            index++;
+                //            dup.count = index;
+                //        }
+                //    }
+                //    a.count = dup.count;
+                //}
+                //Query = q;
                 //var index = 0;
                 foreach (var item in Query)
                 {
