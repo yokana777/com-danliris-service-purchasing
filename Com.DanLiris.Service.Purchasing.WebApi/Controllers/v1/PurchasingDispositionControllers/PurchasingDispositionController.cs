@@ -453,7 +453,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
 
         }
 
-        [HttpGet("memo=loader/{dispositionId}")]
+        [HttpGet("memo-loader/{dispositionId}")]
         public IActionResult GetMemoLoader(int dispositionId)
         {
             try
