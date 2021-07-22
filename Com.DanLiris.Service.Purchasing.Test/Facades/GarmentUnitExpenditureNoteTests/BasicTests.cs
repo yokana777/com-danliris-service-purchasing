@@ -1433,6 +1433,53 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         }
 
         [Fact]
+        public async Task Should_Success_Get_Excel_Traceable_In_By_BCNo_Null_Result()
+        {
+
+            var facade = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datauitlDO = dataUtilDO(facade, GetCurrentMethod());
+            GarmentDeliveryOrder data = await dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+
+            await facade.Create(data, "Unit Test");
+
+            var facadeBC = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datauitlDO, facadeBC);
+            var dataBC = await datautilBC.GetNewData(USERNAME, data);
+
+            dataBC.CustomsType = "BC 23";
+            dataBC.BeacukaiNo = "BeacukaiNo";
+
+            await facadeBC.Create(dataBC, USERNAME);
+
+            var garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(GetCurrentMethod()));
+            var garmentUnitReceiptNoteDatautil = new GarmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, datauitlDO);
+
+            var garmentUnitDeliveryOrderFacade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var garmentUnitDeliveryOrderDatautil = new GarmentUnitDeliveryOrderDataUtil(garmentUnitDeliveryOrderFacade, garmentUnitReceiptNoteDatautil);
+
+            var garmentUnitExpenditureNoteFacade = new GarmentUnitExpenditureNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(GetCurrentMethod()));
+            var garmentUnitExpenditureNoteDatautil = new GarmentUnitExpenditureNoteDataUtil(garmentUnitExpenditureNoteFacade, garmentUnitDeliveryOrderDatautil);
+
+            var dataurn = await garmentUnitReceiptNoteDatautil.GetNewData(null, data);
+            await garmentUnitReceiptNoteFacade.Create(dataurn);
+
+            var dataunitDO = await garmentUnitDeliveryOrderDatautil.GetNewData(dataurn);
+            dataunitDO.RONo = "RONo123";
+            await garmentUnitDeliveryOrderFacade.Create(dataunitDO);
+
+            var datauen = await garmentUnitExpenditureNoteDatautil.GetNewData(dataunitDO);
+            await garmentUnitExpenditureNoteFacade.Create(datauen);
+
+            var facadeTraceable = new TraceableBeacukaiFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            var Response = facadeTraceable.GetTraceableInExcel("", "BCNo", dataBC.CustomsType);
+
+            Assert.IsType<MemoryStream>(Response);
+
+
+        }
+
+        [Fact]
         public async Task Should_Success_Get_Excel_Null_BUK_Traceable_In_By_BCNo()
         {
             var httpClientService = new Mock<IHttpClientService>();
