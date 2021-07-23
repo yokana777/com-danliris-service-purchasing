@@ -1,4 +1,5 @@
-﻿using Com.DanLiris.Service.Purchasing.Lib.Helpers;
+﻿using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.ExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel;
@@ -11,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports.GarmentReportCMTFacade;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacades
 {
@@ -589,6 +591,77 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
             EntityExtension.FlagForUpdate(model, user, "Facade");
             dbContext.PurchasingDispositions.Update(model);
             return dbContext.SaveChangesAsync();
+        }
+
+        public DispositionMemoLoaderDto GetDispositionMemoLoader(int dispositionId)
+        {
+            var disposition = dbContext.PurchasingDispositions.FirstOrDefault(entity => entity.Id == dispositionId);
+
+            var result = (DispositionMemoLoaderDto)null;
+            if (disposition != null)
+            {
+                var dispositionItems = dbContext.PurchasingDispositionItems.Where(entity => entity.PurchasingDispositionId == dispositionId).ToList();
+                var dispositionItemIds = dispositionItems.Select(element => element.Id).ToList();
+                var dispositionDetails = dbContext.PurchasingDispositionDetails.Where(entity => dispositionItemIds.Contains(entity.PurchasingDispositionItemId)).ToList();
+
+                foreach (var dispositionItem in dispositionItems)
+                {
+                    var upoItemIds = dbContext.UnitPaymentOrderDetails.Where(entity => entity.EPONo == dispositionItem.EPONo).Select(entity => entity.UPOItemId).ToList();
+                    var upoIds = dbContext.UnitPaymentOrderItems.Where(entity => upoItemIds.Contains(entity.Id)).Select(entity => entity.UPOId).ToList();
+                    var unitPaymentOrder = dbContext.UnitPaymentOrders.FirstOrDefault(entity => upoIds.Contains(entity.Id));
+
+                    if (unitPaymentOrder != null)
+                    {
+                        var upoDto = new UnitPaymentOrderDto((int)unitPaymentOrder.Id, unitPaymentOrder.UPONo, unitPaymentOrder.Date);
+                        var urnIds = dbContext.UnitPaymentOrderItems.Where(entity => entity.UPOId == unitPaymentOrder.Id).Select(entity => entity.URNId).ToList();
+                        var purchaseAmount = dispositionDetails.Sum(element => element.PaidPrice);
+                        var unitReceiptNotes = dbContext.UnitReceiptNotes.Where(entity => urnIds.Contains(entity.Id)).ToList();
+                        var urnDto = unitReceiptNotes.Select(element => new UnitReceiptNoteDto((int)element.Id, element.URNNo, element.ReceiptDate)).ToList();
+                        result = new DispositionMemoLoaderDto(upoDto, urnDto, purchaseAmount);
+                        break;
+                    }
+                }
+
+                return result;
+            }
+            else
+            {
+                return result;
+            }
+        }
+
+        public ReadResponse<UnitPaymentOrderMemoLoaderDto> GetUnitPaymentOrderMemoLoader(string keyword)
+        {
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                var existingUpoIds = dbContext.BankExpenditureNoteDetails.Select(entity => entity.UnitPaymentOrderId).ToList();
+                var unitPaymentOrders = dbContext.UnitPaymentOrders.Where(entity => existingUpoIds.Contains(entity.Id) && entity.UPONo.Contains(keyword)).Take(10).ToList();
+                var upoIds = unitPaymentOrders.Select(element => element.Id).ToList();
+                var expenditureDetails = dbContext.BankExpenditureNoteDetails.Where(entity => upoIds.Contains(entity.UnitPaymentOrderId)).ToList();
+                var unitReceiptNoteIds = dbContext.UnitPaymentOrderItems.Where(entity => upoIds.Contains(entity.UPOId)).Select(entity => entity.URNId).ToList();
+                var unitReceiptNotes = dbContext.UnitReceiptNotes.Where(entity => unitReceiptNoteIds.Contains(entity.Id)).ToList();
+
+                var data = new List<UnitPaymentOrderMemoLoaderDto>();
+
+                foreach (var unitPaymentOrder in unitPaymentOrders)
+                {
+                    var expenditureIds = expenditureDetails.Select(element => element.BankExpenditureNoteId).ToList();
+                    var expenditure = dbContext.BankExpenditureNotes.FirstOrDefault(entity => expenditureIds.Contains(entity.Id));
+                    var urnIds = dbContext.UnitPaymentOrderItems.Where(entity => entity.UPOId == unitPaymentOrder.Id).Select(entity => entity.URNId).ToList();
+                    var upoUnitReceiptNotes = unitReceiptNotes.Where(entity => urnIds.Contains(entity.Id)).Select(element => new UnitReceiptNoteDto((int)element.Id, element.URNNo, element.ReceiptDate)).ToList();
+                    if (expenditure != null)
+                    {
+                        data.Add(new UnitPaymentOrderMemoLoaderDto(new ExpenditureDto((int)expenditure.Id, expenditure.DocumentNo, expenditure.Date), new SupplierDto(expenditure.SupplierId, expenditure.SupplierCode, expenditure.SupplierName), "", new UnitPaymentOrderDto((int)unitPaymentOrder.Id, unitPaymentOrder.UPONo, unitPaymentOrder.Date), upoUnitReceiptNotes, 0, expenditure.GrandTotal, 0, 0));
+                    }
+                }
+
+                return new ReadResponse<UnitPaymentOrderMemoLoaderDto>(data, 10, new Dictionary<string, string>());
+
+            }
+            else
+            {
+                return new ReadResponse<UnitPaymentOrderMemoLoaderDto>(new List<UnitPaymentOrderMemoLoaderDto>(), 0, new Dictionary<string, string>());
+            }
         }
     }
 }
