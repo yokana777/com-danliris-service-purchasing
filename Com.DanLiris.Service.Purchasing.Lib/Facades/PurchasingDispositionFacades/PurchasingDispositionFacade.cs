@@ -35,7 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
 
             List<string> searchAttributes = new List<string>()
             {
-                "DispositionNo","SupplierName","Items.EPONo","CurrencyCode","DivisionName","CategoryName"
+                "DispositionNo","SupplierName","CurrencyCode","DivisionName","CategoryName"
             };
 
             Query = QueryHelper<PurchasingDisposition>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -204,7 +204,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
 
             List<string> searchAttributes = new List<string>()
             {
-                "DispositionNo","SupplierName","Items.EPONo","CurrencyCode","DivisionName","CategoryName"
+                "DispositionNo","SupplierName","CurrencyCode","DivisionName","CategoryName"
             };
 
             Query = QueryHelper<PurchasingDisposition>.ConfigureSearch(Query, searchAttributes, Keyword);
@@ -569,7 +569,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
 
         public List<PurchasingDispositionViewModel> GetTotalPaidPrice(List<PurchasingDispositionViewModel> data)
         {
-            var dbSet = dbContext.PurchasingDispositionDetails.AsNoTracking();
+            var dbSet = dbContext.PurchasingDispositionDetails.Select(entity => new { entity.ProductId, entity.PRId, entity.PaidPrice }).AsNoTracking().ToList();
 
             foreach (var purchasingDisposition in data)
             {

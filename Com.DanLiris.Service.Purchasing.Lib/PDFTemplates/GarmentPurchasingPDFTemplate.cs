@@ -43,7 +43,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPCell cellLeftMerge = new PdfPCell() { Border = Rectangle.NO_BORDER | Rectangle.LEFT_BORDER | Rectangle.BOTTOM_BORDER | Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT, VerticalAlignment = Element.ALIGN_TOP, Padding = 5 };
 
 
-            Document document = new Document(PageSize.A4, 30, 30, 30, 30);
+            Document document = new Document(PageSize.A4, 30, 30, 100, 30);
             MemoryStream stream = new MemoryStream();
             PdfWriter writer = PdfWriter.GetInstance(document, stream);
             writer.PageEvent = new TextEvents(viewModel.DispositionNo);
@@ -52,17 +52,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             string fmString = "FM-PB-00-06-011";
             Paragraph fm = new Paragraph(fmString, bold_font4) { Alignment = Element.ALIGN_RIGHT };
 
-            string titleString = "DISPOSISI PEMBAYARAN";
-            Paragraph title = new Paragraph(titleString, bold_font4) { Alignment = Element.ALIGN_CENTER };
+            //string titleString = "DISPOSISI PEMBAYARAN";
+            //Paragraph title = new Paragraph(titleString, bold_font4) { Alignment = Element.ALIGN_CENTER };
 
-            document.Add(title);
+            //document.Add(title);
             bold_font.SetStyle(Font.NORMAL);
 
 
-            string NoString = "NO : " + viewModel.DispositionNo;
-            Paragraph dispoNumber = new Paragraph(NoString, bold_font4) { Alignment = Element.ALIGN_CENTER };
-            dispoNumber.SpacingAfter = 20f;
-            document.Add(dispoNumber);
+            //string NoString = "NO : " + viewModel.DispositionNo;
+            //Paragraph dispoNumber = new Paragraph(NoString, bold_font4) { Alignment = Element.ALIGN_CENTER };
+            //dispoNumber.SpacingAfter = 20f;
+            //document.Add(dispoNumber);
 
 
 

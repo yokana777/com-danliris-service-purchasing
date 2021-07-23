@@ -61,7 +61,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                    //p.IncomeTaxRate == incomeTaxRate &&
                    p.DivisionCode == divisionCode &&
                    p.Currency == currency &&
-                   //p.IncomeTaxRate != 0 &&
+                   p.IncomeTaxRate != 0 &&
                    p.IsPaidPPH == false && (p.Position == ExpeditionPosition.CASHIER_DIVISION || p.Position == ExpeditionPosition.FINANCE_DIVISION)
                );
             }
@@ -73,7 +73,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                    //p.IncomeTaxRate == incomeTaxRate &&
                    p.Currency == currency &&
                    p.DivisionCode == divisionCode &&
-                   //p.IncomeTaxRate != 0 &&
+                   p.IncomeTaxRate != 0 &&
                    p.DueDate.Date >= dateFrom.Value.Date &&
                    p.DueDate.Date <= dateTo.Value.Date &&
                    p.IsPaidPPH == false && (p.Position == ExpeditionPosition.CASHIER_DIVISION || p.Position == ExpeditionPosition.FINANCE_DIVISION)
@@ -95,6 +95,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     DivisionCode = s.DivisionCode,
                     DivisionName = s.DivisionName,
                     IncomeTax = s.IncomeTax,
+                    IncomeTaxName = s.IncomeTaxName,
+                    IncomeTaxRate = s.IncomeTaxRate,
                     Vat = s.Vat,
                     TotalPaid = s.TotalPaid,
                     Currency = s.Currency,
@@ -118,6 +120,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                    DivisionCode = s.DivisionCode,
                    DivisionName = s.DivisionName,
                    IncomeTax = s.IncomeTax,
+                   IncomeTaxName = s.IncomeTaxName,
+                   IncomeTaxRate = s.IncomeTaxRate,
                    Vat = s.Vat,
                    TotalPaid = s.TotalPaid,
                    Currency = s.Currency,

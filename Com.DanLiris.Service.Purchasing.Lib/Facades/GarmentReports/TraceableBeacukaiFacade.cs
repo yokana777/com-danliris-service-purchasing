@@ -293,10 +293,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              SatuanBUK = a.SatuanBUK,
                              SatuanReceipt = a.SatuanReceipt,
                              SampleQty = bb == null ? 0 : bb.ExpenditureType == "SAMPLE" ? bb.TotalQuantity : 0,
-                             Invoice = bb == null ? "invo-" : bb.Invoice,
+                             Invoice = bb == null ? "invo-" : bb.Invoice != null ? bb.Invoice : "invo-",
                              //PEB = cc != null ? cc.BCNo : "peb-",
                              //PEBDate = cc != null ? cc.BCDate : new DateTimeOffset(new DateTime(1970, 1, 1)),
-                             //EksporQty = cc != null ? cc.Quantity : 0
+                             EksporQty = bb != null ? bb.TotalQuantity : 0
                          }).OrderBy(x => x.BCType).ThenBy(x => x.BCNo).ThenBy(x => x.BCDate).ThenBy(x => x.BonNo).ThenBy(x => x.ROJob).ThenBy(x => x.PO).ThenBy(x => x.ItemCode).ThenBy(x => x.ItemName).ThenBy(x => x.ReceiptQty).ThenBy(x => x.BUK).Distinct().ToList();
 
             //var DataTrace = Data2.Select((a, coba) => new
@@ -407,7 +407,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     Sisa = Math.Round(sisa1.ReceiptQty - sisa2.QtyBUK,2),
                     SubkonOutQty = subconout == null ? 0 : subconout.totalQty,
                     ProduksiQty = ((cutting != null && finishingout != null) ? cutting.TotalCuttingOutQuantity - finishingout.totalQty : 0),
-                    EksporQty = PEB != null ? PEB.Quantity : 0
+                    EksporQty = i.EksporQty
                 };
 
                 traceableIn1.Add(trace1);
@@ -440,6 +440,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 //PEBDate = new DateTimeOffset(new DateTime(1970, 1, 1)),
                 PO = i.PO,
                 //ProduksiQty = cutting == null ? 0 : cutting.Sum(x => x.TotalCuttingInQuantity),
+                EksporQty = i.EksporQty,
                 QtyBUK = i.QtyBUK,
                 ReceiptQty = i.ReceiptQty,
                 ROJob = i.ROJob,
@@ -472,7 +473,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 BUK = a.BUK,
                                 BUM = a.BUM,
                                 count = 0,
-                                EksporQty = r.EksporQty,
+                                EksporQty = a.EksporQty,
                                 //ExType = i.ExType,
                                 Invoice = r.Invoice,
                                 ItemCode = a.ItemCode,
@@ -684,21 +685,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     {
                         rojobspan[a.ROJob + a.PO] = 1;
                     }
-                    if (itemcodespan.TryGetValue(a.ItemCode, out value))
+                    if (itemcodespan.TryGetValue(a.ItemCode + a.PO, out value))
                     {
-                        itemcodespan[a.ItemCode]++;
+                        itemcodespan[a.ItemCode + a.PO]++;
                     }
                     else
                     {
-                        itemcodespan[a.ItemCode] = 1;
+                        itemcodespan[a.ItemCode + a.PO] = 1;
                     }
-                    if (itemnamespan.TryGetValue(a.ItemName, out value))
+                    if (itemnamespan.TryGetValue(a.ItemName + a.PO, out value))
                     {
-                        itemnamespan[a.ItemName]++;
+                        itemnamespan[a.ItemName + a.PO]++;
                     }
                     else
                     {
-                        itemnamespan[a.ItemName] = 1;
+                        itemnamespan[a.ItemName + a.PO] = 1;
                     }
 
                     if (qtyreceiptspan.TryGetValue(a.ReceiptQty + "bum" + a.PO + a.ROJob, out value))
@@ -709,13 +710,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     {
                         qtyreceiptspan[a.ReceiptQty + "bum" + a.PO + a.ROJob] = 1;
                     }
-                    if (satuanreceiptspan.TryGetValue(a.SatuanReceipt, out value))
+                    if (satuanreceiptspan.TryGetValue(a.SatuanReceipt + "uomreceipt", out value))
                     {
-                        satuanreceiptspan[a.SatuanReceipt]++;
+                        satuanreceiptspan[a.SatuanReceipt + "uomreceipt"]++;
                     }
                     else
                     {
-                        satuanreceiptspan[a.SatuanReceipt] = 1;
+                        satuanreceiptspan[a.SatuanReceipt + "uomreceipt"] = 1;
                     }
                     if (nobukspan.TryGetValue(a.BUK + a.QtyBUK, out value))
                     {
@@ -733,13 +734,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     {
                         sisaspan[a.Sisa.ToString() + "sisa" + a.PO + a.ROJob] = 1;
                     }
-                    if (satuanbukspan.TryGetValue(a.SatuanBUK, out value))
+                    if (satuanbukspan.TryGetValue(a.SatuanBUK + "uombuk", out value))
                     {
-                        satuanbukspan[a.SatuanBUK]++;
+                        satuanbukspan[a.SatuanBUK + "uombuk"]++;
                     }
                     else
                     {
-                        satuanbukspan[a.SatuanBUK] = 1;
+                        satuanbukspan[a.SatuanBUK + "uombuk"] = 1;
                     }
                     if (produksiQtyspan.TryGetValue(a.ProduksiQty.ToString() + a.ROJob, out value))
                     {
@@ -765,40 +766,40 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     {
                         invoicespan[a.Invoice + a.ROJob] = 1;
                     }
-                    if (pebnospan.TryGetValue(a.PEB + a.ROJob, out value))
+                    if (pebnospan.TryGetValue(a.PEB + a.ROJob + a.Invoice, out value))
                     {
-                        pebnospan[a.PEB + a.ROJob]++;
+                        pebnospan[a.PEB + a.ROJob + a.Invoice]++;
                     }
                     else
                     {
-                        pebnospan[a.PEB + a.ROJob] = 1;
+                        pebnospan[a.PEB + a.ROJob + a.Invoice] = 1;
                     }
 
-                    if (pebdatespan.TryGetValue(a.PEBDate.ToString() + a.ROJob, out value))
+                    if (pebdatespan.TryGetValue(a.PEBDate.ToString() + a.ROJob + a.Invoice, out value))
                     {
-                        pebdatespan[a.PEBDate.ToString() + a.ROJob]++;
+                        pebdatespan[a.PEBDate.ToString() + a.ROJob + a.Invoice]++;
                     }
                     else
                     {
-                        pebdatespan[a.PEBDate.ToString() + a.ROJob] = 1;
+                        pebdatespan[a.PEBDate.ToString() + a.ROJob + a.Invoice] = 1;
                     }
 
-                    if (eksporqtyspan.TryGetValue(a.EksporQty.ToString() + a.ROJob, out value))
+                    if (eksporqtyspan.TryGetValue(a.EksporQty.ToString() + a.ROJob + a.Invoice, out value))
                     {
-                        eksporqtyspan[a.EksporQty.ToString() + a.ROJob]++;
+                        eksporqtyspan[a.EksporQty.ToString() + a.ROJob + a.Invoice]++;
                     }
                     else
                     {
-                        eksporqtyspan[a.EksporQty.ToString() + a.ROJob] = 1;
+                        eksporqtyspan[a.EksporQty.ToString() + a.ROJob + a.Invoice] = 1;
                     }
 
-                    if (samppleqtyspan.TryGetValue(a.SampleQty.ToString() + a.ROJob, out value))
+                    if (samppleqtyspan.TryGetValue(a.SampleQty.ToString() + a.ROJob + a.Invoice, out value))
                     {
-                        samppleqtyspan[a.SampleQty.ToString() + a.ROJob]++;
+                        samppleqtyspan[a.SampleQty.ToString() + a.ROJob + a.Invoice]++;
                     }
                     else
                     {
-                        samppleqtyspan[a.SampleQty.ToString() + a.ROJob] = 1;
+                        samppleqtyspan[a.SampleQty.ToString() + a.ROJob + a.Invoice] = 1;
                     }
 
                     if (pospan.TryGetValue(a.PO + a.ROJob, out value))
@@ -970,15 +971,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
         #endregion
         #region Keluar
-        private List<GarmentExpenditureGoodViewModel> GetRono(int page, int size, string order, string filter)
+        private List<GarmentExpenditureGoodViewModel> GetRono(string invoice)
         {
             IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+            var param = new StringContent(JsonConvert.SerializeObject(invoice), Encoding.UTF8, "application/json");
+            string shippingInvoiceUri = APIEndpoint.GarmentProduction + $"expenditure-goods/byInvoice";
 
-            string shippingInvoiceUri = APIEndpoint.GarmentProduction + $"expenditure-goods";
-            string queryUri = "?page=" + page + "&size=" + size + "&order=" + order + "&filter=" + filter;
-            string uri = shippingInvoiceUri + queryUri;
-
-            var httpResponse = httpClient.GetAsync(uri).Result;
+            var httpResponse = httpClient.SendAsync(HttpMethod.Get, shippingInvoiceUri, param).Result;
             if (httpResponse.IsSuccessStatusCode)
             {
                 var content = httpResponse.Content.ReadAsStringAsync().Result;
@@ -1001,21 +1000,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 return new List<GarmentExpenditureGoodViewModel>();
             }
 
-            //if (httpClient != null)
-            //{
-            //    var garmentSupplierUri = APIEndpoint.GarmentProduction + $"expenditure-goods";
-            //    string queryUri = "?page=" + page + "&size=" + size + "&order=" + order + "&filter=" + filter;
-            //    string uri = garmentSupplierUri + queryUri;
-            //    var response = httpClient.GetAsync($"{uri}").Result.Content.ReadAsStringAsync();
-            //    Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
-            //    List<GarmentExpenditureGoodViewModel> viewModel = JsonConvert.DeserializeObject<List<GarmentExpenditureGoodViewModel>>(result.GetValueOrDefault("data").ToString());
-            //    return viewModel;
-            //}
-            //else
-            //{
-            //    List<GarmentExpenditureGoodViewModel> viewModel = new List<GarmentExpenditureGoodViewModel>();
-            //    return viewModel;
-            //}
         }
 
         public List<BeacukaiAddedViewModel> GetPEBbyBCNo(string bcno)
@@ -1085,12 +1069,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var PEB = GetPEBbyBCNo(bcno.Trim());
 
-            var filterexpend = new
-            {
-                invoice = PEB.Select(x=>x.BonNo.Trim()).FirstOrDefault()
-            };
+            //var filterexpend = new
+            //{
+            //    invoice = PEB.Select(x=>x.BonNo.Trim()).FirstOrDefault()
+            //};
 
-            var expend = GetRono(1, int.MaxValue, "{}", JsonConvert.SerializeObject(filterexpend));
+            string invoices = string.Join(",", PEB.Select(x => x.BonNo));
+
+            var expend = GetRono(invoices);
 
             var Query = (from a in PEB
                          join b in expend on a.BonNo.Trim() equals b.Invoice.Trim()
@@ -1160,6 +1146,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              UnitQtyName = key.UnitQtyName
 
                          }).ToList();
+
 
             foreach(var g in rinciandetil)
             {
