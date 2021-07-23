@@ -41,7 +41,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             Document document = new Document(PageSize.A4, 30, 30, 30, 30);
             MemoryStream stream = new MemoryStream();
             PdfWriter writer = PdfWriter.GetInstance(document, stream);
-            writer.PageEvent = new TextEvents(viewModel.DispositionNo);
+            //writer.PageEvent = new TextEvents(viewModel.DispositionNo);
             document.Open();
 
             string fmString = "FM-PB-00-06-011";
@@ -559,7 +559,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             try
             {
                 _printTime = DateTime.Now;
-                _baseFont = BaseFont.CreateFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+                _baseFont = BaseFont.CreateFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
                 _cb = writer.DirectContent;
                 _headerTemplate = _cb.CreateTemplate(100, 100);
                 _footerTemplate = _cb.CreateTemplate(50, 50);
@@ -577,10 +577,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             base.OnEndPage(writer, document);
             var baseFontNormal = new Font(Font.HELVETICA, 12f, Font.NORMAL, BaseColor.Black);
             var baseFontBig = new Font(Font.HELVETICA, 12f, Font.BOLD, BaseColor.Black);
-            var p1Header = new Phrase($"No: {_documentNo}", baseFontNormal);
+            var p1Header = $"DISPOSISI PEMBAYARAN\nNO : {_documentNo}";
 
-            if (writer.PageNumber == 1)
-                p1Header = new Phrase("", baseFontNormal);
+            //if (writer.PageNumber == 1)
+            //    p1Header = "";
 
             //Create PdfTable object
             var pdfTab = new PdfPTable(3);
@@ -594,26 +594,28 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             var pdfCell3 = new PdfPCell();
 
             ////Add paging to header
-            //{
-            //    _cb.BeginText();
-            //    _cb.SetFontAndSize(_baseFont, 12);
-            //    _cb.SetTextMatrix(document.PageSize.GetRight(200), document.PageSize.GetTop(45));
-            //    _cb.ShowText(text);
-            //    _cb.EndText();
-            //    var len = _baseFont.GetWidthPoint(text, 12);
-            //    //Adds "12" in Page 1 of 12
-            //    _cb.AddTemplate(_headerTemplate, document.PageSize.GetRight(200) + len, document.PageSize.GetTop(45));
-            //}
+            {
+                _cb.BeginText();
+                _cb.SetFontAndSize(_baseFont, 11);
+                _cb.SetTextMatrix(document.PageSize.GetRight(document.PageSize.Width / 2), document.PageSize.GetTop(20));
+                _cb.ShowTextAligned(Element.ALIGN_CENTER, "DISPOSISI PEMBAYARAN", document.PageSize.GetRight(document.PageSize.Width / 2), document.PageSize.GetTop(50), 0);
+                _cb.ShowTextAligned(Element.ALIGN_CENTER, $"NO : {_documentNo}", document.PageSize.GetRight(document.PageSize.Width / 2), document.PageSize.GetTop(62), 0);
+                //_cb.ShowText(p1Header);
+                _cb.EndText();
+                var len = _baseFont.GetWidthPoint(p1Header, 12);
+                //Adds "12" in Page 1 of 12
+                _cb.AddTemplate(_headerTemplate, document.PageSize.GetRight(150) + len, document.PageSize.GetTop(20));
+            }
 
             //Add paging to footer
             {
                 _cb.BeginText();
-                _cb.SetFontAndSize(_baseFont, 12);
-                _cb.SetTextMatrix(document.PageSize.GetRight(180), document.PageSize.GetBottom(30));
-                _cb.ShowText(text);
+                _cb.SetFontAndSize(_baseFont, 11);
+                _cb.ShowTextAligned(Element.ALIGN_CENTER, text, document.PageSize.GetRight(document.PageSize.Width / 2), document.PageSize.GetBottom(10), 0);
+                //_cb.ShowText(text);
                 _cb.EndText();
-                var len = _baseFont.GetWidthPoint(text, 12);
-                _cb.AddTemplate(_footerTemplate, document.PageSize.GetRight(180) + len, document.PageSize.GetBottom(30));
+                var len1 = _baseFont.GetWidthPoint(text, 12);
+                _cb.AddTemplate(_footerTemplate, document.PageSize.GetRight(document.PageSize.Width / 2) + len1, document.PageSize.GetBottom(10));
             }
 
             //set the alignment of all three cells and set border to 0
@@ -644,25 +646,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             //set pdfContent value
 
             //Move the pointer and draw line to separate header section from rest of page
-            _cb.MoveTo(40, document.PageSize.Height - 100);
-            _cb.LineTo(document.PageSize.Width - 40, document.PageSize.Height - 100);
-            _cb.Stroke();
+            //_cb.MoveTo(40, document.PageSize.Height - 100);
+            //_cb.LineTo(document.PageSize.Width - 40, document.PageSize.Height - 100);
+            //_cb.Stroke();
 
             //Move the pointer and draw line to separate footer section from rest of page
-            _cb.MoveTo(40, document.PageSize.GetBottom(50));
-            _cb.LineTo(document.PageSize.Width - 40, document.PageSize.GetBottom(50));
-            _cb.Stroke();
+            //_cb.MoveTo(40, document.PageSize.GetBottom(50));
+            //_cb.LineTo(document.PageSize.Width - 40, document.PageSize.GetBottom(50));
+            //_cb.Stroke();
         }
 
         public override void OnCloseDocument(PdfWriter writer, Document document)
         {
             base.OnCloseDocument(writer, document);
 
-            _headerTemplate.BeginText();
-            _headerTemplate.SetFontAndSize(_baseFont, 12);
-            _headerTemplate.SetTextMatrix(0, 0);
-            _headerTemplate.ShowText($"No: {_documentNo}");
-            _headerTemplate.EndText();
+            //_headerTemplate.al
+            //_headerTemplate.BeginText();
+            //_headerTemplate.SetFontAndSize(_baseFont, 12);
+            //_headerTemplate.SetTextMatrix(0, 0);
+            //_headerTemplate.ShowText($"No: {_documentNo}");
+            //_headerTemplate.EndText();
 
             //_footerTemplate.BeginText();
             //_footerTemplate.SetFontAndSize(_baseFont, 12);

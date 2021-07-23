@@ -154,7 +154,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                && a.IsDeleted == false && b.IsDeleted == false
                                && categories1.Contains(b.ProductName)
                                //&& pemasukan.Contains(g.URNType)
-                               select new MutationBBCentralViewModelTemp
+                                select new MutationBBCentralViewModelTemp
                                {
                                    AdjustmentQty = 0,
                                    BeginQty = Math.Round((double)b.Quantity,2),
@@ -193,7 +193,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                      b.CreatedUtc.AddHours(offset).Date > lastdate.Date
                                      && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                      && categories1.Contains(a.ProductName)
-                                     && pemasukan.Contains(b.URNType)
+                                  //&& pemasukan.Contains(b.URNType)
                                   select new MutationBBCentralViewModelTemp
                                   {
                                       AdjustmentQty = 0,
@@ -222,7 +222,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                   });
 
             
-            
 
 
             var ExpenditureBalance = (from a in (from aa in dbContext.GarmentUnitExpenditureNoteItems select aa)
@@ -237,7 +236,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                        b.CreatedUtc.AddHours(offset).Date > lastdate.Date
                                        && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                        && categories1.Contains(a.ProductName)
-                                       && pengeluaran.Contains(b.ExpenditureType)
+                                      //&& pengeluaran.Contains(b.ExpenditureType)
                                       select new MutationBBCentralViewModelTemp
                                       {
                                           AdjustmentQty = 0,
@@ -266,6 +265,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
                                       });
 
+            
 
             var ReceiptCorrectionBalance = (from a in dbContext.GarmentUnitReceiptNotes
                                             join b in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa) on a.Id equals b.URNId
@@ -280,7 +280,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                                g.CreatedUtc.AddHours(offset).Date > lastdate.Date
                                                && g.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                                && categories1.Contains(b.ProductName)
-                                               && pemasukan.Contains(a.URNType)
+                                            //&& pemasukan.Contains(a.URNType)
                                             select new MutationBBCentralViewModelTemp
                                             {
                                                 AdjustmentQty = 0,
@@ -423,7 +423,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                           && g.CreatedUtc.AddHours(offset).Date <= DateTo.Date
                                           && categories1.Contains(b.ProductName)
                                           && pemasukan.Contains(a.URNType)
-                                     //where b.ProductCode == "TC07547"
                                      select new MutationBBCentralViewModelTemp
                                      {
                                          AdjustmentQty = Math.Round(e.SmallQuantity,2),
@@ -486,15 +485,28 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 Diff = 0
             }).OrderBy(x => x.ItemCode).ToList();
 
+            var mm = new MutationBBCentralViewModel();
+
+            mm.AdjustmentQty = Math.Round(mutation.Sum(x => x.AdjustmentQty), 2);
+            mm.BeginQty = Math.Round(mutation.Sum(x => x.BeginQty), 2);
+            mm.ExpenditureQty = Math.Round(mutation.Sum(x => x.ExpenditureQty), 2);
+            mm.ItemCode = "";
+            mm.ItemName = "";
+            mm.LastQty = Math.Round(mutation.Sum(x => x.LastQty), 2);
+            mm.ReceiptQty = Math.Round(mutation.Sum(x => x.ReceiptQty), 2);
+            mm.SupplierType = "";
+            mm.UnitQtyName = "";
+            mm.OpnameQty = 0;
+            mm.Diff = 0;
+
             var mutation2 = new List<MutationBBCentralViewModel>();
 
             foreach (var i in mutation)
             {
-                //var AdjustmentQty = i.AdjustmentQty > 0 ? i.AdjustmentQty : 0;
+                var AdjustmentQty = i.AdjustmentQty > 0 ? i.AdjustmentQty : 0;
                 var BeginQty = i.BeginQty > 0 ? i.BeginQty : 0;
                 var ExpenditureQty = i.ExpenditureQty > 0 ? i.ExpenditureQty : 0;
                 var LastQty = i.LastQty > 0 ? i.LastQty : 0;
-                var ReceiptQty = i.ReceiptQty > 0 ? i.ReceiptQty : 0;
                 var OpnameQty = i.OpnameQty > 0 ? i.OpnameQty : 0;
                 var Diff = i.Diff > 0 ? i.Diff : 0;
 
@@ -502,35 +514,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 {
                     AdjustmentQty = i.AdjustmentQty,
                     BeginQty = BeginQty,
-                    ExpenditureQty = ExpenditureQty,
+                    ExpenditureQty = i.ExpenditureQty,
                     ItemCode = i.ItemCode,
                     ItemName = i.ItemName,
-                    LastQty = Math.Round(BeginQty + ReceiptQty - ExpenditureQty, 2),
-                    ReceiptQty = ReceiptQty,
+                    LastQty = LastQty,
+                    ReceiptQty = i.ReceiptQty,
                     SupplierType = i.SupplierType,
                     UnitQtyName = i.UnitQtyName,
-                    OpnameQty = OpnameQty,
-                    Diff = Diff
+                    OpnameQty = i.OpnameQty,
+                    Diff = i.Diff
 
                 });
             }
 
+            
+
             mutation2 = mutation2.Where(x => x.AdjustmentQty > 0 || x.BeginQty > 0 || x.Diff > 0 || x.ExpenditureQty > 0 || x.LastQty > 0 || x.OpnameQty > 0 || x.ReceiptQty > 0).ToList();
             //mutation2 = mutation2.Where(x => x.LastQty > 0).ToList();
 
-            var mm = new MutationBBCentralViewModel();
-
-            mm.AdjustmentQty = Math.Round(mutation2.Sum(x => x.AdjustmentQty),2);
-            mm.BeginQty = Math.Round(mutation2.Sum(x => x.BeginQty),2);
-            mm.ExpenditureQty = Math.Round(mutation2.Sum(x => x.ExpenditureQty), 2);
-            mm.ItemCode = "";
-            mm.ItemName = "";
-            mm.LastQty = Math.Round(mutation2.Sum(x => x.LastQty), 2);
-            mm.ReceiptQty = Math.Round(mutation2.Sum(x => x.ReceiptQty), 2);
-            mm.SupplierType = "";
-            mm.UnitQtyName = "";
-            mm.OpnameQty = 0;
-            mm.Diff = 0;
+            
 
             mutation2.Add(new MutationBBCentralViewModel {
                 AdjustmentQty = mm.AdjustmentQty,
@@ -660,7 +662,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 && i.CreatedUtc.Year <= DateTo.Date.Year
                                 && a.IsDeleted == false && b.IsDeleted == false
                                 && categories1.Contains(b.ProductName)
-                                && pemasukan.Contains(g.URNType)
+                                //&& pemasukan.Contains(g.URNType)
                                 select new MutationBPCentralViewModel
                                 {
                                     AdjustmentQty = 0,
@@ -700,7 +702,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                      b.CreatedUtc.AddHours(offset).Date > lastdate.Date
                                      && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                      && categories1.Contains(a.ProductName)
-                                     && pemasukan.Contains(b.URNType)
+                                  //&& pemasukan.Contains(b.URNType)
                                   select new MutationBPCentralViewModel
                                   {
                                       AdjustmentQty = 0,
@@ -742,11 +744,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                        b.CreatedUtc.AddHours(offset).Date > lastdate.Date
                                        && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                        && categories1.Contains(a.ProductName)
-                                       && pengeluaran.Contains(b.ExpenditureType)
+                                      //&& pengeluaran.Contains(b.ExpenditureType)
                                       select new MutationBPCentralViewModel
                                       {
                                           AdjustmentQty = 0,
-                                          BeginQty = Math.Round(a.UomUnit == "YARD" ? (double)a.Quantity * -1 * 0.9144 : -1 * (double)a.Quantity,2),
+                                          BeginQty = Math.Round(-1 * (double)a.Quantity,2),
                                           ExpenditureQty = 0,
                                           ItemCode = a.ProductCode,
                                           ItemName = a.ProductName,
@@ -754,7 +756,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                           OpnameQty = 0,
                                           ReceiptQty = 0,
                                           SupplierType = d.SupplierImport == false ? "LOKAL" : "IMPORT",
-                                          UnitQtyName = a.UomUnit == "YARD" ? "MT" : a.UomUnit
+                                          UnitQtyName = a.UomUnit == "PACKS" ? "PCS" : a.UomUnit
 
                                       }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBPCentralViewModel
                                       {
@@ -784,7 +786,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                                g.CreatedUtc.AddHours(offset).Date > lastdate.Date
                                                && g.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                                && categories1.Contains(b.ProductName)
-                                               && pemasukan.Contains(a.URNType)
+                                            //&& pemasukan.Contains(a.URNType)
                                             select new MutationBPCentralViewModel
                                             {
                                                 AdjustmentQty = 0,
@@ -889,7 +891,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                {
                                    AdjustmentQty = 0,
                                    BeginQty = 0,
-                                   ExpenditureQty = Math.Round(a.UomUnit == "YARD" ? (double)a.Quantity * 0.9144 : (double)a.Quantity,2),
+                                   ExpenditureQty = Math.Round((double)a.Quantity,2),
                                    ItemCode = a.ProductCode,
                                    ItemName = a.ProductName,
                                    LastQty = 0,
@@ -989,9 +991,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 Diff = Math.Round(group.Sum(x => x.Diff), 2)
             });
 
+
+
+            var mm = new MutationBPCentralViewModel();
+
+            var bpmutation = mutationgroup.Where(x => (x.ItemCode != "APL001") && (x.ItemCode != "EMB001") && (x.ItemCode != "GMT001") && (x.ItemCode != "PRN001") && (x.ItemCode != "SMP001") && (x.ItemCode != "WSH001") && (x.ItemCode != "QLT001") && (x.ItemCode != "SMT001")).ToList();
+
+            mm.AdjustmentQty = Math.Round(bpmutation.Sum(x => x.AdjustmentQty), 2);
+            mm.BeginQty = Math.Round(bpmutation.Sum(x => x.BeginQty), 2);
+            mm.ExpenditureQty = Math.Round(bpmutation.Sum(x => x.ExpenditureQty), 2);
+            mm.ItemCode = "";
+            mm.ItemName = "";
+            mm.LastQty = Math.Round(bpmutation.Sum(x => x.LastQty), 2);
+            mm.ReceiptQty = Math.Round(bpmutation.Sum(x => x.ReceiptQty), 2);
+            mm.SupplierType = "";
+            mm.UnitQtyName = "";
+            mm.OpnameQty = 0;
+            mm.Diff = 0;
+
             List<MutationBPCentralViewModel> mutations = new List<MutationBPCentralViewModel>();
 
-            foreach (var item in mutationgroup.Where(x => (x.ItemCode != "APL001") && (x.ItemCode != "EMB001") && (x.ItemCode != "GMT001") && (x.ItemCode != "PRN001") && (x.ItemCode != "SMP001") && (x.ItemCode != "WSH001")).ToList())
+            foreach (var item in mutationgroup.Where(x => (x.ItemCode != "APL001") && (x.ItemCode != "EMB001") && (x.ItemCode != "GMT001") && (x.ItemCode != "PRN001") && (x.ItemCode != "SMP001") && (x.ItemCode != "WSH001") && (x.ItemCode != "QLT001") && (x.ItemCode != "SMT001")).ToList())
             {
                 //var AdjustmentQty = item.AdjustmentQty > 0 ? item.AdjustmentQty : 0;
                 var BeginQty = item.BeginQty > 0 ? item.BeginQty : 0;
@@ -1008,7 +1028,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     ExpenditureQty = ExpenditureQty,
                     ItemCode = item.ItemCode,
                     ItemName = item.ItemName,
-                    LastQty = Math.Round((BeginQty + ReceiptQty + item.AdjustmentQty) - (ExpenditureQty + OpnameQty), 2),
+                    LastQty = LastQty,
                     ReceiptQty = ReceiptQty,
                     SupplierType = item.SupplierType,
                     UnitQtyName = item.UnitQtyName,
@@ -1019,33 +1039,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 mutations.Add(mutation);
             }
 
+            
+
 
             mutations = mutations.OrderBy(x => x.ItemCode).ToList();
 
-            mutations = mutations.Where(x => x.ItemCode != "APL001" || x.ItemCode != "EMB001" || x.ItemCode != "GMT001" || x.ItemCode != "PRN001" || x.ItemCode != "SMP001" || x.ItemCode != "WSH001").ToList();
+            mutations = mutations.Where(x => x.ItemCode != "APL001" || x.ItemCode != "EMB001" || x.ItemCode != "GMT001" || x.ItemCode != "PRN001" || x.ItemCode != "SMP001" || x.ItemCode != "WSH001" || x.ItemCode != "QLT001" || x.ItemCode != "SMT001").ToList();
 
             mutations = mutations.Where(x => x.AdjustmentQty > 0 || x.BeginQty > 0 || x.Diff > 0 || x.ExpenditureQty > 0 || x.LastQty > 0 || x.OpnameQty > 0 || x.ReceiptQty > 0).ToList();
+            //mutations = mutations.Where(x => x.AdjustmentQty != 0 || x.BeginQty != 0 || x.Diff != 0 || x.ExpenditureQty != 0 || x.LastQty != 0 || x.OpnameQty != 0 || x.ReceiptQty != 0).ToList();
             //mutations = mutations.Where(x => x.LastQty > 0).ToList();
 
-            foreach(var i in mutations)
-            {
-                i.BeginQty = i.BeginQty > 0 ? i.BeginQty : 0;
-                i.LastQty = i.LastQty > 0 ? i.LastQty : 0;
-            }
+            //foreach(var i in mutations)
+            //{
+            //    i.BeginQty = i.BeginQty > 0 ? i.BeginQty : 0;
+            //    i.LastQty = i.LastQty > 0 ? i.LastQty : 0;
+            //}
 
-            var mm = new MutationBPCentralViewModel();
 
-            mm.AdjustmentQty = Math.Round(mutations.Sum(x => x.AdjustmentQty), 2);
-            mm.BeginQty = Math.Round(mutations.Sum(x => x.BeginQty), 2);
-            mm.ExpenditureQty = Math.Round(mutations.Sum(x => x.ExpenditureQty), 2);
-            mm.ItemCode = "";
-            mm.ItemName = "";
-            mm.LastQty = Math.Round(mutations.Sum(x => x.LastQty), 2);
-            mm.ReceiptQty = Math.Round(mutations.Sum(x => x.ReceiptQty), 2);
-            mm.SupplierType = "";
-            mm.UnitQtyName = "";
-            mm.OpnameQty = 0;
-            mm.Diff = 0;
 
             mutations.Add(new MutationBPCentralViewModel
             {

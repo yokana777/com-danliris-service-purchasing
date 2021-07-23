@@ -65,7 +65,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
                 {
                     new GarmentExternalPurchaseOrderItem
                     {
-                        PO_SerialNumber = "PO_SerialNumber1",
+                        PO_SerialNumber = datas[0].Items.First().PO_SerialNumber,
                         POId=(int)datas[0].Id,
                         PONo=datas[0].PONo,
                         PRNo=datas[0].PRNo,
