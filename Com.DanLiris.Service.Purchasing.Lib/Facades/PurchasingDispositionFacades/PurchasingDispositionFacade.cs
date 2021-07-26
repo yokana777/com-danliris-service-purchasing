@@ -651,7 +651,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                     var upoUnitReceiptNotes = unitReceiptNotes.Where(entity => urnIds.Contains(entity.Id)).Select(element => new UnitReceiptNoteDto((int)element.Id, element.URNNo, element.ReceiptDate)).ToList();
                     if (expenditure != null)
                     {
-                        data.Add(new UnitPaymentOrderMemoLoaderDto(new ExpenditureDto((int)expenditure.Id, expenditure.DocumentNo, expenditure.Date), new SupplierDto(expenditure.SupplierId, expenditure.SupplierCode, expenditure.SupplierName), "", new UnitPaymentOrderDto((int)unitPaymentOrder.Id, unitPaymentOrder.UPONo, unitPaymentOrder.Date), upoUnitReceiptNotes, 0, expenditure.GrandTotal, 0, 0));
+                        data.Add(new UnitPaymentOrderMemoLoaderDto(new ExpenditureDto((int)expenditure.Id, expenditure.DocumentNo, expenditure.Date), new SupplierDto(expenditure.SupplierId, expenditure.SupplierCode, expenditure.SupplierName), "", new UnitPaymentOrderDto((int)unitPaymentOrder.Id, unitPaymentOrder.UPONo, unitPaymentOrder.Date), upoUnitReceiptNotes, expenditure.GrandTotal, expenditure.CurrencyRate * expenditure.GrandTotal, 0, 0));
                     }
                 }
 
