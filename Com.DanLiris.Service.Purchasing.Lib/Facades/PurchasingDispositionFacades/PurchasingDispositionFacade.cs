@@ -614,8 +614,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                     {
                         var upoDto = new UnitPaymentOrderDto((int)unitPaymentOrder.Id, unitPaymentOrder.UPONo, unitPaymentOrder.Date);
                         var urnIds = dbContext.UnitPaymentOrderItems.Where(entity => entity.UPOId == unitPaymentOrder.Id).Select(entity => entity.URNId).ToList();
-                        var purchaseAmount = dispositionDetails.Sum(element => element.PaidPrice);
-                        var purchaseAmountCurrency = dispositionDetails.Sum(element => element.PaidPrice * disposition.CurrencyRate);
+                        var purchaseAmountCurrency = dispositionDetails.Sum(element => element.PaidPrice);
+                        var purchaseAmount = dispositionDetails.Sum(element => element.PaidPrice * disposition.CurrencyRate);
                         var unitReceiptNotes = dbContext.UnitReceiptNotes.Where(entity => urnIds.Contains(entity.Id)).ToList();
                         var urnDto = unitReceiptNotes.Select(element => new UnitReceiptNoteDto((int)element.Id, element.URNNo, element.ReceiptDate)).ToList();
                         result = new DispositionMemoLoaderDto(upoDto, urnDto, purchaseAmount, purchaseAmountCurrency);
@@ -652,7 +652,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                     var upoUnitReceiptNotes = unitReceiptNotes.Where(entity => urnIds.Contains(entity.Id)).Select(element => new UnitReceiptNoteDto((int)element.Id, element.URNNo, element.ReceiptDate)).ToList();
                     if (expenditure != null)
                     {
-                        data.Add(new UnitPaymentOrderMemoLoaderDto(new ExpenditureDto((int)expenditure.Id, expenditure.DocumentNo, expenditure.Date), new SupplierDto(expenditure.SupplierId, expenditure.SupplierCode, expenditure.SupplierName), "", new UnitPaymentOrderDto((int)unitPaymentOrder.Id, unitPaymentOrder.UPONo, unitPaymentOrder.Date), upoUnitReceiptNotes, expenditure.GrandTotal, expenditure.CurrencyRate * expenditure.GrandTotal, 0, 0));
+                        data.Add(new UnitPaymentOrderMemoLoaderDto(new ExpenditureDto((int)expenditure.Id, expenditure.DocumentNo, expenditure.Date), new SupplierDto(expenditure.SupplierId, expenditure.SupplierCode, expenditure.SupplierName), "", new UnitPaymentOrderDto((int)unitPaymentOrder.Id, unitPaymentOrder.UPONo, unitPaymentOrder.Date), upoUnitReceiptNotes, expenditure.CurrencyRate * expenditure.GrandTotal, expenditure.GrandTotal, 0, 0));
                     }
                 }
 
