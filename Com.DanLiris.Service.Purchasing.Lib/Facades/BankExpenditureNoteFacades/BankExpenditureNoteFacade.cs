@@ -237,7 +237,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 {
                     EntityExtension.FlagForCreate(model, username, USER_AGENT);
 
-                    model.DocumentNo = await bankDocumentNumberGenerator.GenerateDocumentNumber("K", model.BankCode, username,model.Date.ToOffset(timeOffset).Date);
+                    model.DocumentNo = await bankDocumentNumberGenerator.GenerateDocumentNumber("K", model.BankCode, username, model.Date.ToOffset(timeOffset).Date);
 
                     if (model.BankCurrencyCode != "IDR")
                     {
@@ -585,7 +585,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                              BankName = string.Concat(a.BankAccountName, " - ", a.BankName, " - ", a.BankAccountNumber, " - ", a.BankCurrencyCode),
                              DPP = c.TotalPaid - c.Vat,
                              VAT = c.Vat,
-                             TotalPaid = c.TotalPaid,
+                             TotalPaid = c.TotalPaid - c.IncomeTax,
                              InvoiceNumber = c.InvoiceNo,
                              DivisionCode = c.DivisionCode
                          }
@@ -619,7 +619,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                              BankName = string.Concat(a.BankAccountName, " - ", a.BankName, " - ", a.BankAccountNumber, " - ", a.BankCurrencyCode),
                              DPP = c.TotalPaid - c.Vat,
                              VAT = c.Vat,
-                             TotalPaid = c.TotalPaid,
+                             TotalPaid = c.TotalPaid - c.IncomeTax,
                              InvoiceNumber = c.InvoiceNo,
                              DivisionCode = c.DivisionCode,
                              TotalDPP = c.TotalPaid - c.Vat,
@@ -628,10 +628,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                       );
             }
 
-            Query = Query.Where(entity => entity.Date.ToOffset(offset) >= DateFrom.GetValueOrDefault().ToOffset(offset) && entity.Date.ToOffset(offset) <= DateTo.GetValueOrDefault().ToOffset(offset));
+            Query = Query.Where(entity => entity.Date.AddHours(Offset) >= DateFrom.GetValueOrDefault() && entity.Date.AddHours(Offset) <= DateTo.GetValueOrDefault());
             // override duplicate 
             Query = Query.GroupBy(
-                key => new { key.BankName, key.CategoryName, key.Currency,key.Date, key.DivisionCode,key.DivisionName,key.DocumentNo,key.DPP,key.InvoiceNumber,key.PaymentMethod,key.SupplierCode,key.SupplierName,key.TotalDPP,key.TotalPaid,key.TotalPPN,key.VAT,key.UnitPaymentOrderNo},
+                key => new { key.BankName, key.CategoryName, key.Currency, key.Date, key.DivisionCode, key.DivisionName, key.DocumentNo, key.DPP, key.InvoiceNumber, key.PaymentMethod, key.SupplierCode, key.SupplierName, key.TotalDPP, key.TotalPaid, key.TotalPPN, key.VAT, key.UnitPaymentOrderNo },
                 value => value,
                 (key, value) => new BankExpenditureNoteReportViewModel
                 {

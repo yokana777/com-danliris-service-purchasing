@@ -296,7 +296,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              Invoice = bb == null ? "invo-" : bb.Invoice != null ? bb.Invoice : "invo-",
                              //PEB = cc != null ? cc.BCNo : "peb-",
                              //PEBDate = cc != null ? cc.BCDate : new DateTimeOffset(new DateTime(1970, 1, 1)),
-                             //EksporQty = cc != null ? cc.Quantity : 0
+                             EksporQty = bb != null ? bb.TotalQuantity : 0
                          }).OrderBy(x => x.BCType).ThenBy(x => x.BCNo).ThenBy(x => x.BCDate).ThenBy(x => x.BonNo).ThenBy(x => x.ROJob).ThenBy(x => x.PO).ThenBy(x => x.ItemCode).ThenBy(x => x.ItemName).ThenBy(x => x.ReceiptQty).ThenBy(x => x.BUK).Distinct().ToList();
 
             //var DataTrace = Data2.Select((a, coba) => new
@@ -407,7 +407,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     Sisa = Math.Round(sisa1.ReceiptQty - sisa2.QtyBUK,2),
                     SubkonOutQty = subconout == null ? 0 : subconout.totalQty,
                     ProduksiQty = ((cutting != null && finishingout != null) ? cutting.TotalCuttingOutQuantity - finishingout.totalQty : 0),
-                    EksporQty = PEB != null ? PEB.Quantity : 0
+                    EksporQty = i.EksporQty
                 };
 
                 traceableIn1.Add(trace1);
@@ -440,6 +440,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 //PEBDate = new DateTimeOffset(new DateTime(1970, 1, 1)),
                 PO = i.PO,
                 //ProduksiQty = cutting == null ? 0 : cutting.Sum(x => x.TotalCuttingInQuantity),
+                EksporQty = i.EksporQty,
                 QtyBUK = i.QtyBUK,
                 ReceiptQty = i.ReceiptQty,
                 ROJob = i.ROJob,
@@ -472,7 +473,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 BUK = a.BUK,
                                 BUM = a.BUM,
                                 count = 0,
-                                EksporQty = r.EksporQty,
+                                EksporQty = a.EksporQty,
                                 //ExType = i.ExType,
                                 Invoice = r.Invoice,
                                 ItemCode = a.ItemCode,
