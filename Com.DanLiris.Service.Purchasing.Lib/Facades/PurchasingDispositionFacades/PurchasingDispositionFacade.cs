@@ -615,9 +615,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                         var upoDto = new UnitPaymentOrderDto((int)unitPaymentOrder.Id, unitPaymentOrder.UPONo, unitPaymentOrder.Date);
                         var urnIds = dbContext.UnitPaymentOrderItems.Where(entity => entity.UPOId == unitPaymentOrder.Id).Select(entity => entity.URNId).ToList();
                         var purchaseAmount = dispositionDetails.Sum(element => element.PaidPrice);
+                        var purchaseAmountCurrency = dispositionDetails.Sum(element => element.PaidPrice * disposition.CurrencyRate);
                         var unitReceiptNotes = dbContext.UnitReceiptNotes.Where(entity => urnIds.Contains(entity.Id)).ToList();
                         var urnDto = unitReceiptNotes.Select(element => new UnitReceiptNoteDto((int)element.Id, element.URNNo, element.ReceiptDate)).ToList();
-                        result = new DispositionMemoLoaderDto(upoDto, urnDto, purchaseAmount);
+                        result = new DispositionMemoLoaderDto(upoDto, urnDto, purchaseAmount, purchaseAmountCurrency);
                         break;
                     }
                 }
