@@ -482,11 +482,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
         }
 
         [HttpGet("memo-spb-loader")]
-        public IActionResult GetMemoSPBLoader(string keyword)
+        public IActionResult GetMemoSPBLoader(string keyword, int divisionId, bool supplierIsImport, string currencyCode)
         {
             try
             {
-                var result = facade.GetUnitPaymentOrderMemoLoader(keyword);
+                var result = facade.GetUnitPaymentOrderMemoLoader(keyword, divisionId, supplierIsImport, currencyCode);
                 var info = new Dictionary<string, object>
                     {
                         { "count", result.Data.Count },
