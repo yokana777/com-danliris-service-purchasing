@@ -357,6 +357,28 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
             return data;
         }
 
+        public async Task<GarmentUnitReceiptNote> GetTestDataWithStorageGudangSisaACC(long? ticks = null)
+        {
+            var data = await GetNewDataWithStorage(ticks);
+            data.URNType = "GUDANG SISA";
+            data.ExpenditureId = 1;
+            data.ExpenditureNo = "no";
+            data.Category = "ACCESSORIES";
+            await facade.Create(data);
+            return data;
+        }
+
+        public async Task<GarmentUnitReceiptNote> GetTestDataWithStorageGudangSisaFabric(long? ticks = null)
+        {
+            var data = await GetNewDataWithStorage(ticks);
+            data.URNType = "GUDANG SISA";
+            data.ExpenditureId = 1;
+            data.ExpenditureNo = "no";
+            data.Category = "FABRIC";
+            await facade.Create(data);
+            return data;
+        }
+
         public GarmentDOItems ReadDOItemsByURNItemId(int id)
         {
             return facade.ReadDOItemsByURNItemId(id);

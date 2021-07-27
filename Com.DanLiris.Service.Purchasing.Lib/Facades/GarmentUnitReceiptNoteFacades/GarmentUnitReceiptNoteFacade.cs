@@ -225,6 +225,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
                     foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
                     {
+                        if(garmentUnitReceiptNote.URNType == "GUDANG SISA")
+                        {
+                            var doDetail = dbSetGarmentDeliveryOrderDetail.OrderByDescending(a => a.DOQuantity).First(a => a.POSerialNumber == garmentUnitReceiptNoteItem.POSerialNumber);
+                            garmentUnitReceiptNoteItem.DODetailId = doDetail.Id;
+                            garmentUnitReceiptNoteItem.EPOItemId = doDetail.EPOItemId;
+
+                            var prItem = dbContext.GarmentPurchaseRequestItems.First(a => a.PO_SerialNumber == garmentUnitReceiptNoteItem.POSerialNumber);
+                            var pr = dbContext.GarmentPurchaseRequests.Single(a => a.Id == prItem.GarmentPRId);
+                            garmentUnitReceiptNoteItem.PRId = pr.Id;
+                            garmentUnitReceiptNoteItem.PRNo = pr.PRNo;
+                            garmentUnitReceiptNoteItem.PRItemId = prItem.Id;
+                            garmentUnitReceiptNoteItem.RONo = pr.RONo;
+
+                            var poItem = dbSetGarmentInternalPurchaseOrderItems.First(a => a.PO_SerialNumber == garmentUnitReceiptNoteItem.POSerialNumber);
+                            garmentUnitReceiptNoteItem.POId = poItem.GPOId;
+                            garmentUnitReceiptNoteItem.POItemId = poItem.Id;
+                        }
+
                         garmentUnitReceiptNoteItem.DOCurrencyRate = garmentUnitReceiptNote.DOCurrencyRate!=null && garmentUnitReceiptNote.URNType == "PEMBELIAN" ? 
                         (double)garmentUnitReceiptNote.DOCurrencyRate : garmentUnitReceiptNoteItem.DOCurrencyRate;
                         if (garmentUnitReceiptNoteItem.DOCurrencyRate == 0)
@@ -238,7 +256,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
                         //*per 10-06-21 yg PROSES tidak update receiptqty di DO
 
-                        if(garmentUnitReceiptNote.URNType != "PROSES")
+                        if(garmentUnitReceiptNote.URNType == "PEMBELIAN")
                         {
                             var garmentDeliveryOrderDetail = dbSetGarmentDeliveryOrderDetail.First(d => d.Id == garmentUnitReceiptNoteItem.DODetailId);
                             EntityExtension.FlagForUpdate(garmentDeliveryOrderDetail, identityService.Username, USER_AGENT);
@@ -280,6 +298,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     {
                         await UpdateDR(garmentUnitReceiptNote.DRId, true);
                     }
+                    else if (garmentUnitReceiptNote.URNType == "GUDANG SISA")
+                    {
+                        await UpdateExpenditure(garmentUnitReceiptNote.ExpenditureId, true, garmentUnitReceiptNote.Category);
+                    }
 
                     var garmentInventoryDocument = GenerateGarmentInventoryDocument(garmentUnitReceiptNote);
                     dbSetGarmentInventoryDocument.Add(garmentInventoryDocument);
@@ -288,7 +310,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     Created = await dbContext.SaveChangesAsync();
 
 
-                    if (garmentUnitReceiptNote.URNType == "PEMBELIAN")
+                    if (garmentUnitReceiptNote.URNType == "PEMBELIAN" || garmentUnitReceiptNote.URNType == "GUDANG SISA")
                     {
                         foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
                         {
@@ -706,6 +728,60 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             }
         }
 
+        private async Task UpdateExpenditure(long ExpenditureId, bool isUsed, string type)
+        {
+            string uri = type=="FABRIC" ? "garment/leftover-warehouse-expenditures/fabric" : "garment/leftover-warehouse-expenditures/accessories";
+            IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+
+            var response = await httpClient.GetAsync($"{APIEndpoint.Inventory}{uri}/{ExpenditureId}");
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+                if(type != "FABRIC")
+                {
+                    GarmentLeftoverWarehouseExpenditureAccessoriesViewModel viewModel = JsonConvert.DeserializeObject<GarmentLeftoverWarehouseExpenditureAccessoriesViewModel>(result.GetValueOrDefault("data").ToString());
+                    viewModel.IsUsed = isUsed;
+
+                    var response2 = await httpClient.PutAsync($"{APIEndpoint.Inventory}{uri}/{ExpenditureId}", new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, General.JsonMediaType));
+                    var content2 = await response2.Content.ReadAsStringAsync();
+                    response2.EnsureSuccessStatusCode();
+                }
+                else
+                {
+                    GarmentLeftoverWarehouseExpenditureFabricViewModel viewModel = JsonConvert.DeserializeObject<GarmentLeftoverWarehouseExpenditureFabricViewModel>(result.GetValueOrDefault("data").ToString());
+                    viewModel.IsUsed = isUsed;
+
+                    var response2 = await httpClient.PutAsync($"{APIEndpoint.Inventory}{uri}/{ExpenditureId}", new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, General.JsonMediaType));
+                    var content2 = await response2.Content.ReadAsStringAsync();
+                    response2.EnsureSuccessStatusCode();
+                }
+               
+            }
+
+        }
+
+        //private GarmentLeftoverWarehouseExpenditureAccessoriesViewModel GetAccExpenditure(long ExpenditureId)
+        //{
+        //    string uri = "garment/leftover-warehouse-expenditures/accessories";
+        //    IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+
+        //    var response = httpClient.GetAsync($"{APIEndpoint.GarmentProduction}{uri}/{ExpenditureId}").Result;
+        //    if (response.IsSuccessStatusCode)
+        //    {
+        //        var content = response.Content.ReadAsStringAsync().Result;
+        //        Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+        //        GarmentLeftoverWarehouseExpenditureAccessoriesViewModel viewModel = JsonConvert.DeserializeObject<GarmentLeftoverWarehouseExpenditureAccessoriesViewModel>(result.GetValueOrDefault("data").ToString());
+
+        //        return viewModel;
+        //    }
+        //    else
+        //    {
+        //        return null;
+        //    }
+        //}
+
+
         public async Task<int> Update(int id, GarmentUnitReceiptNote garmentUnitReceiptNote)
         {
             int Updated = 0;
@@ -851,7 +927,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         }
                     }
 
-                    if(garmentUnitReceiptNote.URNType == "PEMBELIAN" || garmentUnitReceiptNote.URNType == "PROSES")
+                    if(garmentUnitReceiptNote.URNType == "PEMBELIAN" || garmentUnitReceiptNote.URNType == "PROSES" || garmentUnitReceiptNote.URNType == "GUDANG SISA")
                     {
                         foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
                         {
@@ -859,6 +935,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                             if(garmentDOItems!=null)
                                 EntityExtension.FlagForDelete(garmentDOItems, identityService.Username, USER_AGENT);
                         }
+                    }
+
+
+                    if (garmentUnitReceiptNote.URNType == "GUDANG SISA")
+                    {
+                        await UpdateExpenditure(garmentUnitReceiptNote.ExpenditureId, false, garmentUnitReceiptNote.Category);
                     }
 
                     if (garmentUnitReceiptNote.URNType == "PROSES")

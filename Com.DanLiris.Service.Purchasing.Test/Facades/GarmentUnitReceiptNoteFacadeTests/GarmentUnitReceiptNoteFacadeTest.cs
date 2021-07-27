@@ -94,6 +94,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
                 .Setup(x => x.SendAsync(It.IsAny<HttpMethod>(), It.Is<string>(s => s.Contains("master/garmentProducts")), It.IsAny<HttpContent>()))
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentProductDataUtil().GetMultipleResultFormatterOkString()) });
 
+            httpClientService
+               .Setup(x => x.PutAsync(It.Is<string>(s => s.Contains("garment/leftover-warehouse-expenditures/fabric")), It.IsAny<HttpContent>()))
+               .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentLeftoverWarehouseExpenditureFabricDataUtil().GetResultFormatterOkString()) });
+            httpClientService
+               .Setup(x => x.PutAsync(It.Is<string>(s => s.Contains("garment/leftover-warehouse-expenditures/accessories")), It.IsAny<HttpContent>()))
+               .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentLeftoverWarehouseExpenditureAccessoriesDataUtil().GetResultFormatterOkString()) });
+
 
             var mapper = new Mock<IMapper>();
             mapper
@@ -161,6 +168,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             httpClientService
                .Setup(x => x.PutAsync(It.Is<string>(s => s.Contains("delivery-returns")), It.IsAny<HttpContent>()))
                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentDeliveryReturnDataUtil().GetResultFormatterOkString()) });
+
+            httpClientService
+               .Setup(x => x.PutAsync(It.Is<string>(s => s.Contains("garment/leftover-warehouse-expenditures/fabric")), It.IsAny<HttpContent>()))
+               .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentLeftoverWarehouseExpenditureFabricDataUtil().GetResultFormatterOkString()) });
+            httpClientService
+               .Setup(x => x.PutAsync(It.Is<string>(s => s.Contains("garment/leftover-warehouse-expenditures/accessories")), It.IsAny<HttpContent>()))
+               .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentLeftoverWarehouseExpenditureAccessoriesDataUtil().GetResultFormatterOkString()) });
 
 
             var mapper = new Mock<IMapper>();
@@ -474,6 +488,30 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
                 }
             };
             Assert.True(viewModelCheckItemsConvertion.Validate(null).Count() > 0);
+
+            GarmentUnitReceiptNoteViewModel viewModelCheckItemsExpenditure = new GarmentUnitReceiptNoteViewModel
+            {
+                DOId = 1,
+                URNType = "GUDANG SISA",
+                ExpenditureNo = "",
+                Items = new List<GarmentUnitReceiptNoteItemViewModel>
+                {
+                    new GarmentUnitReceiptNoteItemViewModel
+                    {
+                        Uom = new UomViewModel
+                        {
+                            Id = "1"
+                        },
+                        SmallUom = new UomViewModel
+                        {
+                            Id = "1"
+                        },
+                        Conversion = 1,
+                        CorrectionConversion= 1,
+                    }
+                }
+            };
+            Assert.True(viewModelCheckItemsExpenditure.Validate(null).Count() > 0);
         }
         //monitoring
         [Fact]
