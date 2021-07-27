@@ -23,7 +23,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<int> UpdatePosition(PurchasingDispositionUpdatePositionPostedViewModel data, string user);
         List<PurchasingDispositionViewModel> GetTotalPaidPrice(List<PurchasingDispositionViewModel> data);
         DispositionMemoLoaderDto GetDispositionMemoLoader(int dispositionId);
-        ReadResponse<UnitPaymentOrderMemoLoaderDto> GetUnitPaymentOrderMemoLoader(string keyword);
+        ReadResponse<UnitPaymentOrderMemoLoaderDto> GetUnitPaymentOrderMemoLoader(string keyword, int divisionId, bool supplierIsImport, string currencyCode);
 
     }
 }

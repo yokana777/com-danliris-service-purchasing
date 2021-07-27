@@ -631,12 +631,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
             }
         }
 
-        public ReadResponse<UnitPaymentOrderMemoLoaderDto> GetUnitPaymentOrderMemoLoader(string keyword)
+        public ReadResponse<UnitPaymentOrderMemoLoaderDto> GetUnitPaymentOrderMemoLoader(string keyword, int divisionId, bool supplierIsImport, string currencyCode)
         {
             if (!string.IsNullOrWhiteSpace(keyword))
             {
-                var existingUpoIds = dbContext.BankExpenditureNoteDetails.Select(entity => entity.UnitPaymentOrderId).ToList();
-                var unitPaymentOrders = dbContext.UnitPaymentOrders.Where(entity => existingUpoIds.Contains(entity.Id) && entity.UPONo.Contains(keyword)).Take(10).ToList();
+                var bankExpenditureIds = dbContext.BankExpenditureNotes.Where(entity => entity.SupplierImport == supplierIsImport).Select(entity => entity.Id).ToList();
+                var existingUpoIds = dbContext.BankExpenditureNoteDetails.Where(entity => bankExpenditureIds.Contains(entity.BankExpenditureNoteId)).Select(entity => entity.UnitPaymentOrderId).ToList();
+
+                var query = dbContext.UnitPaymentOrders.AsQueryable();
+
+                if (divisionId > 0)
+                {
+                    query = query.Where(entity => entity.DivisionId == divisionId.ToString());
+                }
+
+                if (!string.IsNullOrWhiteSpace(currencyCode))
+                {
+                    query = query.Where(entity => entity.CurrencyCode == currencyCode);
+                }
+
+                var unitPaymentOrders = query.Where(entity => existingUpoIds.Contains(entity.Id) && entity.UPONo.Contains(keyword)).Take(10).ToList();
                 var upoIds = unitPaymentOrders.Select(element => element.Id).ToList();
                 var expenditureDetails = dbContext.BankExpenditureNoteDetails.Where(entity => upoIds.Contains(entity.UnitPaymentOrderId)).ToList();
                 var unitReceiptNoteIds = dbContext.UnitPaymentOrderItems.Where(entity => upoIds.Contains(entity.UPOId)).Select(entity => entity.URNId).ToList();
