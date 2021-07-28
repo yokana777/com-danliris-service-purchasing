@@ -621,10 +621,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                         
                     }
 
-                    var purchaseAmountCurrency = dispositionDetails.Sum(element => element.PaidPrice);
+
+                    var purchaseAmountCurrency = disposition.DPP + disposition.VatValue + disposition.IncomeTaxValue;
                     if (disposition.CurrencyCode == "IDR")
                         purchaseAmountCurrency = 0;
-                    var purchaseAmount = dispositionDetails.Sum(element => element.PaidPrice * disposition.CurrencyRate);
+                    var purchaseAmount = (disposition.DPP + disposition.VatValue + disposition.IncomeTaxValue) * disposition.CurrencyRate;
                     result = new DispositionMemoLoaderDto(upoDto, urnDto, purchaseAmount, purchaseAmountCurrency);
                 }
 
