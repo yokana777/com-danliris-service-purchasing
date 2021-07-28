@@ -618,13 +618,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                         var urnIds = dbContext.UnitPaymentOrderItems.Where(entity => entity.UPOId == unitPaymentOrder.Id).Select(entity => entity.URNId).ToList();
                         var unitReceiptNotes = dbContext.UnitReceiptNotes.Where(entity => urnIds.Contains(entity.Id)).ToList();
                         urnDto = unitReceiptNotes.Select(element => new UnitReceiptNoteDto((int)element.Id, element.URNNo, element.ReceiptDate)).ToList();
-                        
+
                     }
 
-                    var purchaseAmountCurrency = dispositionDetails.Sum(element => element.PaidPrice);
+                    var dpp = dispositionDetails.Sum(element => element.PaidPrice);
+                    var incomeTaxAmount = (double)0;
+                    var vatAmount = (double)0;
+
+                    if (dispositionItem.UseVat)
+                        vatAmount = dpp * 0.1;
+
+                    if (dispositionItem.UseIncomeTax)
+                        incomeTaxAmount = dpp * dispositionItem.IncomeTaxRate / 100;
+
+                    var purchaseAmountCurrency = dpp;
                     if (disposition.CurrencyCode == "IDR")
                         purchaseAmountCurrency = 0;
-                    var purchaseAmount = dispositionDetails.Sum(element => element.PaidPrice * disposition.CurrencyRate);
+                    var purchaseAmount = dpp * disposition.CurrencyRate;
                     result = new DispositionMemoLoaderDto(upoDto, urnDto, purchaseAmount, purchaseAmountCurrency);
                 }
 
