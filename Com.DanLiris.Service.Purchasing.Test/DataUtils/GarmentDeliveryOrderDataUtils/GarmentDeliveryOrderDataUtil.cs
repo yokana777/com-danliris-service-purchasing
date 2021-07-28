@@ -21,9 +21,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
             this.garmentExternalPurchaseOrderDataUtil = garmentExternalPurchaseOrderDataUtil;
         }
 
-        public async Task<GarmentDeliveryOrder> GetNewData()
+        public async Task<GarmentDeliveryOrder> GetNewData(GarmentExternalPurchaseOrder garmentExternalPurchaseOrder = null)
         {
-            var datas = await Task.Run(() => garmentExternalPurchaseOrderDataUtil.GetTestDataFabric());
+            var datas = garmentExternalPurchaseOrder ?? await Task.Run(() => garmentExternalPurchaseOrderDataUtil.GetTestDataFabric());
             List<GarmentExternalPurchaseOrderItem> EPOItem = new List<GarmentExternalPurchaseOrderItem>(datas.Items);
             Random rnd = new Random();
             long nowTicks = DateTimeOffset.Now.Ticks;
