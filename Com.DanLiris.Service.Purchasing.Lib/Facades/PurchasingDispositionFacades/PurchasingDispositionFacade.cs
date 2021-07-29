@@ -634,7 +634,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                     var purchaseAmountCurrency = dpp;
                     if (disposition.CurrencyCode == "IDR")
                         purchaseAmountCurrency = 0;
-                    var purchaseAmount = dpp * disposition.CurrencyRate;
+                    var purchaseAmount = (dpp + vatAmount - incomeTaxAmount) * disposition.CurrencyRate;
                     result = new DispositionMemoLoaderDto(upoDto, urnDto, purchaseAmount, purchaseAmountCurrency);
                 }
 
