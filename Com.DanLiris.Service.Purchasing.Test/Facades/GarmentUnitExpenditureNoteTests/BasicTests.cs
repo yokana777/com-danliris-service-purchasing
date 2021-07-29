@@ -1194,7 +1194,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             await garmentUnitDeliveryOrderFacade.Create(dataunitDO);
 
             var datauen = await garmentUnitExpenditureNoteDatautil.GetNewData(dataunitDO);
-            foreach(var uen in datauen.Items)
+            datauen.UnitSenderId = 20;
+            foreach (var uen in datauen.Items)
             {
                 uen.ProductRemark = "ProductRemark";
             }
@@ -1205,7 +1206,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var dateTo = DateTime.UtcNow.AddDays(1);
             var dateFrom = dateTo.AddDays(-30);
 
-            var results = reportService.GetReport(dateFrom, dateTo, 0, 1, 25, "", 0);
+            var results = reportService.GetReport(dateFrom, dateTo, 20, 1, 25, "", 0);
 
             Assert.NotNull(results);
             
@@ -1251,6 +1252,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             await garmentUnitDeliveryOrderFacade.Create(dataunitDO);
 
             var datauen = await garmentUnitExpenditureNoteDatautil.GetNewData(dataunitDO);
+            datauen.UnitSenderId = 20;
             foreach (var uen in datauen.Items)
             {
                 uen.ProductRemark = "ProductRemark";
@@ -1262,7 +1264,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var dateTo = DateTime.UtcNow.AddDays(1);
             var dateFrom = dateTo.AddDays(-30);
 
-            var results = reportService.GenerateExcel(dateFrom, dateTo, 0, 0, "");
+            var results = reportService.GenerateExcel(dateFrom, dateTo, 20, 0, "");
 
             Assert.IsType<MemoryStream>(results);
         }
@@ -1299,10 +1301,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             await garmentUnitReceiptNoteFacade.Create(dataurn);
 
             var dataunitDO = await garmentUnitDeliveryOrderDatautil.GetNewData(dataurn);
-            dataunitDO.RONo = "RONo123";
+            dataunitDO.RONo = "RONO123";
             await garmentUnitDeliveryOrderFacade.Create(dataunitDO);
 
             var datauen = await garmentUnitExpenditureNoteDatautil.GetNewData(dataunitDO);
+            datauen.UnitSenderId = 20;
             foreach (var uen in datauen.Items)
             {
                 uen.ProductRemark = "ProductRemark";
@@ -1314,7 +1317,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var dateTo = DateTime.UtcNow.AddDays(1);
             var dateFrom = dateTo.AddDays(-30);
 
-            var results = reportService.GenerateExcel(null, null, 0, 0, null);
+            var results = reportService.GenerateExcel(null, null, 200, 0, null);
 
             Assert.IsType<MemoryStream>(results);
 
