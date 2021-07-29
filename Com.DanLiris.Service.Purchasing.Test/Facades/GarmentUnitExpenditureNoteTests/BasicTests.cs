@@ -1156,6 +1156,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         [Fact]
         public async Task Should_Success_GetReport_Realization_CMT()
         {
+
             var externalFacade = new GarmentExternalPurchaseOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilexternal = dataUtilExternal(externalFacade, GetCurrentMethod());
             GarmentExternalPurchaseOrder data = await dataUtilExternal(externalFacade, GetCurrentMethod()).GetNewDataFabric();
@@ -1316,6 +1317,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var results = reportService.GenerateExcel(null, null, 0, 0, null);
 
             Assert.IsType<MemoryStream>(results);
+
         }
         #region traceable
         [Fact]
