@@ -1160,7 +1160,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var datautilexternal = dataUtilExternal(externalFacade, GetCurrentMethod());
             GarmentExternalPurchaseOrder data = await dataUtilExternal(externalFacade, GetCurrentMethod()).GetNewDataFabric();
 
-            foreach(var i in data.Items)
+            foreach (var i in data.Items)
             {
                 i.ProductName = "FABRIC";
             }
@@ -1193,7 +1193,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             await garmentUnitDeliveryOrderFacade.Create(dataunitDO);
 
             var datauen = await garmentUnitExpenditureNoteDatautil.GetNewData(dataunitDO);
-            foreach(var uen in datauen.Items)
+            foreach (var uen in datauen.Items)
             {
                 uen.ProductRemark = "ProductRemark";
             }
@@ -1207,7 +1207,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var results = reportService.GetReport(dateFrom, dateTo, 0, 1, 25, "", 0);
 
             Assert.NotNull(results);
-            
+
         }
 
         [Fact]
@@ -1277,52 +1277,46 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             data.PaymentMethod = "CMT";
 
             await externalFacade.Create(data, "test");
-        //          var gegData = garmentExpenditureGoodDataUtil.GetNewData();
+
             var doFacade = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var doDataUtil = new GarmentDeliveryOrderDataUtil(doFacade, datautilexternal);
 
             var DO = await doDataUtil.GetNewData(data);
 
             await doFacade.Create(DO, "test");
-        //          var results = reportService.GetReport(dateFrom, dateTo, 0, 1, 25, "", 0);
+
             var garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(GetCurrentMethod()));
             var garmentUnitReceiptNoteDatautil = new GarmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, doDataUtil);
-        //      {
+
             var garmentUnitDeliveryOrderFacade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
             var garmentUnitDeliveryOrderDatautil = new GarmentUnitDeliveryOrderDataUtil(garmentUnitDeliveryOrderFacade, garmentUnitReceiptNoteDatautil);
-        //          var dtUnitExpenditureNote = await dataUtil(Facade, GetCurrentMethod()).GetNewDataForPreparing();
+
             var garmentUnitExpenditureNoteFacade = new GarmentUnitExpenditureNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(GetCurrentMethod()));
             var garmentUnitExpenditureNoteDatautil = new GarmentUnitExpenditureNoteDataUtil(garmentUnitExpenditureNoteFacade, garmentUnitDeliveryOrderDatautil);
-        //          var garmentExpenditureGoodDataUtil = new GarmentExpenditureGoodDataUtil();
+
             var dataurn = await garmentUnitReceiptNoteDatautil.GetNewData(null, DO);
             await garmentUnitReceiptNoteFacade.Create(dataurn);
 
             var dataunitDO = await garmentUnitDeliveryOrderDatautil.GetNewData(dataurn);
             dataunitDO.RONo = "RONo123";
             await garmentUnitDeliveryOrderFacade.Create(dataunitDO);
-        //          var dateTo = DateTime.UtcNow.AddDays(1);
+
             var datauen = await garmentUnitExpenditureNoteDatautil.GetNewData(dataunitDO);
             foreach (var uen in datauen.Items)
             {
                 uen.ProductRemark = "ProductRemark";
             }
             await garmentUnitExpenditureNoteFacade.Create(datauen);
-        //      [Fact]
+
             var reportService = new GarmentRealizationCMTReportFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-        //          var Facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
             var dateTo = DateTime.UtcNow.AddDays(1);
             var dateFrom = dateTo.AddDays(-30);
 
-        //          var garmentExpenditureGoodDataUtil = new GarmentExpenditureGoodDataUtil();
-        //          var gegData = garmentExpenditureGoodDataUtil.GetNewData();
-            Assert.IsType<MemoryStream>(results);
-        }
-        //          var reportService = new GarmentRealizationCMTReportFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-
             var results = reportService.GenerateExcel(null, null, 0, 0, null);
 
-        //          Assert.NotNull(results);
-        //      }
+            Assert.IsType<MemoryStream>(results);
+        }
         #region traceable
         [Fact]
         public async Task Should_Success_Get_Traceable_In_By_BCNo()
@@ -1690,9 +1684,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         {
             var facadeTraceable = new TraceableBeacukaiFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
 
-            
 
-            
+
+
 
             var facade = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datauitlDO = dataUtilDO(facade, GetCurrentMethod());
