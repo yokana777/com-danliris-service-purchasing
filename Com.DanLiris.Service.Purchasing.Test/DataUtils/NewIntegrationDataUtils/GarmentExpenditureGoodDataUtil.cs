@@ -24,9 +24,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
                 IsDeleted = false,
                 RONo = "RONo123",
                 Invoice = "Invoice123",
-                ExpenditureGoodNo = $"ExpenditureGoodNo{nowTicks}",
-                Article = $"Article{nowTicks}",
-                Comodity = new GarmentComodity {
+                ExpenditureGoodNo = "ExpenditureGoodNo1",
+                Article = "Article1",
+                Comodity = new GarmentComodity
+                {
                     Code = "ComodityCode",
                     Id = 1,
                     Name = "ComodityName"
@@ -87,6 +88,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
             return result;
         }
 
+        public Dictionary<string, object> GetMultipleResultFormatterOkCMT()
+        {
+            List<GarmentExpenditureGoodViewModel> garmentExpenditureGoods = new List<GarmentExpenditureGoodViewModel>();
+            var newData = GetNewData();
+            garmentExpenditureGoods.Add(GetNewData());
+            garmentExpenditureGoods.Add(newData);
+            var data = new List<GarmentExpenditureGoodViewModel> { GetNewData() };
+
+            Dictionary<string, object> result =
+                new ResultFormatter("1.0", General.OK_STATUS_CODE, General.OK_MESSAGE)
+                .Ok(garmentExpenditureGoods);
+
+            return result;
+        }
+
         public Dictionary<string, object> GetNullFormatterOk()
         {
             //List<GarmentExpenditureGoodViewModel> garmentExpenditureGoods = new List<GarmentExpenditureGoodViewModel>();
@@ -104,6 +120,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
         public string GetMultipleResultFormatterOkString()
         {
             var result = GetMultipleResultFormatterOk();
+
+            return JsonConvert.SerializeObject(result);
+        }
+
+        public string GetMultipleResultFormatterOkCMTString()
+        {
+            var result = GetMultipleResultFormatterOkCMT();
 
             return JsonConvert.SerializeObject(result);
         }
