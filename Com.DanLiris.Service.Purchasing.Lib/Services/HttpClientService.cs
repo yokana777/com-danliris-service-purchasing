@@ -13,6 +13,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Services
         public HttpClientService(IdentityService identityService)
         {
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, identityService.Token);
+            _client.DefaultRequestHeaders.Add("x-timezone-offset", "7");
         }
 
         public async Task<HttpResponseMessage> PutAsync(string url, HttpContent content)

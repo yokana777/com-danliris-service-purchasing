@@ -576,27 +576,27 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             result.Columns.Add(new DataColumn() { ColumnName = "Ekspor Qty", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Sample Qty", DataType = typeof(Double) });
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", 0, "", 
-                    "No BUK", 0, 0, "", 0, 0, "", "", "", 0, 0); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", 0, 
+                    "","No BUK", 0, 0, "", 0, 0, "", "", "", 0, 0); // to allow column name to be generated properly for empty data as template
             else
             {
-                var docNo = Query.ToArray();
-                var q = Query.ToList();
-                var index = 0;
-                foreach (TraceableInBeacukaiViewModel a in q)
-                {
-                    TraceableInBeacukaiViewModel dup = Array.Find(docNo, o => o.BCType == a.BCType && o.BCNo == a.BCNo && o.BonNo == o.BonNo);
-                    if (dup != null)
-                    {
-                        if (dup.count == 0)
-                        {
-                            index++;
-                            dup.count = index;
-                        }
-                    }
-                    a.count = dup.count;
-                }
-                Query = q;
+                //var docNo = Query.ToArray();
+                //var q = Query.ToList();
+                //var index = 0;
+                //foreach (TraceableInBeacukaiViewModel a in q)
+                //{
+                //    TraceableInBeacukaiViewModel dup = Array.Find(docNo, o => o.BCType == a.BCType && o.BCNo == a.BCNo && o.BonNo == o.BonNo);
+                //    if (dup != null)
+                //    {
+                //        if (dup.count == 0)
+                //        {
+                //            index++;
+                //            dup.count = index;
+                //        }
+                //    }
+                //    a.count = dup.count;
+                //}
+                //Query = q;
                 //var index = 0;
                 foreach (var item in Query)
                 {
@@ -1119,11 +1119,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                          join b in dbContext.GarmentUnitDeliveryOrders on a.UnitDOId equals b.Id
                          join c in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals c.UnitDOItemId
                          join d in dbContext.GarmentUnitReceiptNoteItems on a.URNItemId equals d.Id
+                         join i in dbContext.GarmentUnitReceiptNotes on d.URNId equals i.Id
                          join e in dbContext.GarmentDeliveryOrderDetails on d.DODetailId equals e.Id
                          join f in dbContext.GarmentDeliveryOrderItems on e.GarmentDOItemId equals f.Id
                          join g in dbContext.GarmentDeliveryOrders on f.GarmentDOId equals g.Id
                          join h in dbContext.GarmentBeacukais on g.CustomsId equals h.Id
                          where listRo.Contains(b.RONo)
+                         && i.URNType == "PEMBELIAN"
                          select new TraceableOutBeacukaiDetailViewModel
                          {
                              BCDate = h.BeacukaiDate.DateTime,
@@ -1146,14 +1148,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              UnitQtyName = key.UnitQtyName
 
                          }).ToList();
+            //var cc = 
 
+            //foreach(var g in rinciandetil)
+            //{
+            //    var QtyExpend = expend2.FirstOrDefault(x => x.RONo == g.DestinationJob && x.ProductCode == g.ItemCode);
 
-            foreach(var g in rinciandetil)
-            {
-                var QtyExpend = expend2.FirstOrDefault(x => x.RONo == g.DestinationJob && x.ProductCode == g.ItemCode);
-
-                g.SmallestQuantity = QtyExpend == null ? g.SmallestQuantity : QtyExpend.Quantity;
-            }
+            //    g.SmallestQuantity = QtyExpend == null ? g.SmallestQuantity : QtyExpend.Quantity;
+            //}
 
             foreach (var i in Query)
             {
