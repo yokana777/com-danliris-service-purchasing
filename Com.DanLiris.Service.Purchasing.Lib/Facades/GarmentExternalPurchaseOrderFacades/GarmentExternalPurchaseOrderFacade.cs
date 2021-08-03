@@ -431,25 +431,35 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                         .Include(d => d.Items)
                         .SingleOrDefault(epo => epo.Id == id && !epo.IsDeleted);
 
-                    EntityExtension.FlagForUpdate(m, user, "Facade");
-                    m.IsPosted = false;
-                    m.IsApproved = false;
+                    //get disposition
+                    var searchDisposition = this.dbContext.GarmentDispositionPurchases
+                        .Include(s => s.GarmentDispositionPurchaseItems)
+                        .ThenInclude(s => s.GarmentDispositionPurchaseDetails)
+                        .Where(s => s.GarmentDispositionPurchaseItems.Any(t => t.EPOId == id)
+                        ).ToList();
 
-                    foreach (var item in m.Items)
+                    if (searchDisposition.Count == 0)
                     {
-                        GarmentInternalPurchaseOrderItem IPOItems = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(a => a.GPOId.Equals(item.POId));
+                        EntityExtension.FlagForUpdate(m, user, "Facade");
+                        m.IsPosted = false;
+                        m.IsApproved = false;
 
-                        if (item.ProductId.ToString() == IPOItems.ProductId)
+                        foreach (var item in m.Items)
                         {
-                            //IPOItems.RemainingBudget += item.UsedBudget;
-                            IPOItems.Status = "Sudah dibuat PO Eksternal";
+                            GarmentInternalPurchaseOrderItem IPOItems = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(a => a.GPOId.Equals(item.POId));
+
+                            if (item.ProductId.ToString() == IPOItems.ProductId)
+                            {
+                                //IPOItems.RemainingBudget += item.UsedBudget;
+                                IPOItems.Status = "Sudah dibuat PO Eksternal";
+                            }
+
+                            GarmentPurchaseRequestItem PRItems = this.dbContext.GarmentPurchaseRequestItems.FirstOrDefault(a => a.Id.Equals(IPOItems.GPRItemId));
+                            PRItems.Status = "Sudah diterima Pembelian";
+
+                            EntityExtension.FlagForUpdate(item, user, "Facade");
+
                         }
-
-                        GarmentPurchaseRequestItem PRItems = this.dbContext.GarmentPurchaseRequestItems.FirstOrDefault(a => a.Id.Equals(IPOItems.GPRItemId));
-                        PRItems.Status = "Sudah diterima Pembelian";
-
-                        EntityExtension.FlagForUpdate(item, user, "Facade");
-
                     }
 
                     Updated = dbContext.SaveChanges();
