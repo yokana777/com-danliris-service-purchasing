@@ -431,35 +431,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                         .Include(d => d.Items)
                         .SingleOrDefault(epo => epo.Id == id && !epo.IsDeleted);
 
-                    //get disposition
-                    var searchDisposition = this.dbContext.GarmentDispositionPurchases
-                        .Include(s => s.GarmentDispositionPurchaseItems)
-                        .ThenInclude(s => s.GarmentDispositionPurchaseDetails)
-                        .Where(s => s.GarmentDispositionPurchaseItems.Any(t => t.EPOId == id)
-                        ).ToList();
+                    EntityExtension.FlagForUpdate(m, user, "Facade");
+                    m.IsPosted = false;
+                    m.IsApproved = false;
 
-                    if (searchDisposition.Count == 0)
+                    foreach (var item in m.Items)
                     {
-                        EntityExtension.FlagForUpdate(m, user, "Facade");
-                        m.IsPosted = false;
-                        m.IsApproved = false;
+                        GarmentInternalPurchaseOrderItem IPOItems = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(a => a.GPOId.Equals(item.POId));
 
-                        foreach (var item in m.Items)
+                        if (item.ProductId.ToString() == IPOItems.ProductId)
                         {
-                            GarmentInternalPurchaseOrderItem IPOItems = this.dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(a => a.GPOId.Equals(item.POId));
-
-                            if (item.ProductId.ToString() == IPOItems.ProductId)
-                            {
-                                //IPOItems.RemainingBudget += item.UsedBudget;
-                                IPOItems.Status = "Sudah dibuat PO Eksternal";
-                            }
-
-                            GarmentPurchaseRequestItem PRItems = this.dbContext.GarmentPurchaseRequestItems.FirstOrDefault(a => a.Id.Equals(IPOItems.GPRItemId));
-                            PRItems.Status = "Sudah diterima Pembelian";
-
-                            EntityExtension.FlagForUpdate(item, user, "Facade");
-
+                            //IPOItems.RemainingBudget += item.UsedBudget;
+                            IPOItems.Status = "Sudah dibuat PO Eksternal";
                         }
+
+                        GarmentPurchaseRequestItem PRItems = this.dbContext.GarmentPurchaseRequestItems.FirstOrDefault(a => a.Id.Equals(IPOItems.GPRItemId));
+                        PRItems.Status = "Sudah diterima Pembelian";
+
+                        EntityExtension.FlagForUpdate(item, user, "Facade");
+
                     }
 
                     Updated = dbContext.SaveChanges();
@@ -1329,6 +1319,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                              });
 
             return QueryItem.ToList();
+        }
+
+        public bool GetIsUnpost(int Id)
+        {
+            bool response = true;
+
+            var searchDisposition = this.dbContext.GarmentDispositionPurchases
+                        .Include(s => s.GarmentDispositionPurchaseItems)
+                        .ThenInclude(s => s.GarmentDispositionPurchaseDetails)
+                        .Where(s => s.GarmentDispositionPurchaseItems.Any(t => t.EPOId == Id)
+                        ).ToList();
+
+            if (searchDisposition.Count == 0)
+            {
+                response = false;
+            }
+
+            return response;
         }
     }
 }
