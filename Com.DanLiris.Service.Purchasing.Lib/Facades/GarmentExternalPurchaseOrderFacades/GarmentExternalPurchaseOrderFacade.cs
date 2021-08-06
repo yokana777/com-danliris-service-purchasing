@@ -1265,7 +1265,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                              ProductCode = i.ProductCode,
                              ProductId = i.ProductId,
                              ProductName = i.ProductName,
-                             Remark = i.Remark
+                             Remark = i.Remark,
+                             Article=i.Article,
+                             RONo=i.RONo
                          });
 
             List<GarmentExternalPurchaseOrderItem> ListData = new List<GarmentExternalPurchaseOrderItem>(QueryItem.OrderBy(o => o.PO_SerialNumber).Take(size));

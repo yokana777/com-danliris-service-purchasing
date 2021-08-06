@@ -231,16 +231,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                             garmentUnitReceiptNoteItem.DODetailId = doDetail.Id;
                             garmentUnitReceiptNoteItem.EPOItemId = doDetail.EPOItemId;
 
-                            var prItem = dbContext.GarmentPurchaseRequestItems.First(a => a.PO_SerialNumber == garmentUnitReceiptNoteItem.POSerialNumber);
-                            var pr = dbContext.GarmentPurchaseRequests.Single(a => a.Id == prItem.GarmentPRId);
-                            garmentUnitReceiptNoteItem.PRId = pr.Id;
-                            garmentUnitReceiptNoteItem.PRNo = pr.PRNo;
-                            garmentUnitReceiptNoteItem.PRItemId = prItem.Id;
-                            garmentUnitReceiptNoteItem.RONo = pr.RONo;
+                            var epoItem = dbSetGarmentExternalPurchaseOrderItems.IgnoreQueryFilters().Where(i => (i.IsDeleted == true && i.DeletedAgent == "LUCIA") || (i.IsDeleted == false)).First(a => a.Id== garmentUnitReceiptNoteItem.EPOItemId);
+                            garmentUnitReceiptNoteItem.PRId = epoItem.PRId;
+                            garmentUnitReceiptNoteItem.PRNo = epoItem.PRNo;
+                            garmentUnitReceiptNoteItem.RONo = epoItem.RONo;
+                            garmentUnitReceiptNoteItem.POId = epoItem.POId;
 
-                            var poItem = dbSetGarmentInternalPurchaseOrderItems.First(a => a.PO_SerialNumber == garmentUnitReceiptNoteItem.POSerialNumber);
-                            garmentUnitReceiptNoteItem.POId = poItem.GPOId;
-                            garmentUnitReceiptNoteItem.POItemId = poItem.Id;
+                            var poItem = dbSetGarmentInternalPurchaseOrderItems.FirstOrDefault(a => a.PO_SerialNumber == garmentUnitReceiptNoteItem.POSerialNumber);
+                            garmentUnitReceiptNoteItem.POItemId = poItem == null ? 0 : poItem.Id;
+
+                            var prItem = dbContext.GarmentPurchaseRequestItems.FirstOrDefault(a => a.PO_SerialNumber == garmentUnitReceiptNoteItem.POSerialNumber);
+                            garmentUnitReceiptNoteItem.PRItemId = prItem == null ? 0 : prItem.Id;
+
                         }
 
                         garmentUnitReceiptNoteItem.DOCurrencyRate = garmentUnitReceiptNote.DOCurrencyRate!=null && garmentUnitReceiptNote.URNType == "PEMBELIAN" ? 

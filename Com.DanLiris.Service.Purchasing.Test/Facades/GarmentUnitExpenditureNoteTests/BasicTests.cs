@@ -1156,6 +1156,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         [Fact]
         public async Task Should_Success_GetReport_Realization_CMT()
         {
+
             var externalFacade = new GarmentExternalPurchaseOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilexternal = dataUtilExternal(externalFacade, GetCurrentMethod());
             GarmentExternalPurchaseOrder data = await dataUtilExternal(externalFacade, GetCurrentMethod()).GetNewDataFabric();
@@ -1300,7 +1301,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             await garmentUnitReceiptNoteFacade.Create(dataurn);
 
             var dataunitDO = await garmentUnitDeliveryOrderDatautil.GetNewData(dataurn);
-            dataunitDO.RONo = "RONo123";
+            dataunitDO.RONo = "RONO123";
             await garmentUnitDeliveryOrderFacade.Create(dataunitDO);
 
             var datauen = await garmentUnitExpenditureNoteDatautil.GetNewData(dataunitDO);
@@ -1319,6 +1320,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var results = reportService.GenerateExcel(null, null, 200, 0, null);
 
             Assert.IsType<MemoryStream>(results);
+
         }
 
         [Fact]
