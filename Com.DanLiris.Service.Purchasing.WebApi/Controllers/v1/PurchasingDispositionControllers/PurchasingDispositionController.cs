@@ -108,7 +108,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
                 //    }).ToList()
                 //);
 
-                var listData = newData.Select(s => new {
+                var listData = newData.Select(s => new
+                {
                     s.DispositionNo,
                     s.Id,
                     s.Supplier,
@@ -233,9 +234,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
                 }
                 else
                 {
-                    
+
                     int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
-                    
+
                     PurchasingDispositionPDFTemplate PdfTemplate = new PurchasingDispositionPDFTemplate();
                     MemoryStream stream = PdfTemplate.GeneratePdfTemplate(viewModel, clientTimeZoneOffset);
 
@@ -255,7 +256,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody]PurchasingDispositionViewModel ViewModel)
+        public async Task<IActionResult> Post([FromBody] PurchasingDispositionViewModel ViewModel)
         {
             try
             {
@@ -291,7 +292,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody]PurchasingDispositionViewModel ViewModel)
+        public async Task<IActionResult> Put(int id, [FromBody] PurchasingDispositionViewModel ViewModel)
         {
             try
             {
@@ -327,7 +328,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete([FromRoute]int id)
+        public IActionResult Delete([FromRoute] int id)
         {
             try
             {
@@ -429,7 +430,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
                     .Fail();
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
-            
+
         }
 
         [HttpPut("update/is-paid-true/{dispositionNo}")]
@@ -450,6 +451,67 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.PurchasingDispos
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
 
+        }
+
+        [HttpGet("memo-loader/{dispositionId}")]
+        public IActionResult GetMemoLoader(int dispositionId)
+        {
+            try
+            {
+                var result = facade.GetDispositionMemoLoader(dispositionId);
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = result,
+                });
+
+                //Dictionary<string, object> Result =
+                //    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                //    .Ok(viewModel);
+                //return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpGet("memo-spb-loader")]
+        public IActionResult GetMemoSPBLoader(string keyword, int divisionId, bool supplierIsImport, string currencyCode)
+        {
+            try
+            {
+                var result = facade.GetUnitPaymentOrderMemoLoader(keyword, divisionId, supplierIsImport, currencyCode);
+                var info = new Dictionary<string, object>
+                    {
+                        { "count", result.Data.Count },
+                        { "total", result.TotalData },
+                        { "order", result.Order},
+                        { "page", 1 },
+                        { "size", 10 }
+                    };
+
+                var response = new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(result.Data, info);
+                return Ok(response);
+
+                //Dictionary<string, object> Result =
+                //    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                //    .Ok(viewModel);
+                //return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
         }
     }
 }

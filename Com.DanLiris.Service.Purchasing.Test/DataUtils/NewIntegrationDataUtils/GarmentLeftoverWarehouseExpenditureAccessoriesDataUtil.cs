@@ -15,9 +15,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
 
             var data = new GarmentLeftoverWarehouseExpenditureAccessoriesViewModel
             {
-                Id=1,
-                ExpenditureNo="exNo",
-                IsUsed=false,
+                Id = 1,
+                ExpenditureNo = "exNo",
+                IsUsed = false,
                 Items = new List<GarmentLeftoverWarehouseExpenditureAccessoriesItemViewModel>
                 {
                     new GarmentLeftoverWarehouseExpenditureAccessoriesItemViewModel

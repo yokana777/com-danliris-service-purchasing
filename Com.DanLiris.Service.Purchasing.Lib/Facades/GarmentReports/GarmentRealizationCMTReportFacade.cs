@@ -50,7 +50,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             var Ros = expendRo.Select(x => x.RONo).Distinct().ToArray();
 
             List<GarmentRealizationCMTReportViewModel> realizationCMT = new List<GarmentRealizationCMTReportViewModel>();
-           
+
 
             var Query = (from a in dbContext.GarmentUnitExpenditureNotes
                          join b in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals b.UENId
@@ -63,9 +63,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                          join h in dbContext.GarmentDeliveryOrders on g.GarmentDOId equals h.Id
                          join j in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on e.EPOItemId equals j.Id
                          join k in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on j.GarmentEPOId equals k.Id
-                         where 
-                         //a.ExpenditureDate.AddHours(offset).Date >= DateFrom.Date
-                         //      && a.ExpenditureDate.AddHours(offset).Date <= DateTo.Date
+                         where
+                               //a.ExpenditureDate.AddHours(offset).Date >= DateFrom.Date
+                               //      && a.ExpenditureDate.AddHours(offset).Date <= DateTo.Date
                                //&& 
                                a.UnitSenderId == (unit == 0 ? a.UnitSenderId : unit)
                                && b.ProductName == "FABRIC"
@@ -90,10 +90,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              BillNo = h.BillNo,
                              PaymentBill = h.PaymentBill,
                              DONo = h.DONo
-                         }).GroupBy(a => new { a.UENNo, a.RONo, a.URNNo, a.BillNo, a.PaymentBill, a.ProductRemark, a.ProductRemark2, a.SupplierName, a.DONo }, (key, group) => new GarmentRealizationCMTReportViewModel {
+                         }).GroupBy(a => new { a.UENNo, a.RONo, a.URNNo, a.BillNo, a.PaymentBill, a.ProductRemark, a.ProductRemark2, a.SupplierName, a.DONo }, (key, group) => new GarmentRealizationCMTReportViewModel
+                         {
                              UENNo = key.UENNo,
                              ProductRemark = key.ProductRemark,
-                             Quantity = group.Sum(x=>x.Quantity),
+                             Quantity = group.Sum(x => x.Quantity),
                              EAmountVLS = group.Sum(x => x.EAmountVLS),
                              EAmountIDR = group.Sum(x => x.EAmountIDR),
                              RONo = key.RONo,
@@ -167,35 +168,35 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             //var expendgood = GetExpenditureGood(ronos);
 
             var realization = (from a in Query
-                              join expenditure in (from bb in expendRo where bb.ExpenditureType == "EXPORT" select bb) on a.RONo equals expenditure.RONo /*into expend*/
-                              //from expenditure in expend.DefaultIfEmpty()
-                              select new GarmentRealizationCMTReportViewModel
-                              {
-                                  UENNo = a.UENNo,
-                                  ProductRemark = a.ProductRemark,
-                                  Quantity = a.Quantity,
-                                  EAmountVLS = a.EAmountVLS,
-                                  EAmountIDR = a.EAmountIDR,
-                                  RONo = a.RONo,
-                                  URNNo = a.URNNo,
-                                  ProductRemark2 = a.ProductRemark2,
-                                  ReceiptQuantity = a.ReceiptQuantity,
-                                  UAmountVLS = a.UAmountVLS,
-                                  UAmountIDR = a.UAmountIDR,
-                                  SupplierName = a.SupplierName,
-                                  BillNo = a.BillNo,
-                                  PaymentBill = a.PaymentBill,
-                                  DONo = a.DONo,
-                                  InvoiceNo = expenditure == null ? "-" : expenditure.Invoice,
-                                  ExpenditureGoodNo = expenditure == null ? "-" : expenditure.ExpenditureGoodNo,
-                                  Article = expenditure == null ? "-" : expenditure.Article,
-                                  UnitQty = expenditure == null ? 0 : expenditure.TotalQuantity,
-                              });
+                               join expenditure in (from bb in expendRo where bb.ExpenditureType == "EXPORT" select bb) on a.RONo equals expenditure.RONo /*into expend*/
+                               //from expenditure in expend.DefaultIfEmpty()
+                               select new GarmentRealizationCMTReportViewModel
+                               {
+                                   UENNo = a.UENNo,
+                                   ProductRemark = a.ProductRemark,
+                                   Quantity = a.Quantity,
+                                   EAmountVLS = a.EAmountVLS,
+                                   EAmountIDR = a.EAmountIDR,
+                                   RONo = a.RONo,
+                                   URNNo = a.URNNo,
+                                   ProductRemark2 = a.ProductRemark2,
+                                   ReceiptQuantity = a.ReceiptQuantity,
+                                   UAmountVLS = a.UAmountVLS,
+                                   UAmountIDR = a.UAmountIDR,
+                                   SupplierName = a.SupplierName,
+                                   BillNo = a.BillNo,
+                                   PaymentBill = a.PaymentBill,
+                                   DONo = a.DONo,
+                                   InvoiceNo = expenditure == null ? "-" : expenditure.Invoice,
+                                   ExpenditureGoodNo = expenditure == null ? "-" : expenditure.ExpenditureGoodNo,
+                                   Article = expenditure == null ? "-" : expenditure.Article,
+                                   UnitQty = expenditure == null ? 0 : expenditure.TotalQuantity,
+                               });
 
             realization = realization.OrderBy(x => x.InvoiceNo).ThenBy(x => x.ExpenditureGoodNo).ThenBy(x => x.RONo).ThenBy(x => x.Article).ThenBy(x => x.UnitQty).ThenBy(x => x.UENNo).ThenBy(x => x.ProductRemark)
                 .ThenBy(x => x.Quantity).ThenBy(x => x.EAmountVLS).ThenBy(x => x.EAmountIDR).ThenBy(x => x.URNNo).ThenBy(x => x.ProductRemark2).ThenBy(x => x.ReceiptQuantity).ThenBy(x => x.UAmountVLS).ThenBy(x => x.UAmountIDR).ThenBy(x => x.SupplierName).ThenBy(x => x.BillNo)
                 .ThenBy(x => x.PaymentBill).ThenBy(x => x.DONo);
-            
+
             foreach (GarmentRealizationCMTReportViewModel i in realization.ToList())
             {
                 //var data1 = GetExpenditureGood(i.RONo);
@@ -224,7 +225,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     Article = i.Article,
                     UnitQty = data1 != null ? data1.Quantity : 0,
                     Count = i.Count
-                    
+
                 });
             };
 
@@ -525,8 +526,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                         sheet.Cells["D" + index + ":D" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
                         sheet.Cells["E" + index + ":E" + (index + b.Value - 1)].Merge = true;
                         sheet.Cells["E" + index + ":E" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-                        
-      
+
+
 
                         index += b.Value;
                     }
@@ -733,5 +734,5 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
         }
 
 
-    }   
+    }
 }
