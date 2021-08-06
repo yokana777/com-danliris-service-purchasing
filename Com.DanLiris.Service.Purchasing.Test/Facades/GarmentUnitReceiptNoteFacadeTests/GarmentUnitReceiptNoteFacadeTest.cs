@@ -2489,26 +2489,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
         #endregion
 
-        [Fact]
-        public async Task Should_Success_RO_Feature()
-        {
-            var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-
-            var ro = "";
-
-            foreach (var i in data.Items)
-            {
-                ro = i.RONo;
-            }
-
-            var RoFacade = new ROFeatureFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var Response = RoFacade.GetROReport(7, ro, 1, 25, "{}");
-
-            Assert.NotNull(Response.Item1);
-            //var Response = facade.Read()
-        }
-
         #region Mutation
         [Fact]
         public async Task Should_Success_Get_Mutation_BBCentral()
