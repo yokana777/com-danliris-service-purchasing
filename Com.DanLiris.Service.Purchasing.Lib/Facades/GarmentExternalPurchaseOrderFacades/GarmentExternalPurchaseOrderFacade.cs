@@ -1267,7 +1267,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                              ProductCode = i.ProductCode,
                              ProductId = i.ProductId,
                              ProductName = i.ProductName,
-                             Remark = i.Remark
+                             Remark = i.Remark,
+                             Article=i.Article,
+                             RONo=i.RONo
                          });
 
             List<GarmentExternalPurchaseOrderItem> ListData = new List<GarmentExternalPurchaseOrderItem>(QueryItem.OrderBy(o => o.PO_SerialNumber).Take(size));
@@ -1306,8 +1308,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             string RONo = (FilterDictionary["RONo"] ?? "").Trim();
             //IQueryable<GarmentExternalPurchaseOrderItem> QueryItem = dbContext.GarmentExternalPurchaseOrderItems.Where(entity=>entity.RONo==RONo ); //CreatedUtc > DateTime(2018, 12, 31)
 
-            var QueryItem = (from i in dbContext.GarmentExternalPurchaseOrderItems
-                             join b in this.dbSet on i.GarmentEPOId equals b.Id
+            var QueryItem = (from i in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters().Where(i => (i.IsDeleted == true && i.DeletedAgent == "LUCIA") || (i.IsDeleted == false))
+                             join b in this.dbSet.IgnoreQueryFilters().Where(i => (i.IsDeleted == true && i.DeletedAgent == "LUCIA") || (i.IsDeleted == false)) on i.GarmentEPOId equals b.Id
                              where i.RONo == RONo
                              && b.IsPosted && !b.IsClosed && !b.IsCanceled
                              select new GarmentExternalPurchaseOrderItem
