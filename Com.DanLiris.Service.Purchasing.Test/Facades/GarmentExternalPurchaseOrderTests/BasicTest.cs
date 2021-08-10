@@ -714,5 +714,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             var Response = facade.ReadItemForUnitDOByRO(ro, Filter: "{'RONo':'" + ro + "'}");
             Assert.NotNull(Response);
         }
+
+        [Fact]
+        public void Should_Success_Get_IsUnpost()
+        {
+            GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var result = facade.GetIsUnpost(It.IsAny<int>());
+
+            Assert.False(result);
+        }
     }
 }
