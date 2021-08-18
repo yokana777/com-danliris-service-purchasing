@@ -465,7 +465,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
         {
             var facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var Response = facade.GetUnitPaymentOrderMemoLoader("Test",1,false,"Test");
+            var Response2 = facade.GetUnitPaymentOrderMemoLoader("",1,false,"");
             Assert.NotNull(Response);
+            Assert.NotNull(Response2);
         }
     }
 }
