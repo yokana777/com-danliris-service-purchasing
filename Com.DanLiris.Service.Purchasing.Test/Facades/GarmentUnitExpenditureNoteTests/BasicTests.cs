@@ -328,6 +328,30 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         }
 
         [Fact]
+        public void Should_Success_Read()
+        {
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var Response = facade.Read();
+            Assert.NotNull(Response);
+        }
+
+        [Fact]
+        public void Should_Success_ReadById()
+        {
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var Response = facade.ReadById(1);
+            Assert.NotNull(Response);
+        }
+
+        [Fact]
+        public void Should_Success_Read_For_Preparing()
+        {
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var Response = facade.ReadForGPreparing();
+            Assert.NotNull(Response);
+        }
+
+        [Fact]
         public async Task Should_Success_Get_Data_By_PO()
         {
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));

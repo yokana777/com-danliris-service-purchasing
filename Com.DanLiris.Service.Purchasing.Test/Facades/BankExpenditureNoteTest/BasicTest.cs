@@ -297,7 +297,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
         {
             var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
             BankExpenditureNoteFacade facade = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object, GetServiceProviderMock().Object);
-            ReadResponse<object> response = facade.GetReport(1, 25, "", "", "", "", null, null, new DateTimeOffset(), new DateTimeOffset(), 0);
+            ReadResponse<object> response = facade.GetReport(1, 25, "Test", "Test", "Test", "Test", "Test", "Test", new DateTimeOffset(), new DateTimeOffset(), 0);
 
             Assert.NotNull(response);
         }
