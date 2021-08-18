@@ -453,10 +453,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
         }
 
         [Fact]
+        public void Should_Success_Get_Data_DispositionMemoLoader_Null()
+        {
+            var facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var Response = facade.GetDispositionMemoLoader(1);
+            Assert.Null(Response);
+        }
+
+        [Fact]
         public void Should_Success_Get_Data_PaymentOrderMemoLoader()
         {
             var facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var Response = facade.GetUnitPaymentOrderMemoLoader("",1,false,"");
+            var Response = facade.GetUnitPaymentOrderMemoLoader("Test",1,false,"Test");
             Assert.NotNull(Response);
         }
     }

@@ -849,6 +849,27 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.PurchasingDisposition
         }
 
         [Fact]
+        public async Task Should_Error_Get_IsPaidTrue()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<PurchasingDispositionUpdatePositionPostedViewModel>())).Verifiable();
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<PurchasingDispositionViewModel>(It.IsAny<PurchasingDisposition>()))
+                .Returns(ViewModel);
+
+            var mockFacade = new Mock<IPurchasingDispositionFacade>();
+            mockFacade.Setup(x => x.UpdatePosition(It.IsAny<PurchasingDispositionUpdatePositionPostedViewModel>(), It.IsAny<string>()))
+               .ThrowsAsync(new Exception());
+
+            var controller = new PurchasingDispositionController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+
+            var response = await controller.SetIsPaidTrue(It.IsAny<string>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+
+        [Fact]
         public void Should_Success_Get_Data_MemoLoader()
         {
             var validateMock = new Mock<IValidateService>();
