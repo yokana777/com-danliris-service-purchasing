@@ -343,7 +343,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             data1.Items.First().UomId = data.Items.First().UomId;
             data1.UnitId = data.UnitId;
             data1.DRId = "1";
-            data1.URNType = "PROSES";
+            //data1.URNType = "PROSES";
             var Response1 = await facade.Create(data1);
             Assert.NotEqual(0, Response1);
         }
@@ -424,7 +424,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         {
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage2();
-            data.URNType = "PROSES";
+            //data.URNType = "PROSES";
 
             var Response = await facade.Delete((int)data.Id, (string)data.DeletedReason);
             Assert.NotEqual(0, Response);
