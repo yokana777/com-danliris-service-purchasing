@@ -342,7 +342,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             data1.StorageId = data.StorageId;
             data1.Items.First().UomId = data.Items.First().UomId;
             data1.UnitId = data.UnitId;
-            data1.DRId = "";
+            data1.DRId = "1";
             data1.URNType = "PROSES";
             var Response1 = await facade.Create(data1);
             Assert.NotEqual(0, Response1);
