@@ -342,6 +342,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             data1.StorageId = data.StorageId;
             data1.Items.First().UomId = data.Items.First().UomId;
             data1.UnitId = data.UnitId;
+            data1.DRId = "";
+            data1.URNType = "PROSES";
             var Response1 = await facade.Create(data1);
             Assert.NotEqual(0, Response1);
         }
@@ -422,6 +424,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         {
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage2();
+            data.URNType = "PROSES";
 
             var Response = await facade.Delete((int)data.Id, (string)data.DeletedReason);
             Assert.NotEqual(0, Response);
@@ -2248,7 +2251,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             await facadeRC.Create(dataRC.GarmentReceiptCorrection, USERNAME);
             var stockreport = new GarmentStockReportFacade(serviceProvider, dbContext);
             var Response = stockreport.GetStockReport(7, dataUrn1.UnitCode, "BB", 1, 25, "{}", new DateTime(2010, 12, 26), DateTime.Now);
-            var Response2 = stockreport.GetStockReport(7, dataUrn2.UnitCode, "BP", 1, 25, "{}", null, null);
+            var Response2 = stockreport.GetStockReport(7, dataUrn2.UnitCode, "", 1, 25, "{}", null, null);
             Assert.NotNull(Response.Item1);
             Assert.NotNull(Response2.Item1);
 
