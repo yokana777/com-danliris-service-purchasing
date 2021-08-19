@@ -716,23 +716,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
 
         }
-        String NumberFormat(double? numb)
-        {
+        //String NumberFormat(double? numb)
+        //{
 
-            var number = string.Format("{0:0,0.00}", numb);
+        //    var number = string.Format("{0:0,0.00}", numb);
 
-            return number;
-        }
+        //    return number;
+        //}
 
-        private class SaldoAwal
-        {
+        //private class SaldoAwal
+        //{
 
-            public long EPOID { get; set; }
-            public long EPOItemId { get; set; }
-            public double BeginningBalanceQty { get; set; }
-            public decimal BeginningBaancePrice { get; set; }
+        //    public long EPOID { get; set; }
+        //    public long EPOItemId { get; set; }
+        //    public double BeginningBalanceQty { get; set; }
+        //    public decimal BeginningBaancePrice { get; set; }
 
-        }
+        //}
 
 
         private List<GarmentCategoryViewModel> GetProductCategories(int page, int size, string order, string filter)
