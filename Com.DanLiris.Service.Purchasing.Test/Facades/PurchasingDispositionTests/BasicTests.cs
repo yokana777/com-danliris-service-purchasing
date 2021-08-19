@@ -460,7 +460,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
             var dbContext = _dbContext(GetCurrentMethod());
             var facade = new PurchasingDispositionFacade(ServiceProvider, dbContext);
 
-            var purhcasingDisposition = new PurchasingDisposition() { CurrencyCode = "IDR" };
+            var Response = facade.GetDispositionMemoLoader(0);
+            Assert.Null(Response);
+
+            var purhcasingDisposition = new PurchasingDisposition() { Id = 1, CurrencyCode = "IDR" };
             var purchasingDispositionItem = new PurchasingDispositionItem() { PurchasingDispositionId = 1, UseVat = true, UseIncomeTax = true, EPONo = "1" };
             var unitPaymentOrder = new UnitPaymentOrder() { Id = 1 };
             var unitPaymentOrderItem = new UnitPaymentOrderItem() { Id = 1, UPOId = 1 };
@@ -473,18 +476,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
             dbContext.UnitPaymentOrderDetails.Add(unitPaymentOrderDetail);
             dbContext.SaveChanges();
 
-            var Response = facade.GetDispositionMemoLoader(1);
-            Assert.NotNull(Response);
-        }
-
-        [Fact]
-        public void Should_Success_Get_Data_DispositionMemoLoader_Return_Null()
-        {
-            var dbContext = _dbContext(GetCurrentMethod());
-            var facade = new PurchasingDispositionFacade(ServiceProvider, dbContext);
-
-            var Response = facade.GetDispositionMemoLoader(0);
-            Assert.Null(Response);
+            var Response2 = facade.GetDispositionMemoLoader(1);
+            Assert.NotNull(Response2);
         }
 
         [Fact]
