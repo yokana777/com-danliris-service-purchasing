@@ -26,7 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
                 Invoice = "Invoice123",
                 ExpenditureGoodNo = "ExpenditureGoodNo1",
                 Article = "Article1",
-                Comodity = new GarmentComodity 
+                Comodity = new GarmentComodity
                 {
                     Code = "ComodityCode",
                     Id = 1,
