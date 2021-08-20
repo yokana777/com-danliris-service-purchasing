@@ -271,6 +271,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
         private async Task CreateCreditorAccount(UnitReceiptNote model, bool useIncomeTaxFlag, string currencyCode, string paymentDuration)
         {
             var dpp = model.Items.Sum(s => s.ReceiptQuantity + s.PricePerDealUnit);
+            var externalPurchaseOrderNo = model.Items.FirstOrDefault().EPONo;
+            var externalPurchaseOrder = dbContext.ExternalPurchaseOrders.FirstOrDefault(entity => entity.EPONo == externalPurchaseOrderNo);
+
+            var vatAmount = externalPurchaseOrder.UseVat ? dpp * 0.1 : 0;
+            double.TryParse(externalPurchaseOrder.IncomeTaxRate, out var incomeTaxRate);
+            var incomeTaxAmount = externalPurchaseOrder.UseIncomeTax && externalPurchaseOrder.IncomeTaxBy == "SUPPLIER" ? dpp * incomeTaxRate / 100 : 0;
             var productList = string.Join("\n", model.Items.Select(s => s.ProductName).ToList());
 
             var currencyTuples = new List<Tuple<string, DateTimeOffset>> { new Tuple<string, DateTimeOffset>(currencyCode, model.ReceiptDate) };
@@ -298,7 +304,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 model.DivisionName,
                 model.UnitId,
                 model.UnitCode,
-                model.UnitName
+                model.UnitName,
+                ExternalPurchaseOrderNo = string.Join('\n', model.Items.Select(item => $"- {item.EPONo}")),
+                VATAmount = vatAmount,
+                IncomeTaxAmount = incomeTaxAmount
             };
 
             string creditorAccountUri = "creditor-account/unit-receipt-note";
