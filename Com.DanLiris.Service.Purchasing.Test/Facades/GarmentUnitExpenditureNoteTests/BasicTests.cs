@@ -1370,7 +1370,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
             var ro = "";
 
-            foreach(var i in dataurn.Items)
+            foreach (var i in dataurn.Items)
             {
                 ro = i.RONo;
             }

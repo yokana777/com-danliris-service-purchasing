@@ -28,7 +28,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
                 CurrencyCode = "USD",
                 Rate = 200
             };
-
+          
             return data;
         }
 
@@ -102,6 +102,5 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
             return JsonConvert.SerializeObject(result);
         }
     }
-
 
 }

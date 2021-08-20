@@ -463,7 +463,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             var Responses = await facade.Create(data, USERNAME);
             var Response = facade.ReadBySupplier(data.SupplierCode);
             Assert.NotNull(Response);
-            
+
             var Response2 = facade.ReadItemByRO();
             Assert.NotNull(Response2);
         }
@@ -473,7 +473,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         {
             var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataFabric();
-            
+
             var Responses = await facade.Create(data, USERNAME);
             var ro = data.Items.First().RONo;
             var Response = facade.ReadItemByRO();
