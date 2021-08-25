@@ -227,12 +227,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     {
                         if (garmentUnitReceiptNote.URNType == "GUDANG SISA")
                         {
-                            var doDetail = dbSetGarmentDeliveryOrderDetail.IgnoreQueryFilters().Where(i => (i.IsDeleted == true && i.DeletedAgent == "LUCIA") || (i.IsDeleted == false)).OrderByDescending(a => a.DOQuantity).First(a => a.POSerialNumber == garmentUnitReceiptNoteItem.POSerialNumber);
-                            garmentUnitReceiptNoteItem.DODetailId = doDetail.Id;
-                            garmentUnitReceiptNoteItem.EPOItemId = doDetail.EPOItemId;
+                            var doDetail = dbSetGarmentDeliveryOrderDetail.IgnoreQueryFilters().Where(i => (i.IsDeleted == true && i.DeletedAgent == "LUCIA") || (i.IsDeleted == false)).OrderByDescending(a => a.DOQuantity).FirstOrDefault(a => a.POSerialNumber == garmentUnitReceiptNoteItem.POSerialNumber);
+                            garmentUnitReceiptNoteItem.DODetailId = doDetail == null ? 0 : doDetail.Id;
 
-                            var epoItem = dbSetGarmentExternalPurchaseOrderItems.IgnoreQueryFilters().Where(i => (i.IsDeleted == true && i.DeletedAgent == "LUCIA") || (i.IsDeleted == false)).First(a => a.Id == garmentUnitReceiptNoteItem.EPOItemId);
+                            var epoItem = dbSetGarmentExternalPurchaseOrderItems.IgnoreQueryFilters().Where(i => (i.IsDeleted == true && i.DeletedAgent == "LUCIA") || (i.IsDeleted == false)).First(a => a.PO_SerialNumber == garmentUnitReceiptNoteItem.POSerialNumber);
                             garmentUnitReceiptNoteItem.PRId = epoItem.PRId;
+                            garmentUnitReceiptNoteItem.EPOItemId = epoItem.Id;
                             garmentUnitReceiptNoteItem.PRNo = epoItem.PRNo;
                             garmentUnitReceiptNoteItem.RONo = epoItem.RONo;
                             garmentUnitReceiptNoteItem.POId = epoItem.POId;
