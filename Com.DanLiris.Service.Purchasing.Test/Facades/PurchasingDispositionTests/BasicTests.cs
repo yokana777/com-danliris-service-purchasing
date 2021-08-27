@@ -108,6 +108,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
             Assert.NotEqual(0, ResponseLocalSupplier);
 
             var modelImportSupplier = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            modelImportSupplier.IncomeTaxBy = "Supplier";
             var ResponseImportSupplier = await facade.Create(modelImportSupplier, USERNAME, 7);
             Assert.NotEqual(0, ResponseImportSupplier);
 
@@ -189,6 +190,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
             var ResponseAddDetail = await facade.Update((int)model.Id, model, USERNAME);
             Assert.NotEqual(0, ResponseAddDetail);
 
+            model.IncomeTaxBy = "Supplier";
             var ResponseAddDetail2 = await facade.Update((int)model.Id, model, USERNAME);
             Assert.NotEqual(0, ResponseAddDetail2);
 
