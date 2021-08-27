@@ -534,7 +534,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             await facade.Create(data, USERNAME);
             var Facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var Response = Facade.GetEPOOverBudgetReport(null, null, null, null, null, null, 1, 25, "{}", 7);
+            var Response1 = Facade.GetEPOOverBudgetReport(null, null, null, "BELUM", null, null, 1, 25, "{}", 7);
             Assert.NotNull(Response.Item1);
+            Assert.NotNull(Response1.Item1);
 
         }
 
