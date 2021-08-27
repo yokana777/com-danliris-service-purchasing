@@ -128,6 +128,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitPaymentOrderPaidStatu
             return dbContext;
         }
 
+        [Fact]
+        public void Should_Success_GetReport()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            
+            var facade = new UnitPaymentOrderPaidStatusReportFacade(dbContext);
+            var results = facade.GetReport(25, 1, "{}", null, null, null, "IMPORT", null, "LUNAS", null, null, null, null, 0);
+            var results2 = facade.GetReport(25, 1, "{}", null, null, null, "LOCAL", null, "SUDAH BAYAR DPP+PPN", DateTimeOffset.Now, DateTimeOffset.Now, DateTimeOffset.Now, DateTimeOffset.Now, 0);
+            var results3 = facade.GetReport(25, 1, "{}", null, null, null, null, null, "SUDAH BAYAR PPH", DateTimeOffset.Now, DateTimeOffset.Now, DateTimeOffset.Now, DateTimeOffset.Now, 0);
+            var results4 = facade.GetReport(25, 1, "{}", null, null, null, null, null, "BELUM BAYAR", null, null, null, null, 0);
+
+            Assert.NotNull(results);
+            Assert.NotNull(results2);
+            Assert.NotNull(results3);
+        }
+
         //[Fact]
         //public async Task Should_Success_GetReport_SPB()
         //{

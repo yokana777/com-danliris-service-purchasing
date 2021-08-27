@@ -221,6 +221,39 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PPHBankExpenditureNoteTes
         //}
 
         [Fact]
+        public void Should_Success_Read()
+        {
+            var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
+
+            var serviceProvider = new Mock<IServiceProvider>();
+
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IHttpClientService)))
+                .Returns(new HttpClientTestService());
+
+            var services = new ServiceCollection();
+            services.AddMemoryCache();
+            var serviceProviders = services.BuildServiceProvider();
+            var memoryCache = serviceProviders.GetService<IMemoryCache>();
+            var mockMemoryCache = new Mock<IMemoryCacheManager>();
+            mockMemoryCache.Setup(x => x.Get(MemoryCacheConstant.Divisions, It.IsAny<Func<ICacheEntry, List<IdCOAResult>>>()))
+                .Returns(new List<IdCOAResult>());
+            mockMemoryCache.Setup(x => x.Get(MemoryCacheConstant.BankAccounts, It.IsAny<Func<ICacheEntry, List<BankAccountCOAResult>>>()))
+               .Returns(new List<BankAccountCOAResult>());
+            mockMemoryCache.Setup(x => x.Get(MemoryCacheConstant.IncomeTaxes, It.IsAny<Func<ICacheEntry, List<IncomeTaxCOAResult>>>()))
+               .Returns(new List<IncomeTaxCOAResult>());
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IMemoryCacheManager)))
+                .Returns(mockMemoryCache.Object);
+
+            PPHBankExpenditureNoteFacade facade = new PPHBankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object, serviceProvider.Object);
+            _dataUtil(facade, GetCurrentMethod());
+
+            var Response = facade.Read();
+            Assert.NotNull(Response);
+        }
+
+        [Fact]
         public async Task Should_success_Posting_data()
         {
             var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();

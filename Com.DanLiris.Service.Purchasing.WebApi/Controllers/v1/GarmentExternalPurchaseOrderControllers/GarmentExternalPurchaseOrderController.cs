@@ -139,6 +139,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
                 }
                 if (indexAcceptPdf < 0)
                 {
+                    viewModel.IsUnpost = facade.GetIsUnpost(id);
                     return Ok(new
                     {
                         apiVersion = ApiVersion,
