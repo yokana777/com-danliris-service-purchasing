@@ -91,6 +91,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
         }
 
         [Fact]
+        public async Task Should_Success_Get_Data_Optimized()
+        {
+            PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.ReadOptimized();
+            Assert.NotEmpty(Response.Item1);
+        }
+
+        [Fact]
         public async Task Should_Success_Get_Data_By_Id()
         {
             PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
