@@ -725,5 +725,29 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
 
             Assert.False(result);
         }
+
+        [Fact]
+        public void Should_Success_ReadItemByEPONo()
+        {
+            var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var Response = facade.ReadItemByEPONo();
+            Assert.NotNull(Response);
+        }
+
+        [Fact]
+        public void Should_Success_ReadItemByEPONoSimply()
+        {
+            var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var Response = facade.ReadItemByEPONoSimply(null, "{}", 0, null, null, 1, 10);
+            Assert.NotNull(Response.Item1);
+        }
+
+        [Fact]
+        public void Should_Success_ReadItemByROLoader()
+        {
+            var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var Response = facade.ReadItemByROLoader();
+            Assert.NotNull(Response);
+        }
     }
 }
