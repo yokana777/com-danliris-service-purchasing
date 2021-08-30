@@ -88,7 +88,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
 
                         PricePerDealUnit=1,
                         Conversion=1,
-                        RONo="RONo123",
+                        RONo=datas[0].RONo,
 
                         Remark = "ProductRemark",
                         IsOverBudget=true,

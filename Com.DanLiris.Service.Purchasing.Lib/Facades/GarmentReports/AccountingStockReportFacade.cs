@@ -79,10 +79,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             var BalanceStock = (from a in dbContext.GarmentStockOpnames
                                 join b in dbContext.GarmentStockOpnameItems on a.Id equals b.GarmentStockOpnameId
                                 join c in dbContext.GarmentDOItems on b.DOItemId equals c.Id
-                                join g in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RO equals g.RONo
                                 join d in dbContext.GarmentUnitReceiptNoteItems on b.URNItemId equals d.Id
                                 join f in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals f.Id
                                 join h in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on f.GarmentEPOId equals h.Id
+                                join g in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on b.RO equals g.RONo into PR
+                                from prs in PR.DefaultIfEmpty()
                                 where a.IsDeleted == false && b.IsDeleted == false
                                 && a.Date.Date == lastdate.Date
                                 && c.CreatedUtc.Year <= DateTo.Date.Year
@@ -93,9 +94,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                     ProductCode = b.ProductCode.Trim(),
                                     //ProductName = b.ProductName,
                                     RO = b.RO,
-                                    Buyer = g.BuyerCode.Trim(),
+                                    Buyer = prs != null ? prs.BuyerCode.Trim() : "-",
                                     PlanPo = b.POSerialNumber.Trim(),
-                                    NoArticle = g.Article.TrimEnd(),
+                                    NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
                                     BeginningBalanceQty = b.Quantity,
                                     BeginningBalanceUom = b.SmallUomUnit.Trim(),
                                     BeginningBalancePrice = Math.Round(((decimal.ToDouble(d.PricePerDealUnit) / (d.Conversion == 0 ? 1 : decimal.ToDouble(d.Conversion))) * d.DOCurrencyRate) * decimal.ToDouble(b.Quantity), 2),
@@ -248,11 +249,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
                             join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                             join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
-                            join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
-                            //join h in Codes on a.ProductCode equals h.Code
+                            join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on a.RONo equals e.RONo into PR
+                            from prs in PR.DefaultIfEmpty()
+                                //join h in Codes on a.ProductCode equals h.Code
                             where a.IsDeleted == false && b.IsDeleted == false
                               &&
-                              b.CreatedUtc.AddHours(offset).Date > lastdate.Date
+                              b.CreatedUtc.AddHours(offset).Date >= lastdate.Date
                               && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                               && b.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitCode : unitcode)
                               && categories1.Contains(a.ProductName)
@@ -261,9 +263,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 ProductCode = a.ProductCode.Trim(),
                                 //ProductName = a.ProductName,
                                 RO = a.RONo,
-                                Buyer = e.BuyerCode.Trim(),
+                                Buyer = prs != null ? prs.BuyerCode.Trim() : "-",
                                 PlanPo = a.POSerialNumber.Trim(),
-                                NoArticle = e.Article.TrimEnd(),
+                                NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
                                 BeginningBalanceQty = Math.Round(a.ReceiptQuantity * a.Conversion, 2),
                                 BeginningBalanceUom = a.SmallUomUnit.Trim(),
                                 BeginningBalancePrice = Math.Round(((decimal.ToDouble(a.PricePerDealUnit) / (a.Conversion == 0 ? 1 : decimal.ToDouble(a.Conversion))) * a.DOCurrencyRate) * (decimal.ToDouble(a.ReceiptQuantity) * decimal.ToDouble(a.Conversion)), 2),
@@ -356,11 +358,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                             join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                             //join h in Codes on a.ProductCode equals h.Code
-                            join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
+                            join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on a.RONo equals e.RONo into PR
+                            from prs in PR.DefaultIfEmpty()
                             where
                             a.IsDeleted == false && b.IsDeleted == false
                                &&
-                               b.CreatedUtc.AddHours(offset).Date > lastdate.Date
+                               b.CreatedUtc.AddHours(offset).Date >= lastdate.Date
                                && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                && 
                                b.UnitSenderCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitSenderCode : unitcode)
@@ -372,7 +375,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 RO = a.RONo,
                                 Buyer = a.BuyerCode.Trim(),
                                 PlanPo = a.POSerialNumber.Trim(),
-                                NoArticle = e.Article.TrimEnd(),
+                                NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
                                 BeginningBalanceQty = Convert.ToDecimal(a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * -1 * 0.9144 : -1 * a.Quantity),
                                 BeginningBalanceUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : a.UomUnit.Trim(),
                                 BeginningBalancePrice = Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity) * ((double)a.BasicPrice / (a.Conversion == 0 ? 1 : (double)a.Conversion)), 2) * -1,
@@ -467,12 +470,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                              join e in dbContext.GarmentReceiptCorrectionItems on b.Id equals e.URNItemId
                              join g in dbContext.GarmentReceiptCorrections on e.CorrectionId equals g.Id
-                             join f in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RONo equals f.RONo
-                             //join h in Codes on b.ProductCode equals h.Code
+                             join f in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on b.RONo equals f.RONo into PR
+                             from prs in PR.DefaultIfEmpty()
+                                 //join h in Codes on b.ProductCode equals h.Code
                              where
                              a.IsDeleted == false && b.IsDeleted == false
                              &&
-                             g.CreatedUtc.AddHours(offset).Date > lastdate.Date
+                             g.CreatedUtc.AddHours(offset).Date >= lastdate.Date
                              && g.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                              && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
                              && categories1.Contains(b.ProductName)
@@ -481,9 +485,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  ProductCode = b.ProductCode.Trim(),
                                  //ProductName = b.ProductName,
                                  RO = b.RONo,
-                                 Buyer = f.BuyerCode.Trim(),
+                                 Buyer = prs != null ? prs.BuyerCode.Trim() : "-",
                                  PlanPo = b.POSerialNumber.Trim(),
-                                 NoArticle = f.Article.TrimEnd(),
+                                 NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
                                  BeginningBalanceQty = Math.Round((decimal)e.SmallQuantity, 2),
                                  BeginningBalanceUom = b.SmallUomUnit.Trim(),
                                  BeginningBalancePrice = Math.Round(((e.PricePerDealUnit / (e.Conversion == 0 ? 1 : e.Conversion)) * b.DOCurrencyRate) * (e.SmallQuantity), 2),
@@ -625,7 +629,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                           join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
                           join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                           join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
-                          join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
+                          join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on a.RONo equals e.RONo into PR
+                          from prs in PR.DefaultIfEmpty()
                           join g in dbContext.GarmentUnitExpenditureNotes on b.UENId equals g.Id into UEN
                           from dd in UEN.DefaultIfEmpty()
                           //join h in Codes on a.ProductCode equals h.Code
@@ -640,9 +645,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             ProductCode = a.ProductCode.Trim(),
                             //ProductName = a.ProductName,
                             RO = a.RONo,
-                            Buyer = e.BuyerCode.Trim(),
+                            Buyer = prs != null ? prs.BuyerCode.Trim() : "-",
                             PlanPo = a.POSerialNumber.Trim(),
-                            NoArticle = e.Article.TrimEnd(),
+                            NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
                             BeginningBalanceQty = 0,
                             BeginningBalanceUom = a.SmallUomUnit.Trim(),
                             BeginningBalancePrice = 0,
@@ -736,7 +741,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                           join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                           join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                           //join h in Codes on a.ProductCode equals h.Code
-                          join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
+                          join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on a.RONo equals e.RONo into PR
+                          from prs in PR.DefaultIfEmpty()
                           where a.IsDeleted == false && b.IsDeleted == false
                              &&
                              b.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
@@ -750,7 +756,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              RO = a.RONo,
                              Buyer = a.BuyerCode.Trim(),
                              PlanPo = a.POSerialNumber.Trim(),
-                             NoArticle = e.Article.TrimEnd(),
+                             NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
                              BeginningBalanceQty = 0,
                              BeginningBalanceUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : a.UomUnit.Trim(),
                              BeginningBalancePrice = 0,
@@ -845,8 +851,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                            join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                            join e in dbContext.GarmentReceiptCorrectionItems on b.Id equals e.URNItemId
                            join g in dbContext.GarmentReceiptCorrections on e.CorrectionId equals g.Id
-                           join f in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RONo equals f.RONo
-                           //join h in Codes on b.ProductCode equals h.Code
+                           join f in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on b.RONo equals f.RONo into PR
+                           from prs in PR.DefaultIfEmpty()
+                               //join h in Codes on b.ProductCode equals h.Code
                            where
                            a.IsDeleted == false && b.IsDeleted == false
                            &&
@@ -859,9 +866,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                ProductCode = b.ProductCode.Trim(),
                                //ProductName = b.ProductName,
                                RO = b.RONo,
-                               Buyer = f.BuyerCode.Trim(),
+                               Buyer = prs != null ? prs.BuyerCode.Trim() : "-",
                                PlanPo = b.POSerialNumber.Trim(),
-                               NoArticle = f.Article.TrimEnd(),
+                               NoArticle = prs != null ? prs.Article.Trim() : "-",
                                BeginningBalanceQty = 0,
                                BeginningBalanceUom = b.SmallUomUnit.Trim(),
                                BeginningBalancePrice = 0,
@@ -1541,19 +1548,47 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
         private List<GarmentCategoryViewModel> GetProductCodes(int page, int size, string order, string filter)
         {
             IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
-            if (httpClient != null)
+            //if (httpClient != null)
+            //{
+            //    var garmentSupplierUri = APIEndpoint.Core + $"master/garment-categories";
+            //    string queryUri = "?page=" + page + "&size=" + size + "&order=" + order + "&filter=" + filter;
+            //    string uri = garmentSupplierUri + queryUri;
+            //    var response = httpClient.GetAsync($"{uri}").Result.Content.ReadAsStringAsync();
+            //    Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
+            //    List<GarmentCategoryViewModel> viewModel = JsonConvert.DeserializeObject<List<GarmentCategoryViewModel>>(result.GetValueOrDefault("data").ToString());
+            //    return viewModel;
+            //}
+            //else
+            //{
+            //    List<GarmentCategoryViewModel> viewModel = new List<GarmentCategoryViewModel>();
+            //    return viewModel;
+            //}
+
+            var garmentSupplierUri = APIEndpoint.Core + $"master/garment-categories";
+            string queryUri = "?page=" + page + "&size=" + size + "&order=" + order + "&filter=" + filter;
+            string uri = garmentSupplierUri + queryUri;
+            var httpResponse = httpClient.GetAsync($"{uri}").Result;
+
+            if (httpResponse.IsSuccessStatusCode)
             {
-                var garmentSupplierUri = APIEndpoint.Core + $"master/garment-categories";
-                string queryUri = "?page=" + page + "&size=" + size + "&order=" + order + "&filter=" + filter;
-                string uri = garmentSupplierUri + queryUri;
-                var response = httpClient.GetAsync($"{uri}").Result.Content.ReadAsStringAsync();
-                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
-                List<GarmentCategoryViewModel> viewModel = JsonConvert.DeserializeObject<List<GarmentCategoryViewModel>>(result.GetValueOrDefault("data").ToString());
+                var content = httpResponse.Content.ReadAsStringAsync().Result;
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+
+                List<GarmentCategoryViewModel> viewModel;
+                if (result.GetValueOrDefault("data") == null)
+                {
+                    viewModel = new List<GarmentCategoryViewModel>();
+                }
+                else
+                {
+                    viewModel = JsonConvert.DeserializeObject<List<GarmentCategoryViewModel>>(result.GetValueOrDefault("data").ToString());
+
+                }
                 return viewModel;
             }
             else
             {
-                List<GarmentCategoryViewModel> viewModel = null;
+                List<GarmentCategoryViewModel> viewModel = new List<GarmentCategoryViewModel>();
                 return viewModel;
             }
         }
@@ -1575,7 +1610,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 List<GarmentProductViewModel> viewModel;
                 if (result.GetValueOrDefault("data") == null)
                 {
-                    viewModel = null;
+                    viewModel = new List<GarmentProductViewModel>();
                 }
                 else
                 {
@@ -1586,7 +1621,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             }
             else
             {
-                List<GarmentProductViewModel> viewModel = null;
+                List<GarmentProductViewModel> viewModel = new List<GarmentProductViewModel>();
                 return viewModel;
             }
         }
