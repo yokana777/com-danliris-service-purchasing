@@ -1370,10 +1370,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
             var ro = "";
 
-            foreach (var i in dataurn.Items)
-            {
-                ro = i.RONo;
-            }
+            //foreach (var i in dataurn.Items)
+            //{
+            //    ro = i.RONo;
+            //}
 
             var RoFacade = new ROFeatureFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var Response = RoFacade.GetROReport(7, ro, 1, 25, "{}");
