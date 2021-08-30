@@ -2605,7 +2605,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             //var Response2 = stockreport.GetStockReport(7, dataUrn2.UnitCode, "BP", 1, 25, "{}", new DateTime(2010, 12, 26), DateTime.Now);
             //Assert.NotNull(Response.Item1);
             Assert.NotNull(Response.Item1);
-            Assert.NotNull(Response2.Item1);
 
         }
 
