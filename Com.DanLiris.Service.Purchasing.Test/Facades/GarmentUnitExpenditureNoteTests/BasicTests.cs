@@ -1328,9 +1328,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var datautilexternal = dataUtilExternal(externalFacade, GetCurrentMethod());
             GarmentExternalPurchaseOrder data = await dataUtilExternal(externalFacade, GetCurrentMethod()).GetNewDataFabric();
 
+            var ro = "";
+
             foreach (var i in data.Items)
             {
                 i.ProductName = "FABRIC";
+                ro = i.RONo;
             }
 
             data.PaymentMethod = "CMT";
@@ -1357,7 +1360,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             await garmentUnitReceiptNoteFacade.Create(dataurn);
 
             var dataunitDO = await garmentUnitDeliveryOrderDatautil.GetNewData(dataurn);
-            dataunitDO.RONo = "RONo123";
+            dataunitDO.RONo = ro;
             await garmentUnitDeliveryOrderFacade.Create(dataunitDO);
 
             var datauen = await garmentUnitExpenditureNoteDatautil.GetNewData(dataunitDO);
@@ -1368,9 +1371,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             }
             await garmentUnitExpenditureNoteFacade.Create(datauen);
 
-            var ro = "";
+            //var ro = "";
 
-            //foreach (var i in dataurn.Items)
+            //foreach(var i in dataurn.Items)
             //{
             //    ro = i.RONo;
             //}
