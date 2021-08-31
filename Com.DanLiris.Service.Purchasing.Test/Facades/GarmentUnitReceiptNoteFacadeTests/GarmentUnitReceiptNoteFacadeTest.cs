@@ -342,6 +342,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             data1.StorageId = data.StorageId;
             data1.Items.First().UomId = data.Items.First().UomId;
             data1.UnitId = data.UnitId;
+            data1.DRId = "1";
+            //data1.URNType = "PROSES";
             var Response1 = await facade.Create(data1);
             Assert.NotEqual(0, Response1);
         }
@@ -422,6 +424,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         {
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage2();
+            //data.URNType = "PROSES";
 
             var Response = await facade.Delete((int)data.Id, (string)data.DeletedReason);
             Assert.NotEqual(0, Response);
@@ -1631,6 +1634,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.GetReportFlow(null, null, "C2C", "", 1, 25, "{}", 7);
             Assert.Empty(Response.Item1);
+        }
+
+        [Fact]
+        public async void Should_Success_Get_Generate_Excel_Flow_For_Unit()
+        {
+            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.GenerateExcelFlowForUnit(DateTime.MinValue, DateTime.MaxValue, model.UnitCode, "", "", 7, model.UnitName);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         [Fact]

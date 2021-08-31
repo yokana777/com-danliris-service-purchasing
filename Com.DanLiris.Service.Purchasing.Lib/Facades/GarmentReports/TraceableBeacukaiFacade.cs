@@ -201,45 +201,45 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                               ItemCode = d.ProductCode,
                                               ItemName = d.ProductName,
                                               PO = d.POSerialNumber,
-                                              ReceiptQty = Math.Round((double)(e.ReceiptQuantity * e.Conversion),2),
+                                              ReceiptQty = Math.Round((double)(e.ReceiptQuantity * e.Conversion), 2),
                                               ROJob = gg != null ? gg.RONo : "rojob-",
                                               SatuanBUK = hh != null ? hh.UomUnit : "satbuk-",
                                               SatuanReceipt = e.SmallUomUnit,
                                               SampleQty = ii != null ? (ii.ExpenditureType == "SAMPLE" ? hh.Quantity : 0) : 0
                                           }).Distinct() :
                                          (from a in (from aa in dbContext.GarmentBeacukais
-                                                    select aa)
-                                         join deliv in dbContext.GarmentDeliveryOrders on a.Id equals deliv.CustomsId
-                                         join c in dbContext.GarmentDeliveryOrderItems on deliv.Id equals c.GarmentDOId
-                                         join d in dbContext.GarmentDeliveryOrderDetails on c.Id equals d.GarmentDOItemId
-                                         join e in dbContext.GarmentUnitReceiptNoteItems on d.Id equals e.DODetailId
-                                         join r in dbContext.GarmentUnitReceiptNotes on e.URNId equals r.Id
-                                         join f in dbContext.GarmentUnitDeliveryOrderItems on e.Id equals f.URNItemId
-                                         join g in dbContext.GarmentUnitDeliveryOrders on f.UnitDOId equals g.Id
-                                         join h in dbContext.GarmentUnitExpenditureNoteItems on g.Id equals h.UnitDOItemId
-                                         join i in dbContext.GarmentUnitExpenditureNotes on h.UENId equals i.Id
-                                         where g.RONo == filter
-                                         where r.URNType == "PEMBELIAN"
-                                         select new TraceableInBeacukaiViewModelTemp
-                                         {
-                                             BCDate = a.BeacukaiDate,
-                                             BCNo = a.BeacukaiNo,
-                                             BCType = a.CustomsType,
-                                             BJQty = 0,
-                                             BonNo = a.BillNo,
-                                             BUK = i.UENNo,
-                                             BUM = r.URNNo,
-                                             EksporQty = 0,
-                                             QtyBUK = h.Quantity,
-                                             ItemCode = d.ProductCode,
-                                             ItemName = d.ProductName,
-                                             PO = d.POSerialNumber,
-                                             ReceiptQty = Math.Round((double)(e.ReceiptQuantity * e.Conversion),2),
-                                             ROJob = g.RONo,
-                                             SatuanBUK = h.UomUnit,
-                                             SatuanReceipt = e.SmallUomUnit,
-                                             SampleQty = i.ExpenditureType == "SAMPLE" ? h.Quantity : 0
-                                         }).Distinct();
+                                                     select aa)
+                                          join deliv in dbContext.GarmentDeliveryOrders on a.Id equals deliv.CustomsId
+                                          join c in dbContext.GarmentDeliveryOrderItems on deliv.Id equals c.GarmentDOId
+                                          join d in dbContext.GarmentDeliveryOrderDetails on c.Id equals d.GarmentDOItemId
+                                          join e in dbContext.GarmentUnitReceiptNoteItems on d.Id equals e.DODetailId
+                                          join r in dbContext.GarmentUnitReceiptNotes on e.URNId equals r.Id
+                                          join f in dbContext.GarmentUnitDeliveryOrderItems on e.Id equals f.URNItemId
+                                          join g in dbContext.GarmentUnitDeliveryOrders on f.UnitDOId equals g.Id
+                                          join h in dbContext.GarmentUnitExpenditureNoteItems on g.Id equals h.UnitDOItemId
+                                          join i in dbContext.GarmentUnitExpenditureNotes on h.UENId equals i.Id
+                                          where g.RONo == filter
+                                          where r.URNType == "PEMBELIAN"
+                                          select new TraceableInBeacukaiViewModelTemp
+                                          {
+                                              BCDate = a.BeacukaiDate,
+                                              BCNo = a.BeacukaiNo,
+                                              BCType = a.CustomsType,
+                                              BJQty = 0,
+                                              BonNo = a.BillNo,
+                                              BUK = i.UENNo,
+                                              BUM = r.URNNo,
+                                              EksporQty = 0,
+                                              QtyBUK = h.Quantity,
+                                              ItemCode = d.ProductCode,
+                                              ItemName = d.ProductName,
+                                              PO = d.POSerialNumber,
+                                              ReceiptQty = Math.Round((double)(e.ReceiptQuantity * e.Conversion), 2),
+                                              ROJob = g.RONo,
+                                              SatuanBUK = h.UomUnit,
+                                              SatuanReceipt = e.SmallUomUnit,
+                                              SampleQty = i.ExpenditureType == "SAMPLE" ? h.Quantity : 0
+                                          }).Distinct();
 
             //Query = Query.GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.BonNo, x.BUM, x.BUK, x.ItemCode, x.ItemName, x.PO, x.ROJob, x.SatuanBUK, x.SatuanReceipt }, (key, group) => new TraceableInBeacukaiViewModelTemp
             //{
@@ -273,9 +273,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             var Data2 = (from a in Query2
                          join expend in expendituregoods on a.ROJob equals expend.RONo into expendgood
                          from bb in expendgood.DefaultIfEmpty()
-                         //join peb in PEBs on bb.Invoice equals peb.BonNo.Trim() into bcout
-                         //from cc in bcout.DefaultIfEmpty()
-                         select new 
+                             //join peb in PEBs on bb.Invoice equals peb.BonNo.Trim() into bcout
+                             //from cc in bcout.DefaultIfEmpty()
+                         select new
                          {
                              BCDate = a.BCDate,
                              BCNo = a.BCNo,
@@ -327,11 +327,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             List<TraceableInBeacukaiViewModelTemp> traceableIn1 = new List<TraceableInBeacukaiViewModelTemp>();
             List<TraceableInBeacukaiViewModel> traceableIn2 = new List<TraceableInBeacukaiViewModel>();
 
-            var DistinctMasukperPO = Query.Select(x => new {x.ReceiptQty, x.PO }).GroupBy(x=> new { x.PO, x.ReceiptQty }, (key,group) => new {
+            var DistinctMasukperPO = Query.Select(x => new { x.ReceiptQty, x.PO }).GroupBy(x => new { x.PO, x.ReceiptQty }, (key, group) => new {
                 key.PO,
                 key.ReceiptQty
             }).ToList();
-            var DistinctKeluarperPO = Query.Select(x => new {x.QtyBUK, x.PO }).GroupBy(x => new { x.PO, x.QtyBUK }, (key, group) => new
+            var DistinctKeluarperPO = Query.Select(x => new { x.QtyBUK, x.PO }).GroupBy(x => new { x.PO, x.QtyBUK }, (key, group) => new
             {
                 key.PO,
                 key.QtyBUK
@@ -404,7 +404,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     SampleQty = 0,
                     SatuanBUK = i.SatuanBUK,
                     SatuanReceipt = i.SatuanReceipt,
-                    Sisa = Math.Round(sisa1.ReceiptQty - sisa2.QtyBUK,2),
+                    Sisa = Math.Round(sisa1.ReceiptQty - sisa2.QtyBUK, 2),
                     SubkonOutQty = subconout == null ? 0 : subconout.totalQty,
                     ProduksiQty = ((cutting != null && finishingout != null) ? cutting.TotalCuttingOutQuantity - finishingout.totalQty : 0),
                     EksporQty = i.EksporQty
@@ -414,7 +414,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             }
 
-            
+
             //traceableIn1 = traceableIn1.OrderBy(x => x.ROJob).ThenBy(x => x.Invoice).ToList();
 
 
@@ -452,7 +452,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 ProduksiQty = i.ProduksiQty
             });
 
-            var expendorder = Data2.OrderBy(x => x.ROJob).ThenBy(x=>x.Invoice).Select((a, order) => new
+            var expendorder = Data2.OrderBy(x => x.ROJob).ThenBy(x => x.Invoice).Select((a, order) => new
             {
                 rown = order + 1,
                 Invoice = a.Invoice,
@@ -509,7 +509,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 a.count = dup.count;
             }
 
-            foreach(var i in traceableInBeacukaiViews.ToList())
+            foreach (var i in traceableInBeacukaiViews.ToList())
             {
                 var trace1 = new TraceableInBeacukaiViewModel
                 {
@@ -542,7 +542,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
                 traceableIn2.Add(trace1);
             }
-                
+
 
             return traceableIn2.Distinct().ToList();
 
@@ -576,8 +576,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             result.Columns.Add(new DataColumn() { ColumnName = "Ekspor Qty", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Sample Qty", DataType = typeof(Double) });
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", 0, 
-                    "","No BUK", 0, 0, "", 0, 0, "", "", "", 0, 0); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", 0,
+                    "", "No BUK", 0, 0, "", 0, 0, "", "", "", 0, 0); // to allow column name to be generated properly for empty data as template
             else
             {
                 //var docNo = Query.ToArray();
@@ -613,9 +613,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     double bJQty = item.BJQty == "BJQty0" ? 0 : Convert.ToDouble(item.BJQty);
                     double eksporQty = item.EksporQty == "EksporQty0" ? 0 : Convert.ToDouble(item.EksporQty);
                     double sampleQty = item.SampleQty == "SampleQty0" ? 0 : Convert.ToDouble(item.SampleQty);
-                    result.Rows.Add(item.count, item.BCType, item.BCNo, bcdate, item.BonNo, rojob, 
-                        item.PO, item.ItemCode, item.ItemName, 
-                        item.ReceiptQty, 
+                    result.Rows.Add(item.count, item.BCType, item.BCNo, bcdate, item.BonNo, rojob,
+                        item.PO, item.ItemCode, item.ItemName,
+                        item.ReceiptQty,
                         item.SatuanReceipt, buk,
                         qtybuk, sisa, satuanbuk, produksiQty, bJQty,
                         invoice, PEB, pebdate, eksporQty, sampleQty);
@@ -1040,7 +1040,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
 
-            var httpResponse = httpClient.SendAsync(HttpMethod.Get,shippingInvoiceUri,param).Result;
+            var httpResponse = httpClient.SendAsync(HttpMethod.Get, shippingInvoiceUri, param).Result;
             if (httpResponse.IsSuccessStatusCode)
             {
                 var content = httpResponse.Content.ReadAsStringAsync().Result;
@@ -1116,38 +1116,38 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             var expend2 = GetPreparingByRo(RO);
 
             var rinciandetil = (from a in dbContext.GarmentUnitDeliveryOrderItems
-                         join b in dbContext.GarmentUnitDeliveryOrders on a.UnitDOId equals b.Id
-                         join c in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals c.UnitDOItemId
-                         join d in dbContext.GarmentUnitReceiptNoteItems on a.URNItemId equals d.Id
-                         join i in dbContext.GarmentUnitReceiptNotes on d.URNId equals i.Id
-                         join e in dbContext.GarmentDeliveryOrderDetails on d.DODetailId equals e.Id
-                         join f in dbContext.GarmentDeliveryOrderItems on e.GarmentDOItemId equals f.Id
-                         join g in dbContext.GarmentDeliveryOrders on f.GarmentDOId equals g.Id
-                         join h in dbContext.GarmentBeacukais on g.CustomsId equals h.Id
-                         where listRo.Contains(b.RONo)
-                         && i.URNType == "PEMBELIAN"
-                         select new TraceableOutBeacukaiDetailViewModel
-                         {
-                             BCDate = h.BeacukaiDate.DateTime,
-                             BCNo = h.BeacukaiNo,
-                             BCType = h.CustomsType,
-                             DestinationJob = b.RONo,
-                             ItemCode = d.ProductCode,
-                             ItemName = d.ProductName,
-                             SmallestQuantity = c.Quantity,
-                             UnitQtyName = c.UomUnit
-                         }).GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.DestinationJob, x.ItemCode, x.ItemName, x.UnitQtyName }, (key, group) => new TraceableOutBeacukaiDetailViewModel
-                         {
-                             BCDate = key.BCDate,
-                             BCNo = key.BCNo,
-                             BCType = key.BCType,
-                             DestinationJob = key.DestinationJob,
-                             ItemCode = key.ItemCode,
-                             ItemName = key.ItemName,
-                             SmallestQuantity = group.Sum(x => x.SmallestQuantity),
-                             UnitQtyName = key.UnitQtyName
+                                join b in dbContext.GarmentUnitDeliveryOrders on a.UnitDOId equals b.Id
+                                join c in dbContext.GarmentUnitExpenditureNoteItems on a.Id equals c.UnitDOItemId
+                                join d in dbContext.GarmentUnitReceiptNoteItems on a.URNItemId equals d.Id
+                                join i in dbContext.GarmentUnitReceiptNotes on d.URNId equals i.Id
+                                join e in dbContext.GarmentDeliveryOrderDetails on d.DODetailId equals e.Id
+                                join f in dbContext.GarmentDeliveryOrderItems on e.GarmentDOItemId equals f.Id
+                                join g in dbContext.GarmentDeliveryOrders on f.GarmentDOId equals g.Id
+                                join h in dbContext.GarmentBeacukais on g.CustomsId equals h.Id
+                                where listRo.Contains(b.RONo)
+                                && i.URNType == "PEMBELIAN"
+                                select new TraceableOutBeacukaiDetailViewModel
+                                {
+                                    BCDate = h.BeacukaiDate.DateTime,
+                                    BCNo = h.BeacukaiNo,
+                                    BCType = h.CustomsType,
+                                    DestinationJob = b.RONo,
+                                    ItemCode = d.ProductCode,
+                                    ItemName = d.ProductName,
+                                    SmallestQuantity = c.Quantity,
+                                    UnitQtyName = c.UomUnit
+                                }).GroupBy(x => new { x.BCDate, x.BCNo, x.BCType, x.DestinationJob, x.ItemCode, x.ItemName, x.UnitQtyName }, (key, group) => new TraceableOutBeacukaiDetailViewModel
+                                {
+                                    BCDate = key.BCDate,
+                                    BCNo = key.BCNo,
+                                    BCType = key.BCType,
+                                    DestinationJob = key.DestinationJob,
+                                    ItemCode = key.ItemCode,
+                                    ItemName = key.ItemName,
+                                    SmallestQuantity = group.Sum(x => x.SmallestQuantity),
+                                    UnitQtyName = key.UnitQtyName
 
-                         }).ToList();
+                                }).ToList();
             //var cc = 
 
             //foreach(var g in rinciandetil)
@@ -1162,7 +1162,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 var rinci = rinciandetil.Where(x => x.DestinationJob == i.RO).ToList();
 
                 i.rincian = rinci;
-                
+
             }
 
 
@@ -1301,23 +1301,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             //else
             //{
 
-                var index = 0;
-                foreach (var item in query)
-                {
-                    index++;
-                    string ExpenditureDate = item.ExpenditureDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : Convert.ToDateTime(item.ExpenditureDate).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    string BCDate = item.BCDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : Convert.ToDateTime(item.BCDate).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    result.Rows.Add(index, ExpenditureDate, item.ExpenditureGoodId, item.ComodityName, item.Qty, item.UnitQtyName, item.ExpenditureNo, item.BuyerName, item.BCType, item.BCNo, BCDate, item.RO);
-                    
-                    foreach(var detail in item.rincian)
-                    {
-                        index2++;
-                        string BCDate2 = detail.BCDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : Convert.ToDateTime(item.BCDate).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                        result2.Rows.Add(index2, detail.DestinationJob, detail.ItemCode, detail.ItemName, detail.SmallestQuantity, detail.UnitQtyName, detail.BCType, detail.BCNo, BCDate2);
+            var index = 0;
+            foreach (var item in query)
+            {
+                index++;
+                string ExpenditureDate = item.ExpenditureDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : Convert.ToDateTime(item.ExpenditureDate).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                string BCDate = item.BCDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : Convert.ToDateTime(item.BCDate).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                result.Rows.Add(index, ExpenditureDate, item.ExpenditureGoodId, item.ComodityName, item.Qty, item.UnitQtyName, item.ExpenditureNo, item.BuyerName, item.BCType, item.BCNo, BCDate, item.RO);
 
-                    }
+                foreach (var detail in item.rincian)
+                {
+                    index2++;
+                    string BCDate2 = detail.BCDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : Convert.ToDateTime(item.BCDate).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    result2.Rows.Add(index2, detail.DestinationJob, detail.ItemCode, detail.ItemName, detail.SmallestQuantity, detail.UnitQtyName, detail.BCType, detail.BCNo, BCDate2);
 
                 }
+
+            }
 
 
             //}

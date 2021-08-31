@@ -726,7 +726,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
         }
 
-
         private List<GarmentCategoryViewModel> GetProductCategories(int page, int size, string order, string filter)
         {
             IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
