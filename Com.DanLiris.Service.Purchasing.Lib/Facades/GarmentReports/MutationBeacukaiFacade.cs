@@ -148,7 +148,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                join g in dbContext.GarmentUnitReceiptNotes on c.URNId equals g.Id
                                join d in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on c.EPOItemId equals d.Id
                                join e in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on d.GarmentEPOId equals e.Id
-                               join h in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RO equals h.RONo
+                               join h in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on b.RO equals h.RONo into PR
+                           from prs in PR.DefaultIfEmpty()
                                where a.Date.Date == lastdate.Date
                                && i.CreatedUtc.Year <= DateTo.Date.Year
                                && a.IsDeleted == false && b.IsDeleted == false
@@ -186,7 +187,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                   join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
                                   join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                                   join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
-                                  join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
+                                  join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on a.RONo equals e.RONo into PR
+                                  from prs in PR.DefaultIfEmpty()
                                   where
                                      a.IsDeleted == false && b.IsDeleted == false
                                      &&
@@ -229,7 +231,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                       join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                                       join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                                       //join h in Codes on a.ProductCode equals h.Code
-                                      join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
+                                      join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on a.RONo equals e.RONo into PR
+                                      from prs in PR.DefaultIfEmpty()
                                       where
                                       a.IsDeleted == false && b.IsDeleted == false
                                        &&
@@ -273,7 +276,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                             join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                                             join e in dbContext.GarmentReceiptCorrectionItems on b.Id equals e.URNItemId
                                             join g in dbContext.GarmentReceiptCorrections on e.CorrectionId equals g.Id
-                                            join f in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RONo equals f.RONo
+                                            join f in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on b.RONo equals f.RONo into PR
+                                            from prs in PR.DefaultIfEmpty()
                                             where
                                             a.IsDeleted == false && b.IsDeleted == false
                                                &&
@@ -330,8 +334,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                            join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
                            join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                            join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
-                           join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
-                           //join h in Codes on a.ProductCode equals h.Code
+                           join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on a.RONo equals e.RONo into PR
+                           from prs in PR.DefaultIfEmpty()
+                               //join h in Codes on a.ProductCode equals h.Code
                            where a.IsDeleted == false && b.IsDeleted == false
                                &&
                                b.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
@@ -374,7 +379,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                                join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                                //join h in Codes on a.ProductCode equals h.Code
-                               join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
+                               join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on a.RONo equals e.RONo into PR
+                               from prs in PR.DefaultIfEmpty()
                                where a.IsDeleted == false && b.IsDeleted == false
                                     &&
                                     b.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
@@ -415,8 +421,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                      join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                                      join e in dbContext.GarmentReceiptCorrectionItems on b.Id equals e.URNItemId
                                      join g in dbContext.GarmentReceiptCorrections on e.CorrectionId equals g.Id
-                                     join f in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RONo equals f.RONo
-                                     //join h in Codes on b.ProductCode equals h.Code
+                                     join f in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on b.RONo equals f.RONo into PR
+                                     from prs in PR.DefaultIfEmpty()
+                                         //join h in Codes on b.ProductCode equals h.Code
                                      where a.IsDeleted == false && b.IsDeleted == false
                                           &&
                                           g.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
@@ -657,7 +664,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 join g in dbContext.GarmentUnitReceiptNotes on c.URNId equals g.Id
                                 join e in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on c.EPOItemId equals e.Id
                                 join f in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on e.GarmentEPOId equals f.Id
-                                join h in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RO equals h.RONo
+                                join h in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on b.RO equals h.RONo into PR
+                                from prs in PR.DefaultIfEmpty()
                                 where a.Date.Date == lastdate.Date
                                 && i.CreatedUtc.Year <= DateTo.Date.Year
                                 && a.IsDeleted == false && b.IsDeleted == false
@@ -695,7 +703,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                   join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
                                   join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                                   join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
-                                  join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
+                                  join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on a.RONo equals e.RONo into PR
+                                  from prs in PR.DefaultIfEmpty()
                                   where
                                      a.IsDeleted == false && b.IsDeleted == false
                                      &&
@@ -737,7 +746,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                       join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                                       join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                                       //join h in Codes on a.ProductCode equals h.Code
-                                      join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
+                                      join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on a.RONo equals e.RONo into PR
+                                      from prs in PR.DefaultIfEmpty()
                                       where
                                       a.IsDeleted == false && b.IsDeleted == false
                                        &&
@@ -779,7 +789,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                             join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                                             join e in dbContext.GarmentReceiptCorrectionItems on b.Id equals e.URNItemId
                                             join g in dbContext.GarmentReceiptCorrections on e.CorrectionId equals g.Id
-                                            join f in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RONo equals f.RONo
+                                            join f in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on b.RONo equals f.RONo into PR
+                                            from prs in PR.DefaultIfEmpty()
                                             where
                                             a.IsDeleted == false && b.IsDeleted == false
                                                &&
@@ -837,8 +848,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                            join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
                            join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                            join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
-                           join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
-                           //join h in Codes on a.ProductCode equals h.Code
+                           join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on a.RONo equals e.RONo into PR
+                           from prs in PR.DefaultIfEmpty()
+                               //join h in Codes on a.ProductCode equals h.Code
                            where a.IsDeleted == false && b.IsDeleted == false
                                &&
                                b.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
@@ -880,7 +892,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                                join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                                //join h in Codes on a.ProductCode equals h.Code
-                               join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
+                               join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on a.RONo equals e.RONo into PR
+                               from prs in PR.DefaultIfEmpty()
                                where a.IsDeleted == false && b.IsDeleted == false
                                     &&
                                     b.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
@@ -921,8 +934,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                      join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                                      join e in dbContext.GarmentReceiptCorrectionItems on b.Id equals e.URNItemId
                                      join g in dbContext.GarmentReceiptCorrections on e.CorrectionId equals g.Id
-                                     join f in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RONo equals f.RONo
-                                     //join h in Codes on b.ProductCode equals h.Code
+                                     join f in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on b.RONo equals f.RONo into PR
+                                     from prs in PR.DefaultIfEmpty()
+                                         //join h in Codes on b.ProductCode equals h.Code
                                      where a.IsDeleted == false && b.IsDeleted == false
                                           &&
                                           g.CreatedUtc.AddHours(offset).Date >= DateFrom.Date

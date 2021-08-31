@@ -1156,12 +1156,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         [Fact]
         public async Task Should_Success_GetReport_Realization_CMT()
         {
-
             var externalFacade = new GarmentExternalPurchaseOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datautilexternal = dataUtilExternal(externalFacade, GetCurrentMethod());
             GarmentExternalPurchaseOrder data = await dataUtilExternal(externalFacade, GetCurrentMethod()).GetNewDataFabric();
 
-            foreach(var i in data.Items)
+            foreach (var i in data.Items)
             {
                 i.ProductName = "FABRIC";
             }
@@ -1209,7 +1208,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var results = reportService.GetReport(dateFrom, dateTo, 20, 1, 25, "", 0);
 
             Assert.NotNull(results);
-            
+
         }
 
         [Fact]
@@ -1301,7 +1300,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             await garmentUnitReceiptNoteFacade.Create(dataurn);
 
             var dataunitDO = await garmentUnitDeliveryOrderDatautil.GetNewData(dataurn);
-            dataunitDO.RONo = "RONO123";
+            dataunitDO.RONo = "RONo123";
             await garmentUnitDeliveryOrderFacade.Create(dataunitDO);
 
             var datauen = await garmentUnitExpenditureNoteDatautil.GetNewData(dataunitDO);
@@ -1320,7 +1319,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var results = reportService.GenerateExcel(null, null, 200, 0, null);
 
             Assert.IsType<MemoryStream>(results);
-
         }
 
         [Fact]
@@ -1372,7 +1370,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
             var ro = "";
 
-            foreach(var i in dataurn.Items)
+            foreach (var i in dataurn.Items)
             {
                 ro = i.RONo;
             }
@@ -1751,9 +1749,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         {
             var facadeTraceable = new TraceableBeacukaiFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
 
-            
 
-            
+
+
 
             var facade = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var datauitlDO = dataUtilDO(facade, GetCurrentMethod());

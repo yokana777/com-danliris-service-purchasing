@@ -664,5 +664,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
             return dbContext.SaveChangesAsync();
 
         }
+
+        public List<GarmentDispositionPurchase> GetGarmentDispositionPurchase()
+        {
+            var model = dbContext.GarmentDispositionPurchases.ToList();
+
+            return model;
+        }
     }
 }
