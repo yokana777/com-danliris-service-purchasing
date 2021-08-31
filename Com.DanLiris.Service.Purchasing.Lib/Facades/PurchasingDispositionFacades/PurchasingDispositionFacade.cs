@@ -634,7 +634,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                     var purchaseAmountCurrency = dpp;
                     if (disposition.CurrencyCode == "IDR")
                         purchaseAmountCurrency = 0;
-                    var purchaseAmount = dpp * disposition.CurrencyRate;
+                    var purchaseAmount = (dpp + vatAmount - incomeTaxAmount) * disposition.CurrencyRate;
                     result = new DispositionMemoLoaderDto(upoDto, urnDto, purchaseAmount, purchaseAmountCurrency);
                 }
 
@@ -677,17 +677,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                 foreach (var unitPaymentOrder in unitPaymentOrders)
                 {
                     var expenditureIds = expenditureDetails.Where(element => element.UnitPaymentOrderNo == unitPaymentOrder.UPONo).Select(element => element.BankExpenditureNoteId).ToList();
+                    var expenditureDetail = expenditureDetails.Where(element => element.UnitPaymentOrderNo == unitPaymentOrder.UPONo).FirstOrDefault();
                     var expenditure = dbContext.BankExpenditureNotes.FirstOrDefault(entity => expenditureIds.Contains(entity.Id));
                     var urnIds = dbContext.UnitPaymentOrderItems.Where(entity => entity.UPOId == unitPaymentOrder.Id).Select(entity => entity.URNId).ToList();
                     var upoUnitReceiptNotes = unitReceiptNotes.Where(entity => urnIds.Contains(entity.Id)).Select(element => new UnitReceiptNoteDto((int)element.Id, element.URNNo, element.ReceiptDate)).ToList();
+                    var unitReceiptNoteItems = dbContext.UnitReceiptNoteItems.Where(entity => unitReceiptNoteIds.Contains(entity.URNId)).ToList();
 
                     var purchaseAmountCurrency = expenditure.GrandTotal;
+
+                    var dpp = expenditureDetail.TotalPaid;
+                    var incomeTaxAmount = (double)0;
+                    var vatAmount = (double)0;
+
+                    if (unitPaymentOrder.UseVat)
+                        vatAmount = dpp * 0.1;
+
+                    if (unitPaymentOrder.UseIncomeTax)
+                        incomeTaxAmount = dpp * unitPaymentOrder.IncomeTaxRate / 100;
+
                     if (expenditure.CurrencyCode == "IDR")
                         purchaseAmountCurrency = 0;
-                    var purchaseAmount = expenditure.GrandTotal * expenditure.CurrencyRate;
+
+                    var purchaseAmount = (dpp + vatAmount - incomeTaxAmount) * expenditure.CurrencyRate;
+                    var productName = string.Join('\n', unitReceiptNoteItems.Where(element => urnIds.Contains(element.URNId)).Select(element => $"{element.ProductCode} - {element.ProductName}"));
                     if (expenditure != null)
                     {
-                        data.Add(new UnitPaymentOrderMemoLoaderDto(new ExpenditureDto((int)expenditure.Id, expenditure.DocumentNo, expenditure.Date), new SupplierDto(expenditure.SupplierId, expenditure.SupplierCode, expenditure.SupplierName), "", new UnitPaymentOrderDto((int)unitPaymentOrder.Id, unitPaymentOrder.UPONo, unitPaymentOrder.Date), upoUnitReceiptNotes, purchaseAmountCurrency, purchaseAmount, 0, 0));
+                        data.Add(new UnitPaymentOrderMemoLoaderDto(new ExpenditureDto((int)expenditure.Id, expenditure.DocumentNo, expenditure.Date), new SupplierDto(expenditure.SupplierId, expenditure.SupplierCode, expenditure.SupplierName), productName, new UnitPaymentOrderDto((int)unitPaymentOrder.Id, unitPaymentOrder.UPONo, unitPaymentOrder.Date), upoUnitReceiptNotes, purchaseAmountCurrency, purchaseAmount, 0, 0));
                     }
                 }
 
