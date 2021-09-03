@@ -1131,7 +1131,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 
             Query = QueryHelper<GarmentExternalPurchaseOrder>.ConfigureSearch(Query, searchAttributes, EPONo);
 
-            Query = Query.Select(s => new GarmentExternalPurchaseOrder
+            Query = Query
+            .Where(entity => (entity.IsOverBudget == true && entity.IsApproved == true) || (entity.IsOverBudget == false))
+            .Select(s => new GarmentExternalPurchaseOrder
             {
                 Id = s.Id,
                 UId = s.UId,
@@ -1319,6 +1321,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                              });
 
             return QueryItem.ToList();
+        }
+
+        public bool GetIsUnpost(int Id)
+        {
+            bool response = true;
+
+            var searchDisposition = this.dbContext.GarmentDispositionPurchases
+                        .Include(s => s.GarmentDispositionPurchaseItems)
+                        .ThenInclude(s => s.GarmentDispositionPurchaseDetails)
+                        .Where(s => s.GarmentDispositionPurchaseItems.Any(t => t.EPOId == Id)
+                        ).ToList();
+
+            if (searchDisposition.Count == 0)
+            {
+                response = false;
+            }
+
+            return response;
         }
     }
 }

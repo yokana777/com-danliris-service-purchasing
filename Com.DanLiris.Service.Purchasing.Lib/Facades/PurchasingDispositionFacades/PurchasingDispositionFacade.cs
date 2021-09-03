@@ -631,11 +631,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                     if (dispositionItem.UseIncomeTax)
                         incomeTaxAmount = dpp * dispositionItem.IncomeTaxRate / 100;
 
+                    var productName = string.Join('\n', dispositionDetails.Where(element => element.PurchasingDispositionItemId == dispositionItem.Id).Select(element => $"{element.ProductCode} - {element.ProductName}"));
+
                     var purchaseAmountCurrency = dpp;
                     if (disposition.CurrencyCode == "IDR")
                         purchaseAmountCurrency = 0;
-                    var purchaseAmount = dpp * disposition.CurrencyRate;
-                    result = new DispositionMemoLoaderDto(upoDto, urnDto, purchaseAmount, purchaseAmountCurrency);
+                    var purchaseAmount = (dpp + vatAmount - incomeTaxAmount) * disposition.CurrencyRate;
+                    result = new DispositionMemoLoaderDto(upoDto, urnDto, purchaseAmount, purchaseAmountCurrency, productName);
                 }
 
                 return result;
@@ -671,6 +673,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                 var expenditureDetails = dbContext.BankExpenditureNoteDetails.Where(entity => upoNos.Contains(entity.UnitPaymentOrderNo)).ToList();
                 var unitReceiptNoteIds = dbContext.UnitPaymentOrderItems.Where(entity => upoIds.Contains(entity.UPOId)).Select(entity => entity.URNId).ToList();
                 var unitReceiptNotes = dbContext.UnitReceiptNotes.Where(entity => unitReceiptNoteIds.Contains(entity.Id)).ToList();
+                var unitReceiptNoteItems = dbContext.UnitReceiptNoteItems.Where(entity => unitReceiptNoteIds.Contains(entity.URNId)).ToList();
 
                 var data = new List<UnitPaymentOrderMemoLoaderDto>();
 
@@ -685,9 +688,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                     if (expenditure.CurrencyCode == "IDR")
                         purchaseAmountCurrency = 0;
                     var purchaseAmount = expenditure.GrandTotal * expenditure.CurrencyRate;
+                    var productName = string.Join('\n', unitReceiptNoteItems.Where(element => urnIds.Contains(element.URNId)).Select(element => $"{element.ProductCode} - {element.ProductName}"));
                     if (expenditure != null)
                     {
-                        data.Add(new UnitPaymentOrderMemoLoaderDto(new ExpenditureDto((int)expenditure.Id, expenditure.DocumentNo, expenditure.Date), new SupplierDto(expenditure.SupplierId, expenditure.SupplierCode, expenditure.SupplierName), "", new UnitPaymentOrderDto((int)unitPaymentOrder.Id, unitPaymentOrder.UPONo, unitPaymentOrder.Date), upoUnitReceiptNotes, purchaseAmountCurrency, purchaseAmount, 0, 0));
+                        data.Add(new UnitPaymentOrderMemoLoaderDto(new ExpenditureDto((int)expenditure.Id, expenditure.DocumentNo, expenditure.Date), new SupplierDto(expenditure.SupplierId, expenditure.SupplierCode, expenditure.SupplierName), productName, new UnitPaymentOrderDto((int)unitPaymentOrder.Id, unitPaymentOrder.UPONo, unitPaymentOrder.Date), upoUnitReceiptNotes, purchaseAmountCurrency, purchaseAmount, 0, 0));
                     }
                 }
 
