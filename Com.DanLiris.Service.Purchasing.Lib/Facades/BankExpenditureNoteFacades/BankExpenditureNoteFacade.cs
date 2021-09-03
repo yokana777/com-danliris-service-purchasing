@@ -630,7 +630,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                       );
             }
 
-            Query = Query.Where(entity => entity.Date.AddHours(Offset) >= DateFrom.GetValueOrDefault() && entity.Date.AddHours(Offset) <= DateTo.GetValueOrDefault());
+            Query = Query.Where(entity => entity.Date.AddHours(Offset) >= DateFrom.GetValueOrDefault() && entity.Date.AddHours(Offset) <= DateTo.GetValueOrDefault().AddDays(1).AddSeconds(-1));
             // override duplicate 
             Query = Query.GroupBy(
                 key => new { key.Id, key.BankName, key.CategoryName, key.Currency, key.Date, key.DivisionCode, key.DivisionName, key.DocumentNo, key.DPP, key.InvoiceNumber, key.PaymentMethod, key.SupplierCode, key.SupplierName, key.TotalDPP, key.TotalPaid, key.TotalPPN, key.VAT, key.UnitPaymentOrderNo },
