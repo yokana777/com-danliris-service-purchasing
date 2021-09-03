@@ -22,5 +22,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote
         public string DivisionCode { get; internal set; }
         public double TotalDPP { get; internal set; }
         public double TotalPPN { get; internal set; }
+        public long Id { get; internal set; }
     }
 }

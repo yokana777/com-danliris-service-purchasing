@@ -4,7 +4,9 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.BankExpenditureNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExternalPurchaseOrderDataUtils;
@@ -97,6 +99,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
             var model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.ReadModelById((int)model.Id);
             Assert.NotNull(Response);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Data_Optimized()
+        {
+            PurchasingDispositionFacade facade = new PurchasingDispositionFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.ReadOptimized();
+            Assert.NotEmpty(Response.Item1);
         }
 
         [Fact]
@@ -441,6 +452,54 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
             }).ToList();
             var totalPaidPriceResponse = facade.GetTotalPaidPrice(data);
             Assert.NotEmpty(totalPaidPriceResponse);
+        }
+
+        [Fact]
+        public void Should_Success_Get_Data_DispositionMemoLoader()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new PurchasingDispositionFacade(ServiceProvider, dbContext);
+
+            var Response = facade.GetDispositionMemoLoader(0);
+            Assert.Null(Response);
+
+            var purhcasingDisposition = new PurchasingDisposition() { Id = 1, CurrencyCode = "IDR" };
+            var purchasingDispositionItem = new PurchasingDispositionItem() { PurchasingDispositionId = 1, UseVat = true, UseIncomeTax = true, EPONo = "1" };
+            var unitPaymentOrder = new UnitPaymentOrder() { Id = 1 };
+            var unitPaymentOrderItem = new UnitPaymentOrderItem() { Id = 1, UPOId = 1 };
+            var unitPaymentOrderDetail = new UnitPaymentOrderDetail() { EPONo = "1", UPOItemId = 1  };
+
+            dbContext.PurchasingDispositions.Add(purhcasingDisposition);
+            dbContext.PurchasingDispositionItems.Add(purchasingDispositionItem);
+            dbContext.UnitPaymentOrders.Add(unitPaymentOrder);
+            dbContext.UnitPaymentOrderItems.Add(unitPaymentOrderItem);
+            dbContext.UnitPaymentOrderDetails.Add(unitPaymentOrderDetail);
+            dbContext.SaveChanges();
+
+            var Response2 = facade.GetDispositionMemoLoader(1);
+            Assert.NotNull(Response2);
+        }
+
+        [Fact]
+        public void Should_Success_Get_Data_PaymentOrderMemoLoader()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new PurchasingDispositionFacade(ServiceProvider, dbContext);
+
+            var bankExpenditureNote = new BankExpenditureNoteModel() { Id = 1, SupplierImport = false, CurrencyCode = "IDR" };
+            var bankExpenditureNoteDetail = new BankExpenditureNoteDetailModel() { Id = 1, BankExpenditureNoteId = 1, UnitPaymentOrderNo = "Test" };
+            var unitPaymentOrder = new UnitPaymentOrder() { Id = 1, UPONo = "Test", CurrencyCode = "IDR", DivisionId = "1", UseVat = true, UseIncomeTax = true };
+
+            dbContext.BankExpenditureNotes.Add(bankExpenditureNote);
+            dbContext.BankExpenditureNoteDetails.Add(bankExpenditureNoteDetail);
+            dbContext.UnitPaymentOrders.Add(unitPaymentOrder);
+            dbContext.SaveChanges();
+
+            var Response = facade.GetUnitPaymentOrderMemoLoader("Test",1,false,"IDR");
+            var Response2 = facade.GetUnitPaymentOrderMemoLoader("",1,false,"");
+
+            Assert.NotNull(Response);
+            Assert.NotNull(Response2);
         }
     }
 }
