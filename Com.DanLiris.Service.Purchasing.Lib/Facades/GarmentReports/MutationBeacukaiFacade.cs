@@ -192,7 +192,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                   where
                                      a.IsDeleted == false && b.IsDeleted == false
                                      &&
-                                     b.CreatedUtc.AddHours(offset).Date > lastdate.Date
+                                     b.CreatedUtc.AddHours(offset).Date >= lastdate.Date
                                      && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                      && categories1.Contains(a.ProductName)
                                   //&& pemasukan.Contains(b.URNType)
@@ -236,7 +236,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                       where
                                       a.IsDeleted == false && b.IsDeleted == false
                                        &&
-                                       b.CreatedUtc.AddHours(offset).Date > lastdate.Date
+                                       b.CreatedUtc.AddHours(offset).Date >= lastdate.Date
                                        && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                        && categories1.Contains(a.ProductName)
                                       //&& pengeluaran.Contains(b.ExpenditureType)
@@ -281,7 +281,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                             where
                                             a.IsDeleted == false && b.IsDeleted == false
                                                &&
-                                               g.CreatedUtc.AddHours(offset).Date > lastdate.Date
+                                               g.CreatedUtc.AddHours(offset).Date >= lastdate.Date
                                                && g.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                                && categories1.Contains(b.ProductName)
                                             //&& pemasukan.Contains(a.URNType)
@@ -708,7 +708,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                   where
                                      a.IsDeleted == false && b.IsDeleted == false
                                      &&
-                                     b.CreatedUtc.AddHours(offset).Date > lastdate.Date
+                                     b.CreatedUtc.AddHours(offset).Date >= lastdate.Date
                                      && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                      && categories1.Contains(a.ProductName)
                                   //&& pemasukan.Contains(b.URNType)
@@ -751,7 +751,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                       where
                                       a.IsDeleted == false && b.IsDeleted == false
                                        &&
-                                       b.CreatedUtc.AddHours(offset).Date > lastdate.Date
+                                       b.CreatedUtc.AddHours(offset).Date >= lastdate.Date
                                        && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                        && categories1.Contains(a.ProductName)
                                       //&& pengeluaran.Contains(b.ExpenditureType)
@@ -794,7 +794,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                             where
                                             a.IsDeleted == false && b.IsDeleted == false
                                                &&
-                                               g.CreatedUtc.AddHours(offset).Date > lastdate.Date
+                                               g.CreatedUtc.AddHours(offset).Date >= lastdate.Date
                                                && g.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                                && categories1.Contains(b.ProductName)
                                             //&& pemasukan.Contains(a.URNType)
