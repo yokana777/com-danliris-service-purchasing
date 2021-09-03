@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Enums;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDispositionPurchase;
 using System;
@@ -21,5 +22,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
         Tuple<List<FormDto>, int, Dictionary<string, string>> Read(PurchasingGarmentExpeditionPosition position,int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}",int supplierId=0);
         DispositionPurchaseReportIndexDto GetReport(int supplierId, string username, DateTimeOffset? dateForm, DateTimeOffset? dateTo, int size = 10, int page = 1);
         Task<DispositionUserIndexDto> GetListUsers(string keyword);
+        List<GarmentDispositionPurchase> GetGarmentDispositionPurchase();
     }
 }
