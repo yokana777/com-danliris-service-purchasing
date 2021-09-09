@@ -491,7 +491,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-                var Data = facade.ReadItemByEPONoSimply(keyword, Filter, supplierId, currencyCode, paymentType);
+                var Data = facade.ReadItemByEPONoSimply(keyword, supplierId, currencyCode, paymentType);
 
                 var viewModel = mapper.Map<List<GarmentExternalPurchaseOrderViewModel>>(Data.Item1);
 
