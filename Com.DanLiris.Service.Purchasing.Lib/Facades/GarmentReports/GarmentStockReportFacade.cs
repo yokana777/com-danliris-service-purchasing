@@ -99,6 +99,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
                                 });
 
+
             var SATerima = (from a in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa)
                             join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
                             join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
@@ -109,7 +110,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             where
                             a.IsDeleted == false && b.IsDeleted == false
                               &&
-                              b.CreatedUtc.AddHours(offset).Date > lastdate.Date
+                              b.CreatedUtc.AddHours(offset).Date >= lastdate.Date
                               && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                               && b.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitCode : unitcode)
                               && categories1.Contains(a.ProductName)
@@ -151,6 +152,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             });
 
 
+
             var SAKeluar = (from a in (from aa in dbContext.GarmentUnitExpenditureNoteItems select aa)
                             join b in dbContext.GarmentUnitExpenditureNotes on a.UENId equals b.Id
                             join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
@@ -161,7 +163,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             where
                             a.IsDeleted == false && b.IsDeleted == false
                                &&
-                               b.CreatedUtc.AddHours(offset).Date > lastdate.Date
+                               b.CreatedUtc.AddHours(offset).Date >= lastdate.Date
                                && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                && b.UnitSenderCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitSenderCode : unitcode)
                                && categories1.Contains(a.ProductName)
@@ -169,7 +171,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             {
                                 BeginningBalanceQty = Convert.ToDecimal(a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * -1 * 0.9144 : -1 * a.Quantity),
                                 BeginningBalanceUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : a.UomUnit.Trim(),
-                                Buyer = a.BuyerCode,
+                                Buyer = a.BuyerCode == null ? "-" : a.BuyerCode,
                                 EndingBalanceQty = 0,
                                 EndingUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : a.UomUnit.Trim(),
                                 ExpandUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : a.UomUnit.Trim(),
@@ -202,6 +204,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             });
 
 
+
             var SAKoreksi = (from a in dbContext.GarmentUnitReceiptNotes
                              join b in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa) on a.Id equals b.URNId
                              join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
@@ -214,7 +217,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              where
                              a.IsDeleted == false && b.IsDeleted == false
                              &&
-                             g.CreatedUtc.AddHours(offset).Date > lastdate.Date
+                             g.CreatedUtc.AddHours(offset).Date >= lastdate.Date
                              && g.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                              && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
                              && categories1.Contains(b.ProductName)
@@ -253,6 +256,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  ReceiptUom = key.ReceiptUom,
                                  RO = key.RO
                              });
+
 
 
             var SaldoAwal1 = BalanceStock.Concat(SATerima).Concat(SAKeluar).Concat(SAKoreksi).AsEnumerable();
@@ -341,7 +345,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                           {
                               BeginningBalanceQty = 0,
                               BeginningBalanceUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : a.UomUnit.Trim(),
-                              Buyer = a.BuyerCode.Trim(),
+                              Buyer = a.BuyerCode == null ? "-" : a.BuyerCode.Trim(),
                               EndingBalanceQty = 0,
                               EndingUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : a.UomUnit.Trim(),
                               ExpandUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : a.UomUnit.Trim(),
@@ -721,24 +725,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
 
         }
-        //String NumberFormat(double? numb)
-        //{
-
-        //    var number = string.Format("{0:0,0.00}", numb);
-
-        //    return number;
-        //}
-
-        //private class SaldoAwal
-        //{
-
-        //    public long EPOID { get; set; }
-        //    public long EPOItemId { get; set; }
-        //    public double BeginningBalanceQty { get; set; }
-        //    public decimal BeginningBaancePrice { get; set; }
-
-        //}
-
 
         private List<GarmentCategoryViewModel> GetProductCategories(int page, int size, string order, string filter)
         {

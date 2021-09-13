@@ -346,6 +346,53 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ReportTest
             Assert.NotNull(result);
         }
 
+
+        [Fact]
+        public async Task Should_Success_GetReport_PurchaseRequest()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var serviceProvider = _getServiceProvider(GetCurrentMethod()).Object;
+
+            var unitPaymentOrderFacade = new UnitPaymentOrderFacade(serviceProvider, dbContext);
+            var dataUtil = await _dataUtil(unitPaymentOrderFacade, dbContext, GetCurrentMethod()).GetTestLocalData();
+
+            var urnId = dataUtil.Items.FirstOrDefault().URNId;
+            var urn = dbContext.UnitReceiptNotes.FirstOrDefault(f => f.Id.Equals(urnId));
+            var prId = urn.Items.FirstOrDefault(f => f.URNId.Equals(urn.Id)).PRId;
+            var pr = dbContext.PurchaseRequests.FirstOrDefault(f => f.Id.Equals(prId));
+
+            var facade = new PurchaseRequestFacade(serviceProvider, dbContext);
+
+            var result =  facade.GetReport(pr.No, pr.UnitId, pr.CategoryId, pr.BudgetId, "", "", "ProductId", null, null, 1, 25, "{}", 7, "Unit Test");
+            Assert.NotNull(result);
+
+            //result = await facade.GetReport(urn.URNNo, Convert.ToInt32(urn.UnitId), Convert.ToInt32(pr.CategoryId), DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), true, It.IsAny<int>());
+            //Assert.NotNull(result);
+        }
+
+        [Fact]
+        public async Task Should_Success_GetXls_PurchaseRequest()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var serviceProvider = _getServiceProvider(GetCurrentMethod()).Object;
+
+            var unitPaymentOrderFacade = new UnitPaymentOrderFacade(serviceProvider, dbContext);
+            var dataUtil = await _dataUtil(unitPaymentOrderFacade, dbContext, GetCurrentMethod()).GetTestLocalData();
+
+            var urnId = dataUtil.Items.FirstOrDefault().URNId;
+            var urn = dbContext.UnitReceiptNotes.FirstOrDefault(f => f.Id.Equals(urnId));
+            var prId = urn.Items.FirstOrDefault(f => f.URNId.Equals(urn.Id)).PRId;
+            var pr = dbContext.PurchaseRequests.FirstOrDefault(f => f.Id.Equals(prId));
+
+            var facade = new PurchaseRequestFacade(serviceProvider, dbContext);
+
+            var resultExcel = facade.GenerateExcel(pr.No, pr.UnitId, pr.CategoryId, pr.BudgetId, "", "", "", null, null,7, "Unit Test");
+            Assert.NotNull(resultExcel);
+
+            //result = await facade.GetReport(urn.URNNo, Convert.ToInt32(urn.UnitId), Convert.ToInt32(pr.CategoryId), DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), true, It.IsAny<int>());
+            //Assert.NotNull(result);
+        }
+
         //[Fact]
         //public async Task Should_Success_Get_Data_Empty()
         //{
