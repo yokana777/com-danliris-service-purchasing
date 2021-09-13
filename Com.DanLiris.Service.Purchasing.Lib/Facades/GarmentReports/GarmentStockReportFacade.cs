@@ -99,7 +99,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
                                 });
 
-
             var SATerima = (from a in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa)
                             join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
                             join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
@@ -152,7 +151,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             });
 
 
-
             var SAKeluar = (from a in (from aa in dbContext.GarmentUnitExpenditureNoteItems select aa)
                             join b in dbContext.GarmentUnitExpenditureNotes on a.UENId equals b.Id
                             join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
@@ -202,7 +200,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 ReceiptUom = key.ReceiptUom,
                                 RO = key.RO
                             });
-
 
 
             var SAKoreksi = (from a in dbContext.GarmentUnitReceiptNotes
@@ -259,7 +256,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
 
 
-            var SaldoAwal1 = BalanceStock.Concat(SATerima).Concat(SAKeluar).Concat(SAKoreksi).AsEnumerable();
+
+r SaldoAwal1 = BalanceStock.Concat(SATerima).Concat(SAKeluar).Concat(SAKoreksi).AsEnumerable();
             var SaldoAwal12 = SaldoAwal1.GroupBy(x => new { x.BeginningBalanceUom, x.Buyer, x.EndingUom, x.ExpandUom, x.NoArticle, x.PaymentMethod, x.PlanPo, x.ProductCode, /*x.ProductName,*/ x.ReceiptUom, x.RO }, (key, group) => new GarmentStockReportViewModelTemp
             {
                 BeginningBalanceQty = Math.Round(group.Sum(x => x.BeginningBalanceQty), 2),
