@@ -488,7 +488,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.PurchasingDispositionTest
 
             var bankExpenditureNote = new BankExpenditureNoteModel() { Id = 1, SupplierImport = false, CurrencyCode = "IDR" };
             var bankExpenditureNoteDetail = new BankExpenditureNoteDetailModel() { Id = 1, BankExpenditureNoteId = 1, UnitPaymentOrderNo = "Test" };
-            var unitPaymentOrder = new UnitPaymentOrder() { Id = 1, UPONo = "Test", CurrencyCode = "IDR", DivisionId = "1" };
+            var unitPaymentOrder = new UnitPaymentOrder() { Id = 1, UPONo = "Test", CurrencyCode = "IDR", DivisionId = "1", UseVat = true, UseIncomeTax = true };
 
             dbContext.BankExpenditureNotes.Add(bankExpenditureNote);
             dbContext.BankExpenditureNoteDetails.Add(bankExpenditureNoteDetail);

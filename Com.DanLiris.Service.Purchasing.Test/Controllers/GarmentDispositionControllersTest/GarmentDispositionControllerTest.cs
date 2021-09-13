@@ -227,6 +227,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDispositionCon
             )
             .Throws(new Exception("Exception Test"));
 
+            mockService.Setup(s =>
+            s.GetGarmentDispositionPurchase()
+            )
+            .Throws(new Exception("Exception Test"));
+
             return mockService;
         }
 
@@ -499,6 +504,28 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDispositionCon
             SetDefaultServiceMockProvider(_serviceMock, _serviceExternalMock, _mapperMock);
 
             var response = await _controller.SetIsPaidTrue(It.IsAny<string>());
+
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void GetAll_Should_Success()
+        {
+            _serviceMock = SetDefaultSuccessService();
+            SetDefaultServiceMockProvider(_serviceMock, _serviceExternalMock, _mapperMock);
+
+            var response = _controller.GetAll();
+
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void GetAll_Should_Exception()
+        {
+            _serviceMock = SetDefaultExceptionService();
+            SetDefaultServiceMockProvider(_serviceMock, _serviceExternalMock, _mapperMock);
+
+            var response = _controller.GetAll();
 
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
