@@ -344,8 +344,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternNot
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.BAD_REQUEST_STATUS_CODE, General.BAD_REQUEST_MESSAGE)
                     .Fail(e);
-                //return BadRequest(Result);
-                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+                return BadRequest(Result);
+                //return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
             catch (Exception e)
             {
