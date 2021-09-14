@@ -692,6 +692,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                         SmallQuantity = i.SmallQuantity,
                         SmallUomId = i.SmallUomId,
                         SmallUomUnit = i.SmallUomUnit,
+                        Remark = i.Remark
                     })
                     .Where(i => (i.DealQuantity - i.DOQuantity) > 0)
                     .ToList()

@@ -354,7 +354,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     {
                         //await UpdateDR(garmentUnitReceiptNote.DRId, true);
                         var GarmentDR = GetDR(garmentUnitReceiptNote.DRId);
-                        var GarmentUnitDO = dbContext.GarmentUnitDeliveryOrders.AsNoTracking().SingleOrDefault(a => a.Id == GarmentDR.UnitDOId);
+                        var GarmentUnitDO = dbContext.GarmentUnitDeliveryOrders.AsNoTracking().Single(a => a.Id == GarmentDR.UnitDOId);
                         List<GarmentUnitDeliveryOrderItem> unitDOItems = new List<GarmentUnitDeliveryOrderItem>();
                         foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
                         {
@@ -377,7 +377,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                 SmallQuantity = garmentUnitReceiptNoteItem.SmallQuantity,
                                 SmallUomId = garmentUnitReceiptNoteItem.SmallUomId,
                                 SmallUomUnit = garmentUnitReceiptNoteItem.SmallUomUnit,
-                                RemainingQuantity = GarmentUnitDO != null ? 0 : garmentUnitReceiptNoteItem.SmallQuantity,
+                                RemainingQuantity = GarmentUnitDO.UnitDOFromId != 0 ? 0 : garmentUnitReceiptNoteItem.SmallQuantity,
                                 DetailReferenceId = garmentUnitReceiptNoteItem.DODetailId,
                                 URNItemId = garmentUnitReceiptNoteItem.Id,
                                 DOCurrencyRate = garmentUnitReceiptNoteItem.DOCurrencyRate,
@@ -391,7 +391,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                             await dbContext.SaveChangesAsync();
                         }
 
-                        if (GarmentUnitDO != null)
+                        if (GarmentUnitDO.UnitDOFromId != 0)
                         {
                             GarmentUnitDeliveryOrderFacade garmentUnitDeliveryOrderFacade = new GarmentUnitDeliveryOrderFacade(dbContext, serviceProvider);
                             GarmentUnitExpenditureNoteFacade.GarmentUnitExpenditureNoteFacade garmentUnitExpenditureNoteFacade = new GarmentUnitExpenditureNoteFacade.GarmentUnitExpenditureNoteFacade(serviceProvider, dbContext);
@@ -949,8 +949,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     {
                         await UpdateDR(garmentUnitReceiptNote.DRId, false);
                         var GarmentDR = GetDR(garmentUnitReceiptNote.DRId);
-                        var GarmentUnitDO = dbContext.GarmentUnitDeliveryOrders.AsNoTracking().SingleOrDefault(a => a.Id == GarmentDR.UnitDOId);
-                        if (GarmentUnitDO != null)
+                        var GarmentUnitDO = dbContext.GarmentUnitDeliveryOrders.AsNoTracking().Single(a => a.Id == GarmentDR.UnitDOId);
+                        if (GarmentUnitDO.UnitDOFromId != 0)
                         {
                             var garmentUnitDOItem = dbContext.GarmentUnitDeliveryOrderItems.FirstOrDefault(x => x.URNId == garmentUnitReceiptNote.Id);
                             var unitDO = dbContext.GarmentUnitDeliveryOrders.Include(m => m.Items).Single(a => a.Id == garmentUnitDOItem.UnitDOId);
