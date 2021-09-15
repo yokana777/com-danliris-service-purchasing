@@ -171,7 +171,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             {
                                 BeginningBalanceQty = Convert.ToDecimal(a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * -1 * 0.9144 : -1 * a.Quantity),
                                 BeginningBalanceUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : a.UomUnit.Trim(),
-                                Buyer = a.BuyerCode,
+                                Buyer = a.BuyerCode == null ? "-" : a.BuyerCode,
                                 EndingBalanceQty = 0,
                                 EndingUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : a.UomUnit.Trim(),
                                 ExpandUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : a.UomUnit.Trim(),
@@ -345,7 +345,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                           {
                               BeginningBalanceQty = 0,
                               BeginningBalanceUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : a.UomUnit.Trim(),
-                              Buyer = a.BuyerCode.Trim(),
+                              Buyer = a.BuyerCode == null ? "-" : a.BuyerCode.Trim(),
                               EndingBalanceQty = 0,
                               EndingUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : a.UomUnit.Trim(),
                               ExpandUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : a.UomUnit.Trim(),

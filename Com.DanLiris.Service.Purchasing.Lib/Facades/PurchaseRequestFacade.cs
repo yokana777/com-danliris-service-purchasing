@@ -542,7 +542,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
         }
 
         #region Monitoring By User
-        public IQueryable<PurchaseRequestReportViewModel> GetReportQuery(string no, string unitId, string categoryId, string budgetId, string prStatus, string poStatus, DateTime? dateFrom, DateTime? dateTo, int offset, string username)
+        public IQueryable<PurchaseRequestReportViewModel> GetReportQuery(string no, string unitId, string categoryId, string budgetId, string prStatus, string poStatus, string productId, DateTime? dateFrom, DateTime? dateTo, int offset, string username)
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
@@ -579,6 +579,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                              && poItem.Status == (string.IsNullOrWhiteSpace(poStatus) ? poItem.Status : poStatus)
                              && a.Date.AddHours(offset).Date >= DateFrom.Date
                              && a.Date.AddHours(offset).Date <= DateTo.Date
+                             && b.ProductId == (string.IsNullOrWhiteSpace(productId) ? b.ProductId : productId)
                          select new PurchaseRequestReportViewModel
                          {
                              no=a.No,
@@ -601,9 +602,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             return Query;
         }
 
-        public Tuple<List<PurchaseRequestReportViewModel>, int> GetReport(string no, string unitId, string categoryId, string budgetId, string prStatus, string poStatus, DateTime? dateFrom, DateTime? dateTo , int page, int size, string Order,int offset, string username)
+        public Tuple<List<PurchaseRequestReportViewModel>, int> GetReport(string no, string unitId, string categoryId, string budgetId, string prStatus, string poStatus, string productId, DateTime? dateFrom, DateTime? dateTo , int page, int size, string Order,int offset, string username)
         {
-            var Query = GetReportQuery(no, unitId, categoryId, budgetId, prStatus, poStatus, dateFrom, dateTo, offset, username);
+            var Query = GetReportQuery(no, unitId, categoryId, budgetId, prStatus, poStatus, productId, dateFrom, dateTo, offset, username);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             if (OrderDictionary.Count.Equals(0))
@@ -625,9 +626,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             return Tuple.Create(Data, TotalData);
         }
 
-        public MemoryStream GenerateExcel(string no, string unitId, string categoryId, string budgetId, string prStatus, string poStatus, DateTime? dateFrom, DateTime? dateTo, int offset, string username)
+        public MemoryStream GenerateExcel(string no, string unitId, string categoryId, string budgetId, string prStatus, string poStatus, string productId, DateTime? dateFrom, DateTime? dateTo, int offset, string username)
         {
-            var Query = GetReportQuery(no, unitId, categoryId, budgetId, prStatus, poStatus, dateFrom, dateTo, offset, username);
+            var Query = GetReportQuery(no, unitId, categoryId, budgetId, prStatus, poStatus, productId, dateFrom, dateTo, offset, username);
             Query = Query.OrderByDescending(b => b.LastModifiedUtc);
             DataTable result = new DataTable();
             //No	Unit	Budget	Kategori	Tanggal PR	Nomor PR	Kode Barang	Nama Barang	Jumlah	Satuan	Tanggal Diminta Datang	Status	Tanggal Diminta Datang Eksternal
