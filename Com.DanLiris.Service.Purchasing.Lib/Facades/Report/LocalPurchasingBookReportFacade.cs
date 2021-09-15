@@ -1255,7 +1255,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 if (item.UseVat)
                     ppn = (decimal)(dpp * (decimal)0.1);
 
-                if (item.UseIncomeTax)
+                if (item.UseIncomeTax && item.IncomeTaxBy == "Supplier")
                     incomeTax = (decimal)(dpp * (incomeTaxRate / 100));
 
                 if (item.IncomeTaxBy == "Supplier")
@@ -1331,7 +1331,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             var previousCorrection = new PreviousCorrection();
 
             var upcIds = correctionItems.Where(element => element.UPODetailId == uPODetailId).Select(element => element.UPCId).ToList();
-            var previousCorrectionNotes = corrections.Where(element => upcIds.Contains(element.Id) && element.CorrectionDate < correctionDate).OrderBy(element => element.CorrectionDate).ToList();
+            var previousCorrectionNotes = corrections.Where(element => upcIds.Contains(element.Id) && element.CorrectionDate < correctionDate).OrderBy(element => element.UPCNo).ToList();
 
             foreach (var previousCorrectionNote in previousCorrectionNotes)
             {
