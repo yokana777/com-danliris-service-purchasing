@@ -699,7 +699,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
 
                     if (expenditure.CurrencyCode == "IDR")
                         purchaseAmountCurrency = 0;
-                    var purchaseAmount = expenditure.GrandTotal * expenditure.CurrencyRate;
+
+                    var purchaseAmount = (dpp + vatAmount - incomeTaxAmount) * expenditure.CurrencyRate;
                     var productName = string.Join('\n', unitReceiptNoteItems.Where(element => urnIds.Contains(element.URNId)).Select(element => $"{element.ProductCode} - {element.ProductName}"));
                     if (expenditure != null)
                     {
