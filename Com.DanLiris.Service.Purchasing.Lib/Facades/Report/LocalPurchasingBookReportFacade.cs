@@ -1342,14 +1342,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     if (previousCorrection.PricePerDealCorrection == 0)
                         previousCorrection.PricePerDealCorrection = previousCorrectionNoteItem.PricePerDealUnitAfter - previousCorrectionNoteItem.PricePerDealUnitBefore;
                     else
-                        previousCorrection.PricePerDealCorrection = previousCorrectionNoteItem.PricePerDealUnitAfter - previousCorrection.PricePerDealCorrection;
+                        previousCorrection.PricePerDealCorrection = previousCorrectionNoteItem.PricePerDealUnitAfter - (pricePerDealBefore - previousCorrection.PricePerDealCorrection);
                 }
                 else if (previousCorrectionNote.CorrectionType == "Harga Total")
                 {
                     if (previousCorrection.TotalCorrection == 0)
                         previousCorrection.TotalCorrection = previousCorrectionNoteItem.PriceTotalAfter - previousCorrectionNoteItem.PriceTotalBefore;
                     else
-                        previousCorrection.TotalCorrection = previousCorrectionNoteItem.PriceTotalAfter - previousCorrection.TotalCorrection;
+                        previousCorrection.TotalCorrection = previousCorrectionNoteItem.PriceTotalAfter - (priceTotalBefore - previousCorrection.TotalCorrection);
                 }
             }
 
@@ -1359,12 +1359,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     if (previousCorrection.PricePerDealCorrection == 0)
                         return ((priceperDealAfter - pricePerDealBefore) * receiptQuantity);
                     else
-                        return ((priceperDealAfter - previousCorrection.PricePerDealCorrection) * receiptQuantity);
+                        return ((priceperDealAfter - (pricePerDealBefore - previousCorrection.PricePerDealCorrection)) * receiptQuantity);
                 case "Harga Total":
                     if (previousCorrection.TotalCorrection == 0)
                         return (priceTotalAfter - priceTotalBefore);
                     else
-                        return (priceTotalAfter - previousCorrection.TotalCorrection);
+                        return (priceTotalAfter - (priceTotalBefore - previousCorrection.TotalCorrection));
                 case "Jumlah":
                     //return (priceperDealAfter * (Math.Abs(quantityCorrection-quantity)))*-1 ;
                     return priceTotalAfter * -1;
