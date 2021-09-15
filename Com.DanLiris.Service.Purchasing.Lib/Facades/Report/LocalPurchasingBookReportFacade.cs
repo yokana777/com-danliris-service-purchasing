@@ -829,7 +829,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
             var reportResult = new LocalPurchasingBookReportViewModel();
 
-            reportResult.Reports = reportReceipt.OrderBy(data=>data.URNId).OrderBy(data=> data.UPONo ).ThenBy(data=> data.DataSourceSort).ToList();
+            reportResult.Reports = reportReceipt.OrderBy(data => data.URNId).OrderBy(data => data.UPONo).ThenBy(data => data.DataSourceSort).ToList();
 
             reportResult.CategorySummaries = reportResult.Reports
                         .GroupBy(report => new { report.AccountingCategoryName })
@@ -1083,11 +1083,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         join epoDetail in dbContext.ExternalPurchaseOrderDetails on urnWithItem.EPODetailId equals epoDetail.Id into joinExternalPurchaseOrder
                         from urnEPODetail in joinExternalPurchaseOrder.DefaultIfEmpty()
 
-                        //join upoItem in dbContext.UnitPaymentOrderDetails on upcCorrection.UPOId equals upoItem.Id  into joinUnitPaymentOrder
-                        //from urnUPOItem in joinUnitPaymentOrder.DefaultIfEmpty()
+                            //join upoItem in dbContext.UnitPaymentOrderDetails on upcCorrection.UPOId equals upoItem.Id  into joinUnitPaymentOrder
+                            //from urnUPOItem in joinUnitPaymentOrder.DefaultIfEmpty()
 
-                        //join upoDetail in dbContext.UnitPaymentOrderDetails on urnUPOItem.Id equals upoDetail.URNItemId into joinUnitPaymentOrderDetails
-                        //from urnUPODetail in joinUnitPaymentOrderDetails.DefaultIfEmpty()
+                            //join upoDetail in dbContext.UnitPaymentOrderDetails on urnUPOItem.Id equals upoDetail.URNItemId into joinUnitPaymentOrderDetails
+                            //from urnUPODetail in joinUnitPaymentOrderDetails.DefaultIfEmpty()
 
                         where upcCorrection.CorrectionDate.ToUniversalTime().Date >= d1.Date && upcCorrection.CorrectionDate.ToUniversalTime().Date <= d2.Date && !urnWithItem.UnitReceiptNote.SupplierIsImport
                         select new
@@ -1141,7 +1141,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             CorrectionPriceTotalAfter = upcCorrectionNoteItem.PriceTotalAfter,
                             CorrectionQuantity = upcCorrectionNoteItem.Quantity,
                             CorrectionReceiptQuantity = joinUpcUpoDetail.ReceiptQuantity,
-                            CorrectionQuantityCorrection = joinUpcUpoDetail.QuantityCorrection
+                            CorrectionQuantityCorrection = joinUpcUpoDetail.QuantityCorrection,
+                            UnitReceiptNoteNo = upcCorrectionNoteItem.URNNo,
+                            UPODetailId = upcCorrectionNoteItem.UPODetailId
                         };
 
             if (isValas)
@@ -1167,9 +1169,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             if (categoryFilterIds.Count() > 0)
                 query = query.Where(urn => categoryFilterIds.Contains(urn.CategoryId));
 
-            var queryResult = query.ToList().OrderByDescending(item => item.CorrectionDate).ToList() ;
+            var queryResult = query.ToList().OrderByDescending(item => item.CorrectionDate).ToList();
             var currencyTuples = queryResult.Select(item => new Tuple<string, DateTimeOffset>(item.CurrencyCode, item.CorrectionDate));
             var currencies = await _currencyProvider.GetCurrencyByCurrencyCodeDateList(currencyTuples);
+
+            var urnNos = queryResult.Select(element => element.UnitReceiptNoteNo).ToList();
+            var correctionItems = dbContext.UnitPaymentCorrectionNoteItems.Where(entity => urnNos.Contains(entity.URNNo)).ToList();
+            var correctionIds = correctionItems.Select(element => element.UPCId).ToList();
+            var corrections = dbContext.UnitPaymentCorrectionNotes.Where(entity => correctionIds.Contains(entity.Id)).ToList();
 
             var unitIds = queryResult.Select(item =>
             {
@@ -1196,7 +1203,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 //var epoDetail = epoItem.Details.FirstOrDefault(f => f.Id.Equals(urnItem.EPODetailId));
                 //var selectedCurrencies = currencies.Where(element => element.Code == item.CurrencyCode).ToList();
                 //var currency = selectedCurrencies.OrderBy(entity => (entity.Date - item.ReceiptDate).Duration()).FirstOrDefault();
-                var currency = currencies.Where(entity=> entity.Code == item.CurrencyCode && entity.Date <= item.ReceiptDate).ToList().Select(o => new { Diffs = Math.Abs((o.Date.Date - item.ReceiptDate.DateTime.Date).Days), o.Date, o.Code, o.Rate }).OrderBy(o => o.Diffs).FirstOrDefault();
+                var currency = currencies.Where(entity => entity.Code == item.CurrencyCode && entity.Date <= item.ReceiptDate).ToList().Select(o => new { Diffs = Math.Abs((o.Date.Date - item.ReceiptDate.DateTime.Date).Days), o.Date, o.Code, o.Rate }).OrderBy(o => o.Diffs).FirstOrDefault();
 
 
                 int.TryParse(item.UnitId, out var unitId);
@@ -1235,14 +1242,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 {
                     currencyRate = currency.Rate.GetValueOrDefault();
                     //dpp = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity);
-                    dpp = (decimal)CalculateCorrectionDpp(item.CorrectionType,item.CorrectionPricePerDealUnitBefore,item.CorrectionPricePerDealUnitAfter,item.CorrectionPriceTotalBefore,item.CorrectionPriceTotalAfter,item.CorrectionQuantity, item.CorrectionReceiptQuantity,item.CorrectionQuantityCorrection);
+                    dpp = (decimal)CalculateCorrectionDpp(item.CorrectionType, item.CorrectionPricePerDealUnitBefore, item.CorrectionPricePerDealUnitAfter, item.CorrectionPriceTotalBefore, item.CorrectionPriceTotalAfter, item.CorrectionQuantity, item.CorrectionReceiptQuantity, item.CorrectionQuantityCorrection, item.UPODetailId, corrections, correctionItems, item.CorrectionDate);
 
                     dppCurrency = dpp * (decimal)currencyRate;
                     currencyCode = currency.Code;
                 }
                 else
                     //dpp = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity);
-                    dpp = (decimal)CalculateCorrectionDpp(item.CorrectionType, item.CorrectionPricePerDealUnitBefore, item.CorrectionPricePerDealUnitAfter, item.CorrectionPriceTotalBefore, item.CorrectionPriceTotalAfter, item.CorrectionQuantity, item.CorrectionReceiptQuantity, item.CorrectionQuantityCorrection);
+                    dpp = (decimal)CalculateCorrectionDpp(item.CorrectionType, item.CorrectionPricePerDealUnitBefore, item.CorrectionPricePerDealUnitAfter, item.CorrectionPriceTotalBefore, item.CorrectionPriceTotalAfter, item.CorrectionQuantity, item.CorrectionReceiptQuantity, item.CorrectionQuantityCorrection, item.UPODetailId, corrections, correctionItems, item.CorrectionDate);
 
 
                 if (item.UseVat)
@@ -1319,17 +1326,48 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             return GetReportDataV2(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, isValas, divisionId);
         }
 
-        private double CalculateCorrectionDpp(string correctionType, double pricePerDealBefore, double priceperDealAfter, double priceTotalBefore, double priceTotalAfter,double quantity, double receiptQuantity, double quantityCorrection)
+        private double CalculateCorrectionDpp(string correctionType, double pricePerDealBefore, double priceperDealAfter, double priceTotalBefore, double priceTotalAfter, double quantity, double receiptQuantity, double quantityCorrection, long uPODetailId, List<Models.UnitPaymentCorrectionNoteModel.UnitPaymentCorrectionNote> corrections, List<Models.UnitPaymentCorrectionNoteModel.UnitPaymentCorrectionNoteItem> correctionItems, DateTimeOffset correctionDate)
         {
+            var previousCorrection = new PreviousCorrection();
+
+            var upcIds = correctionItems.Where(element => element.UPODetailId == uPODetailId).Select(element => element.UPCId).ToList();
+            var previousCorrectionNotes = corrections.Where(element => upcIds.Contains(element.Id) && element.CorrectionDate < correctionDate).OrderBy(element => element.CorrectionDate).ToList();
+
+            foreach (var previousCorrectionNote in previousCorrectionNotes)
+            {
+                var previousCorrectionNoteItem = correctionItems.FirstOrDefault(element => element.UPCId == previousCorrectionNote.Id && element.UPODetailId == uPODetailId);
+
+                if (previousCorrectionNote.CorrectionType == "Harga Satuan")
+                {
+                    if (previousCorrection.PricePerDealCorrection == 0)
+                        previousCorrection.PricePerDealCorrection = previousCorrectionNoteItem.PricePerDealUnitAfter - previousCorrectionNoteItem.PricePerDealUnitBefore;
+                    else
+                        previousCorrection.PricePerDealCorrection = previousCorrectionNoteItem.PricePerDealUnitAfter - previousCorrection.PricePerDealCorrection;
+                }
+                else if (previousCorrectionNote.CorrectionType == "Harga Total")
+                {
+                    if (previousCorrection.TotalCorrection == 0)
+                        previousCorrection.TotalCorrection = previousCorrectionNoteItem.PriceTotalAfter - previousCorrectionNoteItem.PriceTotalBefore;
+                    else
+                        previousCorrection.TotalCorrection = previousCorrectionNoteItem.PriceTotalAfter - previousCorrection.TotalCorrection;
+                }
+            }
+
             switch (correctionType)
             {
                 case "Harga Satuan":
-                    return ((priceperDealAfter-pricePerDealBefore)* receiptQuantity) ;
+                    if (previousCorrection.PricePerDealCorrection == 0)
+                        return ((priceperDealAfter - pricePerDealBefore) * receiptQuantity);
+                    else
+                        return ((priceperDealAfter - previousCorrection.PricePerDealCorrection) * receiptQuantity);
                 case "Harga Total":
-                    return (priceTotalAfter - priceTotalBefore) ;
+                    if (previousCorrection.TotalCorrection == 0)
+                        return (priceTotalAfter - priceTotalBefore);
+                    else
+                        return (priceTotalAfter - previousCorrection.TotalCorrection);
                 case "Jumlah":
                     //return (priceperDealAfter * (Math.Abs(quantityCorrection-quantity)))*-1 ;
-                    return priceTotalAfter  * -1;
+                    return priceTotalAfter * -1;
                 default:
                     return 0;
             }
@@ -1344,7 +1382,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 case "Harga Total":
                     return receiptQuantity;
                 case "Jumlah":
-                    return quantity *-1;
+                    return quantity * -1;
                 default:
                     return 0;
                     break;
@@ -1498,8 +1536,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             {
                 foreach (var report in result.Reports)
                 {
-                    var dateReceipt = report.ReceiptDate.HasValue ? report.ReceiptDate.GetValueOrDefault().ToString("dd/MM/yyyy"):string.Empty;
-                    var dateCorrection = report.CorrectionDate.HasValue ? report.ReceiptDate.GetValueOrDefault().ToString("dd/MM/yyyy"):string.Empty;
+                    var dateReceipt = report.ReceiptDate.HasValue ? report.ReceiptDate.GetValueOrDefault().ToString("dd/MM/yyyy") : string.Empty;
+                    var dateCorrection = report.CorrectionDate.HasValue ? report.ReceiptDate.GetValueOrDefault().ToString("dd/MM/yyyy") : string.Empty;
                     if (isValas)
                     {
                         reportDataTable.Rows.Add(dateReceipt, report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CorrectionNo, dateCorrection, report.AccountingCategoryName, report.CategoryName, report.AccountingUnitName, report.UnitName, report.Quantity, report.Uom, report.CurrencyCode, report.CurrencyRate, report.DPP, report.DPPCurrency, report.VAT * report.CurrencyRate, report.IncomeTax * report.CurrencyRate, report.TotalCurrency);
@@ -1547,9 +1585,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 3].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                         worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 3].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
                         worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 3].Style.Font.Bold = true;
-                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 3].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin) ;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 3].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
                     }
-                    else if(column.ColumnName == "DPP" && !isValas)
+                    else if (column.ColumnName == "DPP" && !isValas)
                     {
                         var rowStartHeaderSpan = rowStartHeader + 1;
                         worksheet.Cells[rowStartHeaderSpan, colStartHeader].Value = column.ColumnName;
@@ -1561,7 +1599,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 2].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
 
                     }
-                    else if (column.ColumnName == "DPP (IDR)" || column.ColumnName == "PPN (IDR)" || column.ColumnName == "PPH (IDR)" || column.ColumnName == "PPN"|| column.ColumnName == "PPH")
+                    else if (column.ColumnName == "DPP (IDR)" || column.ColumnName == "PPN (IDR)" || column.ColumnName == "PPH (IDR)" || column.ColumnName == "PPN" || column.ColumnName == "PPH")
                     {
                         var rowStartHeaderSpan = rowStartHeader + 1;
                         worksheet.Cells[rowStartHeaderSpan, colStartHeader].Value = column.ColumnName;
@@ -1588,9 +1626,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 #endregion
                 //worksheet.Cells["A6"].LoadFromDataTable(reportDataTable, false,OfficeOpenXml.Table.TableStyles.Light18);
                 worksheet.Cells["A6"].LoadFromDataTable(reportDataTable, false);
-                for(int i=6; i< result.Reports.Count+6; i++)
+                for (int i = 6; i < result.Reports.Count + 6; i++)
                 {
-                    for (int j=1 ; j <= reportDataTable.Columns.Count; j++){
+                    for (int j = 1; j <= reportDataTable.Columns.Count; j++)
+                    {
                         worksheet.Cells[i, j].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
                     }
                 }
@@ -1615,5 +1654,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
         //Task<MemoryStream> GenerateExcel(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo, bool isValas);
         Task<MemoryStream> GenerateExcel(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas, int divisionId);
+    }
+
+    public class PreviousCorrection
+    {
+        public int UPODetailId { get; set; }
+        public double TotalCorrection { get; set; }
+        public double PricePerDealCorrection { get; set; }
     }
 }

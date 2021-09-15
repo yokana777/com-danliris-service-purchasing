@@ -1125,7 +1125,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             CorrectionPriceTotalAfter = upcCorrectionNoteItem.PriceTotalAfter,
                             CorrectionQuantity = upcCorrectionNoteItem.Quantity,
                             CorrectionReceiptQuantity = urnUPODetail.ReceiptQuantity,
-                            CorrectionQuantityCorrection = urnUPODetail.QuantityCorrection
+                            CorrectionQuantityCorrection = urnUPODetail.QuantityCorrection,
+                            UnitReceiptNoteNo = upcCorrectionNoteItem.URNNo,
+                            UPODetailId = upcCorrectionNoteItem.UPODetailId
                         };
 
 
@@ -1150,6 +1152,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 query = query.Where(urn => categoryFilterIds.Contains(urn.CategoryId));
 
             var queryResult = query.OrderByDescending(item => item.ReceiptDate).ToList();
+
+            var urnNos = queryResult.Select(element => element.UnitReceiptNoteNo).ToList();
+            var correctionItems = dbContext.UnitPaymentCorrectionNoteItems.Where(entity => urnNos.Contains(entity.URNNo)).ToList();
+            var correctionIds = correctionItems.Select(element => element.UPCId).ToList();
+            var corrections = dbContext.UnitPaymentCorrectionNotes.Where(entity => correctionIds.Contains(entity.Id)).ToList();
+
             //var currencyCodes = queryResult.Select(item => item.CurrencyCode).ToList();
             //var receiptDates = queryResult.Select(item => item.ReceiptDate).ToList();
             var currencyTuples = queryResult.Select(item => new Tuple<string, DateTimeOffset>(item.CurrencyCode, item.ReceiptDate));
