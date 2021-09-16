@@ -1013,7 +1013,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     URNNo = item.URNNo,
                     IsUseVat = item.UseVat,
                     CurrencyCode = currencyCode,
-                    PIBDate = item.PibDate == DateTimeOffset.MinValue? (DateTimeOffset?)null: item.PibDate,
+                    PIBDate = item.PibDate == DateTimeOffset.MinValue ? (DateTimeOffset?)null : item.PibDate,
                     PIBNo = item.PibNo,
                     PIBBM = (decimal)item.ImportDuty,
                     PIBIncomeTax = (decimal)item.TotalIncomeTaxAmount,
@@ -1053,8 +1053,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         join epoDetail in dbContext.ExternalPurchaseOrderDetails on urnWithItem.EPODetailId equals epoDetail.Id into joinExternalPurchaseOrder
                         from urnEPODetail in joinExternalPurchaseOrder.DefaultIfEmpty()
 
-                        //join upoItem in dbContext.UnitPaymentOrderItems on urnWithItem.URNId equals upoItem.URNId into joinUnitPaymentOrder
-                        //from urnUPOItem in joinUnitPaymentOrder.DefaultIfEmpty()
+                            //join upoItem in dbContext.UnitPaymentOrderItems on urnWithItem.URNId equals upoItem.URNId into joinUnitPaymentOrder
+                            //from urnUPOItem in joinUnitPaymentOrder.DefaultIfEmpty()
 
                         join upoDetail in dbContext.UnitPaymentOrderDetails on urnEPODetail.Id equals upoDetail.EPODetailId into joinUnitPaymentOrderDetails
                         from urnUPODetail in joinUnitPaymentOrderDetails.DefaultIfEmpty()
@@ -1090,20 +1090,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             // EPO Info
                             urnEPODetail.ExternalPurchaseOrderItem.PONo,
                             urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.UseVat,
+                            urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.UseIncomeTax,
+                            urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IncomeTaxBy,
+                            urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IncomeTaxRate,
                             EPOPricePerDealUnit = urnEPODetail.PricePerDealUnit,
                             urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.CurrencyCode,
 
                             // UPO Info
-                            InvoiceNo = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.InvoiceNo : "",
-                            UPONo = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.UPONo : "",
-                            VatNo = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.VatNo : "",
-                            PibDate = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.PibDate : new DateTimeOffset(),
+                            InvoiceNo = joinUpcUpoDetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? joinUpcUpoDetail.UnitPaymentOrderItem.UnitPaymentOrder.InvoiceNo : "",
+                            UPONo = joinUpcUpoDetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? joinUpcUpoDetail.UnitPaymentOrderItem.UnitPaymentOrder.UPONo : "",
+                            VatNo = joinUpcUpoDetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? joinUpcUpoDetail.UnitPaymentOrderItem.UnitPaymentOrder.VatNo : "",
+                            PibDate = joinUpcUpoDetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? joinUpcUpoDetail.UnitPaymentOrderItem.UnitPaymentOrder.PibDate : new DateTimeOffset(),
                             //urnUPOItem.UnitPaymentOrder.PibDate,
-                            PibNo = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.PibNo : "",
-                            ImportDuty = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.ImportDuty : 0,
-                            TotalIncomeTaxAmount = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.TotalIncomeTaxAmount : 0,
-                            TotalVatAmount = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.TotalVatAmount : 0,
-                            ImportInfo = urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? urnUPODetail.UnitPaymentOrderItem.UnitPaymentOrder.ImportInfo : "",
+                            PibNo = joinUpcUpoDetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? joinUpcUpoDetail.UnitPaymentOrderItem.UnitPaymentOrder.PibNo : "",
+                            ImportDuty = joinUpcUpoDetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? joinUpcUpoDetail.UnitPaymentOrderItem.UnitPaymentOrder.ImportDuty : 0,
+                            TotalIncomeTaxAmount = joinUpcUpoDetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? joinUpcUpoDetail.UnitPaymentOrderItem.UnitPaymentOrder.TotalIncomeTaxAmount : 0,
+                            TotalVatAmount = joinUpcUpoDetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? joinUpcUpoDetail.UnitPaymentOrderItem.UnitPaymentOrder.TotalVatAmount : 0,
+                            ImportInfo = joinUpcUpoDetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? joinUpcUpoDetail.UnitPaymentOrderItem.UnitPaymentOrder.ImportInfo : "",
                             //urnUPOItem.UnitPaymentOrder.InvoiceNo,
                             //urnUPOItem.UnitPaymentOrder.UPONo,
                             //urnUPOItem.UnitPaymentOrder.VatNo,
@@ -1124,8 +1127,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             CorrectionPriceTotalBefore = upcCorrectionNoteItem.PriceTotalBefore,
                             CorrectionPriceTotalAfter = upcCorrectionNoteItem.PriceTotalAfter,
                             CorrectionQuantity = upcCorrectionNoteItem.Quantity,
-                            CorrectionReceiptQuantity = urnUPODetail.ReceiptQuantity,
-                            CorrectionQuantityCorrection = urnUPODetail.QuantityCorrection,
+                            CorrectionReceiptQuantity = joinUpcUpoDetail.ReceiptQuantity,
+                            CorrectionQuantityCorrection = joinUpcUpoDetail.QuantityCorrection,
                             UnitReceiptNoteNo = upcCorrectionNoteItem.URNNo,
                             UPODetailId = upcCorrectionNoteItem.UPODetailId
                         };
@@ -1160,7 +1163,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
             //var currencyCodes = queryResult.Select(item => item.CurrencyCode).ToList();
             //var receiptDates = queryResult.Select(item => item.ReceiptDate).ToList();
-            var currencyTuples = queryResult.Select(item => new Tuple<string, DateTimeOffset>(item.CurrencyCode, item.ReceiptDate));
+            var currencyTuples = queryResult.Select(item => new Tuple<string, DateTimeOffset>(item.CurrencyCode, item.CorrectionDate));
             var currencies = await _currencyProvider.GetCurrencyByCurrencyCodeDateList(currencyTuples);
 
             var unitIds = queryResult.Select(item =>
@@ -1217,24 +1220,60 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 decimal dppCurrency = 0;
                 decimal ppn = 0;
                 decimal ppnCurrency = 0;
+                decimal incomeTax = 0;
+                decimal incomeTaxCurrency = 0;
+                decimal total = 0;
+                decimal totalCurrency = 0;
 
                 //default IDR
                 double currencyRate = 1;
                 var currencyCode = "IDR";
+                decimal.TryParse(item.IncomeTaxRate, out var incomeTaxRate);
 
-                if (item.UseVat)
-                    ppn = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity * 0.1);
+
+                //if (item.UseVat)
+                //    ppn = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity * 0.1);
+
+                //if (currency != null && !currency.Code.Equals("IDR"))
+                //{
+                //    currencyRate = currency.Rate.GetValueOrDefault();
+                //    dpp = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity);
+                //    dppCurrency = dpp * (decimal)currencyRate;
+                //    ppnCurrency = ppn * (decimal)currencyRate;
+                //    currencyCode = currency.Code;
+                //}
+                //else
+                //    dpp = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity);
 
                 if (currency != null && !currency.Code.Equals("IDR"))
                 {
                     currencyRate = currency.Rate.GetValueOrDefault();
-                    dpp = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity);
+                    //dpp = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity);
+                    dpp = (decimal)CalculateCorrectionDpp(item.CorrectionType, item.CorrectionPricePerDealUnitBefore, item.CorrectionPricePerDealUnitAfter, item.CorrectionPriceTotalBefore, item.CorrectionPriceTotalAfter, item.CorrectionQuantity, item.CorrectionReceiptQuantity, item.CorrectionQuantityCorrection, item.UPODetailId, corrections, correctionItems, item.CorrectionDate);
+
                     dppCurrency = dpp * (decimal)currencyRate;
-                    ppnCurrency = ppn * (decimal)currencyRate;
                     currencyCode = currency.Code;
                 }
                 else
-                    dpp = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity);
+                    //dpp = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity);
+                    dpp = (decimal)CalculateCorrectionDpp(item.CorrectionType, item.CorrectionPricePerDealUnitBefore, item.CorrectionPricePerDealUnitAfter, item.CorrectionPriceTotalBefore, item.CorrectionPriceTotalAfter, item.CorrectionQuantity, item.CorrectionReceiptQuantity, item.CorrectionQuantityCorrection, item.UPODetailId, corrections, correctionItems, item.CorrectionDate);
+
+                if (item.UseVat)
+                    ppn = (decimal)(dpp * (decimal)0.1);
+
+                if (item.UseIncomeTax && item.IncomeTaxBy == "Supplier")
+                    incomeTax = (decimal)(dpp * (incomeTaxRate / 100));
+
+                if (item.IncomeTaxBy == "Supplier")
+                {
+                    total = dpp + ppn - incomeTax;
+                    totalCurrency = (dpp + ppn - incomeTax) * (decimal)currencyRate;
+                }
+                else
+                {
+                    total = dpp + ppn;
+                    totalCurrency = (dpp + ppn) * (decimal)currencyRate;
+                }
 
                 var reportItem = new PurchasingReport()
                 {
@@ -1283,10 +1322,51 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             return reportResult;
         }
 
+        private double CalculateCorrectionDpp(string correctionType, double pricePerDealBefore, double priceperDealAfter, double priceTotalBefore, double priceTotalAfter, double quantity, double receiptQuantity, double quantityCorrection, long uPODetailId, List<Models.UnitPaymentCorrectionNoteModel.UnitPaymentCorrectionNote> corrections, List<Models.UnitPaymentCorrectionNoteModel.UnitPaymentCorrectionNoteItem> correctionItems, DateTimeOffset correctionDate)
+        {
+            var previousCorrection = new PreviousCorrection();
+
+            var upcIds = correctionItems.Where(element => element.UPODetailId == uPODetailId).Select(element => element.UPCId).ToList();
+            var previousCorrectionNotes = corrections.Where(element => upcIds.Contains(element.Id) && element.CorrectionDate < correctionDate).OrderBy(element => element.UPCNo).ToList();
+
+            foreach (var previousCorrectionNote in previousCorrectionNotes)
+            {
+                var previousCorrectionNoteItem = correctionItems.FirstOrDefault(element => element.UPCId == previousCorrectionNote.Id && element.UPODetailId == uPODetailId);
+
+                if (previousCorrectionNote.CorrectionType == "Harga Satuan")
+                {
+                    previousCorrection.PricePerDealCorrection = previousCorrectionNoteItem.PricePerDealUnitAfter;
+                }
+                else if (previousCorrectionNote.CorrectionType == "Harga Total")
+                {
+                    previousCorrection.TotalCorrection = previousCorrectionNoteItem.PriceTotalAfter;
+                }
+            }
+
+            switch (correctionType)
+            {
+                case "Harga Satuan":
+                    if (previousCorrection.PricePerDealCorrection == 0)
+                        return ((priceperDealAfter - pricePerDealBefore) * receiptQuantity);
+                    else
+                        return ((priceperDealAfter - previousCorrection.PricePerDealCorrection) * receiptQuantity);
+                case "Harga Total":
+                    if (previousCorrection.TotalCorrection == 0)
+                        return priceTotalAfter - priceTotalBefore;
+                    else
+                        return priceTotalAfter - previousCorrection.TotalCorrection;
+                case "Jumlah":
+                    //return (priceperDealAfter * (Math.Abs(quantityCorrection-quantity)))*-1 ;
+                    return priceTotalAfter * -1;
+                default:
+                    return 0;
+            }
+        }
+
         public async Task<LocalPurchasingBookReportViewModel> GetReportDataV2(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, int divisionId)
         {
-            var dataReceiptNote = Task.Run(()=> GetReportDataImportPurchasing(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo,divisionId)).Result;
-            var dataReceiptNoteCorrection = Task.Run(()=> GetReportDataImportPurchasingCorrection(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo,  divisionId)).Result;
+            var dataReceiptNote = Task.Run(() => GetReportDataImportPurchasing(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, divisionId)).Result;
+            var dataReceiptNoteCorrection = Task.Run(() => GetReportDataImportPurchasingCorrection(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, divisionId)).Result;
 
             var reportReceipt = new List<PurchasingReport>();
             reportReceipt.AddRange(dataReceiptNote);
@@ -1447,7 +1527,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     var dateReceipt = report.ReceiptDate.HasValue ? report.ReceiptDate.GetValueOrDefault().ToString("dd/MM/yyyy") : string.Empty;
                     var dateCorrection = report.CorrectionDate.HasValue ? report.CorrectionDate.GetValueOrDefault().ToString("dd/MM/yyyy") : string.Empty;
                     var datePib = report.PIBDate.HasValue ? report.PIBDate.GetValueOrDefault().ToString("dd/MM/yyyy") : string.Empty;
-                    reportDataTable.Rows.Add(dateReceipt, report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo,report.CorrectionNo, dateCorrection, report.AccountingCategoryName, report.CategoryName, report.AccountingUnitName, report.UnitName, datePib, report.PIBNo, report.PIBBM, report.PIBIncomeTax, report.PIBVat, report.PIBImportInfo, report.CurrencyCode, report.DPP, report.CurrencyRate, report.Total);
+                    reportDataTable.Rows.Add(dateReceipt, report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CorrectionNo, dateCorrection, report.AccountingCategoryName, report.CategoryName, report.AccountingUnitName, report.UnitName, datePib, report.PIBNo, report.PIBBM, report.PIBIncomeTax, report.PIBVat, report.PIBImportInfo, report.CurrencyCode, report.DPP, report.CurrencyRate, report.Total);
                 }
                 foreach (var categorySummary in result.CategorySummaries)
                     categoryDataTable.Rows.Add(categorySummary.Category, categorySummary.SubTotal);
@@ -1503,17 +1583,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 1].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
 
                     }
-                    else if (column.ColumnName == "PIB No" || 
-                        column.ColumnName == "PIB BM" || 
+                    else if (column.ColumnName == "PIB No" ||
+                        column.ColumnName == "PIB BM" ||
                         column.ColumnName == "PPH (IDR)" ||
                         column.ColumnName == "PIB BM" ||
-                        column.ColumnName == "PPH Impor"||
-                        column.ColumnName == "PPN Impor"||
-                        column.ColumnName == "Ket. Nilai Import"||
+                        column.ColumnName == "PPH Impor" ||
+                        column.ColumnName == "PPN Impor" ||
+                        column.ColumnName == "Ket. Nilai Import" ||
                         column.ColumnName == "DPP Valas")
                     {
                         var rowStartHeaderSpan = rowStartHeader + 1;
-                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Value = column.ColumnName.Replace("PIB ","");
+                        worksheet.Cells[rowStartHeaderSpan, colStartHeader].Value = column.ColumnName.Replace("PIB ", "");
                         worksheet.Cells[rowStartHeaderSpan, colStartHeader].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                         worksheet.Cells[rowStartHeaderSpan, colStartHeader].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
                         worksheet.Cells[rowStartHeaderSpan, colStartHeader].Style.Font.Bold = true;
@@ -1543,7 +1623,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         worksheet.Cells[i, j].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
                     }
                 }
-                worksheet.Cells[$"A{6 + 3 + result.Reports.Count}"].LoadFromDataTable(categoryDataTable, true,OfficeOpenXml.Table.TableStyles.Light18);
+                worksheet.Cells[$"A{6 + 3 + result.Reports.Count}"].LoadFromDataTable(categoryDataTable, true, OfficeOpenXml.Table.TableStyles.Light18);
                 worksheet.Cells[$"A{6 + result.Reports.Count + 3 + result.CategorySummaries.Count + 3}"].LoadFromDataTable(currencyDataTable, true, OfficeOpenXml.Table.TableStyles.Light18);
 
                 var stream = new MemoryStream();
