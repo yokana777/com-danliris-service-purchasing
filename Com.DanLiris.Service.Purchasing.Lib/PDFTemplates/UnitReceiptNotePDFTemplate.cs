@@ -41,7 +41,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellHeaderContentLeft.Phrase = new Phrase("BANARAN, GROGOL, SUKOHARJO", bold_font);
             tableHeader.AddCell(cellHeaderContentLeft);
 
-            cellHeaderContentRight.Phrase = new Phrase("FM-PB-00-06-010/R1", bold_font);
+            cellHeaderContentRight.Phrase = new Phrase("FM-PB-00-06-010/R2", bold_font);
             tableHeader.AddCell(cellHeaderContentRight);
 
             PdfPCell cellHeader = new PdfPCell(tableHeader);
@@ -90,6 +90,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellIdentityContentLeft.Phrase = new Phrase("No.", normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentLeft.Phrase = new Phrase(": " + viewModel.no, normal_font);
+            tableIdentity.AddCell(cellIdentityContentLeft);
+            cellIdentityContentLeft.Phrase = new Phrase("Surat Jalan", normal_font);
+            tableIdentity.AddCell(cellIdentityContentLeft);
+            cellIdentityContentLeft.Phrase = new Phrase(": " + viewModel.doNo, normal_font);
+            tableIdentity.AddCell(cellIdentityContentLeft);
+            cellIdentityContentLeft.Phrase = new Phrase("", normal_font);
+            tableIdentity.AddCell(cellIdentityContentLeft);
+            cellIdentityContentLeft.Phrase = new Phrase("", normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
 
             PdfPCell cellIdentity = new PdfPCell(tableIdentity);
