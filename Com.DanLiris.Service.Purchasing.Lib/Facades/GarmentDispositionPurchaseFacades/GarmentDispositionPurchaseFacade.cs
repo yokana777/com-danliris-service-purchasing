@@ -175,7 +175,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
             var model = mapper.Map<GarmentDispositionPurchase, FormDto>(dataModel);
             model.FixingVatAndIncomeTaxView();
             var modelFixing = model.Items.Select(s => { 
-                var epo =ReadByEPOWithDisposition(s.EPOId, model.SupplierId, model.CurrencyId);
+                var epo =ReadByEPOWithDisposition(s.EPOId, model.SupplierId, model.CurrencyCode);
                 s.IsPayIncomeTax = epo.IsPayIncomeTax;
                 s.IsPayVat = epo.IsPayVAT;
                 return s;
@@ -585,7 +585,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
             return Updated;
         }
 
-        public GarmentExternalPurchaseOrderViewModel ReadByEPOWithDisposition(int EPOid,int supplierId, int currencyId)
+        public GarmentExternalPurchaseOrderViewModel ReadByEPOWithDisposition(int EPOid,int supplierId, string currencyCode)
         {
             //var EPObyId = this.dbContext.GarmentExternalPurchaseOrders.Where(p => p.Id == EPOid && p.SupplierId == supplierId && p.CurrencyId == currencyId)
             var EPObyId = this.dbContext.GarmentExternalPurchaseOrders.Where(p => p.Id == EPOid)
@@ -605,9 +605,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
             var searchDisposition = this.dbContext.GarmentDispositionPurchases
                 .Include(s => s.GarmentDispositionPurchaseItems)
                 .ThenInclude(s=> s.GarmentDispositionPurchaseDetails)
-                .Where(s => s.GarmentDispositionPurchaseItems.Any(t => t.EPOId == EPOid)
+                .Where(s => s.GarmentDispositionPurchaseItems.Any(t => t.EPOId == EPOid && t.CurrencyCode == currencyCode)
                 && s.SupplierId == supplierId
-                && s.CurrencyId == currencyId
+                //&& s.CurrencyId == currencyId
                 ).ToList();
 
             
@@ -634,9 +634,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                 var searchDispositionIPO = this.dbContext.GarmentDispositionPurchases
                 .Include(s => s.GarmentDispositionPurchaseItems)
                 .ThenInclude(s => s.GarmentDispositionPurchaseDetails)
-                .Where(s => s.GarmentDispositionPurchaseItems.Any(j => j.GarmentDispositionPurchaseDetails.Any(d=> d.IPOId == t.POId))
+                .Where(s => s.GarmentDispositionPurchaseItems.Any(j => j.GarmentDispositionPurchaseDetails.Any(d=> d.IPOId == t.POId) && j.CurrencyCode == currencyCode)
                 && s.SupplierId == supplierId
-                && s.CurrencyId == currencyId
+                //&& s.CurrencyId == currencyId
                 );
 
                 var dispositionPaidIPO = searchDispositionIPO.SelectMany(d => d.GarmentDispositionPurchaseItems).Where(d => d.IsDispositionPaid).Select(s => new { Item = s, TotalPaidPrice = s.GarmentDispositionPurchaseDetails.Where(a=> a.IPOId == a.IPOId).Sum(a => a.PaidPrice) }).ToList();

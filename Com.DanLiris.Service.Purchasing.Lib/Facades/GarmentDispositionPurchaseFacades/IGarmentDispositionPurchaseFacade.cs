@@ -17,7 +17,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
         Task<FormDto> GetFormById(int id, bool isVerifiedAmountCalculated = false);
         Task<DispositionPurchaseIndexDto> GetAll(string keyword, int page, int size,string filter, string order);
         Task<List<FormDto>> ReadByDispositionNo(string dispositionNo, int page, int size);
-        GarmentExternalPurchaseOrderViewModel ReadByEPOWithDisposition(int EPOid, int supplierId, int currencyId);
+        GarmentExternalPurchaseOrderViewModel ReadByEPOWithDisposition(int EPOid, int supplierId, string currencyCode);
         Task<int> SetIsPaidTrue(string dispositionNo, string user);
         Tuple<List<FormDto>, int, Dictionary<string, string>> Read(PurchasingGarmentExpeditionPosition position,int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}",int supplierId=0);
         DispositionPurchaseReportIndexDto GetReport(int supplierId, string username, DateTimeOffset? dateForm, DateTimeOffset? dateTo, int size = 10, int page = 1);
