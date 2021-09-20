@@ -276,12 +276,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDispositi
         }
 
         [HttpGet("po-external-id/{id}")]
-        public IActionResult Get([FromRoute] int id,[FromQuery]int supplierId, [FromQuery]int currencyId)
+        public IActionResult Get([FromRoute] int id,[FromQuery]int supplierId, [FromQuery]string currencyCode)
         {
             try
             {
                 VerifyUser();
-                var viewModel = facade.ReadByEPOWithDisposition(id,supplierId,currencyId);
+                var viewModel = facade.ReadByEPOWithDisposition(id,supplierId, currencyCode);
                 if (viewModel == null)
                 {
                     throw new Exception("Invalid Id");

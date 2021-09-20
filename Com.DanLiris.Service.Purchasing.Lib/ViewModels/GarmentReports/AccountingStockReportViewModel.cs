@@ -62,7 +62,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public string NoArticle { get; set; }
         public decimal BeginningBalanceQty { get; set; }
         public string BeginningBalanceUom { get; set; }
-        public double BeginningBalancePrice { get; set; }
+        public decimal BeginningBalancePrice { get; set; }
         public decimal ReceiptCorrectionQty { get; set; }
         public decimal ReceiptPurchaseQty { get; set; }
         public decimal ReceiptProcessQty { get; set; }
@@ -79,7 +79,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public decimal ReceiptKon2CPrice { get; set; }
         public decimal ReceiptKon1APrice { get; set; }
         public decimal ReceiptKon1BPrice { get; set; }
-        public double ExpendReturQty { get; set; }
+        public decimal ExpendReturQty { get; set; }
         public double ExpendRestQty { get; set; }
         public double ExpendProcessQty { get; set; }
         public double ExpendSampleQty { get; set; }
@@ -88,7 +88,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public double ExpendKon2CQty { get; set; }
         public double ExpendKon1AQty { get; set; }
         public double ExpendKon1BQty { get; set; }
-        public double ExpendReturPrice { get; set; }
+        public decimal ExpendReturPrice { get; set; }
         public double ExpendRestPrice { get; set; }
         public double ExpendProcessPrice { get; set; }
         public double ExpendSamplePrice { get; set; }
