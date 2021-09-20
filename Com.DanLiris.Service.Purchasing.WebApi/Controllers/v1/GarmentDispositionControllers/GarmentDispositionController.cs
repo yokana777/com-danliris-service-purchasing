@@ -276,12 +276,12 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDispositi
         }
 
         [HttpGet("po-external-id/{id}")]
-        public IActionResult Get([FromRoute] int id,[FromQuery]int supplierId, [FromQuery]int currencyId)
+        public IActionResult Get([FromRoute] int id,[FromQuery]int supplierId, [FromQuery]string currencyCode)
         {
             try
             {
                 VerifyUser();
-                var viewModel = facade.ReadByEPOWithDisposition(id,supplierId,currencyId);
+                var viewModel = facade.ReadByEPOWithDisposition(id,supplierId, currencyCode);
                 if (viewModel == null)
                 {
                     throw new Exception("Invalid Id");
@@ -321,6 +321,30 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDispositi
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
             }
 
+        }
+
+        [HttpGet("all-garment-disposition")]
+        public IActionResult GetAll()
+        {
+            try
+            {
+                VerifyUser();
+                var viewModel = facade.GetGarmentDispositionPurchase();
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = viewModel,
+                });
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
         }
     }
 }

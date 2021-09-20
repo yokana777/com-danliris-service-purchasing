@@ -118,7 +118,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase(viewModel.PaymentType + "  " + viewModel.CurrencyCode + " " + $"{viewModel.Amount.ToString("N", new CultureInfo("id-ID"))}", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase(viewModel.PaymentType + "  " + viewModel.CurrencyCode + " " + $"{(paidToSupp + viewModel.MiscAmount).ToString("N", new CultureInfo("id-ID"))}", normal_font); /*$"{viewModel.Amount.ToString("N", new CultureInfo("id-ID"))}", normal_font);*/
             cellLeftNoBorder.Colspan = 2;
             tableIdentity.AddCell(cellLeftNoBorder);
             //cellLeftNoBorder.Phrase = new Phrase( viewModel.Currency.code + " " +  $"{(paidToSupp + viewModel.PaymentCorrection + pphRate).ToString("N", new CultureInfo("id-ID")) }", normal_font);
@@ -161,7 +161,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                 if (item.IsPayIncomeTax)
                 {
-                    vat += item.IncomeTaxValue;
+                    incomeTax += item.IncomeTaxValue;
                 }
             }
 
