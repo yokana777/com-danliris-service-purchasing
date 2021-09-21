@@ -294,7 +294,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInvoiceCo
 				Dictionary<string, object> Result =
 					new ResultFormatter(ApiVersion, General.BAD_REQUEST_STATUS_CODE, General.BAD_REQUEST_MESSAGE)
 					.Fail(e);
-				return BadRequest(Result);
+				return StatusCode(General.BAD_REQUEST_STATUS_CODE, Result);
+				//return BadRequest(Result);
 			}
 			catch (Exception e)
 			{

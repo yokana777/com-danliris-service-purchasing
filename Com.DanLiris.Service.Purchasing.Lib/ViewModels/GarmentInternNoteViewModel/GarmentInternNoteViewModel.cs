@@ -45,6 +45,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
             }
             else
             {
+                //Enhance Jason Sept 2021
+                List<string> arrNo = new List<string>();
+                foreach (var detailItem in items)
+                {
+                    if (detailItem.garmentInvoice != null)
+                    {
+                        arrNo.Add(detailItem.garmentInvoice.invoiceNo);
+                    }
+                }
+
                 string itemError = "[";
                 bool? prevUseIncomeTax= null;
                 bool? prevUseVat = null;
@@ -64,6 +74,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
                     {
                         //Enhance Jason Sept 2019 : Invoice No Validation
 
+                        //Check Duplicate Invoice No for 1 Invoice
+                        if (arrNo.FindAll(e => e == item.garmentInvoice.invoiceNo).Count > 1)
+                        {
+                            itemErrorCount++;
+                            itemError += "garmentInvoice: 'there is duplication of invoiceNo " + item.garmentInvoice.invoiceNo + "', ";
+                        }
+
+                        //Check if Invoice No for Specific Supplier is Existed
                         PurchasingDbContext purchasingDbContext = (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
                         var detailData = purchasingDbContext.GarmentInternNoteItems.Where(w => w.InvoiceId == item.garmentInvoice.Id && w.IsDeleted == false).Select(s => new { s.Id, s.GarmentINId, s.InvoiceId, s.InvoiceNo});
                         if (detailData.ToList().Count > 0)
