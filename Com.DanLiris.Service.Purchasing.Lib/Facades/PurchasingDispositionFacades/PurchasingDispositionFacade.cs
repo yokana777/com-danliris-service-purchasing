@@ -679,15 +679,28 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
 
                 foreach (var unitPaymentOrder in unitPaymentOrders)
                 {
-                    var expenditureIds = expenditureDetails.Select(element => element.BankExpenditureNoteId).ToList();
+                    var expenditureIds = expenditureDetails.Where(element => element.UnitPaymentOrderNo == unitPaymentOrder.UPONo).Select(element => element.BankExpenditureNoteId).ToList();
+                    var expenditureDetail = expenditureDetails.Where(element => element.UnitPaymentOrderNo == unitPaymentOrder.UPONo).FirstOrDefault();
                     var expenditure = dbContext.BankExpenditureNotes.FirstOrDefault(entity => expenditureIds.Contains(entity.Id));
                     var urnIds = dbContext.UnitPaymentOrderItems.Where(entity => entity.UPOId == unitPaymentOrder.Id).Select(entity => entity.URNId).ToList();
                     var upoUnitReceiptNotes = unitReceiptNotes.Where(entity => urnIds.Contains(entity.Id)).Select(element => new UnitReceiptNoteDto((int)element.Id, element.URNNo, element.ReceiptDate)).ToList();
 
                     var purchaseAmountCurrency = expenditure.GrandTotal;
+
+                    var dpp = expenditureDetail.TotalPaid;
+                    var incomeTaxAmount = (double)0;
+                    var vatAmount = (double)0;
+
+                    if (unitPaymentOrder.UseVat)
+                        vatAmount = dpp * 0.1;
+
+                    if (unitPaymentOrder.UseIncomeTax)
+                        incomeTaxAmount = dpp * unitPaymentOrder.IncomeTaxRate / 100;
+
                     if (expenditure.CurrencyCode == "IDR")
                         purchaseAmountCurrency = 0;
-                    var purchaseAmount = expenditure.GrandTotal * expenditure.CurrencyRate;
+
+                    var purchaseAmount = (dpp + vatAmount - incomeTaxAmount) * expenditure.CurrencyRate;
                     var productName = string.Join('\n', unitReceiptNoteItems.Where(element => urnIds.Contains(element.URNId)).Select(element => $"{element.ProductCode} - {element.ProductName}"));
                     if (expenditure != null)
                     {
