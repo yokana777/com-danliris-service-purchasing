@@ -29,5 +29,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         MemoryStream GenerateExcelMonOut(DateTime? dateFrom, DateTime? dateTo, string category, int offset);
 
         GarmentUnitExpenditureNoteItem GetBasicPriceByPOSerialNumber(string po);
+
+        Task<int> UenDateRevise(List<GarmentUnitExpenditureNote> listURN, string user, DateTime reviseDate);
     }
 }

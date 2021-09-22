@@ -720,5 +720,40 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
             var response = controller.GetXlsMonIn(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
+
+        [Fact]
+        public void Should_Success_Revise_CreateDate()
+        {
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<GarmentUnitReceiptNoteViewModel>>(It.IsAny<List<GarmentUnitReceiptNote>>()))
+                .Returns(new List<GarmentUnitReceiptNoteViewModel> { ViewModel });
+
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentUnitReceiptNoteViewModel>()))
+                .Verifiable();
+
+            var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
+            mockFacade.Setup(x => x.UrnDateRevise(It.IsAny<List<GarmentUnitReceiptNote>>(), It.IsAny<string>(), It.IsAny<DateTime>()))
+                .ReturnsAsync(1);
+
+            var controller = GetController(mockFacade, validateMock, mockMapper);
+
+            var response = controller.UrnReviseDate(new List<GarmentUnitReceiptNoteViewModel> { ViewModel }, DateTime.Now); ;
+            Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Revise_CreateDate()
+        {
+            var mockMapper = new Mock<IMapper>();
+            var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
+
+            var controller = new GarmentUnitReceiptNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
+
+            var response = controller.UrnReviseDate(new List<GarmentUnitReceiptNoteViewModel>(), DateTime.Now);
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+
     }
 }
