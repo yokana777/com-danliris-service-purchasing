@@ -1,5 +1,6 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Utilities;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -97,6 +98,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
 			}
 			else
 			{
+				//Enhance Jason Sept 2021
+				List<string> arrDoNo = new List<string>();
+				foreach(var detailItem in items)
+                {
+					if (detailItem.deliveryOrder != null)
+                    {
+						arrDoNo.Add(detailItem.deliveryOrder.doNo);
+					}
+				}
+
 				string itemError = "[";
 				foreach (var item in items)
 				{
@@ -107,7 +118,38 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
 						itemErrorCount++;
 						itemError += "deliveryOrder: 'No deliveryOrder selected', ";
 					}
-					
+
+					//Enhance Jason Sept 2019 : Delivery Order No Validation
+					if (item.deliveryOrder != null)
+                    {
+						//Check Duplicate Delivery Order No for 1 Invoice
+						if(arrDoNo.FindAll(e => e == item.deliveryOrder.doNo).Count > 1)
+                        {
+							itemErrorCount++;
+							itemError += "deliveryOrder: 'there is duplication of deliveryOrderNo " + item.deliveryOrder.doNo + "', ";
+						}
+
+						//Check if Delivery Order No for Specific Supplier is Existed
+						PurchasingDbContext purchasingDbContext = (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
+						var detailData = purchasingDbContext.GarmentInvoiceItems.Where(w => w.DeliveryOrderNo == item.deliveryOrder.doNo && w.IsDeleted == false).Select(s => new { s.Id, s.InvoiceId, s.DeliveryOrderNo});
+						if (detailData.ToList().Count > 0)
+                        {
+							foreach (var itemDetail in detailData)
+                            {
+								var headerData = purchasingDbContext.GarmentInvoices.Where(w => w.Id == itemDetail.InvoiceId && w.SupplierId == supplier.Id && w.IsDeleted == false).Select(s => new { s.InvoiceNo });
+								if(headerData.ToList().Count > 0)
+                                {
+									foreach (var itemHeader in headerData)
+                                    {
+										itemErrorCount++;
+										itemError += "deliveryOrder: 'deliveryOrderNo " + item.deliveryOrder.doNo + " already existed on Invoice No " + itemHeader.InvoiceNo.ToString()  + "', ";
+									}
+								}
+							}
+                        }
+						
+					}
+
 					if (item.details == null || item.details.Count.Equals(0))
 					{
 						itemErrorCount++;
