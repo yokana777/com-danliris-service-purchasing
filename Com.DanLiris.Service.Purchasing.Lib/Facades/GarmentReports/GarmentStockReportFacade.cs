@@ -98,6 +98,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                     RO = key.RO
 
                                 });
+
            
 
             var SATerima = (from a in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa)
@@ -106,7 +107,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                             join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on a.RONo equals e.RONo into PR
                             from prs in PR.DefaultIfEmpty()
-                            //join h in Codes on a.ProductCode equals h.Code
+                                //join h in Codes on a.ProductCode equals h.Code
                             where
                             a.IsDeleted == false && b.IsDeleted == false
                               &&
@@ -150,7 +151,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 ReceiptUom = key.ReceiptUom,
                                 RO = key.RO
                             });
-
 
 
             var SAKeluar = (from a in (from aa in dbContext.GarmentUnitExpenditureNoteItems select aa)
@@ -207,6 +207,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             });
 
 
+
             
 
             var SAKoreksi = (from a in dbContext.GarmentUnitReceiptNotes
@@ -260,6 +261,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  ReceiptUom = key.ReceiptUom,
                                  RO = key.RO
                              });
+
+
 
 
             var SaldoAwal1 = BalanceStock.Concat(SATerima).Concat(SAKeluar).Concat(SAKoreksi).AsEnumerable();
