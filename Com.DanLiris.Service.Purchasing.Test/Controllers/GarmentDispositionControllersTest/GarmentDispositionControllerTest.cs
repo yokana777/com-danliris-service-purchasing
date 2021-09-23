@@ -164,7 +164,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDispositionCon
             .ReturnsAsync(1);
 
             mockService.Setup(s =>
-            s.ReadByEPOWithDisposition(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>())
+            s.ReadByEPOWithDisposition(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>())
             )
             .Returns(new GarmentExternalPurchaseOrderViewModel());
 
@@ -217,7 +217,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDispositionCon
             .Throws(new Exception("Exception Test"));
 
             mockService.Setup(s =>
-            s.ReadByEPOWithDisposition(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>())
+            s.ReadByEPOWithDisposition(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>())
             )
             .Throws(new Exception("Exception Test"));
 
@@ -457,7 +457,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDispositionCon
             _serviceMock = SetDefaultSuccessService();
             SetDefaultServiceMockProvider(_serviceMock, _serviceExternalMock, _mapperMock);
 
-            var response =  _controller.Get(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>());
+            var response =  _controller.Get(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>());
 
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
@@ -468,7 +468,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDispositionCon
             _serviceMock = SetDefaultExceptionService();
             SetDefaultServiceMockProvider(_serviceMock, _serviceExternalMock, _mapperMock);
 
-            var response = _controller.Get(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>());
+            var response = _controller.Get(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>());
 
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
@@ -477,11 +477,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDispositionCon
         public void GetPOExternalId_Should_Exception_IfViewModelIsNull()
         {
             _serviceMock = SetDefaultSuccessService();
-            _serviceMock.Setup(s => s.ReadByEPOWithDisposition(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>()))
+            _serviceMock.Setup(s => s.ReadByEPOWithDisposition(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>()))
                 .Returns(()=> null);
             SetDefaultServiceMockProvider(_serviceMock, _serviceExternalMock, _mapperMock);
 
-            var response = _controller.Get(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>());
+            var response = _controller.Get(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>());
 
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }

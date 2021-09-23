@@ -74,7 +74,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 cellHeaderContentCenter.Phrase = new Phrase(viewModel.correctionType, small_normal_font);
                 tableHeader.AddCell(cellHeaderContentCenter);
 
-                cellHeaderContentLeft.Phrase = new Phrase("FM-PB-00-06-015/R2", terbilang_bold_font);
+                cellHeaderContentLeft.Phrase = new Phrase("FM-PB-00-06-004", terbilang_bold_font);
                 tableHeader.AddCell(cellHeaderContentLeft);
 
                 cellHeaderContentLeft.Phrase = new Phrase("");

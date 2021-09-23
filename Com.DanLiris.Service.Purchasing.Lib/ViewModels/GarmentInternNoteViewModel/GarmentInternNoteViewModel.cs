@@ -45,6 +45,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
             }
             else
             {
+                //Enhance Jason Sept 2021
+                List<string> arrNo = new List<string>();
+                foreach (var detailItem in items)
+                {
+                    if (detailItem.garmentInvoice != null)
+                    {
+                        arrNo.Add(detailItem.garmentInvoice.invoiceNo);
+                    }
+                }
+
                 string itemError = "[";
                 bool? prevUseIncomeTax= null;
                 bool? prevUseVat = null;
@@ -62,6 +72,34 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
                     }
                     else
                     {
+                        //Enhance Jason Sept 2019 : Invoice No Validation
+
+                        //Check Duplicate Invoice No for 1 Invoice
+                        if (arrNo.FindAll(e => e == item.garmentInvoice.invoiceNo).Count > 1)
+                        {
+                            itemErrorCount++;
+                            itemError += "garmentInvoice: 'there is duplication of invoiceNo " + item.garmentInvoice.invoiceNo + "', ";
+                        }
+
+                        //Check if Invoice No for Specific Supplier is Existed
+                        PurchasingDbContext purchasingDbContext = (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
+                        var detailData = purchasingDbContext.GarmentInternNoteItems.Where(w => w.InvoiceId == item.garmentInvoice.Id && w.IsDeleted == false).Select(s => new { s.Id, s.GarmentINId, s.InvoiceId, s.InvoiceNo});
+                        if (detailData.ToList().Count > 0)
+                        {
+                            foreach (var itemDetail in detailData)
+                            {
+                                var headerData = purchasingDbContext.GarmentInternNotes.Where(w => w.Id == itemDetail.GarmentINId  && w.SupplierId == supplier.Id && w.IsDeleted == false).Select(s => new { s.INNo });
+                                if (headerData.ToList().Count > 0)
+                                {
+                                    foreach (var itemHeader in headerData)
+                                    {
+                                        itemErrorCount++;
+                                        itemError += "garmentInvoice: 'invoiceNo " + item.garmentInvoice.invoiceNo  + " already existed on Intern Note No " + itemHeader.INNo.ToString() + "', ";
+                                    }
+                                }
+                            }
+                        }
+
                         var invoice = invoiceFacade.ReadById((int)item.garmentInvoice.Id);
                         if (prevUseIncomeTax != null && prevUseIncomeTax != invoice.UseIncomeTax)
                         {
