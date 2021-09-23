@@ -738,7 +738,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         public void Should_Success_ReadItemByEPONoSimply()
         {
             var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var Response = facade.ReadItemByEPONoSimply(null, "{}", 0, null, null, 1, 10);
+            var Response = facade.ReadItemByEPONoSimply(null, "{}", 0, 0, 1, 10);
             Assert.NotNull(Response.Item1);
         }
 
