@@ -127,7 +127,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     CorrectionConversion = i.CorrectionConversion
                 }).ToList(),
                 CreatedBy = m.CreatedBy,
-                LastModifiedUtc = m.LastModifiedUtc
+                LastModifiedUtc = m.LastModifiedUtc,
+                CreatedUtc = m.CreatedUtc
             });
 
             List<string> searchAttributes = new List<string>()
@@ -162,7 +163,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 s.DONo,
                 Items = new List<GarmentUnitReceiptNoteItem>(s.Items),
                 s.CreatedBy,
-                s.LastModifiedUtc
+                s.LastModifiedUtc,
+                s.CreatedUtc
             }));
 
             return new ReadResponse<object>(ListData, TotalData, OrderDictionary);
@@ -2050,6 +2052,39 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             }
 
             return Excel.CreateExcel(new List<(DataTable, string, List<(string, Enum, Enum)>)>() { (result, "Report", mergeCells) }, true);
+        }
+
+        public async Task<int> UrnDateRevise(List<GarmentUnitReceiptNote> listURN, string user, DateTime reviseDate)
+        {
+            int Updated = 0;
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var Ids = listURN.Select(d => d.Id).ToList();
+                    var Id = listURN.Single().Id;
+                    var listData = this.dbSet
+                        .Where(m => Ids.Contains(m.Id) && !m.IsDeleted)
+                        .Include(d => d.Items)
+                        .ToList();
+
+                    listData.ForEach(m =>
+                    {
+                        EntityExtension.FlagForUpdate(m, user, "Facade");
+                        m.CreatedUtc = reviseDate;
+                    });
+
+                    Updated = await dbContext.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Updated;
         }
 
     }
