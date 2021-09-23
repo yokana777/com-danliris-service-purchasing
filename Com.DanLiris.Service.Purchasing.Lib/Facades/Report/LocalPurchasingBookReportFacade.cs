@@ -42,781 +42,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
         }
         #region oldQuery
 
-        //public async Task<LocalPurchasingBookReportViewModel> GetReportData(string no, string unitCode, string categoryCode, DateTime? dateFrom, DateTime? dateTo, bool isValas)
-        //{
-        //    var d1 = dateFrom.GetValueOrDefault().ToUniversalTime();
-        //    var d2 = (dateTo.HasValue ? dateTo.Value : DateTime.Now).ToUniversalTime();
-
-        //    var query = from urnWithItem in dbContext.UnitReceiptNoteItems
-
-        //                join pr in dbContext.PurchaseRequests on urnWithItem.PRId equals pr.Id into joinPurchaseRequest
-        //                from urnPR in joinPurchaseRequest.DefaultIfEmpty()
-
-        //                join epoDetail in dbContext.ExternalPurchaseOrderDetails on urnWithItem.EPODetailId equals epoDetail.Id into joinExternalPurchaseOrder
-        //                from urnEPODetail in joinExternalPurchaseOrder.DefaultIfEmpty()
-
-        //                join upoItem in dbContext.UnitPaymentOrderItems on urnWithItem.URNId equals upoItem.URNId into joinUnitPaymentOrder
-        //                from urnUPOItem in joinUnitPaymentOrder.DefaultIfEmpty()
-
-        //                where urnWithItem.UnitReceiptNote.ReceiptDate >= d1 && urnWithItem.UnitReceiptNote.ReceiptDate <= d2 && !urnWithItem.UnitReceiptNote.SupplierIsImport
-        //                select new
-        //                {
-        //                    // PR Info
-        //                    urnPR.CategoryCode,
-        //                    urnPR.CategoryName,
-        //                    urnPR.CategoryId,
-
-        //                    urnWithItem.PRId,
-        //                    urnWithItem.UnitReceiptNote.DOId,
-        //                    urnWithItem.UnitReceiptNote.DONo,
-        //                    urnWithItem.UnitReceiptNote.URNNo,
-        //                    URNId = urnWithItem.UnitReceiptNote.Id,
-        //                    urnWithItem.ProductName,
-        //                    urnWithItem.UnitReceiptNote.ReceiptDate,
-        //                    urnWithItem.UnitReceiptNote.SupplierName,
-        //                    urnWithItem.UnitReceiptNote.SupplierCode,
-        //                    urnWithItem.UnitReceiptNote.SupplierIsImport,
-        //                    urnWithItem.UnitReceiptNote.UnitCode,
-        //                    urnWithItem.UnitReceiptNote.UnitName,
-        //                    urnWithItem.UnitReceiptNote.UnitId,
-        //                    urnWithItem.EPODetailId,
-        //                    urnWithItem.PricePerDealUnit,
-        //                    urnWithItem.ReceiptQuantity,
-        //                    urnWithItem.Uom,
-
-        //                    // EPO Info
-        //                    urnEPODetail.ExternalPurchaseOrderItem.PONo,
-        //                    urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.UseVat,
-        //                    urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IncomeTaxRate,
-        //                    urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.UseIncomeTax,
-        //                    urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IncomeTaxBy,
-        //                    EPOPricePerDealUnit = urnEPODetail.PricePerDealUnit,
-        //                    urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.CurrencyCode,
-
-        //                    // UPO Info
-        //                    InvoiceNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.InvoiceNo : "",
-        //                    UPONo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.UPONo : "",
-        //                    VatNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.VatNo : "",
-        //                    //urnUPOItem.UnitPaymentOrder.InvoiceNo,
-        //                    //urnUPOItem.UnitPaymentOrder.UPONo,
-        //                    //urnUPOItem.UnitPaymentOrder.VatNo,
-        //                    urnPR.Remark
-        //                };
-
-
-        //    //var query = dbSet
-        //    //    .Where(urn => urn.ReceiptDate >= d1.ToUniversalTime() && urn.ReceiptDate.ToUniversalTime() <= d2 && !urn.SupplierIsImport);
-
-        //    if (isValas)
-        //    {
-        //        query = query.Where(urn => urn.CurrencyCode != IDRCurrencyCode);
-
-        //    }
-        //    else
-        //    {
-        //        query = query.Where(urn => urn.CurrencyCode == IDRCurrencyCode);
-        //    }
-
-        //    if (!string.IsNullOrWhiteSpace(no))
-        //        query = query.Where(urn => urn.URNNo == no);
-
-        //    if (!string.IsNullOrWhiteSpace(unitCode))
-        //        query = query.Where(urn => urn.UnitCode == unitCode);
-
-        //    //var prIds = query.SelectMany(urn => urn.Items.Select(s => s.PRId)).ToList();
-        //    if (!string.IsNullOrWhiteSpace(categoryCode))
-        //        query = query.Where(urn => urn.CategoryCode == categoryCode);
-
-        //    var queryResult = query.OrderByDescending(item => item.ReceiptDate).ToList();
-        //    //var currencyCodes = queryResult.Select(item => item.CurrencyCode).ToList();
-        //    var currencyTuples = queryResult.GroupBy(item => new { item.CurrencyCode, item.ReceiptDate }).Select(item => new Tuple<string, DateTimeOffset>(item.Key.CurrencyCode, item.Key.ReceiptDate));
-        //    var currencies = await _currencyProvider.GetCurrencyByCurrencyCodeDateList(currencyTuples);
-
-        //    var unitIds = queryResult.Select(item =>
-        //    {
-        //        int.TryParse(item.UnitId, out var unitId);
-        //        return unitId;
-        //    }).Distinct().ToList();
-        //    var units = await _currencyProvider.GetUnitsByUnitIds(unitIds);
-        //    var accountingUnits = await _currencyProvider.GetAccountingUnitsByUnitIds(unitIds);
-
-        //    var categoryIds = queryResult.Select(item =>
-        //    {
-        //        int.TryParse(item.CategoryId, out var categoryId);
-        //        return categoryId;
-        //    }).Distinct().ToList();
-        //    var categories = await _currencyProvider.GetCategoriesByCategoryIds(categoryIds);
-        //    var accountingCategories = await _currencyProvider.GetAccountingCategoriesByCategoryIds(categoryIds);
-
-        //    var reportResult = new LocalPurchasingBookReportViewModel();
-        //    foreach (var item in queryResult)
-        //    {
-        //        //var purchaseRequest = purchaseRequests.FirstOrDefault(f => f.Id.Equals(urnItem.PRId));
-        //        //var unitPaymentOrder = unitPaymentOrders.FirstOrDefault(f => f.URNId.Equals(urnItem.URNId));
-        //        //var epoItem = epoItems.FirstOrDefault(f => f.epoDetailIds.Contains(urnItem.EPODetailId));
-        //        //var epoDetail = epoItem.Details.FirstOrDefault(f => f.Id.Equals(urnItem.EPODetailId));
-        //        var selectedCurrencies = currencies.Where(element => element.Code == item.CurrencyCode).ToList();
-        //        var currency = selectedCurrencies.OrderBy(entity => (entity.Date - item.ReceiptDate).Duration()).FirstOrDefault();
-
-        //        if (currency == null)
-        //            currency = currencies.FirstOrDefault(element => element.Code == currency.Code);
-
-        //        int.TryParse(item.UnitId, out var unitId);
-        //        var unit = units.FirstOrDefault(element => element.Id == unitId);
-        //        var accountingUnit = new AccountingUnit();
-        //        if (unit != null)
-        //        {
-        //            accountingUnit = accountingUnits.FirstOrDefault(element => element.Id == unit.AccountingUnitId);
-        //            if (accountingUnit == null)
-        //                accountingUnit = new AccountingUnit();
-        //        }
-
-        //        int.TryParse(item.CategoryId, out var categoryId);
-        //        var category = categories.FirstOrDefault(element => element.Id == categoryId);
-        //        var accountingCategory = new AccountingCategory();
-        //        if (category != null)
-        //        {
-        //            accountingCategory = accountingCategories.FirstOrDefault(element => element.Id == category.AccountingCategoryId);
-        //            if (accountingCategory == null)
-        //                accountingCategory = new AccountingCategory();
-        //        }
-
-        //        decimal dpp = 0;
-        //        decimal dppCurrency = 0;
-        //        decimal ppn = 0;
-        //        decimal incomeTax = 0;
-        //        decimal total = 0;
-        //        decimal.TryParse(item.IncomeTaxRate, out var incomeTaxRate);
-
-        //        //default IDR
-        //        double currencyRate = 1;
-        //        var currencyCode = "IDR";
-        //        if (currency != null && !currency.Code.Equals("IDR"))
-        //        {
-        //            currencyRate = currency.Rate.GetValueOrDefault();
-        //            dpp = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity);
-        //            dppCurrency = dpp * (decimal)currencyRate;
-        //            currencyCode = currency.Code;
-        //        }
-        //        else
-        //            dpp = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity);
-
-        //        if (item.UseVat)
-        //            ppn = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity * 0.1);
-
-        //        if (item.UseIncomeTax)
-        //            incomeTax = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity) * incomeTaxRate / 100;
-
-        //        if (item.IncomeTaxBy == "Supplier")
-        //        {
-        //            total = (dpp + ppn - incomeTax) * (decimal)currencyRate;
-        //        }
-        //        else
-        //        {
-        //            total = (dpp + ppn) * (decimal)currencyRate;
-        //        }
-
-
-        //        var reportItem = new PurchasingReport()
-        //        {
-        //            CategoryName = item.CategoryName,
-        //            CategoryCode = item.CategoryCode,
-        //            AccountingCategoryName = accountingCategory.Name,
-        //            AccountingCategoryCode = accountingCategory.Code,
-        //            AccountingLayoutIndex = accountingCategory.AccountingLayoutIndex,
-        //            CurrencyRate = (decimal)currencyRate,
-        //            DONo = item.DONo,
-        //            DPP = dpp,
-        //            DPPCurrency = dppCurrency,
-        //            InvoiceNo = item.InvoiceNo,
-        //            VATNo = item.VatNo,
-        //            IPONo = item.PONo,
-        //            VAT = ppn,
-        //            Total = total,
-        //            ProductName = item.ProductName,
-        //            ReceiptDate = item.ReceiptDate,
-        //            SupplierCode = item.SupplierCode,
-        //            SupplierName = item.SupplierName,
-        //            UnitName = item.UnitName,
-        //            UnitCode = item.UnitCode,
-        //            AccountingUnitName = accountingUnit.Name,
-        //            AccountingUnitCode = accountingUnit.Code,
-        //            UPONo = item.UPONo,
-        //            URNNo = item.URNNo,
-        //            IsUseVat = item.UseVat,
-        //            CurrencyCode = currencyCode,
-        //            Quantity = item.ReceiptQuantity,
-        //            Uom = item.Uom,
-        //            Remark = item.Remark,
-        //            IncomeTax = incomeTax,
-        //            IncomeTaxBy = item.IncomeTaxBy
-        //        };
-
-        //        reportResult.Reports.Add(reportItem);
-        //    }
-
-        //    reportResult.CategorySummaries = reportResult.Reports
-        //                .GroupBy(report => new { report.AccountingCategoryName })
-        //                .Select(report => new Summary()
-        //                {
-        //                    Category = report.Key.AccountingCategoryName,
-        //                    SubTotal = report.Sum(sum => sum.Total),
-        //                    AccountingLayoutIndex = report.Select(item => item.AccountingLayoutIndex).FirstOrDefault()
-        //                }).OrderBy(order => order.AccountingLayoutIndex).ToList();
-        //    reportResult.CurrencySummaries = reportResult.Reports
-        //        .GroupBy(report => new { report.CurrencyCode })
-        //        .Select(report => new Summary()
-        //        {
-        //            CurrencyCode = report.Key.CurrencyCode,
-        //            SubTotal = report.Sum(sum => sum.Total),
-        //            SubTotalCurrency = report.Sum(sum => sum.Total)
-        //        }).OrderBy(order => order.CurrencyCode).ToList();
-        //    reportResult.Reports = reportResult.Reports;
-        //    reportResult.GrandTotal = reportResult.Reports.Sum(sum => sum.Total);
-        //    reportResult.CategorySummaryTotal = reportResult.CategorySummaries.Sum(categorySummary => categorySummary.SubTotal);
-
-        //    #region Old Query
-        //    //if (prIds.Count > 0)
-        //    //{
-        //    //    var purchaseRequestQuery = dbContext.PurchaseRequests.AsQueryable();
-
-
-        //    //    if (purchaseRequestQuery.Count() > 0)
-        //    //    {
-        //    //        //var purchaseRequests = purchaseRequestQuery.Select(pr => new { pr.Id, pr.CategoryName, pr.CategoryCode }).ToList();
-        //    //        //prIds = purchaseRequests.Select(pr => pr.Id).ToList();
-        //    //        //var categories = purchaseRequests.Select(pr => pr.CategoryCode).Distinct().ToList();
-
-        //    //        //var urnIds = query.Select(urn => urn.Id).ToList();
-        //    //        //var urnItems = dbContext.UnitReceiptNoteItems
-        //    //        //    .Include(urnItem => urnItem.UnitReceiptNote)
-        //    //        //    .Where(urnItem => urnIds.Contains(urnItem.URNId) && prIds.Contains(urnItem.PRId))
-        //    //        //    .Select(urnItem => new
-        //    //        //    {
-        //    //        //        urnItem.PRId,
-        //    //        //        urnItem.UnitReceiptNote.DOId,
-        //    //        //        urnItem.UnitReceiptNote.DONo,
-        //    //        //        urnItem.UnitReceiptNote.URNNo,
-        //    //        //        URNId = urnItem.UnitReceiptNote.Id,
-        //    //        //        urnItem.ProductName,
-        //    //        //        urnItem.UnitReceiptNote.ReceiptDate,
-        //    //        //        urnItem.UnitReceiptNote.SupplierName,
-        //    //        //        urnItem.UnitReceiptNote.UnitCode,
-        //    //        //        urnItem.EPODetailId,
-        //    //        //        urnItem.PricePerDealUnit,
-        //    //        //        urnItem.ReceiptQuantity,
-        //    //        //        urnItem.Uom
-        //    //        //    })
-        //    //        //    .ToList();
-
-        //    //        //var epoDetailIds = urnItems.Select(urnItem => urnItem.EPODetailId).ToList();
-        //    //        //var epoItemIds = dbContext.ExternalPurchaseOrderDetails
-        //    //        //    .Include(epoDetail => epoDetail.ExternalPurchaseOrderItem)
-        //    //        //    .Where(epoDetail => epoDetailIds.Contains(epoDetail.Id))
-        //    //        //    .Select(epoDetail => epoDetail.ExternalPurchaseOrderItem.Id)
-        //    //        //    .ToList();
-        //    //        var epoItems = dbContext.ExternalPurchaseOrderItems
-        //    //            .Include(epoItem => epoItem.ExternalPurchaseOrder)
-        //    //            .Where(epoItem => epoItemIds.Contains(epoItem.Id))
-        //    //            .Select(epoItem => new
-        //    //            {
-        //    //                epoItem.PONo,
-        //    //                epoDetailIds = epoItem.Details.Select(epoDetail => epoDetail.Id).ToList(),
-        //    //                epoItem.ExternalPurchaseOrder.CurrencyCode,
-        //    //                epoItem.ExternalPurchaseOrder.UseVat,
-        //    //                Details = epoItem.Details.Select(epoDetail => new { epoDetail.PricePerDealUnit, epoDetail.Id }).ToList()
-        //    //            })
-        //    //            .ToList();
-
-        //    //        var unitPaymentOrders = dbContext.UnitPaymentOrderItems
-        //    //            .Include(upoItem => upoItem.UnitPaymentOrder)
-        //    //            .Where(upoItem => urnIds.Contains(upoItem.URNId))
-        //    //            .Select(upoItem => new
-        //    //            {
-        //    //                upoItem.URNId,
-        //    //                upoItem.UnitPaymentOrder.InvoiceNo,
-        //    //                upoItem.UnitPaymentOrder.UPONo,
-        //    //                upoItem.UnitPaymentOrder.VatNo
-        //    //            });
-
-        //    //        var currencyCodes = epoItems.Select(epoItem => epoItem.CurrencyCode).Distinct().ToList();
-        //    //        var currencies = await _currencyProvider.GetCurrencyByCurrencyCodeList(currencyCodes);
-
-        //    //        var reportResult = new LocalPurchasingBookReportViewModel();
-        //    //        foreach (var urnItem in urnItems)
-        //    //        {
-        //    //            var purchaseRequest = purchaseRequests.FirstOrDefault(f => f.Id.Equals(urnItem.PRId));
-        //    //            var unitPaymentOrder = unitPaymentOrders.FirstOrDefault(f => f.URNId.Equals(urnItem.URNId));
-        //    //            var epoItem = epoItems.FirstOrDefault(f => f.epoDetailIds.Contains(urnItem.EPODetailId));
-        //    //            var epoDetail = epoItem.Details.FirstOrDefault(f => f.Id.Equals(urnItem.EPODetailId));
-        //    //            var currency = currencies.FirstOrDefault(f => f.Code.Equals(epoItem.CurrencyCode));
-
-        //    //            decimal dpp = 0;
-        //    //            decimal dppCurrency = 0;
-        //    //            decimal ppn = 0;
-
-        //    //            //default IDR
-        //    //            double currencyRate = 1;
-        //    //            var currencyCode = "IDR";
-        //    //            if (currency != null && !currency.Code.Equals("IDR"))
-        //    //            {
-        //    //                dppCurrency = (decimal)(epoDetail.PricePerDealUnit * urnItem.ReceiptQuantity);
-        //    //                currencyRate = currency.Rate.GetValueOrDefault();
-        //    //                currencyCode = currency.Code;
-        //    //            }
-        //    //            else
-        //    //                dpp = (decimal)(epoDetail.PricePerDealUnit * urnItem.ReceiptQuantity);
-
-        //    //            if (epoItem.UseVat)
-        //    //                ppn = (decimal)(epoDetail.PricePerDealUnit * urnItem.ReceiptQuantity * 0.1);
-
-
-
-        //    //            var reportItem = new PurchasingReport()
-        //    //            {
-        //    //                CategoryName = purchaseRequest.CategoryName,
-        //    //                CategoryCode = purchaseRequest.CategoryCode,
-        //    //                CurrencyRate = (decimal)currencyRate,
-        //    //                DONo = urnItem.DONo,
-        //    //                DPP = dpp,
-        //    //                DPPCurrency = dppCurrency,
-        //    //                InvoiceNo = unitPaymentOrder?.InvoiceNo,
-        //    //                VATNo = unitPaymentOrder?.VatNo,
-        //    //                IPONo = epoItem.PONo,
-        //    //                VAT = ppn,
-        //    //                Total = (dpp + dppCurrency + ppn) * (decimal)currencyRate,
-        //    //                ProductName = urnItem.ProductName,
-        //    //                ReceiptDate = urnItem.ReceiptDate,
-        //    //                SupplierName = urnItem.SupplierName,
-        //    //                UnitName = urnItem.UnitCode,
-        //    //                UPONo = unitPaymentOrder?.UPONo,
-        //    //                URNNo = urnItem.URNNo,
-        //    //                IsUseVat = epoItem.UseVat,
-        //    //                CurrencyCode = currencyCode,
-        //    //                Quantity = urnItem.ReceiptQuantity,
-        //    //                Uom = urnItem.Uom
-        //    //            };
-
-        //    //            reportResult.Reports.Add(reportItem);
-        //    //        }
-
-        //    //        reportResult.CategorySummaries = reportResult.Reports
-        //    //            .GroupBy(report => new { report.CategoryCode })
-        //    //            .Select(report => new Summary()
-        //    //            {
-        //    //                Category = report.Key.CategoryCode,
-        //    //                SubTotal = report.Sum(sum => sum.Total)
-        //    //            }).OrderBy(order => order.Category).ToList();
-        //    //        reportResult.CurrencySummaries = reportResult.Reports
-        //    //            .GroupBy(report => new { report.CurrencyCode })
-        //    //            .Select(report => new Summary()
-        //    //            {
-        //    //                CurrencyCode = report.Key.CurrencyCode,
-        //    //                SubTotal = report.Sum(sum => sum.DPP + sum.DPPCurrency + sum.VAT)
-        //    //            }).OrderBy(order => order.CurrencyCode).ToList();
-        //    //        reportResult.Reports = reportResult.Reports.OrderByDescending(order => order.ReceiptDate).ToList();
-        //    //        reportResult.GrandTotal = reportResult.Reports.Sum(sum => sum.Total);
-        //    //        reportResult.CategorySummaryTotal = reportResult.CategorySummaries.Sum(categorySummary => categorySummary.SubTotal);
-
-        //    //        return reportResult;
-        //    //    }
-        //    //}
-        //    #endregion
-
-        //    return reportResult;
-        //}
-
-        //public async Task<LocalPurchasingBookReportViewModel> GetReportData(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas, int divisionId)
-        //{
-        //    var d1 = dateFrom.GetValueOrDefault().ToUniversalTime();
-        //    var d2 = (dateTo.HasValue ? dateTo.Value : DateTime.Now).ToUniversalTime();
-
-        //    var query = from urnWithItem in dbContext.UnitReceiptNoteItems
-
-        //                join pr in dbContext.PurchaseRequests on urnWithItem.PRId equals pr.Id into joinPurchaseRequest
-        //                from urnPR in joinPurchaseRequest.DefaultIfEmpty()
-
-        //                join epoDetail in dbContext.ExternalPurchaseOrderDetails on urnWithItem.EPODetailId equals epoDetail.Id into joinExternalPurchaseOrder
-        //                from urnEPODetail in joinExternalPurchaseOrder.DefaultIfEmpty()
-
-        //                join upoItem in dbContext.UnitPaymentOrderItems on urnWithItem.URNId equals upoItem.URNId into joinUnitPaymentOrder
-        //                from urnUPOItem in joinUnitPaymentOrder.DefaultIfEmpty()
-
-        //                where urnWithItem.UnitReceiptNote.ReceiptDate >= d1 && urnWithItem.UnitReceiptNote.ReceiptDate <= d2 && !urnWithItem.UnitReceiptNote.SupplierIsImport
-        //                select new
-        //                {
-        //                    // PR Info
-        //                    urnPR.CategoryCode,
-        //                    urnPR.CategoryName,
-        //                    urnPR.CategoryId,
-
-        //                    urnWithItem.PRId,
-        //                    urnWithItem.UnitReceiptNote.DOId,
-        //                    urnWithItem.UnitReceiptNote.DONo,
-        //                    urnWithItem.UnitReceiptNote.URNNo,
-        //                    URNId = urnWithItem.UnitReceiptNote.Id,
-        //                    urnWithItem.ProductName,
-        //                    urnWithItem.UnitReceiptNote.ReceiptDate,
-        //                    urnWithItem.UnitReceiptNote.SupplierName,
-        //                    urnWithItem.UnitReceiptNote.SupplierCode,
-        //                    urnWithItem.UnitReceiptNote.SupplierIsImport,
-        //                    urnWithItem.UnitReceiptNote.UnitCode,
-        //                    urnWithItem.UnitReceiptNote.UnitName,
-        //                    urnWithItem.UnitReceiptNote.UnitId,
-        //                    urnWithItem.UnitReceiptNote.DivisionId,
-        //                    urnWithItem.EPODetailId,
-        //                    urnWithItem.PricePerDealUnit,
-        //                    urnWithItem.ReceiptQuantity,
-        //                    urnWithItem.Uom,
-
-        //                    // EPO Info
-        //                    urnEPODetail.ExternalPurchaseOrderItem.PONo,
-        //                    urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.UseVat,
-        //                    urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IncomeTaxRate,
-        //                    urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.UseIncomeTax,
-        //                    urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IncomeTaxBy,
-        //                    EPOPricePerDealUnit = urnEPODetail.PricePerDealUnit,
-        //                    urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.CurrencyCode,
-
-        //                    // UPO Info
-        //                    InvoiceNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.InvoiceNo : "",
-        //                    UPONo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.UPONo : "",
-        //                    VatNo = urnUPOItem.UnitPaymentOrder != null ? urnUPOItem.UnitPaymentOrder.VatNo : "",
-        //                    //urnUPOItem.UnitPaymentOrder.InvoiceNo,
-        //                    //urnUPOItem.UnitPaymentOrder.UPONo,
-        //                    //urnUPOItem.UnitPaymentOrder.VatNo,
-        //                    urnPR.Remark
-        //                };
-
-
-        //    //var query = dbSet
-        //    //    .Where(urn => urn.ReceiptDate >= d1.ToUniversalTime() && urn.ReceiptDate.ToUniversalTime() <= d2 && !urn.SupplierIsImport);
-
-        //    if (isValas)
-        //    {
-        //        query = query.Where(urn => urn.CurrencyCode != IDRCurrencyCode);
-        //    }
-        //    else
-        //    {
-        //        query = query.Where(urn => urn.CurrencyCode == IDRCurrencyCode);
-        //    }
-
-        //    if (divisionId > 0)
-        //        query = query.Where(urn => urn.DivisionId == divisionId.ToString());
-
-        //    if (!string.IsNullOrWhiteSpace(no))
-        //        query = query.Where(urn => urn.URNNo == no);
-
-        //    var unitFilterIds = await _currencyProvider.GetUnitsIdsByAccountingUnitId(accountingUnitId);
-        //    if (unitFilterIds.Count() > 0)
-        //        query = query.Where(urn => unitFilterIds.Contains(urn.UnitId));
-
-        //    //var prIds = query.SelectMany(urn => urn.Items.Select(s => s.PRId)).ToList();
-        //    var categoryFilterIds = await _currencyProvider.GetCategoryIdsByAccountingCategoryId(accountingCategoryId);
-        //    if (categoryFilterIds.Count() > 0)
-        //        query = query.Where(urn => categoryFilterIds.Contains(urn.CategoryId));
-
-        //    var queryResult = query.OrderByDescending(item => item.ReceiptDate).ToList();
-        //    //var currencyCodes = queryResult.Select(item => item.CurrencyCode).ToList();
-        //    var currencyTuples = queryResult.Select(item => new Tuple<string, DateTimeOffset>(item.CurrencyCode, item.ReceiptDate));
-        //    var currencies = await _currencyProvider.GetCurrencyByCurrencyCodeDateList(currencyTuples);
-
-        //    var unitIds = queryResult.Select(item =>
-        //    {
-        //        int.TryParse(item.UnitId, out var unitId);
-        //        return unitId;
-        //    }).Distinct().ToList();
-        //    var units = await _currencyProvider.GetUnitsByUnitIds(unitIds);
-        //    var accountingUnits = await _currencyProvider.GetAccountingUnitsByUnitIds(unitIds);
-
-        //    var categoryIds = queryResult.Select(item =>
-        //    {
-        //        int.TryParse(item.CategoryId, out var categoryId);
-        //        return categoryId;
-        //    }).Distinct().ToList();
-        //    var categories = await _currencyProvider.GetCategoriesByCategoryIds(categoryIds);
-        //    var accountingCategories = await _currencyProvider.GetAccountingCategoriesByCategoryIds(categoryIds);
-
-        //    var reportResult = new LocalPurchasingBookReportViewModel();
-        //    foreach (var item in queryResult)
-        //    {
-        //        //var purchaseRequest = purchaseRequests.FirstOrDefault(f => f.Id.Equals(urnItem.PRId));
-        //        //var unitPaymentOrder = unitPaymentOrders.FirstOrDefault(f => f.URNId.Equals(urnItem.URNId));
-        //        //var epoItem = epoItems.FirstOrDefault(f => f.epoDetailIds.Contains(urnItem.EPODetailId));
-        //        //var epoDetail = epoItem.Details.FirstOrDefault(f => f.Id.Equals(urnItem.EPODetailId));
-        //        //var selectedCurrencies = currencies.Where(element => element.Code == item.CurrencyCode).ToList();
-        //        //var currency = selectedCurrencies.OrderBy(entity => (entity.Date - item.ReceiptDate).Duration()).FirstOrDefault();
-        //        var currency = currencies.Where(entity=> entity.Code == item.CurrencyCode && entity.Date <= item.ReceiptDate).OrderByDescending(entity=> Math.Abs((entity.Date - item.ReceiptDate).TotalDays)).FirstOrDefault();
-
-
-        //        int.TryParse(item.UnitId, out var unitId);
-        //        var unit = units.FirstOrDefault(element => element.Id == unitId);
-        //        var accountingUnit = new AccountingUnit();
-        //        if (unit != null)
-        //        {
-        //            accountingUnit = accountingUnits.FirstOrDefault(element => element.Id == unit.AccountingUnitId);
-        //            if (accountingUnit == null)
-        //                accountingUnit = new AccountingUnit();
-        //        }
-
-        //        int.TryParse(item.CategoryId, out var categoryId);
-        //        var category = categories.FirstOrDefault(element => element.Id == categoryId);
-        //        var accountingCategory = new AccountingCategory();
-        //        if (category != null)
-        //        {
-        //            accountingCategory = accountingCategories.FirstOrDefault(element => element.Id == category.AccountingCategoryId);
-        //            if (accountingCategory == null)
-        //                accountingCategory = new AccountingCategory();
-        //        }
-
-        //        decimal dpp = 0;
-        //        decimal dppCurrency = 0;
-        //        decimal ppn = 0;
-        //        decimal incomeTax = 0;
-        //        decimal total = 0;
-        //        decimal totalCurrency = 0;
-        //        decimal.TryParse(item.IncomeTaxRate, out var incomeTaxRate);
-
-        //        //default IDR
-        //        double currencyRate = 1;
-        //        var currencyCode = "IDR";
-        //        if (currency != null && !currency.Code.Equals("IDR"))
-        //        {
-        //            currencyRate = currency.Rate.GetValueOrDefault();
-        //            dpp = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity);
-        //            dppCurrency = dpp * (decimal)currencyRate;
-        //            currencyCode = currency.Code;
-        //        }
-        //        else
-        //            dpp = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity);
-
-        //        if (item.UseVat)
-        //            ppn = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity * 0.1);
-
-        //        if (item.UseIncomeTax)
-        //            incomeTax = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity) * incomeTaxRate / 100;
-
-        //        if (item.IncomeTaxBy == "Supplier")
-        //        {
-        //            total = dpp + ppn - incomeTax;
-        //            totalCurrency = (dpp + ppn - incomeTax) * (decimal)currencyRate;
-        //        }
-        //        else
-        //        {
-        //            total = dpp + ppn;
-        //            totalCurrency = (dpp + ppn) * (decimal)currencyRate;
-        //        }
-
-
-        //        var reportItem = new PurchasingReport()
-        //        {
-        //            CategoryName = item.CategoryName,
-        //            CategoryCode = item.CategoryCode,
-        //            AccountingCategoryName = accountingCategory.Name,
-        //            AccountingCategoryCode = accountingCategory.Code,
-        //            AccountingLayoutIndex = accountingCategory.AccountingLayoutIndex,
-        //            CurrencyRate = (decimal)currencyRate,
-        //            DONo = item.DONo,
-        //            DPP = dpp,
-        //            DPPCurrency = dppCurrency,
-        //            InvoiceNo = item.InvoiceNo,
-        //            VATNo = item.VatNo,
-        //            IPONo = item.PONo,
-        //            VAT = ppn,
-        //            Total = total,
-        //            TotalCurrency = totalCurrency,
-        //            ProductName = item.ProductName,
-        //            ReceiptDate = item.ReceiptDate,
-        //            SupplierCode = item.SupplierCode,
-        //            SupplierName = item.SupplierName,
-        //            UnitName = item.UnitName,
-        //            UnitCode = item.UnitCode,
-        //            AccountingUnitName = accountingUnit.Name,
-        //            AccountingUnitCode = accountingUnit.Code,
-        //            UPONo = item.UPONo,
-        //            URNNo = item.URNNo,
-        //            IsUseVat = item.UseVat,
-        //            CurrencyCode = currencyCode,
-        //            Quantity = item.ReceiptQuantity,
-        //            Uom = item.Uom,
-        //            Remark = item.Remark,
-        //            IncomeTax = incomeTax,
-        //            IncomeTaxBy = item.IncomeTaxBy
-        //        };
-
-        //        reportResult.Reports.Add(reportItem);
-        //    }
-
-        //    reportResult.CategorySummaries = reportResult.Reports
-        //                .GroupBy(report => new { report.AccountingCategoryName })
-        //                .Select(report => new Summary()
-        //                {
-        //                    Category = report.Key.AccountingCategoryName,
-        //                    SubTotal = report.Sum(sum => sum.TotalCurrency),
-        //                    AccountingLayoutIndex = report.Select(item => item.AccountingLayoutIndex).FirstOrDefault()
-        //                }).OrderBy(order => order.AccountingLayoutIndex).ToList();
-        //    reportResult.CurrencySummaries = reportResult.Reports
-        //        .GroupBy(report => new { report.CurrencyCode })
-        //        .Select(report => new Summary()
-        //        {
-        //            CurrencyCode = report.Key.CurrencyCode,
-        //            SubTotal = report.Sum(sum => sum.Total),
-        //            SubTotalCurrency = report.Sum(sum => sum.TotalCurrency)
-        //        }).OrderBy(order => order.CurrencyCode).ToList();
-        //    reportResult.Reports = reportResult.Reports;
-        //    reportResult.GrandTotal = reportResult.Reports.Sum(sum => sum.TotalCurrency);
-        //    reportResult.CategorySummaryTotal = reportResult.CategorySummaries.Sum(categorySummary => categorySummary.SubTotal);
-
-        //    #region Old Query
-        //    //if (prIds.Count > 0)
-        //    //{
-        //    //    var purchaseRequestQuery = dbContext.PurchaseRequests.AsQueryable();
-
-
-        //    //    if (purchaseRequestQuery.Count() > 0)
-        //    //    {
-        //    //        //var purchaseRequests = purchaseRequestQuery.Select(pr => new { pr.Id, pr.CategoryName, pr.CategoryCode }).ToList();
-        //    //        //prIds = purchaseRequests.Select(pr => pr.Id).ToList();
-        //    //        //var categories = purchaseRequests.Select(pr => pr.CategoryCode).Distinct().ToList();
-
-        //    //        //var urnIds = query.Select(urn => urn.Id).ToList();
-        //    //        //var urnItems = dbContext.UnitReceiptNoteItems
-        //    //        //    .Include(urnItem => urnItem.UnitReceiptNote)
-        //    //        //    .Where(urnItem => urnIds.Contains(urnItem.URNId) && prIds.Contains(urnItem.PRId))
-        //    //        //    .Select(urnItem => new
-        //    //        //    {
-        //    //        //        urnItem.PRId,
-        //    //        //        urnItem.UnitReceiptNote.DOId,
-        //    //        //        urnItem.UnitReceiptNote.DONo,
-        //    //        //        urnItem.UnitReceiptNote.URNNo,
-        //    //        //        URNId = urnItem.UnitReceiptNote.Id,
-        //    //        //        urnItem.ProductName,
-        //    //        //        urnItem.UnitReceiptNote.ReceiptDate,
-        //    //        //        urnItem.UnitReceiptNote.SupplierName,
-        //    //        //        urnItem.UnitReceiptNote.UnitCode,
-        //    //        //        urnItem.EPODetailId,
-        //    //        //        urnItem.PricePerDealUnit,
-        //    //        //        urnItem.ReceiptQuantity,
-        //    //        //        urnItem.Uom
-        //    //        //    })
-        //    //        //    .ToList();
-
-        //    //        //var epoDetailIds = urnItems.Select(urnItem => urnItem.EPODetailId).ToList();
-        //    //        //var epoItemIds = dbContext.ExternalPurchaseOrderDetails
-        //    //        //    .Include(epoDetail => epoDetail.ExternalPurchaseOrderItem)
-        //    //        //    .Where(epoDetail => epoDetailIds.Contains(epoDetail.Id))
-        //    //        //    .Select(epoDetail => epoDetail.ExternalPurchaseOrderItem.Id)
-        //    //        //    .ToList();
-        //    //        var epoItems = dbContext.ExternalPurchaseOrderItems
-        //    //            .Include(epoItem => epoItem.ExternalPurchaseOrder)
-        //    //            .Where(epoItem => epoItemIds.Contains(epoItem.Id))
-        //    //            .Select(epoItem => new
-        //    //            {
-        //    //                epoItem.PONo,
-        //    //                epoDetailIds = epoItem.Details.Select(epoDetail => epoDetail.Id).ToList(),
-        //    //                epoItem.ExternalPurchaseOrder.CurrencyCode,
-        //    //                epoItem.ExternalPurchaseOrder.UseVat,
-        //    //                Details = epoItem.Details.Select(epoDetail => new { epoDetail.PricePerDealUnit, epoDetail.Id }).ToList()
-        //    //            })
-        //    //            .ToList();
-
-        //    //        var unitPaymentOrders = dbContext.UnitPaymentOrderItems
-        //    //            .Include(upoItem => upoItem.UnitPaymentOrder)
-        //    //            .Where(upoItem => urnIds.Contains(upoItem.URNId))
-        //    //            .Select(upoItem => new
-        //    //            {
-        //    //                upoItem.URNId,
-        //    //                upoItem.UnitPaymentOrder.InvoiceNo,
-        //    //                upoItem.UnitPaymentOrder.UPONo,
-        //    //                upoItem.UnitPaymentOrder.VatNo
-        //    //            });
-
-        //    //        var currencyCodes = epoItems.Select(epoItem => epoItem.CurrencyCode).Distinct().ToList();
-        //    //        var currencies = await _currencyProvider.GetCurrencyByCurrencyCodeList(currencyCodes);
-
-        //    //        var reportResult = new LocalPurchasingBookReportViewModel();
-        //    //        foreach (var urnItem in urnItems)
-        //    //        {
-        //    //            var purchaseRequest = purchaseRequests.FirstOrDefault(f => f.Id.Equals(urnItem.PRId));
-        //    //            var unitPaymentOrder = unitPaymentOrders.FirstOrDefault(f => f.URNId.Equals(urnItem.URNId));
-        //    //            var epoItem = epoItems.FirstOrDefault(f => f.epoDetailIds.Contains(urnItem.EPODetailId));
-        //    //            var epoDetail = epoItem.Details.FirstOrDefault(f => f.Id.Equals(urnItem.EPODetailId));
-        //    //            var currency = currencies.FirstOrDefault(f => f.Code.Equals(epoItem.CurrencyCode));
-
-        //    //            decimal dpp = 0;
-        //    //            decimal dppCurrency = 0;
-        //    //            decimal ppn = 0;
-
-        //    //            //default IDR
-        //    //            double currencyRate = 1;
-        //    //            var currencyCode = "IDR";
-        //    //            if (currency != null && !currency.Code.Equals("IDR"))
-        //    //            {
-        //    //                dppCurrency = (decimal)(epoDetail.PricePerDealUnit * urnItem.ReceiptQuantity);
-        //    //                currencyRate = currency.Rate.GetValueOrDefault();
-        //    //                currencyCode = currency.Code;
-        //    //            }
-        //    //            else
-        //    //                dpp = (decimal)(epoDetail.PricePerDealUnit * urnItem.ReceiptQuantity);
-
-        //    //            if (epoItem.UseVat)
-        //    //                ppn = (decimal)(epoDetail.PricePerDealUnit * urnItem.ReceiptQuantity * 0.1);
-
-
-
-        //    //            var reportItem = new PurchasingReport()
-        //    //            {
-        //    //                CategoryName = purchaseRequest.CategoryName,
-        //    //                CategoryCode = purchaseRequest.CategoryCode,
-        //    //                CurrencyRate = (decimal)currencyRate,
-        //    //                DONo = urnItem.DONo,
-        //    //                DPP = dpp,
-        //    //                DPPCurrency = dppCurrency,
-        //    //                InvoiceNo = unitPaymentOrder?.InvoiceNo,
-        //    //                VATNo = unitPaymentOrder?.VatNo,
-        //    //                IPONo = epoItem.PONo,
-        //    //                VAT = ppn,
-        //    //                Total = (dpp + dppCurrency + ppn) * (decimal)currencyRate,
-        //    //                ProductName = urnItem.ProductName,
-        //    //                ReceiptDate = urnItem.ReceiptDate,
-        //    //                SupplierName = urnItem.SupplierName,
-        //    //                UnitName = urnItem.UnitCode,
-        //    //                UPONo = unitPaymentOrder?.UPONo,
-        //    //                URNNo = urnItem.URNNo,
-        //    //                IsUseVat = epoItem.UseVat,
-        //    //                CurrencyCode = currencyCode,
-        //    //                Quantity = urnItem.ReceiptQuantity,
-        //    //                Uom = urnItem.Uom
-        //    //            };
-
-        //    //            reportResult.Reports.Add(reportItem);
-        //    //        }
-
-        //    //        reportResult.CategorySummaries = reportResult.Reports
-        //    //            .GroupBy(report => new { report.CategoryCode })
-        //    //            .Select(report => new Summary()
-        //    //            {
-        //    //                Category = report.Key.CategoryCode,
-        //    //                SubTotal = report.Sum(sum => sum.Total)
-        //    //            }).OrderBy(order => order.Category).ToList();
-        //    //        reportResult.CurrencySummaries = reportResult.Reports
-        //    //            .GroupBy(report => new { report.CurrencyCode })
-        //    //            .Select(report => new Summary()
-        //    //            {
-        //    //                CurrencyCode = report.Key.CurrencyCode,
-        //    //                SubTotal = report.Sum(sum => sum.DPP + sum.DPPCurrency + sum.VAT)
-        //    //            }).OrderBy(order => order.CurrencyCode).ToList();
-        //    //        reportResult.Reports = reportResult.Reports.OrderByDescending(order => order.ReceiptDate).ToList();
-        //    //        reportResult.GrandTotal = reportResult.Reports.Sum(sum => sum.Total);
-        //    //        reportResult.CategorySummaryTotal = reportResult.CategorySummaries.Sum(categorySummary => categorySummary.SubTotal);
-
-        //    //        return reportResult;
-        //    //    }
-        //    //}
-        //    #endregion
-
-        //    return reportResult;
-        //}
         #endregion
         public async Task<LocalPurchasingBookReportViewModel> GetReportDataV2(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas, int divisionId)
         {
@@ -829,7 +54,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
             var reportResult = new LocalPurchasingBookReportViewModel();
 
-            reportResult.Reports = reportReceipt.OrderBy(data=>data.URNId).OrderBy(data=> data.UPONo ).ThenBy(data=> data.DataSourceSort).ToList();
+            reportResult.Reports = reportReceipt.OrderBy(data => data.URNId).OrderBy(data => data.UPONo).ThenBy(data => data.DataSourceSort).ToList();
 
             reportResult.CategorySummaries = reportResult.Reports
                         .GroupBy(report => new { report.AccountingCategoryName })
@@ -1083,11 +308,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         join epoDetail in dbContext.ExternalPurchaseOrderDetails on urnWithItem.EPODetailId equals epoDetail.Id into joinExternalPurchaseOrder
                         from urnEPODetail in joinExternalPurchaseOrder.DefaultIfEmpty()
 
-                        //join upoItem in dbContext.UnitPaymentOrderDetails on upcCorrection.UPOId equals upoItem.Id  into joinUnitPaymentOrder
-                        //from urnUPOItem in joinUnitPaymentOrder.DefaultIfEmpty()
+                            //join upoItem in dbContext.UnitPaymentOrderDetails on upcCorrection.UPOId equals upoItem.Id  into joinUnitPaymentOrder
+                            //from urnUPOItem in joinUnitPaymentOrder.DefaultIfEmpty()
 
-                        //join upoDetail in dbContext.UnitPaymentOrderDetails on urnUPOItem.Id equals upoDetail.URNItemId into joinUnitPaymentOrderDetails
-                        //from urnUPODetail in joinUnitPaymentOrderDetails.DefaultIfEmpty()
+                            //join upoDetail in dbContext.UnitPaymentOrderDetails on urnUPOItem.Id equals upoDetail.URNItemId into joinUnitPaymentOrderDetails
+                            //from urnUPODetail in joinUnitPaymentOrderDetails.DefaultIfEmpty()
 
                         where upcCorrection.CorrectionDate.ToUniversalTime().Date >= d1.Date && upcCorrection.CorrectionDate.ToUniversalTime().Date <= d2.Date && !urnWithItem.UnitReceiptNote.SupplierIsImport
                         select new
@@ -1141,7 +366,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             CorrectionPriceTotalAfter = upcCorrectionNoteItem.PriceTotalAfter,
                             CorrectionQuantity = upcCorrectionNoteItem.Quantity,
                             CorrectionReceiptQuantity = joinUpcUpoDetail.ReceiptQuantity,
-                            CorrectionQuantityCorrection = joinUpcUpoDetail.QuantityCorrection
+                            CorrectionQuantityCorrection = joinUpcUpoDetail.QuantityCorrection,
+                            UnitReceiptNoteNo = upcCorrectionNoteItem.URNNo,
+                            UPODetailId = upcCorrectionNoteItem.UPODetailId
                         };
 
             if (isValas)
@@ -1167,9 +394,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             if (categoryFilterIds.Count() > 0)
                 query = query.Where(urn => categoryFilterIds.Contains(urn.CategoryId));
 
-            var queryResult = query.ToList().OrderByDescending(item => item.CorrectionDate).ToList() ;
+            var queryResult = query.ToList().OrderByDescending(item => item.CorrectionDate).ToList();
             var currencyTuples = queryResult.Select(item => new Tuple<string, DateTimeOffset>(item.CurrencyCode, item.CorrectionDate));
             var currencies = await _currencyProvider.GetCurrencyByCurrencyCodeDateList(currencyTuples);
+
+            var urnNos = queryResult.Select(element => element.UnitReceiptNoteNo).ToList();
+            var correctionItems = dbContext.UnitPaymentCorrectionNoteItems.Where(entity => urnNos.Contains(entity.URNNo)).ToList();
+            var correctionIds = correctionItems.Select(element => element.UPCId).ToList();
+            var corrections = dbContext.UnitPaymentCorrectionNotes.Where(entity => correctionIds.Contains(entity.Id)).ToList();
 
             var unitIds = queryResult.Select(item =>
             {
@@ -1196,7 +428,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 //var epoDetail = epoItem.Details.FirstOrDefault(f => f.Id.Equals(urnItem.EPODetailId));
                 //var selectedCurrencies = currencies.Where(element => element.Code == item.CurrencyCode).ToList();
                 //var currency = selectedCurrencies.OrderBy(entity => (entity.Date - item.ReceiptDate).Duration()).FirstOrDefault();
-                var currency = currencies.Where(entity=> entity.Code == item.CurrencyCode && entity.Date <= item.ReceiptDate).ToList().Select(o => new { Diffs = Math.Abs((o.Date.Date - item.ReceiptDate.DateTime.Date).Days), o.Date, o.Code, o.Rate }).OrderBy(o => o.Diffs).FirstOrDefault();
+                var currency = currencies.Where(entity => entity.Code == item.CurrencyCode && entity.Date <= item.ReceiptDate).ToList().Select(o => new { Diffs = Math.Abs((o.Date.Date - item.ReceiptDate.DateTime.Date).Days), o.Date, o.Code, o.Rate }).OrderBy(o => o.Diffs).FirstOrDefault();
 
 
                 int.TryParse(item.UnitId, out var unitId);
@@ -1235,20 +467,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 {
                     currencyRate = currency.Rate.GetValueOrDefault();
                     //dpp = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity);
-                    dpp = (decimal)CalculateCorrectionDpp(item.CorrectionType,item.CorrectionPricePerDealUnitBefore,item.CorrectionPricePerDealUnitAfter,item.CorrectionPriceTotalBefore,item.CorrectionPriceTotalAfter,item.CorrectionQuantity, item.CorrectionReceiptQuantity,item.CorrectionQuantityCorrection);
+                    dpp = (decimal)CalculateCorrectionDpp(item.CorrectionType, item.CorrectionPricePerDealUnitBefore, item.CorrectionPricePerDealUnitAfter, item.CorrectionPriceTotalBefore, item.CorrectionPriceTotalAfter, item.CorrectionQuantity, item.CorrectionReceiptQuantity, item.CorrectionQuantityCorrection, item.UPODetailId, corrections, correctionItems, item.CorrectionDate);
 
                     dppCurrency = dpp * (decimal)currencyRate;
                     currencyCode = currency.Code;
                 }
                 else
                     //dpp = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity);
-                    dpp = (decimal)CalculateCorrectionDpp(item.CorrectionType, item.CorrectionPricePerDealUnitBefore, item.CorrectionPricePerDealUnitAfter, item.CorrectionPriceTotalBefore, item.CorrectionPriceTotalAfter, item.CorrectionQuantity, item.CorrectionReceiptQuantity, item.CorrectionQuantityCorrection);
+                    dpp = (decimal)CalculateCorrectionDpp(item.CorrectionType, item.CorrectionPricePerDealUnitBefore, item.CorrectionPricePerDealUnitAfter, item.CorrectionPriceTotalBefore, item.CorrectionPriceTotalAfter, item.CorrectionQuantity, item.CorrectionReceiptQuantity, item.CorrectionQuantityCorrection, item.UPODetailId, corrections, correctionItems, item.CorrectionDate);
 
 
                 if (item.UseVat)
                     ppn = (decimal)(dpp * (decimal)0.1);
 
-                if (item.UseIncomeTax)
+                if (item.UseIncomeTax && item.IncomeTaxBy == "Supplier")
                     incomeTax = (decimal)(dpp * (incomeTaxRate / 100));
 
                 if (item.IncomeTaxBy == "Supplier")
@@ -1309,27 +541,48 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             }
             return reportResult;
         }
-        //public Task<LocalPurchasingBookReportViewModel> GetReport(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas, int divisionId)
-        //{
-        //    return GetReportData(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, isValas, divisionId);
-        //}
 
         public Task<LocalPurchasingBookReportViewModel> GetReportV2(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas, int divisionId)
         {
             return GetReportDataV2(no, accountingUnitId, accountingCategoryId, dateFrom, dateTo, isValas, divisionId);
         }
 
-        private double CalculateCorrectionDpp(string correctionType, double pricePerDealBefore, double priceperDealAfter, double priceTotalBefore, double priceTotalAfter,double quantity, double receiptQuantity, double quantityCorrection)
+        private double CalculateCorrectionDpp(string correctionType, double pricePerDealBefore, double priceperDealAfter, double priceTotalBefore, double priceTotalAfter, double quantity, double receiptQuantity, double quantityCorrection, long uPODetailId, List<Models.UnitPaymentCorrectionNoteModel.UnitPaymentCorrectionNote> corrections, List<Models.UnitPaymentCorrectionNoteModel.UnitPaymentCorrectionNoteItem> correctionItems, DateTimeOffset correctionDate)
         {
+            var previousCorrection = new PreviousCorrection();
+
+            var upcIds = correctionItems.Where(element => element.UPODetailId == uPODetailId).Select(element => element.UPCId).ToList();
+            var previousCorrectionNotes = corrections.Where(element => upcIds.Contains(element.Id) && element.CorrectionDate < correctionDate).OrderBy(element => element.UPCNo).ToList();
+
+            foreach (var previousCorrectionNote in previousCorrectionNotes)
+            {
+                var previousCorrectionNoteItem = correctionItems.FirstOrDefault(element => element.UPCId == previousCorrectionNote.Id && element.UPODetailId == uPODetailId);
+
+                if (previousCorrectionNote.CorrectionType == "Harga Satuan")
+                {
+                    previousCorrection.PricePerDealCorrection = previousCorrectionNoteItem.PricePerDealUnitAfter;
+                }
+                else if (previousCorrectionNote.CorrectionType == "Harga Total")
+                {
+                    previousCorrection.TotalCorrection = previousCorrectionNoteItem.PriceTotalAfter;
+                }
+            }
+
             switch (correctionType)
             {
                 case "Harga Satuan":
-                    return ((priceperDealAfter-pricePerDealBefore)* receiptQuantity) ;
+                    if (previousCorrection.PricePerDealCorrection == 0)
+                        return ((priceperDealAfter - pricePerDealBefore) * quantity);
+                    else
+                        return ((priceperDealAfter - previousCorrection.PricePerDealCorrection) * quantity);
                 case "Harga Total":
-                    return (priceTotalAfter - priceTotalBefore) ;
+                    if (previousCorrection.TotalCorrection == 0)
+                        return priceTotalAfter - priceTotalBefore;
+                    else
+                        return priceTotalAfter - previousCorrection.TotalCorrection;
                 case "Jumlah":
                     //return (priceperDealAfter * (Math.Abs(quantityCorrection-quantity)))*-1 ;
-                    return priceTotalAfter  * -1;
+                    return priceTotalAfter * -1;
                 default:
                     return 0;
             }
@@ -1344,7 +597,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 case "Harga Total":
                     return receiptQuantity;
                 case "Jumlah":
-                    return quantity *-1;
+                    return quantity * -1;
                 default:
                     return 0;
                     break;
@@ -1498,11 +751,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             {
                 foreach (var report in result.Reports)
                 {
-                    var dateReceipt = report.ReceiptDate.HasValue ? report.ReceiptDate.GetValueOrDefault().ToString("dd/MM/yyyy"):string.Empty;
-                    var dateCorrection = report.CorrectionDate.HasValue ? report.ReceiptDate.GetValueOrDefault().ToString("dd/MM/yyyy"):string.Empty;
+                    var dateReceipt = report.ReceiptDate.HasValue ? report.ReceiptDate.GetValueOrDefault().ToString("dd/MM/yyyy") : string.Empty;
+                    var dateCorrection = report.CorrectionDate.HasValue ? report.ReceiptDate.GetValueOrDefault().ToString("dd/MM/yyyy") : string.Empty;
                     if (isValas)
                     {
-                        reportDataTable.Rows.Add(dateReceipt, report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CorrectionNo, dateCorrection, report.AccountingCategoryName, report.CategoryName, report.AccountingUnitName, report.UnitName, report.Quantity, report.Uom, report.CurrencyCode, report.CurrencyRate, report.DPP, report.DPPCurrency, report.VAT * report.CurrencyRate, report.IncomeTax * report.CurrencyRate, report.TotalCurrency);
+                        reportDataTable.Rows.Add(dateReceipt, report.SupplierName, report.ProductName, report.IPONo, report.DONo, report.URNNo, report.InvoiceNo, report.VATNo, report.UPONo, report.CorrectionNo, dateCorrection, report.AccountingCategoryName, report.CategoryName, report.AccountingUnitName, report.UnitName, report.Quantity, report.Uom, report.CurrencyCode, report.CurrencyRate, report.DPP, report.DPP * report.CurrencyRate, report.VAT * report.CurrencyRate, report.IncomeTax * report.CurrencyRate, (report.DPP + report.VAT - report.IncomeTax) * report.CurrencyRate);
                     }
                     else
                     {
@@ -1547,9 +800,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 3].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                         worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 3].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
                         worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 3].Style.Font.Bold = true;
-                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 3].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin) ;
+                        worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 3].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
                     }
-                    else if(column.ColumnName == "DPP" && !isValas)
+                    else if (column.ColumnName == "DPP" && !isValas)
                     {
                         var rowStartHeaderSpan = rowStartHeader + 1;
                         worksheet.Cells[rowStartHeaderSpan, colStartHeader].Value = column.ColumnName;
@@ -1561,7 +814,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                         worksheet.Cells[rowStartHeader, colStartHeader, rowStartHeader, colStartHeader + 2].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
 
                     }
-                    else if (column.ColumnName == "DPP (IDR)" || column.ColumnName == "PPN (IDR)" || column.ColumnName == "PPH (IDR)" || column.ColumnName == "PPN"|| column.ColumnName == "PPH")
+                    else if (column.ColumnName == "DPP (IDR)" || column.ColumnName == "PPN (IDR)" || column.ColumnName == "PPH (IDR)" || column.ColumnName == "PPN" || column.ColumnName == "PPH")
                     {
                         var rowStartHeaderSpan = rowStartHeader + 1;
                         worksheet.Cells[rowStartHeaderSpan, colStartHeader].Value = column.ColumnName;
@@ -1588,9 +841,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 #endregion
                 //worksheet.Cells["A6"].LoadFromDataTable(reportDataTable, false,OfficeOpenXml.Table.TableStyles.Light18);
                 worksheet.Cells["A6"].LoadFromDataTable(reportDataTable, false);
-                for(int i=6; i< result.Reports.Count+6; i++)
+                for (int i = 6; i < result.Reports.Count + 6; i++)
                 {
-                    for (int j=1 ; j <= reportDataTable.Columns.Count; j++){
+                    for (int j = 1; j <= reportDataTable.Columns.Count; j++)
+                    {
                         worksheet.Cells[i, j].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
                     }
                 }
@@ -1615,5 +869,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
         //Task<MemoryStream> GenerateExcel(string no, string unit, string category, DateTime? dateFrom, DateTime? dateTo, bool isValas);
         Task<MemoryStream> GenerateExcel(string no, int accountingUnitId, int accountingCategoryId, DateTime? dateFrom, DateTime? dateTo, bool isValas, int divisionId);
+    }
+
+    public class PreviousCorrection
+    {
+        public int UPODetailId { get; set; }
+        public double TotalCorrection { get; set; }
+        public double PricePerDealCorrection { get; set; }
     }
 }
