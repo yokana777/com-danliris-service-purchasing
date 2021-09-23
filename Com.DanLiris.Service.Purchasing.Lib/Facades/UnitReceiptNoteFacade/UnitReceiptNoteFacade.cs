@@ -402,7 +402,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             var purchaseRequests = dbContext.PurchaseRequests.Where(w => purchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.CategoryCode, s.CategoryId }).ToList();
 
             var externalPurchaseOrderIds = model.Items.Select(s => s.EPOId).ToList();
-            var externalPurchaseOrders = dbContext.ExternalPurchaseOrders.Where(w => externalPurchaseOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.IncomeTaxId, s.UseIncomeTax, s.IncomeTaxName, s.IncomeTaxRate, s.CurrencyCode, s.CurrencyRate }).ToList();
+            var externalPurchaseOrders = dbContext.ExternalPurchaseOrders.Where(w => externalPurchaseOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.IncomeTaxId, s.UseIncomeTax, s.IncomeTaxName, s.IncomeTaxRate, s.CurrencyCode, s.CurrencyRate, s.IncomeTaxBy }).ToList();
 
 
 
@@ -517,7 +517,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
                 double.TryParse(externalPurchaseOrder.IncomeTaxRate, out var incomeTaxRate);
                 var grandTotal = Convert.ToDecimal(item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate);
-                if (externalPurchaseOrder.UseIncomeTax)
+                if (externalPurchaseOrder.UseIncomeTax && externalPurchaseOrder.IncomeTaxBy.ToUpper() == "SUPPLIER")
                 {
                     int.TryParse(externalPurchaseOrder.IncomeTaxId, out var incomeTaxId);
                     var incomeTax = incomeTaxes.FirstOrDefault(f => f.Id.Equals(incomeTaxId));
