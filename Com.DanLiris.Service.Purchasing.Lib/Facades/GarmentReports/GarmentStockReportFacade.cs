@@ -99,6 +99,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
                                 });
 
+           
+
             var SATerima = (from a in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa)
                             join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
                             join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
@@ -203,6 +205,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 ReceiptUom = key.ReceiptUom,
                                 RO = key.RO
                             });
+
+
+
+            
 
             var SAKoreksi = (from a in dbContext.GarmentUnitReceiptNotes
                              join b in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa) on a.Id equals b.URNId

@@ -931,7 +931,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                 }).ToList(),
                 CreatedAgent = m.CreatedAgent,
                 CreatedBy = m.CreatedBy,
-                LastModifiedUtc = m.LastModifiedUtc
+                LastModifiedUtc = m.LastModifiedUtc,
+                CreatedUtc = m.CreatedUtc
             });
 
             Pageable<GarmentUnitExpenditureNote> pageable = new Pageable<GarmentUnitExpenditureNote>(Query, Page - 1, Size);
@@ -951,6 +952,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                 s.CreatedBy,
                 s.LastModifiedUtc,
                 s.UnitDOId,
+                s.CreatedUtc,
                 s.Items
             }));
 
@@ -1834,6 +1836,38 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             var uenItem = dbContext.GarmentUnitExpenditureNoteItems.Where(a => a.POSerialNumber == po).OrderByDescending(a => a.CreatedUtc).FirstOrDefault();
 
             return uenItem;
+        }
+
+        public async Task<int> UenDateRevise(List<GarmentUnitExpenditureNote> listURN, string user, DateTime reviseDate)
+        {
+            int Updated = 0;
+            using (var transaction = this.dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    var Ids = listURN.Select(d => d.Id).ToList();
+                    var Id = listURN.Select(x => x.Id).Single();
+                    var listData = this.dbSet
+                        .Where(m => Ids.Contains(m.Id) && !m.IsDeleted)
+                        .Include(d => d.Items)
+                        .ToList();
+                    listData.ForEach(m =>
+                    {
+                        EntityExtension.FlagForUpdate(m, user, "Facade");
+                        m.CreatedUtc = reviseDate;
+                    });
+
+                    Updated = await dbContext.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Updated;
         }
     }
 }
