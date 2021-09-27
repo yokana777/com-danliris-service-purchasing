@@ -242,6 +242,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                     EntityExtension.FlagForCreate(m, user, "Facade");
                     m.DispositionNo = await GenerateNo(m, clientTimeZoneOffset);
                     m.Position = 1;
+                    if (m.IncomeTaxBy == "Supplier")
+                    {
+                        m.Amount = m.DPP + m.VatValue + m.PaymentCorrection;
+                    }
+                    else
+                    {
+                        m.Amount = m.DPP + m.VatValue - m.IncomeTaxValue + m.PaymentCorrection;
+                    }
+                    
                     foreach (var item in m.Items)
                     {
                         EntityExtension.FlagForCreate(item, user, "Facade");
@@ -353,6 +362,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
 
                     if (existingModel != null && id == purchasingDisposition.Id)
                     {
+                        if (purchasingDisposition.IncomeTaxBy == "Supplier")
+                        {
+                            purchasingDisposition.Amount = purchasingDisposition.DPP + purchasingDisposition.VatValue + purchasingDisposition.PaymentCorrection;
+                        }
+                        else
+                        {
+                            purchasingDisposition.Amount = purchasingDisposition.DPP + purchasingDisposition.VatValue - purchasingDisposition.IncomeTaxValue + purchasingDisposition.PaymentCorrection;
+                        }
+                        
                         EntityExtension.FlagForUpdate(purchasingDisposition, user, "Facade");
 
                         foreach (var item in purchasingDisposition.Items.ToList())
@@ -684,7 +702,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                     var expenditure = dbContext.BankExpenditureNotes.FirstOrDefault(entity => expenditureIds.Contains(entity.Id));
                     var urnIds = dbContext.UnitPaymentOrderItems.Where(entity => entity.UPOId == unitPaymentOrder.Id).Select(entity => entity.URNId).ToList();
                     var upoUnitReceiptNotes = unitReceiptNotes.Where(entity => urnIds.Contains(entity.Id)).Select(element => new UnitReceiptNoteDto((int)element.Id, element.URNNo, element.ReceiptDate)).ToList();
-                    unitReceiptNoteItems = dbContext.UnitReceiptNoteItems.Where(entity => unitReceiptNoteIds.Contains(entity.URNId)).ToList();
 
                     var purchaseAmountCurrency = expenditure.GrandTotal;
 
