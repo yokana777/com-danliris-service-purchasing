@@ -112,13 +112,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             //    amount = dpp + ppn + pphRate;
             //}
 
+            //calculate vat and incomeTax
+            double vat = 0;
+            double incomeTax = 0;
+            foreach (var item in viewModel.Items)
+            {
+                if (item.IsPayVat)
+                {
+                    vat += item.VatValue;
+                }
+
+                if (item.IsPayIncomeTax)
+                {
+                    incomeTax += item.IncomeTaxValue;
+                }
+            }
+
             var payingDisposition = Math.Round((paidToSupp + viewModel.MiscAmount + pphRate), 2, MidpointRounding.AwayFromZero);
             cellLeftNoBorder.SetLeading(13f, 0f);
             cellLeftNoBorder.Phrase = new Phrase("Mohon Disposisi Pembayaran", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase(viewModel.PaymentType + "  " + viewModel.CurrencyCode + " " + $"{viewModel.Amount.ToString("N", new CultureInfo("id-ID"))}", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase(viewModel.PaymentType + "  " + viewModel.CurrencyCode + " " + $"{((viewModel.DPP + vat - incomeTax) + viewModel.MiscAmount).ToString("N", new CultureInfo("id-ID"))}", normal_font);/*$"{viewModel.Amount.ToString("N", new CultureInfo("id-ID"))}", normal_font);*/
             cellLeftNoBorder.Colspan = 2;
             tableIdentity.AddCell(cellLeftNoBorder);
             //cellLeftNoBorder.Phrase = new Phrase( viewModel.Currency.code + " " +  $"{(paidToSupp + viewModel.PaymentCorrection + pphRate).ToString("N", new CultureInfo("id-ID")) }", normal_font);
@@ -150,20 +166,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableIdentity.AddCell(cellLeftNoBorder);
 
             //calculate vat and incomeTax 
-            double vat = 0;
-            double incomeTax = 0;
-            foreach(var item in viewModel.Items)
-            {
-                if (item.IsPayVat)
-                {
-                    vat += item.VatValue;
-                }
+            //double vat = 0;
+            //double incomeTax = 0;
+            //foreach(var item in viewModel.Items)
+            //{
+            //    if (item.IsPayVat)
+            //    {
+            //        vat += item.VatValue;
+            //    }
 
-                if (item.IsPayIncomeTax)
-                {
-                    incomeTax += item.IncomeTaxValue;
-                }
-            }
+            //    if (item.IsPayIncomeTax)
+            //    {
+            //        incomeTax += item.IncomeTaxValue;
+            //    }
+            //}
 
             cellLeftNoBorder.Colspan = 0;
             cellLeftNoBorder.Phrase = new Phrase("Biaya", normal_font);
