@@ -1055,5 +1055,92 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
 
+        [Fact]
+        public void Should_Error_GetByEPONOCurrencyCode()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentExternalPurchaseOrderItemViewModel>())).Verifiable();
+
+            var mockFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
+
+            mockFacade.Setup(x => x.ReadItemByRO(It.IsAny<string>(), It.IsAny<string>()))
+                 .Returns(new List<GarmentExternalPurchaseOrderItem>());
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<GarmentExternalPurchaseOrderItemViewModel>>(It.IsAny<List<GarmentExternalPurchaseOrderItem>>()))
+                .Returns(new List<GarmentExternalPurchaseOrderItemViewModel> { ViewModel.Items.First() });
+
+            var IPOmockFacade = new Mock<IGarmentInternalPurchaseOrderFacade>();
+
+            GarmentExternalPurchaseOrderController controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
+            var response = controller.ByEPONOCurrencyCode();
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_GetByEPONO()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentExternalPurchaseOrderItemViewModel>())).Verifiable();
+
+            var mockFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
+
+            mockFacade.Setup(x => x.ReadItemByRO(It.IsAny<string>(), It.IsAny<string>()))
+                 .Returns(new List<GarmentExternalPurchaseOrderItem>());
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<GarmentExternalPurchaseOrderItemViewModel>>(It.IsAny<List<GarmentExternalPurchaseOrderItem>>()))
+                .Returns(new List<GarmentExternalPurchaseOrderItemViewModel> { ViewModel.Items.First() });
+
+            var IPOmockFacade = new Mock<IGarmentInternalPurchaseOrderFacade>();
+
+            GarmentExternalPurchaseOrderController controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
+            var response = controller.ByEPONO();
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void GetUnitDOByRO_Success()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentExternalPurchaseOrderItemViewModel>())).Verifiable();
+
+            var mockFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
+
+            mockFacade.Setup(x => x.ReadItemByRO(It.IsAny<string>(), It.IsAny<string>()))
+                 .Returns(new List<GarmentExternalPurchaseOrderItem>());
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<GarmentExternalPurchaseOrderItemViewModel>>(It.IsAny<List<GarmentExternalPurchaseOrderItem>>()))
+                .Returns(new List<GarmentExternalPurchaseOrderItemViewModel> { ViewModel.Items.First() });
+
+            var IPOmockFacade = new Mock<IGarmentInternalPurchaseOrderFacade>();
+
+            GarmentExternalPurchaseOrderController controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
+            var response = controller.UnitDOByRO();
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void GetByPOSerialNumberLoader_Success()
+        {
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentExternalPurchaseOrderItemViewModel>())).Verifiable();
+
+            var mockFacade = new Mock<IGarmentExternalPurchaseOrderFacade>();
+
+            mockFacade.Setup(x => x.ReadItemByRO(It.IsAny<string>(), It.IsAny<string>()))
+                 .Returns(new List<GarmentExternalPurchaseOrderItem>());
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<GarmentExternalPurchaseOrderItemViewModel>>(It.IsAny<List<GarmentExternalPurchaseOrderItem>>()))
+                .Returns(new List<GarmentExternalPurchaseOrderItemViewModel> { ViewModel.Items.First() });
+
+            var IPOmockFacade = new Mock<IGarmentInternalPurchaseOrderFacade>();
+
+            GarmentExternalPurchaseOrderController controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
+            var response = controller.ByPOSerialNumberLoader();
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
     }
 }
