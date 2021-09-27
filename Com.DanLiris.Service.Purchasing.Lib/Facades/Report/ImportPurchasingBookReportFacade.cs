@@ -1056,8 +1056,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             //join upoItem in dbContext.UnitPaymentOrderItems on urnWithItem.URNId equals upoItem.URNId into joinUnitPaymentOrder
                             //from urnUPOItem in joinUnitPaymentOrder.DefaultIfEmpty()
 
-                        //join upoDetail in dbContext.UnitPaymentOrderDetails on urnEPODetail.Id equals upoDetail.EPODetailId into joinUnitPaymentOrderDetails
-                        //from urnUPODetail in joinUnitPaymentOrderDetails.DefaultIfEmpty()
+                            //join upoDetail in dbContext.UnitPaymentOrderDetails on urnEPODetail.Id equals upoDetail.EPODetailId into joinUnitPaymentOrderDetails
+                            //from urnUPODetail in joinUnitPaymentOrderDetails.DefaultIfEmpty()
 
                             //where urnWithItem.UnitReceiptNote.ReceiptDate >= d1 && urnWithItem.UnitReceiptNote.ReceiptDate <= d2 && urnWithItem.UnitReceiptNote.SupplierIsImport
                         where upcCorrection.CorrectionDate.Date >= d1.Date && upcCorrection.CorrectionDate.Date <= d2.Date && urnWithItem.UnitReceiptNote.SupplierIsImport
@@ -1095,6 +1095,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IncomeTaxRate,
                             EPOPricePerDealUnit = urnEPODetail.PricePerDealUnit,
                             urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.CurrencyCode,
+                            urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.CurrencyRate,
 
                             // UPO Info
                             InvoiceNo = joinUpcUpoDetail.UnitPaymentOrderItem.UnitPaymentOrder != null ? joinUpcUpoDetail.UnitPaymentOrderItem.UnitPaymentOrder.InvoiceNo : "",
@@ -1163,7 +1164,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
             //var currencyCodes = queryResult.Select(item => item.CurrencyCode).ToList();
             //var receiptDates = queryResult.Select(item => item.ReceiptDate).ToList();
-            var currencyTuples = queryResult.Select(item => new Tuple<string, DateTimeOffset>(item.CurrencyCode, item.CorrectionDate));
+            var currencyTuples = queryResult.Select(item => new Tuple<string, DateTimeOffset>(item.CurrencyCode, item.ReceiptDate));
             var currencies = await _currencyProvider.GetCurrencyByCurrencyCodeDateList(currencyTuples);
 
             var unitIds = queryResult.Select(item =>
@@ -1194,7 +1195,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 var currency = currencies.Where(entity => entity.Date <= item.ReceiptDate && entity.Code == item.CurrencyCode).OrderByDescending(entity => entity.Date).FirstOrDefault();
 
                 if (currency == null)
-                    currency = currencies.FirstOrDefault(element => element.Code == item.CurrencyCode);
+                    currency = new Currency()
+                    {
+                        Code = item.CurrencyCode,
+                        Rate = item.CurrencyRate
+                    };
 
                 int.TryParse(item.UnitId, out var unitId);
                 var unit = units.FirstOrDefault(element => element.Id == unitId);
