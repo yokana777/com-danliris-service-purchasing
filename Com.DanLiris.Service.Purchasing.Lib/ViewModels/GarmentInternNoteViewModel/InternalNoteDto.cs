@@ -21,34 +21,49 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
             TotalAmount = internalNoteInvoices.Sum(element =>
             {
                 var total = element.Invoice.TotalAmount;
+                var correction = element.Invoice.CorrectionAmount;
 
                 if (element.Invoice.UseVAT && element.Invoice.IsPayVAT)
+                {
                     total += element.Invoice.TotalAmount * 0.1;
-
+                    correction += element.Invoice.CorrectionAmount * 0.1;
+                }
+                
                 if (element.Invoice.UseIncomeTax && element.Invoice.IsPayTax)
+                {
                     total -= element.Invoice.TotalAmount * (element.Invoice.IncomeTaxRate / 100);
+                    correction -= element.Invoice.CorrectionAmount * (element.Invoice.IncomeTaxRate / 100);
+                }
 
-                return total + element.Invoice.CorrectionAmount;
+                return total + correction;
             });
 
             VATAmount = internalNoteInvoices.Sum(element =>
             {
                 var total = 0.0;
+                var correction = 0.0;
 
                 if (element.Invoice.UseVAT && element.Invoice.IsPayVAT)
+                {
                     total += element.Invoice.TotalAmount * 0.1;
+                    correction += element.Invoice.CorrectionAmount * 0.1;
+                }
 
-                return total;
+                return total + correction;
             });
 
             IncomeTaxAmount = internalNoteInvoices.Sum(element =>
             {
                 var total = 0.0;
+                var correction = 0.0;
 
                 if (element.Invoice.UseIncomeTax && element.Invoice.IsPayTax)
+                {
                     total += element.Invoice.TotalAmount * (element.Invoice.IncomeTaxRate / 100);
+                    correction += element.Invoice.CorrectionAmount * (element.Invoice.IncomeTaxRate / 100);
+                }
 
-                return total;
+                return total + correction;
             });
 
             Currency = new CurrencyDto(currencyId, currencyCode, currencyRate);
