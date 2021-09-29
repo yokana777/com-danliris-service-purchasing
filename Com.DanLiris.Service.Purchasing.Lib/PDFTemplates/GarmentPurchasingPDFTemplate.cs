@@ -112,6 +112,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             //    amount = dpp + ppn + pphRate;
             //}
 
+
+            //calculate vat and incomeTax
             double vat = 0;
             double incomeTax = 0;
             foreach (var item in viewModel.Items)
@@ -167,7 +169,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             //calculate vat and incomeTax 
             //double vat = 0;
             //double incomeTax = 0;
-            //foreach (var item in viewModel.Items)
+            //foreach(var item in viewModel.Items)
             //{
             //    if (item.IsPayVat)
             //    {
