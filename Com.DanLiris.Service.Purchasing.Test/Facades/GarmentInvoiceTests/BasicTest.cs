@@ -306,9 +306,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
         [Fact]
 		public void Should_Success_Validate_Data()
 		{
-			GarmentInvoiceViewModel nullViewModel = new GarmentInvoiceViewModel();
+            Mock<IServiceProvider> serviceProvider = new Mock<IServiceProvider>();
+            serviceProvider.Setup(x => x.GetService(typeof(PurchasingDbContext)))
+                .Returns(_dbContext(GetCurrentMethod()));
+
+            GarmentInvoiceViewModel nullViewModel = new GarmentInvoiceViewModel();
 			Assert.True(nullViewModel.Validate(null).Count() > 0);
             var tomorrow = DateTime.Now.Date.AddDays(+1);
+
+            
             GarmentInvoiceViewModel viewModel = new GarmentInvoiceViewModel
 			{
 				invoiceNo = "",
@@ -343,9 +349,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 						}
 					}
 			};
-			Assert.True(viewModel.Validate(null).Count() > 0);
 
-			GarmentInvoiceViewModel viewModels = new GarmentInvoiceViewModel
+            System.ComponentModel.DataAnnotations.ValidationContext garmentInvoiceValidate1 = new System.ComponentModel.DataAnnotations.ValidationContext(viewModel, serviceProvider.Object, null);
+            Assert.True(viewModel.Validate(garmentInvoiceValidate1).Count() > 0);
+            
+
+            GarmentInvoiceViewModel viewModels = new GarmentInvoiceViewModel
 			{
 				invoiceNo = "",
 				invoiceDate = DateTimeOffset.MinValue,
@@ -372,7 +381,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
 						}
 					}
 			};
-			Assert.True(viewModels.Validate(null).Count() > 0);
+
+            System.ComponentModel.DataAnnotations.ValidationContext garmentInvoiceValidate11 = new System.ComponentModel.DataAnnotations.ValidationContext(viewModels, serviceProvider.Object, null);
+
+            Assert.True(viewModels.Validate(garmentInvoiceValidate11).Count() > 0);
 
             GarmentInvoiceViewModel viewModels1 = new GarmentInvoiceViewModel
             {
@@ -402,7 +414,56 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInvoiceTests
                         }
                     }
             };
-            Assert.True(viewModels1.Validate(null).Count() > 0);
+
+            System.ComponentModel.DataAnnotations.ValidationContext garmentInvoiceValidate12 = new System.ComponentModel.DataAnnotations.ValidationContext(viewModels1, serviceProvider.Object, null);
+            Assert.True(viewModels1.Validate(garmentInvoiceValidate12).Count() > 0);
+
+            GarmentInvoiceViewModel viewModels12 = new GarmentInvoiceViewModel
+            {
+                invoiceNo = "",
+                invoiceDate = DateTimeOffset.MinValue,
+                supplier = { },
+                incomeTaxId = It.IsAny<int>(),
+                incomeTaxName = "",
+                incomeTaxNo = "",
+                incomeTaxDate = DateTimeOffset.MinValue,
+                incomeTaxRate = 2,
+                vatNo = "",
+                vatDate = DateTimeOffset.MinValue,
+                useIncomeTax = true,
+                useVat = true,
+                isPayTax = true,
+                poSerialNumber = "any",
+                hasInternNote = false,
+                currency = new CurrencyViewModel { Id = It.IsAny<int>(), Code = "USD", Symbol = "$", Rate = 13000, Description = "" },
+                items = new List<GarmentInvoiceItemViewModel>
+                    {
+                        new GarmentInvoiceItemViewModel
+                        {
+                            deliveryOrder = new GarmentDeliveryOrderViewModel {
+                                doNo = "test1",
+                                arrivalDate = tomorrow,
+                                doDate = tomorrow
+                            },
+
+                            details= null
+                        },
+
+                        new GarmentInvoiceItemViewModel
+                        {
+                            deliveryOrder = new GarmentDeliveryOrderViewModel {
+                                doNo = "test1",
+                                arrivalDate = tomorrow,
+                                doDate = tomorrow
+                            },
+
+                            details= null
+                        }
+                    }
+            };
+
+            System.ComponentModel.DataAnnotations.ValidationContext garmentInvoiceValidate13 = new System.ComponentModel.DataAnnotations.ValidationContext(viewModels12, serviceProvider.Object, null);
+            Assert.True(viewModels12.Validate(garmentInvoiceValidate13).Count() > 0);
 
         }
 
