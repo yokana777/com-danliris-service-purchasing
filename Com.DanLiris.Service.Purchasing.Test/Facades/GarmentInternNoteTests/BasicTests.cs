@@ -265,6 +265,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
             {
                 items = null,
             };
+
+            //System.ComponentModel.DataAnnotations.ValidationContext garmentINValidate1 = new System.ComponentModel.DataAnnotations.ValidationContext(viewModelNullItems, serviceProvider.Object, null);
             Assert.True(viewModelNullItems.Validate(null).Count() > 0);
 
             Mock<IGarmentInvoice> garmentInvoiceFacadeMock = new Mock<IGarmentInvoice>();
@@ -303,6 +305,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
             serviceProvider.
                Setup(x => x.GetService(typeof(IGarmentDeliveryOrderFacade)))
                .Returns(garmentDeliveryOrderFacadeMock.Object);
+            serviceProvider.
+                Setup(x => x.GetService(typeof(PurchasingDbContext)))
+                .Returns(_dbContext(GetCurrentMethod()));
 
             //var sameUseVat = new GarmentInternNoteViewModel
             //{
@@ -360,6 +365,37 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternNoteTests
                 }
             };
             Assert.True(viewModelNullDetail.Validate(null).Count() > 0);
+
+            var date = DateTime.Now;
+
+            var viewModelNullDetail2 = new GarmentInternNoteViewModel
+            {
+                items = new List<GarmentInternNoteItemViewModel>
+                {
+                    new GarmentInternNoteItemViewModel
+                    {
+                        garmentInvoice = new GarmentInvoiceViewModel{
+                            Id = 1,
+                            invoiceNo = "invotest123",
+                            invoiceDate = date
+                        },
+                        details = null
+                    },
+
+                    new GarmentInternNoteItemViewModel
+                    {
+                        garmentInvoice = new GarmentInvoiceViewModel{
+                            Id = 2,
+                            invoiceNo = "invotest123",
+                            invoiceDate = date
+                        },
+                        details = null
+                    },
+
+                }
+            };
+            ValidationContext Usevats = new ValidationContext(viewModelNullDetail2, serviceProvider.Object, null);
+            Assert.True(viewModelNullDetail2.Validate(Usevats).Count() > 0);
         }
         //#region Monitoring
         //[Fact]

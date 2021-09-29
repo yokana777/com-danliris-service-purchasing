@@ -123,15 +123,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
 					if (item.deliveryOrder != null)
                     {
 						//Check Duplicate Delivery Order No for 1 Invoice
-						if(arrDoNo.FindAll(e => e == item.deliveryOrder.doNo).Count > 1)
-                        {
-							itemErrorCount++;
-							itemError += "deliveryOrder: 'there is duplication of deliveryOrderNo " + item.deliveryOrder.doNo + "', ";
-						}
+						//if(arrDoNo.FindAll(e => e == item.deliveryOrder.doNo).Count > 1)
+      //                  {
+						//	itemErrorCount++;
+						//	itemError += "deliveryOrder: 'there is duplication of deliveryOrderNo " + item.deliveryOrder.doNo + "', ";
+						//}
 
-						//Check if Delivery Order No for Specific Supplier is Existed
-						PurchasingDbContext purchasingDbContext = (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
-						var detailData = purchasingDbContext.GarmentInvoiceItems.Where(w => w.DeliveryOrderNo == item.deliveryOrder.doNo && w.IsDeleted == false).Select(s => new { s.Id, s.InvoiceId, s.DeliveryOrderNo});
+                        if (items.ToList().Where(x=>x.deliveryOrder.doNo == item.deliveryOrder.doNo && x.deliveryOrder.doDate == item.deliveryOrder.doDate && x.deliveryOrder.arrivalDate == item.deliveryOrder.arrivalDate).Count() > 1)
+                        {
+                            itemErrorCount++;
+                            itemError += "deliveryOrder: 'there is duplication of deliveryOrderNo " + item.deliveryOrder.doNo + "', ";
+                        }
+
+                        //Check if Delivery Order No for Specific Supplier is Existed
+                        PurchasingDbContext purchasingDbContext = (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
+						var detailData = purchasingDbContext.GarmentInvoiceItems.Where(w => w.DeliveryOrderNo == item.deliveryOrder.doNo && w.DODate == item.deliveryOrder.doDate && w.ArrivalDate == item.deliveryOrder.arrivalDate && w.IsDeleted == false).Select(s => new { s.Id, s.InvoiceId, s.DeliveryOrderNo});
 						if (detailData.ToList().Count > 0)
                         {
 							foreach (var itemDetail in detailData)
