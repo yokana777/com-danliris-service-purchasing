@@ -166,7 +166,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                 });
                 totalAmount += totalCorrection;
 
-                var correctionVat = selectedCorrections.Sum(element =>
+                var vatCorrection = selectedCorrections.Sum(element =>
                 {
                     var selectedCorrectionItems = correctionItems.Where(item => item.GCorrectionId == element.Id);
 
@@ -194,10 +194,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
 
                 if (vatTotal != 0)
                 {
-                    vatTotal += correctionVat;
+                    vatTotal += vatCorrection;
                 }
                 
-                var correctionIncomeTax = selectedCorrections.Sum(element =>
+                var incomeTaxCorrection = selectedCorrections.Sum(element =>
                 {
                     var selectedCorrectionItems = correctionItems.Where(item => item.GCorrectionId == element.Id);
 
@@ -225,7 +225,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
 
                 if (incomeTaxTotal != 0)
                 {
-                    incomeTaxTotal += correctionIncomeTax;
+                    incomeTaxTotal += incomeTaxCorrection;
                 }
                 
                 //var productInvoice = invoices.Where(element => selectedInvoiceIds.Contains(element.Id)).Select(element =>
