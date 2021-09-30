@@ -75,7 +75,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
                         //Enhance Jason Sept 2019 : Invoice No Validation
 
                         //Check Duplicate Invoice No for 1 Invoice
-                        if (arrNo.FindAll(e => e == item.garmentInvoice.invoiceNo).Count > 1)
+                        //if (arrNo.FindAll(e => e == item.garmentInvoice.invoiceNo).Count > 1)
+                        //{
+                        //    itemErrorCount++;
+                        //    itemError += "garmentInvoice: 'there is duplication of invoiceNo " + item.garmentInvoice.invoiceNo + "', ";
+                        //}
+
+                        if (items.ToList().Where(x=>x.garmentInvoice.invoiceNo == item.garmentInvoice.invoiceNo && x.garmentInvoice.invoiceDate == item.garmentInvoice.invoiceDate).Count() > 1)
                         {
                             itemErrorCount++;
                             itemError += "garmentInvoice: 'there is duplication of invoiceNo " + item.garmentInvoice.invoiceNo + "', ";
@@ -83,7 +89,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
 
                         //Check if Invoice No for Specific Supplier is Existed
                         PurchasingDbContext purchasingDbContext = (PurchasingDbContext)validationContext.GetService(typeof(PurchasingDbContext));
-                        var detailData = purchasingDbContext.GarmentInternNoteItems.Where(w => w.InvoiceId == item.garmentInvoice.Id && w.IsDeleted == false).Select(s => new { s.Id, s.GarmentINId, s.InvoiceId, s.InvoiceNo});
+                        var detailData = purchasingDbContext.GarmentInternNoteItems.Where(w => w.InvoiceId == item.garmentInvoice.Id && w.InvoiceDate == item.garmentInvoice.invoiceDate && w.IsDeleted == false).Select(s => new { s.Id, s.GarmentINId, s.InvoiceId, s.InvoiceNo});
                         if (detailData.ToList().Count > 0)
                         {
                             foreach (var itemDetail in detailData)
