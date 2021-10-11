@@ -193,7 +193,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
         public GarmentDOItems ReadDOItemsByURNItemId(int id)
         {
-            var model = dbSetGarmentDOItems.Where(m => m.URNItemId == id)
+            var model = dbSetGarmentDOItems.IgnoreQueryFilters().Where(i => i.URNItemId == id && ((i.IsDeleted == true && i.DeletedAgent == "LUCIA") || (i.IsDeleted == false)))
                             .FirstOrDefault();
 
             return model;
