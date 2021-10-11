@@ -1395,6 +1395,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     y.UomId,
                     y.ReceiptCorrection,
                     y.CorrectionConversion,
+                    y.DOCurrencyRate
                 }).ToList();
 
             List<object> ListData = new List<object>();
@@ -1436,13 +1437,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     urnItem.SmallUomUnit,
                     urnItem.POSerialNumber,
                     urnItem.PricePerDealUnit,
-                    DOCurrencyRate = doCurrencyRate == 0 ? urn.DOCurrencyRate : doCurrencyRate,
+                   // DOCurrencyRate = doCurrencyRate == 0 ? urn.DOCurrencyRate : doCurrencyRate,
                     urnItem.Conversion,
                     urnItem.UomUnit,
                     urnItem.UomId,
                     urnItem.ReceiptCorrection,
                     urnItem.CorrectionConversion,
-                    epoItem.Article
+                    epoItem.Article,
+                    urnItem.DOCurrencyRate
                 });
             }
 
