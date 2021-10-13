@@ -129,13 +129,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 }
             }
 
+            var AmountPDF = (viewModel.DPP + vat - incomeTax) + viewModel.MiscAmount;
             var payingDisposition = Math.Round((paidToSupp + viewModel.MiscAmount + pphRate), 2, MidpointRounding.AwayFromZero);
             cellLeftNoBorder.SetLeading(13f, 0f);
             cellLeftNoBorder.Phrase = new Phrase("Mohon Disposisi Pembayaran", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase(viewModel.PaymentType + "  " + viewModel.CurrencyCode + " " + $"{((viewModel.DPP + vat - incomeTax) + viewModel.MiscAmount).ToString("N", new CultureInfo("id-ID"))}", normal_font);/*$"{viewModel.Amount.ToString("N", new CultureInfo("id-ID"))}", normal_font);*/
+            cellLeftNoBorder.Phrase = new Phrase(viewModel.PaymentType + "  " + viewModel.CurrencyCode + " " + $"{(AmountPDF).ToString("N", new CultureInfo("id-ID"))}", normal_font);/*$"{viewModel.Amount.ToString("N", new CultureInfo("id-ID"))}", normal_font);*/
             cellLeftNoBorder.Colspan = 2;
             tableIdentity.AddCell(cellLeftNoBorder);
             //cellLeftNoBorder.Phrase = new Phrase( viewModel.Currency.code + " " +  $"{(paidToSupp + viewModel.PaymentCorrection + pphRate).ToString("N", new CultureInfo("id-ID")) }", normal_font);
@@ -148,7 +149,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase($"{ NumberToTextIDN.terbilang((viewModel.DPP + vat - incomeTax) + viewModel.MiscAmount) }" + " " + (viewModel.CurrencyCode == "IDR" ? "Rupiah" : viewModel.CurrencyCode == "USD" ? "Dollar" : viewModel.CurrencyCode), normal_font);
+            cellLeftNoBorder.Phrase = new Phrase($"{ NumberToTextIDN.terbilang(Math.Ceiling(AmountPDF * 100) / 100) }" + " " + (viewModel.CurrencyCode == "IDR" ? "Rupiah" : viewModel.CurrencyCode == "USD" ? "Dollar" : viewModel.CurrencyCode), normal_font);
             cellLeftNoBorder.Colspan = 2;
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase("", normal_font);
@@ -283,7 +284,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellSuppMid.Phrase = new Phrase(":", normal_font);
             tableIdentity.AddCell(cellSuppMid);
             cellSuppRight.Colspan = 2;
-            cellSuppRight.Phrase = new Phrase(viewModel.CurrencyCode + "  " + $"{((viewModel.DPP + vat - incomeTax)+viewModel.MiscAmount).ToString("N", new CultureInfo("id-ID"))}", normal_font);
+            cellSuppRight.Phrase = new Phrase(viewModel.CurrencyCode + "  " + $"{(AmountPDF).ToString("N", new CultureInfo("id-ID"))}", normal_font);
             tableIdentity.AddCell(cellSuppRight);
             cellLeftNoBorder.Colspan = 0;
             cellLeftNoBorder.Phrase = new Phrase("", normal_font);
