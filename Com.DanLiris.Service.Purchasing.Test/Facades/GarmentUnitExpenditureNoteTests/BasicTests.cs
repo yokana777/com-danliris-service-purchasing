@@ -2130,7 +2130,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
             var facadeTraceable = new MonitoringFlowProductFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
 
-            var Response = facadeTraceable.GetFlow(null, "BeacukaiNo", null);
+            var Response = facadeTraceable.GetFlow(null, "BeacukaiNo", "CodeTest123");
 
             Assert.NotNull(Response.Item1);
         }
@@ -2183,7 +2183,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
             var facadeTraceable = new MonitoringFlowProductFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
 
-            var Response = facadeTraceable.GetProductFlowExcel(null, "BeacukaiNo", null);
+            var Response = facadeTraceable.GetProductFlowExcel(null, "BeacukaiNo", "CodeTest123");
 
             Assert.IsType<MemoryStream>(Response);
         }
