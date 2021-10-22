@@ -16,6 +16,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
             {
                 Code = "CodeTest123",
                 Name = "Name123",
+                ProductType = "FABRIC"
             };
             return data;
         }
