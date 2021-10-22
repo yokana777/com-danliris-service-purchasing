@@ -129,7 +129,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 }
             }
 
-            var AmountPDF = (viewModel.DPP + vat - incomeTax) + viewModel.MiscAmount;
+            double AmountPDF = (viewModel.DPP + vat - incomeTax) + viewModel.MiscAmount;
             var payingDisposition = Math.Round((paidToSupp + viewModel.MiscAmount + pphRate), 2, MidpointRounding.AwayFromZero);
             cellLeftNoBorder.SetLeading(13f, 0f);
             cellLeftNoBorder.Phrase = new Phrase("Mohon Disposisi Pembayaran", normal_font);
@@ -149,7 +149,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase($"{ NumberToTextIDN.terbilang(Math.Ceiling(AmountPDF * 100) / 100) }" + " " + (viewModel.CurrencyCode == "IDR" ? "Rupiah" : viewModel.CurrencyCode == "USD" ? "Dollar" : viewModel.CurrencyCode), normal_font);
+            cellLeftNoBorder.Phrase = new Phrase($"{ NumberToTextIDN.terbilangv2(AmountPDF) }" + " " + (viewModel.CurrencyCode == "IDR" ? "Rupiah" : viewModel.CurrencyCode == "USD" ? "Dollar" : viewModel.CurrencyCode), normal_font);
             cellLeftNoBorder.Colspan = 2;
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase("", normal_font);
