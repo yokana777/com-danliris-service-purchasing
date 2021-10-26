@@ -99,7 +99,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             httpClientService
                 .Setup(x => x.SendAsync(It.IsAny<HttpMethod>(), It.Is<string>(s => s.Contains("preparings/byRONO")), It.IsAny<HttpContent>()))
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentPreparingDataUtil().GetMultipleResultFormatterOkString()) });
-
+            httpClientService
+                .Setup(x => x.SendAsync(It.IsAny<HttpMethod>(), It.Is<string>(s => s.Contains("master/garmentProducts")), It.IsAny<HttpContent>()))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentProductDataUtil().GetMultipleResultFormatterOkString()) });
             //httpClientService
             //    .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-categories"))))
             //    .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentCategoryDataUtil().GetMultipleResultFormatterOkString()) });
@@ -2079,6 +2081,166 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             Assert.NotNull(e.Message);
         }
 
+        #region historyFlowProduct
+        [Fact]
+        public async Task Should_Success_Get_History_Product()
+        {
+
+            var facade = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datauitlDO = dataUtilDO(facade, GetCurrentMethod());
+            GarmentDeliveryOrder data = await dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+
+            foreach(var i in data.Items)
+            {
+                foreach(var d in i.Details)
+                {
+                    d.ProductCode = "CodeTest123";
+                }
+            }
+
+            await facade.Create(data, "Unit Test");
+
+            var facadeBC = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datauitlDO, facadeBC);
+            var dataBC = await datautilBC.GetNewData(USERNAME, data);
+
+            dataBC.CustomsType = "BC 23";
+            dataBC.BeacukaiNo = "BeacukaiNo";
+
+            await facadeBC.Create(dataBC, USERNAME);
+
+            var garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(GetCurrentMethod()));
+            var garmentUnitReceiptNoteDatautil = new GarmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, datauitlDO);
+
+            var garmentUnitDeliveryOrderFacade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var garmentUnitDeliveryOrderDatautil = new GarmentUnitDeliveryOrderDataUtil(garmentUnitDeliveryOrderFacade, garmentUnitReceiptNoteDatautil);
+
+            var garmentUnitExpenditureNoteFacade = new GarmentUnitExpenditureNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(GetCurrentMethod()));
+            var garmentUnitExpenditureNoteDatautil = new GarmentUnitExpenditureNoteDataUtil(garmentUnitExpenditureNoteFacade, garmentUnitDeliveryOrderDatautil);
+
+            var dataurn = await garmentUnitReceiptNoteDatautil.GetNewData(null, data);
+            await garmentUnitReceiptNoteFacade.Create(dataurn);
+
+            var dataunitDO = await garmentUnitDeliveryOrderDatautil.GetNewData(dataurn);
+            dataunitDO.RONo = "RONo123";
+            await garmentUnitDeliveryOrderFacade.Create(dataunitDO);
+
+            var datauen = await garmentUnitExpenditureNoteDatautil.GetNewData(dataunitDO);
+            await garmentUnitExpenditureNoteFacade.Create(datauen);
+
+            var facadeTraceable = new MonitoringFlowProductFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            var Response = facadeTraceable.GetFlow(null, "BeacukaiNo", "CodeTest123");
+
+            Assert.NotNull(Response.Item1);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Excel_History_Product()
+        {
+
+            var facade = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datauitlDO = dataUtilDO(facade, GetCurrentMethod());
+            GarmentDeliveryOrder data = await dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+
+            foreach (var i in data.Items)
+            {
+                foreach (var d in i.Details)
+                {
+                    d.ProductCode = "CodeTest123";
+                }
+            }
+
+            await facade.Create(data, "Unit Test");
+
+            var facadeBC = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datauitlDO, facadeBC);
+            var dataBC = await datautilBC.GetNewData(USERNAME, data);
+
+            dataBC.CustomsType = "BC 23";
+            dataBC.BeacukaiNo = "BeacukaiNo";
+
+            await facadeBC.Create(dataBC, USERNAME);
+
+            var garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(GetCurrentMethod()));
+            var garmentUnitReceiptNoteDatautil = new GarmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, datauitlDO);
+
+            var garmentUnitDeliveryOrderFacade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var garmentUnitDeliveryOrderDatautil = new GarmentUnitDeliveryOrderDataUtil(garmentUnitDeliveryOrderFacade, garmentUnitReceiptNoteDatautil);
+
+            var garmentUnitExpenditureNoteFacade = new GarmentUnitExpenditureNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(GetCurrentMethod()));
+            var garmentUnitExpenditureNoteDatautil = new GarmentUnitExpenditureNoteDataUtil(garmentUnitExpenditureNoteFacade, garmentUnitDeliveryOrderDatautil);
+
+            var dataurn = await garmentUnitReceiptNoteDatautil.GetNewData(null, data);
+            await garmentUnitReceiptNoteFacade.Create(dataurn);
+
+            var dataunitDO = await garmentUnitDeliveryOrderDatautil.GetNewData(dataurn);
+            dataunitDO.RONo = "RONo123";
+            await garmentUnitDeliveryOrderFacade.Create(dataunitDO);
+
+            var datauen = await garmentUnitExpenditureNoteDatautil.GetNewData(dataunitDO);
+            await garmentUnitExpenditureNoteFacade.Create(datauen);
+
+            var facadeTraceable = new MonitoringFlowProductFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            var Response = facadeTraceable.GetProductFlowExcel(null, "BeacukaiNo", "CodeTest123");
+
+            Assert.IsType<MemoryStream>(Response);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Excel_History_Product_Null_Result()
+        {
+
+            var facade = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var datauitlDO = dataUtilDO(facade, GetCurrentMethod());
+            GarmentDeliveryOrder data = await dataUtilDO(facade, GetCurrentMethod()).GetNewData();
+
+            foreach (var i in data.Items)
+            {
+                foreach (var d in i.Details)
+                {
+                    d.ProductCode = "CodeTest123";
+                }
+            }
+
+            await facade.Create(data, "Unit Test");
+
+            var facadeBC = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var datautilBC = new GarmentBeacukaiDataUtil(datauitlDO, facadeBC);
+            var dataBC = await datautilBC.GetNewData(USERNAME, data);
+
+            dataBC.CustomsType = "BC 23";
+            dataBC.BeacukaiNo = "BeacukaiNo";
+
+            await facadeBC.Create(dataBC, USERNAME);
+
+            var garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(GetCurrentMethod()));
+            var garmentUnitReceiptNoteDatautil = new GarmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, datauitlDO);
+
+            var garmentUnitDeliveryOrderFacade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider());
+            var garmentUnitDeliveryOrderDatautil = new GarmentUnitDeliveryOrderDataUtil(garmentUnitDeliveryOrderFacade, garmentUnitReceiptNoteDatautil);
+
+            var garmentUnitExpenditureNoteFacade = new GarmentUnitExpenditureNoteFacade(GetServiceProviderUnitReceiptNote(), _dbContext(GetCurrentMethod()));
+            var garmentUnitExpenditureNoteDatautil = new GarmentUnitExpenditureNoteDataUtil(garmentUnitExpenditureNoteFacade, garmentUnitDeliveryOrderDatautil);
+
+            var dataurn = await garmentUnitReceiptNoteDatautil.GetNewData(null, data);
+            await garmentUnitReceiptNoteFacade.Create(dataurn);
+
+            var dataunitDO = await garmentUnitDeliveryOrderDatautil.GetNewData(dataurn);
+            dataunitDO.RONo = "RONo123";
+            await garmentUnitDeliveryOrderFacade.Create(dataunitDO);
+
+            var datauen = await garmentUnitExpenditureNoteDatautil.GetNewData(dataunitDO);
+            await garmentUnitExpenditureNoteFacade.Create(datauen);
+
+            var facadeTraceable = new MonitoringFlowProductFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            var Response = facadeTraceable.GetProductFlowExcel(null, "BCNo", null);
+
+            Assert.IsType<MemoryStream>(Response);
+        }
+        #endregion
 
     }
 }
