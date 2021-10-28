@@ -2090,7 +2090,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var datauitlDO = dataUtilDO(facade, GetCurrentMethod());
             GarmentDeliveryOrder data = await dataUtilDO(facade, GetCurrentMethod()).GetNewData();
 
-
             foreach(var i in data.Items)
             {
                 foreach(var d in i.Details)
