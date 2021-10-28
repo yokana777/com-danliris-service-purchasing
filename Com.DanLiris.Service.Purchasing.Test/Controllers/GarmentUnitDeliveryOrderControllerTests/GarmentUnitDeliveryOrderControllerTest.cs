@@ -381,5 +381,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitDeliveryOr
             var response = controller.GetItemById(It.IsAny<int>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
+
+        [Fact]
+        public void Should_Null_Mapper_Get_Data_Item_By_Id()
+        {
+            var mockFacade = new Mock<IGarmentUnitDeliveryOrderFacade>();
+            mockFacade.Setup(x => x.ReadItemById(It.IsAny<int>()))
+                .Returns(new GarmentUnitDeliveryOrderItem());
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<GarmentUnitDeliveryOrderItemViewModel>(null))
+                .Returns(new GarmentUnitDeliveryOrderItemViewModel());
+
+            GarmentUnitDeliveryOrderControllers controller = GetController(mockFacade, null, mockMapper);
+
+            var response = controller.GetItemById(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
     }
 }
