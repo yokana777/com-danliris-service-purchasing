@@ -270,7 +270,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
         private async Task CreateCreditorAccount(UnitReceiptNote model, bool useIncomeTaxFlag, string currencyCode, string paymentDuration)
         {
-            var dpp = model.Items.Sum(s => s.ReceiptQuantity + s.PricePerDealUnit);
+            var dpp = model.Items.Sum(s => s.ReceiptQuantity * s.PricePerDealUnit);
             var externalPurchaseOrderNo = model.Items.FirstOrDefault().EPONo;
             var externalPurchaseOrder = dbContext.ExternalPurchaseOrders.FirstOrDefault(entity => entity.EPONo == externalPurchaseOrderNo);
 
