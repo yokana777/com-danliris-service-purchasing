@@ -289,7 +289,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             var creditorAccount = new
             {
                 PPN = useIncomeTaxFlag ? 0.1 * dpp : 0,
-                DPP = dpp,
+                DPP = currencyCode != "IDR" ? dpp * currencyRate : dpp,
                 model.SupplierCode,
                 model.SupplierName,
                 model.SupplierIsImport,
@@ -307,7 +307,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 model.UnitName,
                 ExternalPurchaseOrderNo = string.Join('\n', model.Items.Select(item => $"- {item.EPONo}")),
                 VATAmount = vatAmount,
-                IncomeTaxAmount = incomeTaxAmount
+                IncomeTaxAmount = incomeTaxAmount,
+                DPPCurrency = currencyCode != "IDR" ? dpp : 0
             };
 
             string creditorAccountUri = "creditor-account/unit-receipt-note";
