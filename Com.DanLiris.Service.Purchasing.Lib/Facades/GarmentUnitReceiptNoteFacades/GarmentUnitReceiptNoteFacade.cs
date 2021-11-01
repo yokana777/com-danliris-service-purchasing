@@ -1406,13 +1406,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                 var epoItem = epoItems.FirstOrDefault(f => f.Id.Equals(item.EPOItemId));
                 string doNo = "";
                 long doId = 0;
-                double doCurrencyRate = 0;
+               // double doCurrencyRate = 0;
                 if (urn.DOId == 0)
                 {
                     var URN = URNs.FirstOrDefault(a => a.DONo == DONo);
                     doNo = URN.DONo;
                     doId = URN.DOId;
-                    doCurrencyRate = (double)URN.DOCurrencyRate;
+                    //doCurrencyRate = (double)URN.DOCurrencyRate;
                 }
                 ListData.Add(new
                 {
