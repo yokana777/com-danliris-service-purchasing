@@ -276,7 +276,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
             var vatAmount = externalPurchaseOrder.UseVat ? dpp * 0.1 : 0;
             double.TryParse(externalPurchaseOrder.IncomeTaxRate, out var incomeTaxRate);
-            var incomeTaxAmount = externalPurchaseOrder.UseIncomeTax && externalPurchaseOrder.IncomeTaxBy == "SUPPLIER" ? dpp * incomeTaxRate / 100 : 0;
+            var incomeTaxAmount = externalPurchaseOrder.UseIncomeTax && externalPurchaseOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? dpp * incomeTaxRate / 100 : 0;
             var productList = string.Join("\n", model.Items.Select(s => s.ProductName).ToList());
 
             var currencyTuples = new List<Tuple<string, DateTimeOffset>> { new Tuple<string, DateTimeOffset>(currencyCode, model.ReceiptDate) };
@@ -288,7 +288,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
             var creditorAccount = new
             {
-                PPN = useIncomeTaxFlag ? 0.1 * dpp : 0,
+                PPN = useIncomeTaxFlag ? 0.1 * (currencyCode != "IDR" ? dpp * currencyRate : dpp) : 0,
                 DPP = currencyCode != "IDR" ? dpp * currencyRate : dpp,
                 model.SupplierCode,
                 model.SupplierName,
