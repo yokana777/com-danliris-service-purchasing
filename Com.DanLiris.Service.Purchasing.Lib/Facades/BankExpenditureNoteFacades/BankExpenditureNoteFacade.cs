@@ -6,6 +6,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.BankExpenditureNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
@@ -31,8 +32,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
         private readonly DbSet<BankExpenditureNoteModel> dbSet;
         private readonly DbSet<BankExpenditureNoteDetailModel> detailDbSet;
         private readonly DbSet<UnitPaymentOrder> unitPaymentOrderDbSet;
+        private readonly ICurrencyProvider _currencyProvider;
         private readonly IBankDocumentNumberGenerator bankDocumentNumberGenerator;
         public readonly IServiceProvider serviceProvider;
+
 
         private readonly string USER_AGENT = "Facade";
         private readonly string CREDITOR_ACCOUNT_URI = "creditor-account/bank-expenditure-note/list";
@@ -44,6 +47,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             dbSet = dbContext.Set<BankExpenditureNoteModel>();
             detailDbSet = dbContext.Set<BankExpenditureNoteDetailModel>();
             unitPaymentOrderDbSet = dbContext.Set<UnitPaymentOrder>();
+            _currencyProvider = serviceProvider.GetService<ICurrencyProvider>();
             this.serviceProvider = serviceProvider;
         }
 
@@ -291,50 +295,48 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
         private async Task CreateJournalTransaction(BankExpenditureNoteModel model, IdentityService identityService)
         {
-            //var unitPaymentOrderIds = model.Details.Select(detail => detail.UnitPaymentOrderId).ToList();
-            //var unitPaymentOrders = dbContext.UnitPaymentOrders.Where(unitPaymentOrder => unitPaymentOrderIds.Contains(unitPaymentOrder.Id)).ToList();
+            var unitPaymentOrderIds = model.Details.Select(detail => detail.UnitPaymentOrderId).ToList();
+            var unitPaymentOrders = dbContext.UnitPaymentOrders.Where(unitPaymentOrder => unitPaymentOrderIds.Contains(unitPaymentOrder.Id)).ToList();
+            var currency = await _currencyProvider.GetCurrencyByCurrencyCodeDate(model.CurrencyCode, model.Date);
+
+            if (currency == null)
+            {
+                currency = new Currency() { Rate = model.CurrencyRate };
+            }
+
             var items = new List<JournalTransactionItem>();
             foreach (var detail in model.Details)
             {
-                //var unitPaymentOrder = unitPaymentOrders.FirstOrDefault(entity => entity.Id == detail.UnitPaymentOrderId);
-                var sumDataByUnit = detail.Items.GroupBy(g => g.UnitCode).Select(s => new
+                var unitPaymentOrder = unitPaymentOrders.FirstOrDefault(element => element.UPONo == detail.UnitPaymentOrderNo);
+
+                if (unitPaymentOrder == null)
+                    unitPaymentOrder = new UnitPaymentOrder();
+                var unitSummaries = detail.Items.GroupBy(g => g.UnitCode).Select(s => new
                 {
                     UnitCode = s.Key,
-                    Total = s.Sum(sm => sm.Price * model.CurrencyRate)
+                    Total = s.Sum(sm => sm.Price * currency.Rate)
+                    //DPP = s.Sum(sm => sm.)
                 });
 
-
-
-                foreach (var datum in sumDataByUnit)
+                var nominal = (decimal)0;
+                foreach (var unitSummary in unitSummaries)
                 {
+                    var dpp = unitSummary.Total;
+                    var vatAmount = unitPaymentOrder.UseVat ? unitSummary.Total * 0.1 : 0;
+                    var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? unitSummary.Total * unitPaymentOrder.IncomeTaxRate / 100 : 0;
+
+                    var debit = (dpp + vatAmount - incomeTaxAmount).GetValueOrDefault();
+                    nominal = decimal.Add(nominal, Convert.ToDecimal(debit));
+
                     var item = new JournalTransactionItem()
                     {
                         COA = new COA()
                         {
-                            Code = COAGenerator.GetDebtCOA(model.SupplierImport, detail.DivisionName, datum.UnitCode)
+                            Code = COAGenerator.GetDebtCOA(model.SupplierImport, detail.DivisionName, unitSummary.UnitCode)
                         },
-                        //Debit = Convert.ToDecimal(datum.Total + (datum.Total * 0.1)),
-                        Debit = Convert.ToDecimal(datum.Total),
+                        Debit = Convert.ToDecimal(debit),
                         Remark = detail.UnitPaymentOrderNo + " / " + detail.InvoiceNo
                     };
-
-                    var vatCOA = "";
-                    if (detail.Vat > 0)
-                    {
-                        if (model.SupplierImport)
-                        {
-                            vatCOA = "1510.00." + COAGenerator.GetDivisionAndUnitCOACode(detail.DivisionName, datum.UnitCode);
-                        }
-                        else
-                        {
-                            vatCOA = "1509.00." + COAGenerator.GetDivisionAndUnitCOACode(detail.DivisionName, datum.UnitCode);
-                        }
-                    }
-
-                    //if (!string.IsNullOrWhiteSpace(vatCOA))
-                    //{
-                    //    item.Debit += Convert.ToDecimal(datum.Total * 0.1);
-                    //}
 
                     items.Add(item);
                 }

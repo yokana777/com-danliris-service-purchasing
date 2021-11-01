@@ -21,6 +21,7 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 {
@@ -33,7 +34,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
         private readonly IBankDocumentNumberGenerator bankDocumentNumberGenerator;
         private readonly IServiceProvider _serviceProvider;
         //private readonly IdentityService identityService;
-        private readonly IMemoryCacheManager _cacheManager;
+        private readonly IDistributedCache _cacheManager;
         private readonly IdentityService identityService;
 
         public PPHBankExpenditureNoteFacade(PurchasingDbContext dbContext, IBankDocumentNumberGenerator bankDocumentNumberGenerator, IServiceProvider serviceProvider)
@@ -44,10 +45,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             this.bankDocumentNumberGenerator = bankDocumentNumberGenerator;
             _serviceProvider = serviceProvider;
             //identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
-            _cacheManager = (IMemoryCacheManager)serviceProvider.GetService(typeof(IMemoryCacheManager));
+            _cacheManager = (IDistributedCache)serviceProvider.GetService(typeof(IDistributedCache));
             this.identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
 
         }
+
+        private string _jsonCategories => _cacheManager.GetString(MemoryCacheConstant.Categories);
+        private string _jsonUnits => _cacheManager.GetString(MemoryCacheConstant.Units);
+        private string _jsonDivisions => _cacheManager.GetString(MemoryCacheConstant.Divisions);
+        private string _jsonIncomeTaxes => _cacheManager.GetString(MemoryCacheConstant.IncomeTaxes);
+        private string _jsonAccountBanks => _cacheManager.GetString(MemoryCacheConstant.BankAccounts);
 
         public List<object> GetUnitPaymentOrder(DateTimeOffset? dateFrom, DateTimeOffset? dateTo, string incomeTaxName, double incomeTaxRate, string currency, string divisionCodes)
         {
@@ -285,13 +292,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             return Updated;
         }
 
-        //private List<IdCOAResult> Units => _cacheManager.Get(MemoryCacheConstant.Units, entry => { return new List<IdCOAResult>(); });
-        private List<IdCOAResult> Divisions => _cacheManager.Get(MemoryCacheConstant.Divisions, entry => { return new List<IdCOAResult>(); });
-        private List<BankAccountCOAResult> BankAccounts => _cacheManager.Get(MemoryCacheConstant.BankAccounts, entry => { return new List<BankAccountCOAResult>(); });
-        private List<IncomeTaxCOAResult> IncomeTaxes => _cacheManager.Get(MemoryCacheConstant.IncomeTaxes, entry => { return new List<IncomeTaxCOAResult>(); });
-
         private async Task AutoCreateJournalTransaction(PPHBankExpenditureNote model)
         {
+            var jsonSerializerSettings = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            var divisions = JsonConvert.DeserializeObject<List<IdCOAResult>>(_jsonDivisions ?? "[]", jsonSerializerSettings);
+            var units = JsonConvert.DeserializeObject<List<IdCOAResult>>(_jsonUnits ?? "[]", jsonSerializerSettings);
+            var categories = JsonConvert.DeserializeObject<List<CategoryCOAResult>>(_jsonCategories ?? "[]", jsonSerializerSettings);
+            var incomeTaxes = JsonConvert.DeserializeObject<List<IncomeTaxCOAResult>>(_jsonIncomeTaxes ?? "[]", jsonSerializerSettings);
+            var accountBanks = JsonConvert.DeserializeObject<List<BankAccountCOAResult>>(_jsonAccountBanks ?? "[]", jsonSerializerSettings);
+
             var journalTransactionToPost = new JournalTransaction()
             {
                 Date = model.Date,
@@ -302,7 +315,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             };
 
             int.TryParse(model.BankId, out int bankAccountId);
-            var bankAccount = BankAccounts.FirstOrDefault(entity => entity.Id == bankAccountId);
+            var bankAccount = accountBanks.FirstOrDefault(entity => entity.Id == bankAccountId);
             if (bankAccount == null)
             {
                 bankAccount = new BankAccountCOAResult()
@@ -312,7 +325,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             }
 
             int.TryParse(model.IncomeTaxId, out int incomeTaxId);
-            var incomeTax = IncomeTaxes.FirstOrDefault(entity => entity.Id == incomeTaxId);
+            var incomeTax = incomeTaxes.FirstOrDefault(entity => entity.Id == incomeTaxId);
             if (incomeTax == null)
             {
                 incomeTax = new IncomeTaxCOAResult()
@@ -330,7 +343,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             foreach (var item in model.Items)
             {
                 var purchasingDocumentExpedition = purchasingDocumentExpeditions.FirstOrDefault(entity => entity.Id == item.PurchasingDocumentExpeditionId);
-                var division = Divisions.FirstOrDefault(entity => entity.Code == purchasingDocumentExpedition.DivisionCode);
+                var division = divisions.FirstOrDefault(entity => entity.Code == purchasingDocumentExpedition.DivisionCode);
                 if (division == null)
                 {
                     division = new IdCOAResult()
