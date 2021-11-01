@@ -214,105 +214,163 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
 
         private async Task AutoCreateJournalTransaction(UnitPaymentCorrectionNote unitPaymentCorrection)
         {
-            foreach (var unitPaymentCorrectionItem in unitPaymentCorrection.Items)
+            var prIds = unitPaymentCorrection.Items.Select(element => element.PRId).ToList();
+            var purchaseRequests = dbContext.PurchaseRequests.Where(entity => prIds.Contains(entity.Id)).ToList();
+            var epoNos = unitPaymentCorrection.Items.Select(element => element.EPONo).ToList();
+            var externalPurchaseOrders = dbContext.ExternalPurchaseOrders.Where(entity => epoNos.Contains(entity.EPONo)).ToList();
+            var urnNos = unitPaymentCorrection.Items.Select(element => element.URNNo).Distinct().ToList();
+            var unitReceiptNotes = dbContext.UnitReceiptNotes.Where(element => urnNos.Contains(element.URNNo)).ToList();
+            var upoDetailIds = unitPaymentCorrection.Items.Select(element => element.UPODetailId).ToList();
+            var unitPaymentOrderDetails = dbContext.UnitPaymentOrderDetails.Where(entity => upoDetailIds.Contains(entity.Id)).ToList();
+            var urnItemIds = unitPaymentOrderDetails.Select(element => element.URNItemId).ToList();
+            var unitReceiptNoteItems = dbContext.UnitReceiptNoteItems.Where(entity => urnItemIds.Contains(entity.Id)).ToList();
+            var epoDetailIds = unitReceiptNoteItems.Select(element => element.EPODetailId).ToList();
+            var externalPurchaseOrderDetails = dbContext.ExternalPurchaseOrderDetails.Where(entity => epoDetailIds.Contains(entity.Id)).ToList();
+            var correctionItems = dbContext.UnitPaymentCorrectionNoteItems.Where(entity => urnNos.Contains(entity.URNNo)).ToList();
+            var correctionIds = correctionItems.Select(element => element.UPCId).ToList();
+            var previousCorrectionNotes = dbContext.UnitPaymentCorrectionNotes.Where(entity => correctionIds.Contains(entity.Id) && entity.CorrectionDate < unitPaymentCorrection.CorrectionDate).ToList();
+            var previousCorrections = new List<PreviousCorrection>();
+
+            foreach (var previousCorrectionNote in previousCorrectionNotes.OrderBy(element => element.CorrectionDate))
             {
-                var unitReceiptNote = dbContext.UnitReceiptNotes.Where(entity => entity.URNNo == unitPaymentCorrectionItem.URNNo).Include(entity => entity.Items).FirstOrDefault();
-
-                var jsonSerializerSettings = new JsonSerializerSettings
+                var previousCorrectionItems = correctionItems.Where(element => element.UPCId == previousCorrectionNote.Id).ToList();
+                foreach (var previousCorrectionItem in previousCorrectionItems)
                 {
-                    MissingMemberHandling = MissingMemberHandling.Ignore
-                };
+                    var upoDetail = unitPaymentOrderDetails.FirstOrDefault(element => element.Id == previousCorrectionItem.UPODetailId);
+                    if (upoDetail != null)
+                    {
+                        var urnItem = unitReceiptNoteItems.FirstOrDefault(element => element.Id == upoDetail.URNItemId);
 
-                var divisions = JsonConvert.DeserializeObject<List<IdCOAResult>>(_jsonDivisions ?? "[]", jsonSerializerSettings);
-                var units = JsonConvert.DeserializeObject<List<IdCOAResult>>(_jsonUnits ?? "[]", jsonSerializerSettings);
-                var categories = JsonConvert.DeserializeObject<List<CategoryCOAResult>>(_jsonCategories ?? "[]", jsonSerializerSettings);
-                var incomeTaxes = JsonConvert.DeserializeObject<List<IncomeTaxCOAResult>>(_jsonIncomeTaxes ?? "[]", jsonSerializerSettings);
+                        if (urnItem != null)
+                        {
+                            if (previousCorrectionNote.CorrectionType == "Harga Total")
+                            {
+                                var previousCorrection = previousCorrections.FirstOrDefault(element => element.URNItemId == urnItem.Id);
 
-                var purchaseRequestIds = unitReceiptNote.Items.Select(s => s.PRId).ToList();
-                var purchaseRequests = dbContext.PurchaseRequests.Where(w => purchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.CategoryCode, s.CategoryId }).ToList();
+                                if (previousCorrection == null)
+                                {
+                                    previousCorrection = new PreviousCorrection
+                                    {
+                                        URNItemId = (int)urnItem.Id,
+                                        PriceTotalCorrection = previousCorrectionItem.PriceTotalAfter
+                                    };
+                                    previousCorrections.Add(previousCorrection);
+                                }
+                                else
+                                    previousCorrection.PriceTotalCorrection = previousCorrectionItem.PriceTotalAfter;
+                            }
+                            else if (previousCorrectionNote.CorrectionType == "Harga Satuan")
+                            {
+                                var previousCorrection = previousCorrections.FirstOrDefault(element => element.URNItemId == urnItem.Id);
 
-                var externalPurchaseOrderIds = unitReceiptNote.Items.Select(s => s.EPOId).ToList();
-                var externalPurchaseOrders = dbContext.ExternalPurchaseOrders.Where(w => externalPurchaseOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.IncomeTaxId, s.UseIncomeTax, s.IncomeTaxName, s.IncomeTaxRate, s.CurrencyCode, s.CurrencyRate }).ToList();
+                                if (previousCorrection == null)
+                                {
+                                    previousCorrection = new PreviousCorrection
+                                    {
+                                        URNItemId = (int)urnItem.Id,
+                                        PricePerDealCorrection = previousCorrectionItem.PricePerDealUnitAfter
+                                    };
+                                    previousCorrections.Add(previousCorrection);
+                                }
+                                else
+                                    previousCorrection.PricePerDealCorrection = previousCorrectionItem.PricePerDealUnitAfter;
+                            }
+                        }
+                    }
 
+                }
+            }
 
-
-                var externalPurchaseOrderDetailIds = unitReceiptNote.Items.Select(s => s.EPODetailId).ToList();
-                var externalPurchaseOrderDetails = dbContext.ExternalPurchaseOrderDetails.Where(w => externalPurchaseOrderDetailIds.Contains(w.Id)).Select(s => new { s.Id, s.ProductId, TotalPrice = s.PricePerDealUnit * s.DealQuantity, s.DealQuantity }).ToList();
-
-                //var postMany = new List<Task<HttpResponseMessage>>();
-
-                //var journalTransactionsToPost = new List<JournalTransaction>();
-
+            foreach (var urnNo in urnNos)
+            {
                 var journalTransactionToPost = new JournalTransaction()
                 {
                     Date = unitPaymentCorrection.CorrectionDate,
-                    Description = $"Nota Koreksi {unitReceiptNote.URNNo}",
+                    Description = $"Nota Koreksi {urnNo}",
                     ReferenceNo = unitPaymentCorrection.UPCNo,
                     Status = "POSTED",
                     Items = new List<JournalTransactionItem>()
                 };
 
-                int.TryParse(unitReceiptNote.DivisionId, out var divisionId);
-                var division = divisions.FirstOrDefault(f => f.Id.Equals(divisionId));
-                if (division == null)
-                {
-                    division = new IdCOAResult()
-                    {
-                        COACode = "0"
-                    };
-                }
-                else
-                {
-                    if (string.IsNullOrEmpty(division.COACode))
-                    {
-                        division.COACode = "0";
-                    }
-                }
-
-
-                int.TryParse(unitReceiptNote.UnitId, out var unitId);
-                var unit = units.FirstOrDefault(f => f.Id.Equals(unitId));
-                if (unit == null)
-                {
-                    unit = new IdCOAResult()
-                    {
-                        COACode = "00"
-                    };
-                }
-                else
-                {
-                    if (string.IsNullOrEmpty(unit.COACode))
-                    {
-                        unit.COACode = "00";
-                    }
-                }
-
-
                 var journalDebitItems = new List<JournalTransactionItem>();
                 var journalCreditItems = new List<JournalTransactionItem>();
 
-                foreach (var unitReceiptNoteItem in unitReceiptNote.Items)
+                foreach (var unitPaymentCorrectionItem in unitPaymentCorrection.Items.Where(element => element.URNNo == urnNo))
                 {
+                    var unitReceiptNote = unitReceiptNotes.FirstOrDefault(entity => entity.URNNo == unitPaymentCorrectionItem.URNNo);
+                    var unitPaymentOrderDetail = unitPaymentOrderDetails.FirstOrDefault(entity => entity.Id == unitPaymentCorrectionItem.UPODetailId);
+                    var unitReceiptNoteItem = unitReceiptNoteItems.FirstOrDefault(entity => entity.Id == unitPaymentOrderDetail.URNItemId);
 
-                    var purchaseRequest = purchaseRequests.FirstOrDefault(f => f.Id.Equals(unitReceiptNoteItem.PRId));
-                    var externalPurchaseOrder = externalPurchaseOrders.FirstOrDefault(f => f.Id.Equals(unitReceiptNoteItem.EPOId));
-                    var unitPaymentOrderDetail = dbContext.UnitPaymentOrderDetails.FirstOrDefault(entity => entity.URNItemId == unitReceiptNoteItem.Id);
+                    var purchaseRequest = purchaseRequests.FirstOrDefault(w => w.Id == unitPaymentCorrectionItem.PRId);
 
-                    //double.TryParse(externalPurchaseOrder.IncomeTaxRate, out var incomeTaxRate);
+                    var externalPurchaseOrder = externalPurchaseOrders.FirstOrDefault(w => w.EPONo == unitPaymentCorrectionItem.EPONo);
+                    var externalPurchaseOrderDetail = externalPurchaseOrderDetails.FirstOrDefault(entity => entity.Id == unitReceiptNoteItem.EPODetailId);
 
-                    //var currency = await _currencyProvider.GetCurrencyByCurrencyCode(externalPurchaseOrder.CurrencyCode);
-                    //var currencyTupples = new Tuple<>
-                    var currencyTuples = new List<Tuple<string, DateTimeOffset>> { new Tuple<string, DateTimeOffset>(externalPurchaseOrder.CurrencyCode, unitPaymentCorrection.CorrectionDate) };
-                    var currency = await _currencyProvider.GetCurrencyByCurrencyCodeDateList(currencyTuples);
+                    var jsonSerializerSettings = new JsonSerializerSettings
+                    {
+                        MissingMemberHandling = MissingMemberHandling.Ignore
+                    };
 
-                    var currencyRate = currency != null && currency.FirstOrDefault() != null ? (decimal)currency.FirstOrDefault().Rate.GetValueOrDefault() : (decimal)externalPurchaseOrder.CurrencyRate;
+                    var divisions = JsonConvert.DeserializeObject<List<IdCOAResult>>(_jsonDivisions ?? "[]", jsonSerializerSettings);
+                    var units = JsonConvert.DeserializeObject<List<IdCOAResult>>(_jsonUnits ?? "[]", jsonSerializerSettings);
+                    var categories = JsonConvert.DeserializeObject<List<CategoryCOAResult>>(_jsonCategories ?? "[]", jsonSerializerSettings);
+                    var incomeTaxes = JsonConvert.DeserializeObject<List<IncomeTaxCOAResult>>(_jsonIncomeTaxes ?? "[]", jsonSerializerSettings);
 
-                    //if (!externalPurchaseOrder.UseIncomeTax)
-                    //    incomeTaxRate = 1;
-                    //var externalPurchaseOrderDetail = externalPurchaseOrderDetails.FirstOrDefault(f => f.Id.Equals(item.EPODetailId));
-                    var externalPOPriceTotal = externalPurchaseOrderDetails.Where(w => w.ProductId.Equals(unitReceiptNoteItem.ProductId) && w.Id.Equals(unitReceiptNoteItem.EPODetailId)).Sum(s => s.TotalPrice);
+                    //var purchaseRequestIds = unitReceiptNote.Items.Select(s => s.PRId).ToList();
+                    //var purchaseRequests = dbContext.PurchaseRequests.Where(w => purchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.CategoryCode, s.CategoryId }).ToList();
+
+                    //var externalPurchaseOrderIds = unitReceiptNote.Items.Select(s => s.EPOId).ToList();
+                    //var externalPurchaseOrders = dbContext.ExternalPurchaseOrders.Where(w => externalPurchaseOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.IncomeTaxId, s.UseIncomeTax, s.IncomeTaxName, s.IncomeTaxRate, s.CurrencyCode, s.CurrencyRate }).ToList();
 
 
+
+                    //var externalPurchaseOrderDetailIds = unitReceiptNote.Items.Select(s => s.EPODetailId).ToList();
+                    //var externalPurchaseOrderDetails = dbContext.ExternalPurchaseOrderDetails.Where(w => externalPurchaseOrderDetailIds.Contains(w.Id)).Select(s => new { s.Id, s.ProductId, TotalPrice = s.PricePerDealUnit * s.DealQuantity, s.DealQuantity }).ToList();
+
+                    //var postMany = new List<Task<HttpResponseMessage>>();
+
+                    //var journalTransactionsToPost = new List<JournalTransaction>();
+
+                    int.TryParse(unitReceiptNote.DivisionId, out var divisionId);
+                    var division = divisions.FirstOrDefault(f => f.Id.Equals(divisionId));
+                    if (division == null)
+                    {
+                        division = new IdCOAResult()
+                        {
+                            COACode = "0"
+                        };
+                    }
+                    else
+                    {
+                        if (string.IsNullOrEmpty(division.COACode))
+                        {
+                            division.COACode = "0";
+                        }
+                    }
+
+
+                    int.TryParse(unitReceiptNote.UnitId, out var unitId);
+                    var unit = units.FirstOrDefault(f => f.Id.Equals(unitId));
+                    if (unit == null)
+                    {
+                        unit = new IdCOAResult()
+                        {
+                            COACode = "00"
+                        };
+                    }
+                    else
+                    {
+                        if (string.IsNullOrEmpty(unit.COACode))
+                        {
+                            unit.COACode = "00";
+                        }
+                    }
+
+                    var currencyCode = unitPaymentCorrectionItem.CurrencyCode;
+
+                    var currency = await _currencyProvider.GetCurrencyByCurrencyCodeDate(unitPaymentCorrectionItem.CurrencyCode, unitReceiptNote.ReceiptDate);
+
+                    var currencyRate = currency != null && currency != null ? (decimal)currency.Rate.GetValueOrDefault() : (decimal)externalPurchaseOrder.CurrencyRate;
 
                     int.TryParse(purchaseRequest.CategoryId, out var categoryId);
                     var category = categories.FirstOrDefault(f => f.Id.Equals(categoryId));
@@ -347,19 +405,59 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                     }
 
                     double.TryParse(externalPurchaseOrder.IncomeTaxRate, out var incomeTaxRate);
+                    var externalPOPriceTotal = externalPurchaseOrderDetail.PricePerDealUnit * externalPurchaseOrderDetail.DealQuantity;
 
                     var grandTotal = (decimal)0.0;
                     if (unitPaymentCorrection.CorrectionType == "Harga Total")
                     {
-                        grandTotal = (decimal)((unitPaymentCorrectionItem.PriceTotalAfter - unitPaymentCorrectionItem.PriceTotalBefore) * unitPaymentCorrectionItem.Quantity);
+                        var previousCorrection = previousCorrections.FirstOrDefault(element => element.URNItemId == unitReceiptNoteItem.Id);
+
+                        if (previousCorrection == null || previousCorrection.PriceTotalCorrection == 0)
+                            grandTotal = (decimal)(unitPaymentCorrectionItem.PriceTotalAfter - unitPaymentCorrectionItem.PriceTotalBefore);
+                        else
+                            grandTotal = (decimal)(unitPaymentCorrectionItem.PriceTotalAfter - previousCorrection.PriceTotalCorrection);
+
+                        if (previousCorrection == null)
+                        {
+                            previousCorrection = new PreviousCorrection
+                            {
+                                URNItemId = (int)unitReceiptNoteItem.Id,
+                                PriceTotalCorrection = unitPaymentCorrectionItem.PriceTotalAfter
+                            };
+                            previousCorrections.Add(previousCorrection);
+                        }
+                        else
+                            previousCorrection.PriceTotalCorrection = unitPaymentCorrectionItem.PriceTotalAfter;
+                        //grandTotal = (decimal)((correctionNoteItem.PriceTotalAfter - correctionNoteItem.PriceTotalBefore));
                     }
                     else if (unitPaymentCorrection.CorrectionType == "Harga Satuan")
                     {
-                        grandTotal = (decimal)(unitPaymentCorrectionItem.PricePerDealUnitAfter - unitPaymentCorrectionItem.PricePerDealUnitBefore);
+                        var previousCorrection = previousCorrections.FirstOrDefault(element => element.URNItemId == unitReceiptNoteItem.Id);
+
+                        if (previousCorrection == null || previousCorrection.PricePerDealCorrection == 0)
+                            grandTotal = (decimal)((unitPaymentCorrectionItem.PricePerDealUnitAfter - unitPaymentCorrectionItem.PricePerDealUnitBefore) * unitPaymentCorrectionItem.Quantity);
+                        else
+                            grandTotal = (decimal)((unitPaymentCorrectionItem.PricePerDealUnitAfter - previousCorrection.PricePerDealCorrection) * unitPaymentCorrectionItem.Quantity);
+
+                        if (previousCorrection == null)
+                        {
+                            previousCorrection = new PreviousCorrection
+                            {
+                                URNItemId = (int)unitReceiptNoteItem.Id,
+                                PricePerDealCorrection = unitPaymentCorrectionItem.PricePerDealUnitAfter
+                            };
+                            previousCorrections.Add(previousCorrection);
+                        }
+                        else
+                            previousCorrection.PricePerDealCorrection = unitPaymentCorrectionItem.PricePerDealUnitAfter;
+
+
+                        //grandTotal = (decimal)((correctionNoteItem.PricePerDealUnitAfter - correctionNoteItem.PricePerDealUnitBefore) * correctionNoteItem.Quantity);
                     }
                     else if (unitPaymentCorrection.CorrectionType == "Jumlah")
                     {
-                        grandTotal = (decimal)(unitPaymentCorrectionItem.Quantity * unitPaymentOrderDetail.PricePerDealUnit);
+                        grandTotal = (decimal)(unitPaymentCorrectionItem.Quantity * unitPaymentCorrectionItem.PricePerDealUnitAfter * -1);
+                        //grandTotal = (decimal)(correctionNoteItem.Quantity * unitPaymentOrderDetail.PricePerDealUnit);
                     }
 
                     if (grandTotal != 0)
@@ -385,7 +483,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                                 {
                                     Code = unitReceiptNote.SupplierIsImport ? $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}" : $"{category.LocalDebtCOA}.{division.COACode}.{unit.COACode}"
                                 },
-                                Debit = incomeTaxTotal
+                                Debit = incomeTaxTotal * (decimal)currencyRate
                             });
 
                             journalCreditItems.Add(new JournalTransactionItem()
@@ -394,7 +492,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                                 {
                                     Code = $"{incomeTax.COACodeCredit}.{division.COACode}.{unit.COACode}"
                                 },
-                                Credit = incomeTaxTotal
+                                Credit = incomeTaxTotal * (decimal)currencyRate
                             });
                         }
 
@@ -408,7 +506,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                                 {
                                     Code = unitReceiptNote.SupplierIsImport ? $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}" : $"{category.LocalDebtCOA}.{division.COACode}.{unit.COACode}"
                                 },
-                                Credit = totalVAT
+                                Credit = totalVAT * (decimal)currencyRate
                             });
 
                             journalDebitItems.Add(new JournalTransactionItem()
@@ -417,8 +515,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                                 {
                                     Code = $"{inVATCOA}.{division.COACode}.{unit.COACode}"
                                 },
-                                Debit = totalVAT,
-                                Remark = unitPaymentCorrection.VatTaxCorrectionNo
+                                Debit = totalVAT * (decimal)currencyRate
                             });
                         }
 
@@ -431,7 +528,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                                 {
                                     Code = $"{category.PurchasingCOA}.{division.COACode}.{unit.COACode}"
                                 },
-                                Debit = grandTotal,
+                                Debit = grandTotal * (decimal)currencyRate,
                                 Remark = $"- {unitReceiptNoteItem.ProductName}"
                             });
 
@@ -442,7 +539,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                                 {
                                     Code = $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}"
                                 },
-                                Credit = grandTotal,
+                                Credit = grandTotal * (decimal)currencyRate,
                                 Remark = $"- {unitReceiptNoteItem.ProductName}"
                             });
 
@@ -453,7 +550,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                                 {
                                     Code = $"{category.StockCOA}.{division.COACode}.{unit.COACode}"
                                 },
-                                Debit = grandTotal,
+                                Debit = grandTotal * (decimal)currencyRate,
                                 Remark = $"- {unitReceiptNoteItem.ProductName}"
                             });
 
@@ -464,7 +561,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                                 {
                                     Code = $"{category.PurchasingCOA}.{division.COACode}.{unit.COACode}"
                                 },
-                                Credit = grandTotal,
+                                Credit = grandTotal * (decimal)currencyRate,
                                 Remark = $"- {unitReceiptNoteItem.ProductName}"
                             });
                         }
@@ -477,7 +574,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                                 {
                                     Code = $"{category.PurchasingCOA}.{division.COACode}.{unit.COACode}"
                                 },
-                                Debit = grandTotal,
+                                Debit = grandTotal * (decimal)currencyRate,
                                 Remark = $"- {unitReceiptNoteItem.ProductName}"
                             });
 
@@ -490,7 +587,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                                     {
                                         Code = $"{category.StockCOA}.{division.COACode}.{unit.COACode}"
                                     },
-                                    Debit = grandTotal,
+                                    Debit = grandTotal * (decimal)currencyRate,
                                     Remark = $"- {unitReceiptNoteItem.ProductName}"
                                 });
                             }
@@ -503,7 +600,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                                 {
                                     Code = unitReceiptNote.SupplierIsImport ? $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}" : $"{category.LocalDebtCOA}.{division.COACode}.{unit.COACode}"
                                 },
-                                Credit = grandTotal,
+                                Credit = grandTotal * (decimal)currencyRate,
                                 Remark = $"- {unitReceiptNoteItem.ProductName}"
                             });
 
@@ -516,49 +613,49 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                                     {
                                         Code = $"{category.PurchasingCOA}.{division.COACode}.{unit.COACode}"
                                     },
-                                    Credit = grandTotal,
+                                    Credit = grandTotal * (decimal)currencyRate,
                                     Remark = $"- {unitReceiptNoteItem.ProductName}"
                                 });
                             }
                         }
                     }
-                }
 
 
-                journalDebitItems = journalDebitItems.GroupBy(grouping => grouping.COA.Code).Select(s => new JournalTransactionItem()
-                {
-                    COA = new COA()
+                    journalDebitItems = journalDebitItems.GroupBy(grouping => grouping.COA.Code).Select(s => new JournalTransactionItem()
                     {
-                        Code = s.Key
-                    },
-                    Debit = s.Sum(sum => Math.Round(sum.Debit.GetValueOrDefault(), 4)) > 0 ? s.Sum(sum => Math.Abs(Math.Round(sum.Debit.GetValueOrDefault(), 4))) : 0,
-                    Credit = s.Sum(sum => Math.Round(sum.Debit.GetValueOrDefault(), 4)) > 0 ? 0 : s.Sum(sum => Math.Abs(Math.Round(sum.Debit.GetValueOrDefault(), 4))),
-                    Remark = string.Join("\n", s.Select(grouped => grouped.Remark).ToList())
-                }).ToList();
-                journalTransactionToPost.Items.AddRange(journalDebitItems);
+                        COA = new COA()
+                        {
+                            Code = s.Key
+                        },
+                        Debit = s.Sum(sum => sum.Debit) > 0 ? Math.Abs(s.Sum(sum => sum.Debit.GetValueOrDefault())) : 0,
+                        Credit = s.Sum(sum => sum.Debit) > 0 ? 0 : Math.Abs(s.Sum(sum => sum.Debit.GetValueOrDefault())),
+                        Remark = string.Join("\n", s.Select(grouped => grouped.Remark).ToList())
+                    }).ToList();
+                    journalTransactionToPost.Items.AddRange(journalDebitItems);
 
-                journalCreditItems = journalCreditItems.GroupBy(grouping => grouping.COA.Code).Select(s => new JournalTransactionItem()
-                {
-                    COA = new COA()
+                    journalCreditItems = journalCreditItems.GroupBy(grouping => grouping.COA.Code).Select(s => new JournalTransactionItem()
                     {
-                        Code = s.Key
-                    },
-                    Credit = s.Sum(sum => Math.Round(sum.Credit.GetValueOrDefault(), 4)) > 0 ? s.Sum(sum => Math.Abs(Math.Round(sum.Credit.GetValueOrDefault(), 4))) : 0,
-                    Debit = s.Sum(sum => Math.Round(sum.Credit.GetValueOrDefault(), 4)) > 0 ? 0 : s.Sum(sum => Math.Abs(Math.Round(sum.Credit.GetValueOrDefault(), 4))),
-                    Remark = string.Join("\n", s.Select(grouped => grouped.Remark).ToList())
-                }).ToList();
-                journalTransactionToPost.Items.AddRange(journalCreditItems);
+                        COA = new COA()
+                        {
+                            Code = s.Key
+                        },
+                        Credit = s.Sum(sum => sum.Credit) > 0 ? Math.Abs(s.Sum(sum => sum.Credit.GetValueOrDefault())) : 0,
+                        Debit = s.Sum(sum => sum.Credit) > 0 ? 0 : Math.Abs(s.Sum(sum => sum.Credit.GetValueOrDefault())),
+                        Remark = string.Join("\n", s.Select(grouped => grouped.Remark).ToList())
+                    }).ToList();
+                    journalTransactionToPost.Items.AddRange(journalCreditItems);
 
-                if (journalTransactionToPost.Items.Any(item => item.COA.Code.Split(".").FirstOrDefault().Equals("9999")))
-                    journalTransactionToPost.Status = "DRAFT";
+                    if (journalTransactionToPost.Items.Any(item => item.COA.Code.Split(".").FirstOrDefault().Equals("9999")))
+                        journalTransactionToPost.Status = "DRAFT";
 
-                if (journalTransactionToPost.Items.Count > 0)
-                {
-                    var journalTransactionUri = "journal-transactions";
-                    var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
-                    var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(journalTransactionToPost).ToString(), Encoding.UTF8, General.JsonMediaType));
+                    if (journalTransactionToPost.Items.Count > 0)
+                    {
+                        var journalTransactionUri = "journal-transactions";
+                        var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+                        var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(journalTransactionToPost).ToString(), Encoding.UTF8, General.JsonMediaType));
 
-                    response.EnsureSuccessStatusCode();
+                        response.EnsureSuccessStatusCode();
+                    }
                 }
             }
         }
@@ -574,47 +671,212 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
 
         private async Task AutoCreateCreditorAccount(UnitPaymentCorrectionNote unitPaymentCorrectionNote)
         {
+            var prIds = unitPaymentCorrectionNote.Items.Select(element => element.PRId).ToList();
+            var purchaseRequests = dbContext.PurchaseRequests.Where(entity => prIds.Contains(entity.Id)).ToList();
+            var epoNos = unitPaymentCorrectionNote.Items.Select(element => element.EPONo).ToList();
+            var externalPurchaseOrders = dbContext.ExternalPurchaseOrders.Where(entity => epoNos.Contains(entity.EPONo)).ToList();
+            var urnNos = unitPaymentCorrectionNote.Items.Select(element => element.URNNo).Distinct().ToList();
+            var unitReceiptNotes = dbContext.UnitReceiptNotes.Where(element => urnNos.Contains(element.URNNo)).ToList();
             var upoDetailIds = unitPaymentCorrectionNote.Items.Select(element => element.UPODetailId).ToList();
             var unitPaymentOrderDetails = dbContext.UnitPaymentOrderDetails.Where(entity => upoDetailIds.Contains(entity.Id)).ToList();
-            foreach (var unitPaymentCorrectionNoteItem in unitPaymentCorrectionNote.Items)
+            var urnItemIds = unitPaymentOrderDetails.Select(element => element.URNItemId).ToList();
+            var unitReceiptNoteItems = dbContext.UnitReceiptNoteItems.Where(entity => urnItemIds.Contains(entity.Id)).ToList();
+            var epoDetailIds = unitReceiptNoteItems.Select(element => element.EPODetailId).ToList();
+            var externalPurchaseOrderDetails = dbContext.ExternalPurchaseOrderDetails.Where(entity => epoDetailIds.Contains(entity.Id)).ToList();
+            var correctionItems = dbContext.UnitPaymentCorrectionNoteItems.Where(entity => urnNos.Contains(entity.URNNo)).ToList();
+            var correctionIds = correctionItems.Select(element => element.UPCId).ToList();
+            var previousCorrectionNotes = dbContext.UnitPaymentCorrectionNotes.Where(entity => correctionIds.Contains(entity.Id) && entity.CorrectionDate < unitPaymentCorrectionNote.CorrectionDate).ToList();
+            var previousCorrections = new List<PreviousCorrection>();
+            var unitPaymentOrder = dbContext.UnitPaymentOrders.FirstOrDefault(entity => entity.Id == unitPaymentCorrectionNote.UPOId);
+
+            foreach (var previousCorrectionNote in previousCorrectionNotes.OrderBy(element => element.CorrectionDate))
             {
-                var dppAmount = (decimal)0;
-                var vatAmount = (decimal)0;
-                var unitPaymentOrderDetail = unitPaymentOrderDetails.FirstOrDefault(element => element.Id == unitPaymentCorrectionNoteItem.UPODetailId);
-
-                if (unitPaymentCorrectionNote.CorrectionType == "Harga Total")
+                var previousCorrectionItems = correctionItems.Where(element => element.UPCId == previousCorrectionNote.Id).ToList();
+                foreach (var previousCorrectionItem in previousCorrectionItems)
                 {
-                    dppAmount = (decimal)(unitPaymentCorrectionNoteItem.PriceTotalAfter - unitPaymentCorrectionNoteItem.PriceTotalBefore);
+                    var upoDetail = unitPaymentOrderDetails.FirstOrDefault(element => element.Id == previousCorrectionItem.UPODetailId);
+                    if (upoDetail != null)
+                    {
+                        var urnItem = unitReceiptNoteItems.FirstOrDefault(element => element.Id == upoDetail.URNItemId);
+
+                        if (urnItem != null)
+                        {
+                            if (previousCorrectionNote.CorrectionType == "Harga Total")
+                            {
+                                var previousCorrection = previousCorrections.FirstOrDefault(element => element.URNItemId == urnItem.Id);
+
+                                if (previousCorrection == null)
+                                {
+                                    previousCorrection = new PreviousCorrection
+                                    {
+                                        URNItemId = (int)urnItem.Id,
+                                        PriceTotalCorrection = previousCorrectionItem.PriceTotalAfter
+                                    };
+                                    previousCorrections.Add(previousCorrection);
+                                }
+                                else
+                                    previousCorrection.PriceTotalCorrection = previousCorrectionItem.PriceTotalAfter;
+                            }
+                            else if (previousCorrectionNote.CorrectionType == "Harga Satuan")
+                            {
+                                var previousCorrection = previousCorrections.FirstOrDefault(element => element.URNItemId == urnItem.Id);
+
+                                if (previousCorrection == null)
+                                {
+                                    previousCorrection = new PreviousCorrection
+                                    {
+                                        URNItemId = (int)urnItem.Id,
+                                        PricePerDealCorrection = previousCorrectionItem.PricePerDealUnitAfter
+                                    };
+                                    previousCorrections.Add(previousCorrection);
+                                }
+                                else
+                                    previousCorrection.PricePerDealCorrection = previousCorrectionItem.PricePerDealUnitAfter;
+                            }
+                        }
+                    }
+
                 }
-                else if (unitPaymentCorrectionNote.CorrectionType == "Harga Satuan")
-                {
-                    dppAmount = (decimal)(unitPaymentCorrectionNoteItem.PricePerDealUnitAfter - unitPaymentCorrectionNoteItem.PricePerDealUnitBefore);
-                }
-                else if (unitPaymentCorrectionNote.CorrectionType == "Jumlah")
-                {
-                    dppAmount = (decimal)(unitPaymentOrderDetail.QuantityCorrection * unitPaymentOrderDetail.PricePerDealUnit);
-                }
-
-                if (unitPaymentCorrectionNote.useVat)
-                    vatAmount = dppAmount * (decimal)0.1;
-
-
-                var viewModel = new CreateCreditorAccountViewModel()
-                {
-                    UnitPaymentCorrectionDPP = dppAmount,
-                    UnitPaymentCorrectionId = (int)unitPaymentCorrectionNote.Id,
-                    UnitPaymentCorrectionMutation = dppAmount + vatAmount,
-                    UnitPaymentCorrectionNo = unitPaymentCorrectionNote.UPCNo,
-                    UnitPaymentCorrectionPPN = vatAmount,
-                    UnitReceiptNoteNo = unitPaymentCorrectionNoteItem.URNNo
-                };
-
-                var uri = "creditor-account/unit-payment-correction";
-                var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
-                var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{uri}", new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, General.JsonMediaType));
-
-                response.EnsureSuccessStatusCode();
             }
+
+            foreach (var urnNo in urnNos)
+            {
+                foreach (var unitPaymentCorrectionNoteItem in unitPaymentCorrectionNote.Items.Where(element => element.URNNo == urnNo))
+                {
+                    var dppAmount = (decimal)0;
+                    var vatAmount = (decimal)0;
+                    var incomeTaxAmount = (decimal)0;
+                    var unitPaymentOrderDetail = unitPaymentOrderDetails.FirstOrDefault(element => element.Id == unitPaymentCorrectionNoteItem.UPODetailId);
+                    //var unitPaymentOrder = unitPaymentOrders.FirstOrDefault(entity => entity.Id == unitPaymentCorrectionNote.UPOId);
+                    var unitReceiptNoteItem = unitReceiptNoteItems.FirstOrDefault(entity => entity.Id == unitPaymentOrderDetail.URNItemId);
+                    var unitReceiptNote = unitReceiptNotes.FirstOrDefault(entity => entity.Id == unitReceiptNoteItem.URNId);
+                    if (unitPaymentCorrectionNote.CorrectionType == "Harga Total")
+                    {
+                        var previousCorrection = previousCorrections.FirstOrDefault(element => element.URNItemId == unitReceiptNoteItem.Id);
+                        if (previousCorrection == null || previousCorrection.PriceTotalCorrection == 0)
+                            dppAmount = (decimal)(unitPaymentCorrectionNoteItem.PriceTotalAfter - unitPaymentCorrectionNoteItem.PriceTotalBefore);
+                        else
+                            dppAmount = (decimal)(unitPaymentCorrectionNoteItem.PriceTotalAfter - previousCorrection.PriceTotalCorrection);
+
+                        if (previousCorrection == null)
+                        {
+                            previousCorrection = new PreviousCorrection
+                            {
+                                URNItemId = (int)unitReceiptNoteItem.Id,
+                                PriceTotalCorrection = unitPaymentCorrectionNoteItem.PriceTotalAfter
+                            };
+                            previousCorrections.Add(previousCorrection);
+                        }
+                        else
+                            previousCorrection.PriceTotalCorrection = unitPaymentCorrectionNoteItem.PriceTotalAfter;
+                    }
+                    else if (unitPaymentCorrectionNote.CorrectionType == "Harga Satuan")
+                    {
+                        var previousCorrection = previousCorrections.FirstOrDefault(element => element.URNItemId == unitReceiptNoteItem.Id);
+                        if (previousCorrection == null || previousCorrection.PricePerDealCorrection == 0)
+                            dppAmount = (decimal)((unitPaymentCorrectionNoteItem.PricePerDealUnitAfter - unitPaymentCorrectionNoteItem.PricePerDealUnitBefore) * unitPaymentCorrectionNoteItem.Quantity);
+                        else
+                            dppAmount = (decimal)((unitPaymentCorrectionNoteItem.PricePerDealUnitAfter - previousCorrection.PricePerDealCorrection) * unitPaymentCorrectionNoteItem.Quantity);
+
+                        if (previousCorrection == null)
+                        {
+                            previousCorrection = new PreviousCorrection
+                            {
+                                URNItemId = (int)unitReceiptNoteItem.Id,
+                                PricePerDealCorrection = unitPaymentCorrectionNoteItem.PricePerDealUnitAfter
+                            };
+                            previousCorrections.Add(previousCorrection);
+                        }
+                        else
+                            previousCorrection.PricePerDealCorrection = unitPaymentCorrectionNoteItem.PricePerDealUnitAfter;
+                    }
+                    else if (unitPaymentCorrectionNote.CorrectionType == "Jumlah")
+                    {
+                        //if (previousCorrection.QuantityCorrection == 0)
+                        dppAmount = (decimal)(unitPaymentCorrectionNoteItem.Quantity * unitPaymentCorrectionNoteItem.PricePerDealUnitAfter * -1);
+                        //else
+                        //dppAmount = (decimal)((unitPaymentCorrectionNoteItem.PriceTotalAfter - previousCorrection.QuantityCorrection));
+
+                        //previousCorrection.QuantityCorrection = unitPaymentCorrectionNoteItem.PriceTotalAfter;
+                    }
+
+                    if (unitPaymentCorrectionNote.useVat)
+                        vatAmount = dppAmount * (decimal)0.1;
+
+                    if (unitPaymentCorrectionNote.useIncomeTax && unitReceiptNoteItem.IncomeTaxBy == "Supplier")
+                        incomeTaxAmount = dppAmount * (decimal)unitPaymentOrder.IncomeTaxRate / 100;
+
+                    var currency = await _currencyProvider.GetCurrencyByCurrencyCodeDate(unitPaymentCorrectionNoteItem.CurrencyCode, unitReceiptNote.ReceiptDate);
+
+                    if (currency == null)
+                    {
+                        currency = new Currency() { Rate = (double)unitPaymentOrder.CurrencyRate };
+                    }
+
+                    if (dppAmount + vatAmount - incomeTaxAmount != 0)
+                    {
+                        var viewModel = new CreateCreditorAccountViewModel()
+                        {
+                            UnitPaymentCorrectionDPP = dppAmount * (decimal)currency.Rate.GetValueOrDefault(),
+                            UnitPaymentCorrectionId = (int)unitPaymentCorrectionNote.Id,
+                            UnitPaymentCorrectionMutation = (dppAmount + vatAmount - incomeTaxAmount) * (decimal)currency.Rate.GetValueOrDefault(),
+                            UnitPaymentCorrectionNo = unitPaymentCorrectionNote.UPCNo,
+                            UnitPaymentCorrectionPPN = vatAmount * (decimal)currency.Rate.GetValueOrDefault(),
+                            UnitReceiptNoteNo = unitPaymentCorrectionNoteItem.URNNo,
+                            UnitPaymentCorrectionDate = unitPaymentCorrectionNote.CorrectionDate
+                        };
+
+                        var uri = "creditor-account/unit-payment-correction";
+                        var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+                        var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{uri}", new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, General.JsonMediaType));
+
+                        response.EnsureSuccessStatusCode();
+                    }
+                }
+            }
+
+            //var upoDetailIds = unitPaymentCorrectionNote.Items.Select(element => element.UPODetailId).ToList();
+            //var unitPaymentOrderDetails = dbContext.UnitPaymentOrderDetails.Where(entity => upoDetailIds.Contains(entity.Id)).ToList();
+            //foreach (var unitPaymentCorrectionNoteItem in unitPaymentCorrectionNote.Items)
+            //{
+            //    var dppAmount = (decimal)0;
+            //    var vatAmount = (decimal)0;
+            //    var unitPaymentOrderDetail = unitPaymentOrderDetails.FirstOrDefault(element => element.Id == unitPaymentCorrectionNoteItem.UPODetailId);
+
+            //    if (unitPaymentCorrectionNote.CorrectionType == "Harga Total")
+            //    {
+            //        dppAmount = (decimal)(unitPaymentCorrectionNoteItem.PriceTotalAfter - unitPaymentCorrectionNoteItem.PriceTotalBefore);
+            //    }
+            //    else if (unitPaymentCorrectionNote.CorrectionType == "Harga Satuan")
+            //    {
+            //        dppAmount = (decimal)(unitPaymentCorrectionNoteItem.PricePerDealUnitAfter - unitPaymentCorrectionNoteItem.PricePerDealUnitBefore);
+            //    }
+            //    else if (unitPaymentCorrectionNote.CorrectionType == "Jumlah")
+            //    {
+            //        dppAmount = (decimal)(unitPaymentOrderDetail.QuantityCorrection * unitPaymentOrderDetail.PricePerDealUnit);
+            //    }
+
+            //    if (unitPaymentCorrectionNote.useVat)
+            //        vatAmount = dppAmount * (decimal)0.1;
+
+
+            //    var viewModel = new CreateCreditorAccountViewModel()
+            //    {
+            //        UnitPaymentCorrectionDPP = dppAmount,
+            //        UnitPaymentCorrectionId = (int)unitPaymentCorrectionNote.Id,
+            //        UnitPaymentCorrectionMutation = dppAmount + vatAmount,
+            //        UnitPaymentCorrectionNo = unitPaymentCorrectionNote.UPCNo,
+            //        UnitPaymentCorrectionPPN = vatAmount,
+            //        UnitReceiptNoteNo = unitPaymentCorrectionNoteItem.URNNo,
+            //        UnitPaymentCorrectionDate = unitPaymentCorrectionNote.CorrectionDate
+            //    };
+
+            //    var uri = "creditor-account/unit-payment-correction";
+            //    var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+            //    var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{uri}", new StringContent(JsonConvert.SerializeObject(viewModel).ToString(), Encoding.UTF8, General.JsonMediaType));
+
+            //    response.EnsureSuccessStatusCode();
+            //}
         }
 
         async Task<string> GeneratePONo(UnitPaymentCorrectionNote model, int clientTimeZoneOffset)
@@ -900,5 +1162,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
         }
 
 
+    }
+
+    public class PreviousCorrection
+    {
+        public int UPODetailId { get; set; }
+        public int URNItemId { get; set; }
+        public double QuantityCorrection { get; set; }
+        public double PricePerDealCorrection { get; set; }
+        public double PriceTotalCorrection { get; set; }
     }
 }
