@@ -619,43 +619,42 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                             }
                         }
                     }
+                }
 
-
-                    journalDebitItems = journalDebitItems.GroupBy(grouping => grouping.COA.Code).Select(s => new JournalTransactionItem()
+                journalDebitItems = journalDebitItems.GroupBy(grouping => grouping.COA.Code).Select(s => new JournalTransactionItem()
+                {
+                    COA = new COA()
                     {
-                        COA = new COA()
-                        {
-                            Code = s.Key
-                        },
-                        Debit = s.Sum(sum => sum.Debit) > 0 ? Math.Abs(s.Sum(sum => sum.Debit.GetValueOrDefault())) : 0,
-                        Credit = s.Sum(sum => sum.Debit) > 0 ? 0 : Math.Abs(s.Sum(sum => sum.Debit.GetValueOrDefault())),
-                        Remark = string.Join("\n", s.Select(grouped => grouped.Remark).ToList())
-                    }).ToList();
-                    journalTransactionToPost.Items.AddRange(journalDebitItems);
+                        Code = s.Key
+                    },
+                    Debit = s.Sum(sum => sum.Debit) > 0 ? Math.Abs(s.Sum(sum => sum.Debit.GetValueOrDefault())) : 0,
+                    Credit = s.Sum(sum => sum.Debit) > 0 ? 0 : Math.Abs(s.Sum(sum => sum.Debit.GetValueOrDefault())),
+                    Remark = string.Join("\n", s.Select(grouped => grouped.Remark).ToList())
+                }).ToList();
+                journalTransactionToPost.Items.AddRange(journalDebitItems);
 
-                    journalCreditItems = journalCreditItems.GroupBy(grouping => grouping.COA.Code).Select(s => new JournalTransactionItem()
+                journalCreditItems = journalCreditItems.GroupBy(grouping => grouping.COA.Code).Select(s => new JournalTransactionItem()
+                {
+                    COA = new COA()
                     {
-                        COA = new COA()
-                        {
-                            Code = s.Key
-                        },
-                        Credit = s.Sum(sum => sum.Credit) > 0 ? Math.Abs(s.Sum(sum => sum.Credit.GetValueOrDefault())) : 0,
-                        Debit = s.Sum(sum => sum.Credit) > 0 ? 0 : Math.Abs(s.Sum(sum => sum.Credit.GetValueOrDefault())),
-                        Remark = string.Join("\n", s.Select(grouped => grouped.Remark).ToList())
-                    }).ToList();
-                    journalTransactionToPost.Items.AddRange(journalCreditItems);
+                        Code = s.Key
+                    },
+                    Credit = s.Sum(sum => sum.Credit) > 0 ? Math.Abs(s.Sum(sum => sum.Credit.GetValueOrDefault())) : 0,
+                    Debit = s.Sum(sum => sum.Credit) > 0 ? 0 : Math.Abs(s.Sum(sum => sum.Credit.GetValueOrDefault())),
+                    Remark = string.Join("\n", s.Select(grouped => grouped.Remark).ToList())
+                }).ToList();
+                journalTransactionToPost.Items.AddRange(journalCreditItems);
 
-                    if (journalTransactionToPost.Items.Any(item => item.COA.Code.Split(".").FirstOrDefault().Equals("9999")))
-                        journalTransactionToPost.Status = "DRAFT";
+                if (journalTransactionToPost.Items.Any(item => item.COA.Code.Split(".").FirstOrDefault().Equals("9999")))
+                    journalTransactionToPost.Status = "DRAFT";
 
-                    if (journalTransactionToPost.Items.Count > 0)
-                    {
-                        var journalTransactionUri = "journal-transactions";
-                        var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
-                        var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(journalTransactionToPost).ToString(), Encoding.UTF8, General.JsonMediaType));
+                if (journalTransactionToPost.Items.Count > 0)
+                {
+                    var journalTransactionUri = "journal-transactions";
+                    var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+                    var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{journalTransactionUri}", new StringContent(JsonConvert.SerializeObject(journalTransactionToPost).ToString(), Encoding.UTF8, General.JsonMediaType));
 
-                        response.EnsureSuccessStatusCode();
-                    }
+                    response.EnsureSuccessStatusCode();
                 }
             }
         }
