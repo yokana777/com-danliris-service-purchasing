@@ -338,14 +338,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             Assert.NotEqual(0, Response.Id);
         }
 
-        //      [Fact]
-        //      public async Task Should_Success_Get_All_Data()
-        //      {
-        //          var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-        //          var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-        //          var Response = facade.Read();
-        //          Assert.NotEmpty(Response.Data);
-        //      }
+        [Fact]
+        public async Task Should_Success_Get_All_Data()
+        {
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.Read();
+            Assert.NotEmpty(Response.Data);
+        }
 
         //      [Fact]
         //      public async Task Should_Success_Get_Data_By_Id()
