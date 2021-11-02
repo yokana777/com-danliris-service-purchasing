@@ -295,8 +295,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
         private async Task CreateJournalTransaction(BankExpenditureNoteModel model, IdentityService identityService)
         {
-            var unitPaymentOrderIds = model.Details.Select(detail => detail.UnitPaymentOrderId).ToList();
-            var unitPaymentOrders = dbContext.UnitPaymentOrders.Where(unitPaymentOrder => unitPaymentOrderIds.Contains(unitPaymentOrder.Id)).ToList();
+            var upoNos = model.Details.Select(detail => detail.UnitPaymentOrderNo).ToList();
+            var unitPaymentOrders = dbContext.UnitPaymentOrders.Where(unitPaymentOrder => upoNos.Contains(unitPaymentOrder.UPONo)).ToList();
             var currency = await _currencyProvider.GetCurrencyByCurrencyCodeDate(model.CurrencyCode, model.Date);
 
             if (currency == null)
