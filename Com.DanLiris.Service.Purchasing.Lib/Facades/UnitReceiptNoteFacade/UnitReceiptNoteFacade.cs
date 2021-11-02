@@ -307,7 +307,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 model.UnitName,
                 ExternalPurchaseOrderNo = string.Join('\n', model.Items.Select(item => $"- {item.EPONo}")),
                 VATAmount = vatAmount,
-                IncomeTaxAmount = incomeTaxAmount,
+                IncomeTaxAmount = currencyCode != "IDR" ? incomeTaxAmount * currencyRate : incomeTaxAmount,
                 DPPCurrency = currencyCode != "IDR" ? dpp : 0
             };
 
