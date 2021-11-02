@@ -324,24 +324,33 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 };
             }
 
-            int.TryParse(model.IncomeTaxId, out int incomeTaxId);
-            var incomeTax = incomeTaxes.FirstOrDefault(entity => entity.Id == incomeTaxId);
-            if (incomeTax == null)
-            {
-                incomeTax = new IncomeTaxCOAResult()
-                {
-                    COACodeCredit = "9999.00"
-                };
-            }
+            //int.TryParse(model.IncomeTaxId, out int incomeTaxId);
+            //var incomeTax = incomeTaxes.FirstOrDefault(entity => entity.Id == incomeTaxId);
+            //if (incomeTax == null)
+            //{
+            //    incomeTax = new IncomeTaxCOAResult()
+            //    {
+            //        COACodeCredit = "9999.00"
+            //    };
+            //}
 
             var journalDebitItems = new List<JournalTransactionItem>();
             var journalCreditItems = new List<JournalTransactionItem>();
+
+            var upoNos = model.Items.Select(element => element.UnitPaymentOrderNo).ToList();
+            var unitPaymentOrders = dbContext.UnitPaymentOrders.Where(entity => upoNos.Contains(entity.UPONo)).ToList();
 
 
             var purchasingDocumentExpeditionIds = model.Items.Select(item => item.PurchasingDocumentExpeditionId).ToList();
             var purchasingDocumentExpeditions = await dbContext.PurchasingDocumentExpeditions.Include(entity => entity.Items).Where(entity => purchasingDocumentExpeditionIds.Contains(entity.Id)).ToListAsync();
             foreach (var item in model.Items)
             {
+                var unitPaymentOrder = unitPaymentOrders.FirstOrDefault(element => element.UPONo == item.UnitPaymentOrderNo);
+                if (unitPaymentOrder == null)
+                {
+                    unitPaymentOrder = new UnitPaymentOrder();
+                }
+
                 var purchasingDocumentExpedition = purchasingDocumentExpeditions.FirstOrDefault(entity => entity.Id == item.PurchasingDocumentExpeditionId);
                 var division = divisions.FirstOrDefault(entity => entity.Code == purchasingDocumentExpedition.DivisionCode);
                 if (division == null)
@@ -349,6 +358,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     division = new IdCOAResult()
                     {
                         COACode = "0"
+                    };
+                }
+
+                int.TryParse(unitPaymentOrder.IncomeTaxId, out int incomeTaxId);
+                var incomeTax = incomeTaxes.FirstOrDefault(entity => entity.Id == incomeTaxId);
+                if (incomeTax == null)
+                {
+                    incomeTax = new IncomeTaxCOAResult()
+                    {
+                        COACodeCredit = "9999.00"
                     };
                 }
 
