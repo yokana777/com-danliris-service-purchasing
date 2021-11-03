@@ -695,7 +695,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 //else
                 //{
                     viewModel = JsonConvert.DeserializeObject<List<GarmentInvoiceMonitoringViewModel>>(result.GetValueOrDefault("data").ToString());
-                }
+                //}
                 return viewModel;
             }
             else
