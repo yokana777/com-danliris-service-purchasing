@@ -326,9 +326,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? unitSummary.Total * unitPaymentOrder.IncomeTaxRate / 100 : 0;
 
                     var debit = dpp + vatAmount - incomeTaxAmount;
-                    if (currency.Code != "IDR")
+                    if (model.CurrencyCode != "IDR")
                     {
-                        debit = ((dpp + vatAmount - incomeTaxAmount) * currency.Rate).GetValueOrDefault();
+                        debit = (dpp + vatAmount - incomeTaxAmount) * model.CurrencyRate;
                     }
                     nominal = decimal.Add(nominal, Convert.ToDecimal(debit));
 
