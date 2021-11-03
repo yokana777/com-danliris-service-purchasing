@@ -149,7 +149,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 .ThenBy(x => x.Quantity).ThenBy(x => x.EAmountVLS).ThenBy(x => x.EAmountIDR).ThenBy(x => x.URNNo).ThenBy(x => x.ProductRemark2).ThenBy(x => x.ReceiptQuantity).ThenBy(x => x.UAmountVLS).ThenBy(x => x.UAmountIDR).ThenBy(x => x.SupplierName).ThenBy(x => x.BillNo)
                 .ThenBy(x => x.PaymentBill).ThenBy(x => x.DONo);
 
-            var invoiceids = realization.Where(x=>x.InvoiceId != 0).Select(x => x.InvoiceId).Distinct().ToList();
+            var invoiceids = realization.Select(x => x.InvoiceId).Distinct().ToList();
 
             var nokasbanks = new List<DPPVATBankExpenditureNoteViewModel>();
 
@@ -655,15 +655,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
 
                 List<GarmentExpenditureGoodViewModel> viewModel;
-                if (result.GetValueOrDefault("data") == null)
-                {
-                    viewModel = new List<GarmentExpenditureGoodViewModel>();
-                }
-                else
-                {
+                //if (result.GetValueOrDefault("data") == null)
+                //{
+                //    viewModel = new List<GarmentExpenditureGoodViewModel>();
+                //}
+                //else
+                //{
                     viewModel = JsonConvert.DeserializeObject<List<GarmentExpenditureGoodViewModel>>(result.GetValueOrDefault("data").ToString());
 
-                }
+                //}
                 return viewModel;
             }
             else
@@ -688,12 +688,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
 
                 List<GarmentInvoiceMonitoringViewModel> viewModel;
-                if (result.GetValueOrDefault("data") == null)
-                {
-                    viewModel = new List<GarmentInvoiceMonitoringViewModel>();
-                }
-                else
-                {
+                //if (result.GetValueOrDefault("data") == null)
+                //{
+                //    viewModel = new List<GarmentInvoiceMonitoringViewModel>();
+                //}
+                //else
+                //{
                     viewModel = JsonConvert.DeserializeObject<List<GarmentInvoiceMonitoringViewModel>>(result.GetValueOrDefault("data").ToString());
                 }
                 return viewModel;
@@ -720,15 +720,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
 
                 DPPVATBankExpenditureNoteViewModel viewModel;
-                if (result.GetValueOrDefault("data") == null)
-                {
-                    viewModel = new DPPVATBankExpenditureNoteViewModel();
-                }
-                else
-                {
+                //if (result.GetValueOrDefault("data") == null)
+                //{
+                //    viewModel = new DPPVATBankExpenditureNoteViewModel();
+                //}
+                //else
+                //{
                     viewModel = JsonConvert.DeserializeObject<DPPVATBankExpenditureNoteViewModel>(result.GetValueOrDefault("data").ToString());
 
-                }
+                //}
                 return viewModel;
             }
             else
