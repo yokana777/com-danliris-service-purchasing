@@ -385,6 +385,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             return _dbContext.SaveChanges();
         }
 
+        private async Task<GarmentCurrency> GetBICurrency(string codeCurrency, DateTimeOffset date)
+        {
+            string stringDate = date.ToString("yyyy/MM/dd HH:mm:ss");
+            string queryString = $"code={codeCurrency}&stringDate={stringDate}";
+
+            var http = _serviceProvider.GetService<IHttpClientService>();
+            var response = await http.GetAsync(APIEndpoint.Core + $"master/bi-currencies/single-by-code-date?{queryString}");
+
+            var responseString = await response.Content.ReadAsStringAsync();
+            var jsonSerializationSetting = new JsonSerializerSettings() { MissingMemberHandling = MissingMemberHandling.Ignore };
+
+            var result = JsonConvert.DeserializeObject<APIDefaultResponse<GarmentCurrency>>(responseString, jsonSerializationSetting);
+
+            return result.data;
+        }
+
+
         public async Task<int> AutoJournalVBRequest(VBFormDto form)
         {
             var jsonSerializerSettings = new JsonSerializerSettings
@@ -515,7 +532,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                                 }
                             }
 
-                            var currency = await _currencyProvider.GetCurrencyByCurrencyCodeDate(externalPurchaseOrder.CurrencyCode, unitReceiptNote.ReceiptDate);
+                            var currency = await GetBICurrency(externalPurchaseOrder.CurrencyCode, unitReceiptNote.ReceiptDate);
                             var currencyRate = currency != null ? (decimal)currency.Rate.GetValueOrDefault() : (decimal)externalPurchaseOrder.CurrencyRate;
 
                             var externalPOPriceTotal = externalPurchaseOrderDetail.PricePerDealUnit * externalPurchaseOrderDetail.DealQuantity;
