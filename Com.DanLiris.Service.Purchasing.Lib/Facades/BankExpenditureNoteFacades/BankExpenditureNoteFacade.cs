@@ -297,12 +297,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
         {
             var upoNos = model.Details.Select(detail => detail.UnitPaymentOrderNo).ToList();
             var unitPaymentOrders = dbContext.UnitPaymentOrders.Where(unitPaymentOrder => upoNos.Contains(unitPaymentOrder.UPONo)).ToList();
-            var currency = await _currencyProvider.GetCurrencyByCurrencyCodeDate(model.CurrencyCode, model.Date);
+            //var currency = await GetBICurrencyWithDate(model.CurrencyCode, model.Date);
 
-            if (currency == null)
-            {
-                currency = new Currency() { Rate = model.CurrencyRate };
-            }
+            //if (currency == null)
+            //{
+            //    currency = new GarmentCurrency() { Rate = model.CurrencyRate };
+            //}
 
             var items = new List<JournalTransactionItem>();
             foreach (var detail in model.Details)
@@ -326,9 +326,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? unitSummary.Total * unitPaymentOrder.IncomeTaxRate / 100 : 0;
 
                     var debit = dpp + vatAmount - incomeTaxAmount;
-                    if (currency.Code != "IDR")
+                    if (model.CurrencyCode != "IDR")
                     {
-                        debit = ((dpp + vatAmount - incomeTaxAmount) * currency.Rate).GetValueOrDefault();
+                        debit = (dpp + vatAmount - incomeTaxAmount) * model.CurrencyRate;
                     }
                     nominal = decimal.Add(nominal, Convert.ToDecimal(debit));
 
