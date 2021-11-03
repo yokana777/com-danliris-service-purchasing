@@ -79,6 +79,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
             newData.Invoice = "Invoice1234";
             garmentExpenditureGoods.Add(GetNewData());
             garmentExpenditureGoods.Add(newData);
+            garmentExpenditureGoods.Add(GetNewData());
             var data = new List<GarmentExpenditureGoodViewModel> { GetNewData() };
 
             Dictionary<string, object> result =
