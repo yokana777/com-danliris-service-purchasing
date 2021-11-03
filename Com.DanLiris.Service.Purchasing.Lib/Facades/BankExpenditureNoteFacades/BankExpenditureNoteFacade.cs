@@ -297,11 +297,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
         {
             var upoNos = model.Details.Select(detail => detail.UnitPaymentOrderNo).ToList();
             var unitPaymentOrders = dbContext.UnitPaymentOrders.Where(unitPaymentOrder => upoNos.Contains(unitPaymentOrder.UPONo)).ToList();
-            var currency = await _currencyProvider.GetCurrencyByCurrencyCodeDate(model.CurrencyCode, model.Date);
+            var currency = await GetBICurrency(model.CurrencyCode, model.Date);
 
             if (currency == null)
             {
-                currency = new Currency() { Rate = model.CurrencyRate };
+                currency = new GarmentCurrency() { Rate = model.CurrencyRate };
             }
 
             var items = new List<JournalTransactionItem>();
