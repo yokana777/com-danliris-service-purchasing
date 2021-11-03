@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports.GarmentReportCMTFacade;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
 {
@@ -21,6 +22,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         IQueryable<PurchasingDisposition> ReadByDisposition(string Keyword = null, string Filter = "{}");
         Task<int> UpdatePosition(PurchasingDispositionUpdatePositionPostedViewModel data, string user);
         List<PurchasingDispositionViewModel> GetTotalPaidPrice(List<PurchasingDispositionViewModel> data);
+        DispositionMemoLoaderDto GetDispositionMemoLoader(int dispositionId);
+        ReadResponse<UnitPaymentOrderMemoLoaderDto> GetUnitPaymentOrderMemoLoader(string keyword, int divisionId, bool supplierIsImport, string currencyCode);
 
     }
 }

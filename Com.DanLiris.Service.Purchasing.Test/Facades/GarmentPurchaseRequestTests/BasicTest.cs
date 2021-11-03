@@ -1060,5 +1060,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
+
+        [Fact]
+        public void Should_Success_Get_ReadByTagsOptimized()
+        {
+            GarmentPurchaseRequestFacade facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var Response = facade.ReadByTagsOptimized("test", DateTimeOffset.Now, DateTimeOffset.Now);
+
+            Assert.NotNull(Response);
+        }
     }
 }

@@ -32,6 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
         public bool IsApproved { get; set; }
         public bool IsCanceled { get; set; }
         public bool IsClosed { get; set; }
+        public bool IsUnpost { get; set; }
 
         //StandardQuality
         public string QualityStandardType { get; set; }

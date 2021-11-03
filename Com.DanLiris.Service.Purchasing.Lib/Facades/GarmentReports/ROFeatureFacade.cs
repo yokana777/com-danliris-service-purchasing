@@ -45,7 +45,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                               {
                                   KodeBarang = a.ProductCode,
                                   NamaBarang = a.ProductName,
-                                  NoBukti = b.URNNo,
                                   PO = a.POSerialNumber,
                                   Article = c.Article.ToUpper(),
                                   QtyTerima = Math.Round((double)(a.ReceiptQuantity * a.Conversion), 2),
@@ -79,10 +78,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             //                   }).ToList();
 
             //var report = penerimaan.ToList();
-            var datas = penerimaan.GroupBy(a => new { a.KodeBarang, a.NamaBarang, a.NoBukti, a.Article, a.PO, a.RONo, a.UomMasuk, a.UomKeluar, a.Unitcode }, (key, groupdata) => new ROFeatureTemp
+            var datas = penerimaan.GroupBy(a => new { a.KodeBarang, a.NamaBarang, a.Article, a.PO, a.RONo, a.UomMasuk, a.UomKeluar, a.Unitcode }, (key, groupdata) => new ROFeatureTemp
             {
                 KodeBarang = key.KodeBarang,
-                NoBukti = key.NoBukti,
                 NamaBarang = key.NamaBarang,
                 Article = key.Article,
                 PO = key.PO,
@@ -115,7 +113,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
                 var masuk = (from a in dbContext.GarmentUnitReceiptNotes
                             join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
-                            where b.ProductCode == data.KodeBarang && b.ProductName == data.NamaBarang && b.POSerialNumber == data.PO && b.RONo == data.RONo
+                            where b.ProductCode == data.KodeBarang && b.ProductName == data.NamaBarang && b.POSerialNumber == data.PO && b.RONo == data.RONo && a.UnitCode == data.Unitcode
                             select new {
                                 a.ReceiptDate,
                                 a.URNNo,
@@ -141,7 +139,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                               join c in dbContext.GarmentUnitDeliveryOrderItems on b.UnitDOItemId equals c.Id
                               join d in dbContext.GarmentUnitDeliveryOrders on c.UnitDOId equals d.Id
                               //where b.ProductCode == data.KodeBarang && b.POSerialNumber == data.PO && b.RONo == data.RONo
-                              where b.ProductCode == data.KodeBarang && b.POSerialNumber == data.PO && b.RONo == data.RONo
+                              where b.ProductCode == data.KodeBarang && b.POSerialNumber == data.PO && b.RONo == data.RONo && a.UnitSenderCode == data.Unitcode
                               select new
                              {
                                  a.ExpenditureDate,

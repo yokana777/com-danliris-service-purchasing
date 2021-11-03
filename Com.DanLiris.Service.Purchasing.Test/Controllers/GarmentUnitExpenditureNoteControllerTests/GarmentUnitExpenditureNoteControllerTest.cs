@@ -883,5 +883,42 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitExpenditur
             var response = controller.GetBasicPrice(It.IsAny<string>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
+
+        [Fact]
+        public void Should_Success_Revise_CreateDate()
+        {
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<List<GarmentUnitExpenditureNoteViewModel>>(It.IsAny<List<GarmentUnitExpenditureNote>>()))
+                .Returns(new List<GarmentUnitExpenditureNoteViewModel> { ViewModel });
+
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentUnitExpenditureNoteViewModel>()))
+                .Verifiable();
+
+            var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+            mockFacade.Setup(x => x.UenDateRevise(It.IsAny<List<GarmentUnitExpenditureNote>>(), It.IsAny<string>(), It.IsAny<DateTime>()))
+                .ReturnsAsync(1);
+
+            var mockunitdo = new Mock<IGarmentUnitDeliveryOrderFacade>();
+
+            var controller = GetController(mockFacade, mockunitdo, validateMock, mockMapper);
+
+            var response = controller.UrnReviseDate(new List<GarmentUnitExpenditureNoteViewModel> { ViewModel }, DateTime.Now); ;
+            Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Revise_CreateDate()
+        {
+            var mockMapper = new Mock<IMapper>();
+            var mockFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+
+            var mockunitdo = new Mock<IGarmentUnitDeliveryOrderFacade>();
+
+            var controller = new GarmentUnitExpenditureNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, mockunitdo.Object);
+
+            var response = controller.UrnReviseDate(new List<GarmentUnitExpenditureNoteViewModel>(), DateTime.Now);
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
     }
 }

@@ -38,7 +38,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public decimal ReceiptCorrectionQty { get; set; }
         public decimal ReceiptQty { get; set; }
         public string ReceiptUom { get; set; }
-        public double ExpendQty { get; set; }
+        public decimal ExpendQty { get; set; }
         public string ExpandUom { get; set; }
         public decimal EndingBalanceQty { get; set; }
         public string EndingUom { get; set; }

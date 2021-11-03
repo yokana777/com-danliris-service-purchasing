@@ -230,28 +230,28 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         //    List<GarmentDeliveryOrderDetail> detail = new List<GarmentDeliveryOrderDetail>(item[0].Details);
 
         //    model.Items = model.Items.Concat(new[] { new GarmentDeliveryOrderItem
-        //    {
-        //        EPOId = 1,
-        //        EPONo = "test",
-        //        PaymentDueDays = 1,
-        //        CurrencyCode = "test",
-        //        CurrencyId = 1,
-        //        Details = new List<GarmentDeliveryOrderDetail>
-        //                {
-        //                    new GarmentDeliveryOrderDetail
+        //        {
+        //            EPOId = 1,
+        //            EPONo = "test",
+        //            PaymentDueDays = 1,
+        //            CurrencyCode = "test",
+        //            CurrencyId = 1,
+        //            Details = new List<GarmentDeliveryOrderDetail>
         //                    {
-        //                        POId = detail[0].POId,
-        //                        POItemId = detail[0].POItemId,
-        //                        Conversion = detail[0].Conversion,
-        //                        QuantityCorrection = detail[0].QuantityCorrection,
-        //                        PricePerDealUnit = detail[0].PricePerDealUnit,
-        //                        PriceTotalCorrection = detail[0].PriceTotalCorrection,
-        //                        DOQuantity = detail[0].DOQuantity,
-        //                        EPOItemId = detail[0].EPOItemId,
-        //                        CodeRequirment = "test",
+        //                        new GarmentDeliveryOrderDetail
+        //                        {
+        //                            POId = detail[0].POId,
+        //                            POItemId = detail[0].POItemId,
+        //                            Conversion = detail[0].Conversion,
+        //                            QuantityCorrection = detail[0].QuantityCorrection,
+        //                            PricePerDealUnit = detail[0].PricePerDealUnit,
+        //                            PriceTotalCorrection = detail[0].PriceTotalCorrection,
+        //                            DOQuantity = detail[0].DOQuantity,
+        //                            EPOItemId = detail[0].EPOItemId,
+        //                            CodeRequirment = "test",
+        //                        }
         //                    }
-        //                }
-        //    }});
+        //        }});
 
         //    var Response = await facade.Update((int)model.Id, viewModel, model, USERNAME);
         //    Assert.NotEqual(0, Response);
@@ -989,6 +989,109 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.ReadForCorrectionNoteQuantity();
             Assert.NotEmpty(Response.Data);
+        }
+
+        [Fact]
+        public void Should_Success_GetReportHeaderAccuracyofArrivaly()
+        {
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var Response = facade.GetReportHeaderAccuracyofArrival("Bahan Baku", DateTime.Now, DateTime.Now, 0);
+            Assert.NotNull(Response);
+
+            var Response2 = facade.GetReportHeaderAccuracyofArrival("Bahan Pendukung", DateTime.Now, DateTime.Now, 0);
+            Assert.NotNull(Response2);
+        }
+
+        [Fact]
+        public void Should_Success_GenerateExcelArrivalHeader()
+        {
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var Response = facade.GenerateExcelArrivalHeader("Bahan Baku", DateTime.Now, DateTime.Now, 0);
+            Assert.NotNull(Response);
+
+            var Response2 = facade.GenerateExcelArrivalHeader("Bahan Pendukung", DateTime.Now, DateTime.Now, 0);
+            Assert.NotNull(Response2);
+        }
+
+        [Fact]
+        public void Should_Success_GetReportDetailAccuracyofArrival()
+        {
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var Response = facade.GetReportDetailAccuracyofArrival("", "Bahan Baku", DateTime.Now, DateTime.Now, 0);
+            Assert.NotNull(Response);
+
+            var Response2 = facade.GetReportDetailAccuracyofArrival("", "Bahan Pendukung", DateTime.Now, DateTime.Now, 0);
+            Assert.NotNull(Response2);
+        }
+
+        [Fact]
+        public void Should_Success_GetAccuracyOfArrivalDetail()
+        {
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var Response = facade.GetAccuracyOfArrivalDetail("", "Bahan Baku", DateTime.Now, DateTime.Now);
+            Assert.NotNull(Response);
+
+            var Response2 = facade.GetAccuracyOfArrivalDetail("", "Bahan Pendukung", DateTime.Now, DateTime.Now);
+            Assert.NotNull(Response2);
+        }
+
+        [Fact]
+        public void Should_Success_GenerateExcelArrivalDetail()
+        {
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var Response = facade.GenerateExcelArrivalDetail("", "Bahan Baku", DateTime.Now, DateTime.Now, 0);
+            Assert.NotNull(Response);
+
+            var Response2 = facade.GenerateExcelArrivalDetail("", "Bahan Pendukung", DateTime.Now, DateTime.Now, 0);
+            Assert.NotNull(Response2);
+        }
+
+        [Fact]
+        public void Should_Success_GetReportHeaderAccuracyofDelivery()
+        {
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var Response = facade.GetReportHeaderAccuracyofDelivery(DateTime.Now, DateTime.Now, "", "", 0);
+            Assert.NotNull(Response);
+        }
+
+        [Fact]
+        public void Should_Success_GenerateExcelDeliveryHeader()
+        {
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var Response = facade.GenerateExcelDeliveryHeader(DateTime.Now, DateTime.Now, "", "", 0);
+            Assert.NotNull(Response);
+        }
+
+        [Fact]
+        public void Should_Success_GetReportDetailAccuracyofDelivery()
+        {
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var Response = facade.GetReportDetailAccuracyofDelivery("", DateTime.Now, DateTime.Now, "", "", 0);
+            Assert.NotNull(Response);
+        }
+
+        [Fact]
+        public void Should_Success_GenerateExcelDeliveryDetail()
+        {
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var Response = facade.GenerateExcelDeliveryDetail("", DateTime.Now, DateTime.Now, "", "", 0);
+            Assert.NotNull(Response);
+        }
+
+        [Fact]
+        public void Should_Success_GetReportDO()
+        {
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var Response = facade.GetReportDO("", "", 0, DateTime.Now, DateTime.Now, 1, 1, "{}", 0);
+            Assert.NotNull(Response);
+        }
+
+        [Fact]
+        public void Should_Success_GenerateExcelDO()
+        {
+            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var Response = facade.GenerateExcelDO("", "", 0, DateTime.Now, DateTime.Now, 0);
+            Assert.NotNull(Response);
         }
     }
 }

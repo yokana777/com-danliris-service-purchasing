@@ -242,7 +242,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
             var Response = facade.ReadByTags("Accessories",$"#{data.UnitName} #{data.BuyerName}", data.ShipmentDate.AddDays(-1), data.ShipmentDate.AddDays(1), USERNAME);
             Assert.NotNull(Response);
 
-            var ResponseWhiteSpace = facade.ReadByTags("Accessories", "", DateTimeOffset.MinValue, DateTimeOffset.MinValue, USERNAME);
+            var ResponseWhiteSpace = facade.ReadByTags("fabric", "", DateTimeOffset.MinValue, DateTimeOffset.MinValue, USERNAME);
             Assert.NotNull(ResponseWhiteSpace);
         }
 

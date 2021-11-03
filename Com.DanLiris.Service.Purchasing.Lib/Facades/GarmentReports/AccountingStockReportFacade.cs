@@ -79,10 +79,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             var BalanceStock = (from a in dbContext.GarmentStockOpnames
                                 join b in dbContext.GarmentStockOpnameItems on a.Id equals b.GarmentStockOpnameId
                                 join c in dbContext.GarmentDOItems on b.DOItemId equals c.Id
-                                join g in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RO equals g.RONo
                                 join d in dbContext.GarmentUnitReceiptNoteItems on b.URNItemId equals d.Id
                                 join f in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals f.Id
                                 join h in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on f.GarmentEPOId equals h.Id
+                                join g in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on b.RO equals g.RONo into PR
+                                from prs in PR.DefaultIfEmpty()
                                 where a.IsDeleted == false && b.IsDeleted == false
                                 && a.Date.Date == lastdate.Date
                                 && c.CreatedUtc.Year <= DateTo.Date.Year
@@ -93,12 +94,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                     ProductCode = b.ProductCode.Trim(),
                                     //ProductName = b.ProductName,
                                     RO = b.RO,
-                                    Buyer = g.BuyerCode.Trim(),
+                                    Buyer = prs != null ? prs.BuyerCode.Trim() : "-",
                                     PlanPo = b.POSerialNumber.Trim(),
-                                    NoArticle = g.Article.TrimEnd(),
+                                    NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
                                     BeginningBalanceQty = b.Quantity,
                                     BeginningBalanceUom = b.SmallUomUnit.Trim(),
-                                    BeginningBalancePrice = Math.Round(((decimal.ToDouble(d.PricePerDealUnit) / (d.Conversion == 0 ? 1 : decimal.ToDouble(d.Conversion))) * d.DOCurrencyRate) * decimal.ToDouble(b.Quantity), 2),
+                                    BeginningBalancePrice = Math.Round((((d.PricePerDealUnit) / (d.Conversion == 0 ? 1 : (d.Conversion))) * (decimal)d.DOCurrencyRate) * (b.Quantity), 2, MidpointRounding.AwayFromZero),
                                     ReceiptCorrectionQty = 0,
                                     ReceiptPurchaseQty = 0,
                                     ReceiptProcessQty = 0,
@@ -248,11 +249,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
                             join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                             join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
-                            join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
-                            //join h in Codes on a.ProductCode equals h.Code
+                            join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on a.RONo equals e.RONo into PR
+                            from prs in PR.DefaultIfEmpty()
+                                //join h in Codes on a.ProductCode equals h.Code
                             where a.IsDeleted == false && b.IsDeleted == false
                               &&
-                              b.CreatedUtc.AddHours(offset).Date > lastdate.Date
+                              b.CreatedUtc.AddHours(offset).Date >= lastdate.Date
                               && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                               && b.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitCode : unitcode)
                               && categories1.Contains(a.ProductName)
@@ -261,12 +263,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 ProductCode = a.ProductCode.Trim(),
                                 //ProductName = a.ProductName,
                                 RO = a.RONo,
-                                Buyer = e.BuyerCode.Trim(),
+                                Buyer = prs != null ? prs.BuyerCode.Trim() : "-",
                                 PlanPo = a.POSerialNumber.Trim(),
-                                NoArticle = e.Article.TrimEnd(),
-                                BeginningBalanceQty = Math.Round(a.ReceiptQuantity * a.Conversion, 2),
+                                NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                                BeginningBalanceQty = Math.Round(a.ReceiptQuantity * a.Conversion, 2, MidpointRounding.AwayFromZero),
                                 BeginningBalanceUom = a.SmallUomUnit.Trim(),
-                                BeginningBalancePrice = Math.Round(((decimal.ToDouble(a.PricePerDealUnit) / (a.Conversion == 0 ? 1 : decimal.ToDouble(a.Conversion))) * a.DOCurrencyRate) * (decimal.ToDouble(a.ReceiptQuantity) * decimal.ToDouble(a.Conversion)), 2),
+                                BeginningBalancePrice = Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion))) * (decimal)a.DOCurrencyRate * (a.ReceiptQuantity * a.Conversion), 2, MidpointRounding.AwayFromZero),
                                 ReceiptCorrectionQty = 0,
                                 ReceiptPurchaseQty = 0,
                                 ReceiptProcessQty = 0,
@@ -350,17 +352,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 ExpendKon1BPrice = group.Sum(x => x.ExpendKon1BPrice),
                                 EndingBalanceQty = group.Sum(x => x.EndingBalanceQty),
                                 EndingBalancePrice = group.Sum(x => x.EndingBalancePrice),
-                            });
+                            }).ToList();
             var SAKeluar = (from a in (from aa in dbContext.GarmentUnitExpenditureNoteItems select aa)
                             join b in dbContext.GarmentUnitExpenditureNotes on a.UENId equals b.Id
                             join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                             join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                             //join h in Codes on a.ProductCode equals h.Code
-                            join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
+                            join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on a.RONo equals e.RONo into PR
+                            from prs in PR.DefaultIfEmpty()
+                            join f in dbContext.GarmentUnitReceiptNoteItems on a.URNItemId equals f.Id into urnitems
+                            from urnitem in urnitems.DefaultIfEmpty()
                             where
                             a.IsDeleted == false && b.IsDeleted == false
                                &&
-                               b.CreatedUtc.AddHours(offset).Date > lastdate.Date
+                               b.CreatedUtc.AddHours(offset).Date >= lastdate.Date
                                && b.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                                && 
                                b.UnitSenderCode == (string.IsNullOrWhiteSpace(unitcode) ? b.UnitSenderCode : unitcode)
@@ -370,12 +375,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 ProductCode = a.ProductCode.Trim(),
                                 //ProductName = a.ProductName,
                                 RO = a.RONo,
-                                Buyer = a.BuyerCode.Trim(),
+                                Buyer = a.BuyerCode == null ? "-" : a.BuyerCode.Trim(),
                                 PlanPo = a.POSerialNumber.Trim(),
-                                NoArticle = e.Article.TrimEnd(),
-                                BeginningBalanceQty = Convert.ToDecimal(a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * -1 * 0.9144 : -1 * a.Quantity),
-                                BeginningBalanceUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : a.UomUnit.Trim(),
-                                BeginningBalancePrice = Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity) * ((double)a.BasicPrice / (a.Conversion == 0 ? 1 : (double)a.Conversion)), 2) * -1,
+                                NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                                BeginningBalanceQty = a.UomUnit == "YARD" && ctg == "BB" ? Convert.ToDecimal(a.Quantity * -1 * 0.9144) : b.ExpenditureType == "EXTERNAL" ? -1 * Convert.ToDecimal(a.Quantity) * urnitem.Conversion : -1 * Convert.ToDecimal(a.Quantity),
+                                BeginningBalanceUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : b.ExpenditureType == "EXTERNAL" ? urnitem.SmallUomUnit : a.UomUnit.Trim(),
+                                BeginningBalancePrice = Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? Convert.ToDecimal(a.Quantity * 0.9144) : b.ExpenditureType == "EXTERNAL" ? Convert.ToDecimal(a.Quantity * (urnitem != null ? (double)urnitem.Conversion : 1)) : (decimal)a.Quantity) * (a.BasicPrice / (a.Conversion == 0 ? 1 : a.Conversion)), 2,MidpointRounding.AwayFromZero) * -1,
                                 ReceiptCorrectionQty = 0,
                                 ReceiptPurchaseQty = 0,
                                 ReceiptProcessQty = 0,
@@ -460,19 +465,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 ExpendKon1BPrice = group.Sum(x => x.ExpendKon1BPrice),
                                 EndingBalanceQty = group.Sum(x => x.EndingBalanceQty),
                                 EndingBalancePrice = group.Sum(x => x.EndingBalancePrice),
-                            });
+                            }).ToList();
             var SAKoreksi = (from a in dbContext.GarmentUnitReceiptNotes
                              join b in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa) on a.Id equals b.URNId
                              join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
                              join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                              join e in dbContext.GarmentReceiptCorrectionItems on b.Id equals e.URNItemId
                              join g in dbContext.GarmentReceiptCorrections on e.CorrectionId equals g.Id
-                             join f in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RONo equals f.RONo
-                             //join h in Codes on b.ProductCode equals h.Code
+                             join f in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on b.RONo equals f.RONo into PR
+                             from prs in PR.DefaultIfEmpty()
+                                 //join h in Codes on b.ProductCode equals h.Code
                              where
                              a.IsDeleted == false && b.IsDeleted == false
                              &&
-                             g.CreatedUtc.AddHours(offset).Date > lastdate.Date
+                             g.CreatedUtc.AddHours(offset).Date >= lastdate.Date
                              && g.CreatedUtc.AddHours(offset).Date < DateFrom.Date
                              && a.UnitCode == (string.IsNullOrWhiteSpace(unitcode) ? a.UnitCode : unitcode)
                              && categories1.Contains(b.ProductName)
@@ -481,12 +487,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  ProductCode = b.ProductCode.Trim(),
                                  //ProductName = b.ProductName,
                                  RO = b.RONo,
-                                 Buyer = f.BuyerCode.Trim(),
+                                 Buyer = prs != null ? prs.BuyerCode.Trim() : "-",
                                  PlanPo = b.POSerialNumber.Trim(),
-                                 NoArticle = f.Article.TrimEnd(),
-                                 BeginningBalanceQty = Math.Round((decimal)e.SmallQuantity, 2),
+                                 NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
+                                 BeginningBalanceQty = Math.Round((decimal)e.SmallQuantity, 2, MidpointRounding.AwayFromZero),
                                  BeginningBalanceUom = b.SmallUomUnit.Trim(),
-                                 BeginningBalancePrice = Math.Round(((e.PricePerDealUnit / (e.Conversion == 0 ? 1 : e.Conversion)) * b.DOCurrencyRate) * (e.SmallQuantity), 2),
+                                 BeginningBalancePrice = Convert.ToDecimal(Math.Round(((e.PricePerDealUnit / (e.Conversion == 0 ? 1 : e.Conversion)) * b.DOCurrencyRate) * (e.SmallQuantity), 2, MidpointRounding.AwayFromZero)),
                                  ReceiptCorrectionQty = 0,
                                  ReceiptPurchaseQty = 0,
                                  ReceiptProcessQty = 0,
@@ -570,7 +576,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  ExpendKon1BPrice = group.Sum(x => x.ExpendKon1BPrice),
                                  EndingBalanceQty = group.Sum(x => x.EndingBalanceQty),
                                  EndingBalancePrice = group.Sum(x => x.EndingBalancePrice),
-                             });
+                             }).ToList();
             var SaldoAwal1 = BalanceStock.Concat(SATerima).Concat(SAKeluar).Concat(SAKoreksi).AsEnumerable();
             var SaldoAwal = SaldoAwal1.GroupBy(x => new { x.ProductCode, /*x.ProductName,*/ x.BeginningBalanceUom, x.Buyer, x.NoArticle, x.PlanPo, x.RO }, (key, group) => new AccountingStockTempViewModel
             {
@@ -625,7 +631,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                           join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
                           join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                           join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
-                          join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
+                          join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on a.RONo equals e.RONo into PR
+                          from prs in PR.DefaultIfEmpty()
                           join g in dbContext.GarmentUnitExpenditureNotes on b.UENId equals g.Id into UEN
                           from dd in UEN.DefaultIfEmpty()
                           //join h in Codes on a.ProductCode equals h.Code
@@ -640,28 +647,28 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             ProductCode = a.ProductCode.Trim(),
                             //ProductName = a.ProductName,
                             RO = a.RONo,
-                            Buyer = e.BuyerCode.Trim(),
+                            Buyer = prs != null ? prs.BuyerCode.Trim() : "-",
                             PlanPo = a.POSerialNumber.Trim(),
-                            NoArticle = e.Article.TrimEnd(),
+                            NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
                             BeginningBalanceQty = 0,
                             BeginningBalanceUom = a.SmallUomUnit.Trim(),
                             BeginningBalancePrice = 0,
                             ReceiptCorrectionQty = 0,
-                            ReceiptPurchaseQty = b.URNType == "PEMBELIAN" ? Math.Round(a.ReceiptQuantity * a.Conversion, 2) : 0,
-                            ReceiptProcessQty = b.URNType == "PROSES" ? Math.Round(a.ReceiptQuantity * a.Conversion, 2) : 0,
-                            ReceiptKon2AQty = b.URNType == "GUDANG LAIN" && (/*b.UId == null ?*/ /*b.UENNo.Contains("C2A")*/ dd.UnitSenderCode == "C2A" ) ? Math.Round(a.ReceiptQuantity * a.Conversion, 2) : 0,
-                            ReceiptKon2BQty = b.URNType == "GUDANG LAIN" && (/*b.UId == null ?*/ /*b.UENNo.Contains("C2B")*/ dd.UnitSenderCode == "C2B") ? Math.Round(a.ReceiptQuantity * a.Conversion, 2) : 0,
-                            ReceiptKon2CQty = b.URNType == "GUDANG LAIN" && (/*b.UId == null ?*/ /*b.UENNo.Contains("C2C")*/ dd.UnitSenderCode == "C2C") ? Math.Round(a.ReceiptQuantity * a.Conversion, 2) : 0,
-                            ReceiptKon1AQty = b.URNType == "GUDANG LAIN" && (/*b.UId == null ?*/ /*b.UENNo.Contains("C1A")*/ dd.UnitSenderCode == "C1A") ? Math.Round(a.ReceiptQuantity * a.Conversion, 2) : 0,
-                            ReceiptKon1BQty = b.URNType == "GUDANG LAIN" && (/*b.UId == null ?*/ /*b.UENNo.Contains("C1B")*/ dd.UnitSenderCode == "C1B") ? Math.Round(a.ReceiptQuantity * a.Conversion, 2) : 0,
+                            ReceiptPurchaseQty = b.URNType == "PEMBELIAN" ? Math.Round(a.ReceiptQuantity * a.Conversion, 2, MidpointRounding.AwayFromZero) : 0,
+                            ReceiptProcessQty = b.URNType == "PROSES" ? Math.Round(a.ReceiptQuantity * a.Conversion, 2, MidpointRounding.AwayFromZero) : 0,
+                            ReceiptKon2AQty = b.URNType == "GUDANG LAIN" && (/*b.UId == null ?*/ /*b.UENNo.Contains("C2A")*/ dd.UnitSenderCode == "C2A" ) ? Math.Round(a.ReceiptQuantity * a.Conversion, 2, MidpointRounding.AwayFromZero) : 0,
+                            ReceiptKon2BQty = b.URNType == "GUDANG LAIN" && (/*b.UId == null ?*/ /*b.UENNo.Contains("C2B")*/ dd.UnitSenderCode == "C2B") ? Math.Round(a.ReceiptQuantity * a.Conversion, 2, MidpointRounding.AwayFromZero) : 0,
+                            ReceiptKon2CQty = b.URNType == "GUDANG LAIN" && (/*b.UId == null ?*/ /*b.UENNo.Contains("C2C")*/ dd.UnitSenderCode == "C2C") ? Math.Round(a.ReceiptQuantity * a.Conversion, 2, MidpointRounding.AwayFromZero) : 0,
+                            ReceiptKon1AQty = b.URNType == "GUDANG LAIN" && (/*b.UId == null ?*/ /*b.UENNo.Contains("C1A")*/ dd.UnitSenderCode == "C1A") ? Math.Round(a.ReceiptQuantity * a.Conversion, 2, MidpointRounding.AwayFromZero) : 0,
+                            ReceiptKon1BQty = b.URNType == "GUDANG LAIN" && (/*b.UId == null ?*/ /*b.UENNo.Contains("C1B")*/ dd.UnitSenderCode == "C1B") ? Math.Round(a.ReceiptQuantity * a.Conversion, 2, MidpointRounding.AwayFromZero) : 0,
                             ReceiptCorrectionPrice = 0,
-                            ReceiptPurchasePrice = b.URNType == "PEMBELIAN" ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2) : 0,
-                            ReceiptProcessPrice = b.URNType == "PROSES" ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2) : 0,
-                            ReceiptKon2APrice = b.URNType == "GUDANG LAIN" && (/*b.UId == null ?*/ /*b.UENNo.Contains("C2A")*/ dd.UnitSenderCode == "C2A") ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2) : 0,
-                            ReceiptKon2BPrice = b.URNType == "GUDANG LAIN" && (/*b.UId == null ?*/ /*b.UENNo.Contains("C2B")*/ dd.UnitSenderCode == "C2B") ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2) : 0,
-                            ReceiptKon2CPrice = b.URNType == "GUDANG LAIN" && (/*b.UId == null ?*/ /*b.UENNo.Contains("C2C")*/ dd.UnitSenderCode == "C2C") ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2) : 0,
-                            ReceiptKon1APrice = b.URNType == "GUDANG LAIN" && (/*b.UId == null ?*/ /*b.UENNo.Contains("C1A")*/ dd.UnitSenderCode == "C1A") ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2) : 0,
-                            ReceiptKon1BPrice = b.URNType == "GUDANG LAIN" && (/*b.UId == null ?*/ /*b.UENNo.Contains("C1B")*/ dd.UnitSenderCode == "C1B") ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2) : 0,
+                            ReceiptPurchasePrice = b.URNType == "PEMBELIAN" ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2, MidpointRounding.AwayFromZero) : 0,
+                            ReceiptProcessPrice = b.URNType == "PROSES" ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2, MidpointRounding.AwayFromZero) : 0,
+                            ReceiptKon2APrice = b.URNType == "GUDANG LAIN" && (/*b.UId == null ?*/ /*b.UENNo.Contains("C2A")*/ dd.UnitSenderCode == "C2A") ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2, MidpointRounding.AwayFromZero) : 0,
+                            ReceiptKon2BPrice = b.URNType == "GUDANG LAIN" && (/*b.UId == null ?*/ /*b.UENNo.Contains("C2B")*/ dd.UnitSenderCode == "C2B") ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2, MidpointRounding.AwayFromZero) : 0,
+                            ReceiptKon2CPrice = b.URNType == "GUDANG LAIN" && (/*b.UId == null ?*/ /*b.UENNo.Contains("C2C")*/ dd.UnitSenderCode == "C2C") ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2, MidpointRounding.AwayFromZero) : 0,
+                            ReceiptKon1APrice = b.URNType == "GUDANG LAIN" && (/*b.UId == null ?*/ /*b.UENNo.Contains("C1A")*/ dd.UnitSenderCode == "C1A") ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2, MidpointRounding.AwayFromZero) : 0,
+                            ReceiptKon1BPrice = b.URNType == "GUDANG LAIN" && (/*b.UId == null ?*/ /*b.UENNo.Contains("C1B")*/ dd.UnitSenderCode == "C1B") ? Math.Round(((a.PricePerDealUnit / (a.Conversion == 0 ? 1 : a.Conversion)) * (decimal)a.DOCurrencyRate) * (a.ReceiptQuantity * a.Conversion), 2, MidpointRounding.AwayFromZero) : 0,
                             ExpendReturQty = 0,
                             ExpendRestQty = 0,
                             ExpendProcessQty = 0,
@@ -736,7 +743,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                           join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                           join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                           //join h in Codes on a.ProductCode equals h.Code
-                          join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on a.RONo equals e.RONo
+                          join e in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on a.RONo equals e.RONo into PR
+                          from prs in PR.DefaultIfEmpty()
+                          join f in dbContext.GarmentUnitReceiptNoteItems on a.URNItemId equals f.Id into urnitems
+                          from urnitem in urnitems.DefaultIfEmpty()
                           where a.IsDeleted == false && b.IsDeleted == false
                              &&
                              b.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
@@ -748,11 +758,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              ProductCode = a.ProductCode.Trim(),
                              //ProductName = a.ProductName,
                              RO = a.RONo,
-                             Buyer = a.BuyerCode.Trim(),
+                             Buyer = a.BuyerCode == null ? "-" : a.BuyerCode.Trim(),
                              PlanPo = a.POSerialNumber.Trim(),
-                             NoArticle = e.Article.TrimEnd(),
+                             NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
                              BeginningBalanceQty = 0,
-                             BeginningBalanceUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : a.UomUnit.Trim(),
+                             BeginningBalanceUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : b.ExpenditureType == "EXTERNAL" ? urnitem.SmallUomUnit : a.UomUnit.Trim(),
                              BeginningBalancePrice = 0,
                              ReceiptCorrectionQty = 0,
                              ReceiptPurchaseQty = 0,
@@ -770,7 +780,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              ReceiptKon2CPrice = 0,
                              ReceiptKon1APrice = 0,
                              ReceiptKon1BPrice = 0,
-                             ExpendReturQty = b.ExpenditureType == "EXTERNAL" ? Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity), 2) : 0,
+                             ExpendReturQty = b.ExpenditureType == "EXTERNAL" ? Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? Convert.ToDecimal(a.Quantity * 0.9144) : Convert.ToDecimal(a.Quantity * (urnitem != null ? (double)urnitem.Conversion : 1))), 2) : 0,
                              ExpendRestQty = b.ExpenditureType == "SISA" ? Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity), 2) : 0,
                              ExpendProcessQty = b.ExpenditureType == "PROSES" ? Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity), 2) : 0,
                              ExpendSampleQty = b.ExpenditureType == "SAMPLE" ? Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity), 2) : 0,
@@ -779,7 +789,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              ExpendKon2CQty = (b.ExpenditureType == "GUDANG LAIN" || b.ExpenditureType == "TRANSFER") && b.UnitRequestName == "CENTRAL 2C/EX. K4" ? Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity), 2) : 0,
                              ExpendKon1AQty = (b.ExpenditureType == "GUDANG LAIN" || b.ExpenditureType == "TRANSFER") && b.UnitRequestName == "CENTRAL 1A/EX. K3" ? Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity), 2) : 0,
                              ExpendKon1BQty = (b.ExpenditureType == "GUDANG LAIN" || b.ExpenditureType == "TRANSFER") && b.UnitRequestName == "CENTRAL 1B" ? Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity), 2) : 0,
-                             ExpendReturPrice = b.ExpenditureType == "EXTERNAL" ? (a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity) * a.PricePerDealUnit * (double)a.DOCurrencyRate : 0,
+                             ExpendReturPrice = b.ExpenditureType == "EXTERNAL" ? (a.UomUnit == "YARD" && ctg == "BB" ? Convert.ToDecimal(a.Quantity * 0.9144) : Convert.ToDecimal(a.Quantity * (urnitem != null ? (double)urnitem.Conversion : 1)) * (decimal)a.PricePerDealUnit * Convert.ToDecimal(a.DOCurrencyRate)) : 0,
                              ExpendRestPrice = b.ExpenditureType == "SISA" ? (a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity) * a.PricePerDealUnit * (double)a.DOCurrencyRate : 0,
                              ExpendProcessPrice = b.ExpenditureType == "PROSES" ? Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity) * ((double)a.BasicPrice / (a.Conversion == 0 ? 1 : (double)a.Conversion)), 2) : 0,
                              ExpendSamplePrice = b.ExpenditureType == "SAMPLE" ? Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity) * ((double)a.BasicPrice / (a.Conversion == 0 ? 1 : (double)a.Conversion)), 2) : 0,
@@ -845,8 +855,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                            join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
                            join e in dbContext.GarmentReceiptCorrectionItems on b.Id equals e.URNItemId
                            join g in dbContext.GarmentReceiptCorrections on e.CorrectionId equals g.Id
-                           join f in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select gg) on b.RONo equals f.RONo
-                           //join h in Codes on b.ProductCode equals h.Code
+                           join f in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on b.RONo equals f.RONo into PR
+                           from prs in PR.DefaultIfEmpty()
+                               //join h in Codes on b.ProductCode equals h.Code
                            where
                            a.IsDeleted == false && b.IsDeleted == false
                            &&
@@ -859,9 +870,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                ProductCode = b.ProductCode.Trim(),
                                //ProductName = b.ProductName,
                                RO = b.RONo,
-                               Buyer = f.BuyerCode.Trim(),
+                               Buyer = prs != null ? prs.BuyerCode.Trim() : "-",
                                PlanPo = b.POSerialNumber.Trim(),
-                               NoArticle = f.Article.TrimEnd(),
+                               NoArticle = prs != null ? prs.Article.Trim() : "-",
                                BeginningBalanceQty = 0,
                                BeginningBalanceUom = b.SmallUomUnit.Trim(),
                                BeginningBalancePrice = 0,
@@ -1080,7 +1091,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     NoArticle = i.NoArticle,
                     BeginningBalanceQty = i.BeginningBalanceQty,
                     BeginningBalanceUom = i.BeginningBalanceUom,
-                    BeginningBalancePrice = i.BeginningBalancePrice,
+                    BeginningBalancePrice = Convert.ToDouble(i.BeginningBalancePrice),
                     ReceiptCorrectionQty = i.ReceiptCorrectionQty,
                     ReceiptPurchaseQty = i.ReceiptPurchaseQty,
                     ReceiptProcessQty = i.ReceiptProcessQty,
@@ -1097,7 +1108,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     ReceiptKon2CPrice = i.ReceiptKon2CPrice,
                     ReceiptKon1APrice = i.ReceiptKon1APrice,
                     ReceiptKon1BPrice = i.ReceiptKon1BPrice,
-                    ExpendReturQty = i.ExpendReturQty,
+                    ExpendReturQty = Convert.ToDouble(i.ExpendReturQty),
                     ExpendRestQty = i.ExpendRestQty,
                     ExpendProcessQty = i.ExpendProcessQty,
                     ExpendSampleQty = i.ExpendSampleQty,
@@ -1106,7 +1117,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     ExpendKon2CQty = i.ExpendKon2CQty,
                     ExpendKon1AQty = i.ExpendKon1AQty,
                     ExpendKon1BQty = i.ExpendKon1BQty,
-                    ExpendReturPrice = i.ExpendReturPrice,
+                    ExpendReturPrice = Convert.ToDouble(i.ExpendReturPrice),
                     ExpendRestPrice = i.ExpendRestPrice,
                     ExpendProcessPrice = i.ExpendProcessPrice,
                     ExpendSamplePrice = i.ExpendSamplePrice,
@@ -1151,7 +1162,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 NoArticle = "",
                 BeginningBalanceQty = Math.Round(SaldoAkhirs.Sum(X => X.BeginningBalanceQty), 2),
                 BeginningBalanceUom = "",
-                BeginningBalancePrice = Math.Round(SaldoAkhirs.Sum(X => X.BeginningBalancePrice), 2),
+                BeginningBalancePrice = Convert.ToDouble(Math.Round(SaldoAkhirs.Sum(X => X.BeginningBalancePrice), 2)),
                 ReceiptCorrectionQty = Math.Round(SaldoAkhirs.Sum(X => X.ReceiptCorrectionQty), 2),
                 ReceiptPurchaseQty = Math.Round(SaldoAkhirs.Sum(X => X.ReceiptPurchaseQty), 2),
                 ReceiptProcessQty = Math.Round(SaldoAkhirs.Sum(X => X.ReceiptProcessQty), 2),
@@ -1168,7 +1179,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 ReceiptKon2CPrice = Math.Round(SaldoAkhirs.Sum(X => X.ReceiptKon2CPrice), 2),
                 ReceiptKon1APrice = Math.Round(SaldoAkhirs.Sum(X => X.ReceiptKon1APrice), 2),
                 ReceiptKon1BPrice = Math.Round(SaldoAkhirs.Sum(X => X.ReceiptKon1BPrice), 2),
-                ExpendReturQty = Math.Round(SaldoAkhirs.Sum(X => X.ExpendReturQty), 2),
+                ExpendReturQty = Convert.ToDouble(Math.Round(SaldoAkhirs.Sum(X => X.ExpendReturQty), 2)),
                 ExpendRestQty = Math.Round(SaldoAkhirs.Sum(X => X.ExpendRestQty), 2),
                 ExpendProcessQty = Math.Round(SaldoAkhirs.Sum(X => X.ExpendProcessQty), 2),
                 ExpendSampleQty = Math.Round(SaldoAkhirs.Sum(X => X.ExpendSampleQty), 2),
@@ -1177,7 +1188,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 ExpendKon2CQty = Math.Round(SaldoAkhirs.Sum(X => X.ExpendKon2CQty), 2),
                 ExpendKon1AQty = Math.Round(SaldoAkhirs.Sum(X => X.ExpendKon1AQty), 2),
                 ExpendKon1BQty = Math.Round(SaldoAkhirs.Sum(X => X.ExpendKon1BQty), 2),
-                ExpendReturPrice = Math.Round(SaldoAkhirs.Sum(X => X.ExpendReturPrice), 2),
+                ExpendReturPrice = Convert.ToDouble(Math.Round(SaldoAkhirs.Sum(X => X.ExpendReturPrice), 2)),
                 ExpendRestPrice = Math.Round(SaldoAkhirs.Sum(X => X.ExpendRestPrice), 2),
                 ExpendProcessPrice = Math.Round(SaldoAkhirs.Sum(X => X.ExpendProcessPrice), 2),
                 ExpendSamplePrice = Math.Round(SaldoAkhirs.Sum(X => X.ExpendSamplePrice), 2),
@@ -1541,19 +1552,47 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
         private List<GarmentCategoryViewModel> GetProductCodes(int page, int size, string order, string filter)
         {
             IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
-            if (httpClient != null)
+            //if (httpClient != null)
+            //{
+            //    var garmentSupplierUri = APIEndpoint.Core + $"master/garment-categories";
+            //    string queryUri = "?page=" + page + "&size=" + size + "&order=" + order + "&filter=" + filter;
+            //    string uri = garmentSupplierUri + queryUri;
+            //    var response = httpClient.GetAsync($"{uri}").Result.Content.ReadAsStringAsync();
+            //    Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
+            //    List<GarmentCategoryViewModel> viewModel = JsonConvert.DeserializeObject<List<GarmentCategoryViewModel>>(result.GetValueOrDefault("data").ToString());
+            //    return viewModel;
+            //}
+            //else
+            //{
+            //    List<GarmentCategoryViewModel> viewModel = new List<GarmentCategoryViewModel>();
+            //    return viewModel;
+            //}
+
+            var garmentSupplierUri = APIEndpoint.Core + $"master/garment-categories";
+            string queryUri = "?page=" + page + "&size=" + size + "&order=" + order + "&filter=" + filter;
+            string uri = garmentSupplierUri + queryUri;
+            var httpResponse = httpClient.GetAsync($"{uri}").Result;
+
+            if (httpResponse.IsSuccessStatusCode)
             {
-                var garmentSupplierUri = APIEndpoint.Core + $"master/garment-categories";
-                string queryUri = "?page=" + page + "&size=" + size + "&order=" + order + "&filter=" + filter;
-                string uri = garmentSupplierUri + queryUri;
-                var response = httpClient.GetAsync($"{uri}").Result.Content.ReadAsStringAsync();
-                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
-                List<GarmentCategoryViewModel> viewModel = JsonConvert.DeserializeObject<List<GarmentCategoryViewModel>>(result.GetValueOrDefault("data").ToString());
+                var content = httpResponse.Content.ReadAsStringAsync().Result;
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+
+                List<GarmentCategoryViewModel> viewModel;
+                if (result.GetValueOrDefault("data") == null)
+                {
+                    viewModel = new List<GarmentCategoryViewModel>();
+                }
+                else
+                {
+                    viewModel = JsonConvert.DeserializeObject<List<GarmentCategoryViewModel>>(result.GetValueOrDefault("data").ToString());
+
+                }
                 return viewModel;
             }
             else
             {
-                List<GarmentCategoryViewModel> viewModel = null;
+                List<GarmentCategoryViewModel> viewModel = new List<GarmentCategoryViewModel>();
                 return viewModel;
             }
         }
@@ -1575,7 +1614,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 List<GarmentProductViewModel> viewModel;
                 if (result.GetValueOrDefault("data") == null)
                 {
-                    viewModel = null;
+                    viewModel = new List<GarmentProductViewModel>();
                 }
                 else
                 {
@@ -1586,7 +1625,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             }
             else
             {
-                List<GarmentProductViewModel> viewModel = null;
+                List<GarmentProductViewModel> viewModel = new List<GarmentProductViewModel>();
                 return viewModel;
             }
         }

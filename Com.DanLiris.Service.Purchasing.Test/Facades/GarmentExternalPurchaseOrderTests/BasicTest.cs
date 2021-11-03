@@ -463,7 +463,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             var Responses = await facade.Create(data, USERNAME);
             var Response = facade.ReadBySupplier(data.SupplierCode);
             Assert.NotNull(Response);
-            
+
             var Response2 = facade.ReadItemByRO();
             Assert.NotNull(Response2);
         }
@@ -473,10 +473,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
         {
             var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataFabric();
-            
+
             var Responses = await facade.Create(data, USERNAME);
             var ro = data.Items.First().RONo;
             var Response = facade.ReadItemByRO();
+            Assert.NotNull(Response);
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_Data_By_EPONoSimply()
+        {
+            var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataACC();
+            var Response = facade.ReadItemByEPONoSimply(data.EPONo, "{}", 0, 0, 1, 10);
             Assert.NotNull(Response);
         }
 
@@ -525,7 +534,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             await facade.Create(data, USERNAME);
             var Facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var Response = Facade.GetEPOOverBudgetReport(null, null, null, null, null, null, 1, 25, "{}", 7);
+            var Response1 = Facade.GetEPOOverBudgetReport(null, null, null, "BELUM", null, null, 1, 25, "{}", 7);
             Assert.NotNull(Response.Item1);
+            Assert.NotNull(Response1.Item1);
 
         }
 
@@ -692,6 +703,51 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             var result = facade.GetProduct(It.IsAny<long>());
 
             Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task Should_Success_ReadItemForUnitDOByRO()
+        {
+            var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataFabric();
+
+            var Responses = await facade.Create(data, USERNAME);
+            var ro = data.Items.First().RONo;
+            var Response = facade.ReadItemForUnitDOByRO(ro, Filter: "{'RONo':'" + ro + "'}");
+            Assert.NotNull(Response);
+        }
+
+        [Fact]
+        public void Should_Success_Get_IsUnpost()
+        {
+            GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var result = facade.GetIsUnpost(It.IsAny<int>());
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void Should_Success_ReadItemByEPONo()
+        {
+            var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var Response = facade.ReadItemByEPONo();
+            Assert.NotNull(Response);
+        }
+
+        [Fact]
+        public void Should_Success_ReadItemByEPONoSimply()
+        {
+            var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var Response = facade.ReadItemByEPONoSimply(null, "{}", 0, 0, 1, 10);
+            Assert.NotNull(Response.Item1);
+        }
+
+        [Fact]
+        public void Should_Success_ReadItemByROLoader()
+        {
+            var facade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+            var Response = facade.ReadItemByROLoader();
+            Assert.NotNull(Response);
         }
     }
 }

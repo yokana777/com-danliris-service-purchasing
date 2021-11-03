@@ -41,6 +41,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
 
         public CurrencyViewModel DOCurrency { get; set; }
 
+        public long? ExpenditureId { get; set; }
+        public string ExpenditureNo { get; set; }
+        public string Category { get; set; }
+
         public List<GarmentUnitReceiptNoteItemViewModel> Items { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -70,7 +74,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
                 yield return new ValidationResult("Storage tidak boleh kosong.", new List<string> { "Storage" });
             }
 
-            if (DOId == null || DOId == 0)
+            if (URNType == "GUDANG SISA")
+            {
+                if (string.IsNullOrWhiteSpace(ExpenditureNo))
+                {
+                    yield return new ValidationResult("No pengeluaran gudang sisa tidak boleh kosong.", new List<string> { "ExpenditureNo" });
+                }
+            }
+
+            if ((DOId == null || DOId == 0) && URNType != "GUDANG SISA")
             {
                 if (checkDO)
                 {

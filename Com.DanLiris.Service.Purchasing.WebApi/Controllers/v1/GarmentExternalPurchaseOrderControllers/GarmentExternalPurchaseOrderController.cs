@@ -139,6 +139,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
                 }
                 if (indexAcceptPdf < 0)
                 {
+                    viewModel.IsUnpost = facade.GetIsUnpost(id);
                     return Ok(new
                     {
                         apiVersion = ApiVersion,
@@ -410,6 +411,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
                             i.SmallQuantity,
                             i.SmallUom,
                             i.PricePerDealUnit,
+                            i.Remark
                         })
                     }).ToList()
                 );
@@ -490,7 +492,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-                var Data = facade.ReadItemByEPONoSimply(keyword, Filter, supplierId, currencyCode, paymentType);
+                var Data = facade.ReadItemByEPONoSimply(keyword, supplierId, currencyCode, paymentType);
 
                 var viewModel = mapper.Map<List<GarmentExternalPurchaseOrderViewModel>>(Data.Item1);
 

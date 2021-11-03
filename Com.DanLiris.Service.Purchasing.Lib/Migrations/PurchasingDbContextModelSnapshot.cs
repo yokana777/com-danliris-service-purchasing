@@ -4904,6 +4904,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("Active");
 
+                    b.Property<string>("Category")
+                        .HasMaxLength(20);
+
                     b.Property<string>("CreatedAgent")
                         .IsRequired()
                         .HasMaxLength(255);
@@ -4936,6 +4939,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("DeletedReason");
 
                     b.Property<DateTime>("DeletedUtc");
+
+                    b.Property<long>("ExpenditureId");
+
+                    b.Property<string>("ExpenditureNo")
+                        .HasMaxLength(20);
 
                     b.Property<bool>("IsCorrection");
 
@@ -5047,6 +5055,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(1000);
 
                     b.Property<long>("EPOItemId");
+
+                    b.Property<long>("ExpenditureItemId");
 
                     b.Property<bool>("IsCorrection");
 

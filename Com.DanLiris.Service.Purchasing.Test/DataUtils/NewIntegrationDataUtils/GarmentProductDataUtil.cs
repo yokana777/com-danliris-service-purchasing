@@ -16,6 +16,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
             {
                 Code = "CodeTest123",
                 Name = "Name123",
+                ProductType = "FABRIC"
             };
             return data;
         }
@@ -28,6 +29,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
             {
                 Code = "CodeTestBP123",
                 Name = "Name123BP",
+            };
+            return data;
+        }
+
+        public GarmentProductViewModel GetNewData2()
+        {
+            long nowTicks = DateTimeOffset.Now.Ticks;
+
+            var data = new GarmentProductViewModel
+            {
+                Code = "CodeTest123",
+                Name = "Name123",
+                Const = "Const",
+                Composition = "Compost",
+                Width = "12",
+                Yarn = "yarn"
             };
             return data;
         }
@@ -65,6 +82,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
             return result;
         }
 
+        public Dictionary<string, object> GetMultipleResultFormatterOk2()
+        {
+            var data = new List<GarmentProductViewModel> { GetNewData2(), GetNewData2() };
+
+            Dictionary<string, object> result =
+                new ResultFormatter("1.0", General.OK_STATUS_CODE, General.OK_MESSAGE)
+                .Ok(data);
+
+            return result;
+        }
+
         public string GetResultFormatterOkString()
         {
             var result = GetResultFormatterOk();
@@ -75,6 +103,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
         public string GetMultipleResultFormatterOkString()
         {
             var result = GetMultipleResultFormatterOk();
+
+            return JsonConvert.SerializeObject(result);
+        }
+
+        public string GetMultipleResultFormatterOk2String()
+        {
+            var result = GetMultipleResultFormatterOk2();
 
             return JsonConvert.SerializeObject(result);
         }

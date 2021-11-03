@@ -52,6 +52,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel
         public string  DRId { get; set; }
         public string DRNo { get; set; }
 
+        public long ExpenditureId { get; set; }
+        [MaxLength(20)]
+        public string ExpenditureNo { get; set; }
+        [MaxLength(20)]
+        public string Category { get; set; }
+
         public virtual ICollection<GarmentUnitReceiptNoteItem> Items { get; set; }
     }
 }

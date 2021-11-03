@@ -49,7 +49,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
 
         }
 
-        public List<object> GetUnitPaymentOrder(DateTimeOffset? dateFrom, DateTimeOffset? dateTo, string incomeTaxName, double incomeTaxRate, string currency, string divisionCode)
+        public List<object> GetUnitPaymentOrder(DateTimeOffset? dateFrom, DateTimeOffset? dateTo, string incomeTaxName, double incomeTaxRate, string currency, string divisionCodes)
         {
             IQueryable<PurchasingDocumentExpedition> Query = this.dbSetPurchasingDocumentExpedition;
 
@@ -59,7 +59,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                .Where(p => p.IsDeleted == false &&
                    //p.IncomeTaxName == incomeTaxName &&
                    //p.IncomeTaxRate == incomeTaxRate &&
-                   p.DivisionCode == divisionCode &&
+                   divisionCodes.Contains(p.DivisionCode) &&
                    p.Currency == currency &&
                    p.IncomeTaxRate != 0 &&
                    p.IsPaidPPH == false && (p.Position == ExpeditionPosition.CASHIER_DIVISION || p.Position == ExpeditionPosition.FINANCE_DIVISION)
@@ -72,7 +72,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                    //p.IncomeTaxName == incomeTaxName &&
                    //p.IncomeTaxRate == incomeTaxRate &&
                    p.Currency == currency &&
-                   p.DivisionCode == divisionCode &&
+                   divisionCodes.Contains(p.DivisionCode) &&
                    p.IncomeTaxRate != 0 &&
                    p.DueDate.Date >= dateFrom.Value.Date &&
                    p.DueDate.Date <= dateTo.Value.Date &&

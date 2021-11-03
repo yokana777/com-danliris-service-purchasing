@@ -514,6 +514,25 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
             }
         }
 
+        [HttpPost("revisedate-urn/{reviseDate}")]
+        public IActionResult UrnReviseDate([FromBody]List<GarmentUnitReceiptNoteViewModel> ListGarmentUnitReceiptNoteViewModel, DateTime reviseDate)
+        {
+            
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                facade.UrnDateRevise(
+                    ListGarmentUnitReceiptNoteViewModel.Select(vm => mapper.Map<GarmentUnitReceiptNote>(vm)).ToList(), identityService.Username, reviseDate
+                );
+
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
+            }
+        }
+
 
     }
 }

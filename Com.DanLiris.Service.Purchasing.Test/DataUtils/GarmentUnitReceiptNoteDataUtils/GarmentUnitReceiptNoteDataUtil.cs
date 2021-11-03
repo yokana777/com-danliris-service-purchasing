@@ -144,11 +144,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
             return garmentUnitReceiptNote;
         }
 
-        public async Task<GarmentUnitReceiptNote> GetNewData2(long? ticks = null)
+        public async Task<GarmentUnitReceiptNote> GetNewData2(long? ticks = null, GarmentDeliveryOrder garmentDeliveryOrders = null)
         {
             long nowTicks = ticks ?? DateTimeOffset.Now.Ticks;
 
-            var garmentDeliveryOrder = await Task.Run(() => garmentDeliveryOrderDataUtil.GetTestData21());
+            var garmentDeliveryOrder = garmentDeliveryOrders ?? await Task.Run(() => garmentDeliveryOrderDataUtil.GetTestData21());
 
             var garmentUnitReceiptNote = new GarmentUnitReceiptNote
             {
@@ -353,6 +353,28 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
         public async Task<GarmentUnitReceiptNote> GetTestDataWithStorage(long? ticks = null)
         {
             var data = await GetNewDataWithStorage(ticks);
+            await facade.Create(data);
+            return data;
+        }
+
+        public async Task<GarmentUnitReceiptNote> GetTestDataWithStorageGudangSisaACC(long? ticks = null)
+        {
+            var data = await GetNewDataWithStorage(ticks);
+            data.URNType = "GUDANG SISA";
+            data.ExpenditureId = 1;
+            data.ExpenditureNo = "no";
+            data.Category = "ACCESSORIES";
+            await facade.Create(data);
+            return data;
+        }
+
+        public async Task<GarmentUnitReceiptNote> GetTestDataWithStorageGudangSisaFabric(long? ticks = null)
+        {
+            var data = await GetNewDataWithStorage(ticks);
+            data.URNType = "GUDANG SISA";
+            data.ExpenditureId = 1;
+            data.ExpenditureNo = "no";
+            data.Category = "FABRIC";
             await facade.Create(data);
             return data;
         }

@@ -58,7 +58,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
     public class ROFeatureTemp
     {
         public string KodeBarang { get; set; }
-        public string NoBukti { get; set; }
         public string NamaBarang { get; set; }
         public string PO { get; set; }
         public string Article { get; set; }

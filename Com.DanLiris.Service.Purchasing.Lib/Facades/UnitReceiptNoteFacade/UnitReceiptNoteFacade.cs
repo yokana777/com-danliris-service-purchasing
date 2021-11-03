@@ -271,6 +271,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
         private async Task CreateCreditorAccount(UnitReceiptNote model, bool useIncomeTaxFlag, string currencyCode, string paymentDuration)
         {
             var dpp = model.Items.Sum(s => s.ReceiptQuantity + s.PricePerDealUnit);
+            var externalPurchaseOrderNo = model.Items.FirstOrDefault().EPONo;
+            var externalPurchaseOrder = dbContext.ExternalPurchaseOrders.FirstOrDefault(entity => entity.EPONo == externalPurchaseOrderNo);
+
+            var vatAmount = externalPurchaseOrder.UseVat ? dpp * 0.1 : 0;
+            double.TryParse(externalPurchaseOrder.IncomeTaxRate, out var incomeTaxRate);
+            var incomeTaxAmount = externalPurchaseOrder.UseIncomeTax && externalPurchaseOrder.IncomeTaxBy == "SUPPLIER" ? dpp * incomeTaxRate / 100 : 0;
             var productList = string.Join("\n", model.Items.Select(s => s.ProductName).ToList());
 
             var currencyTuples = new List<Tuple<string, DateTimeOffset>> { new Tuple<string, DateTimeOffset>(currencyCode, model.ReceiptDate) };
@@ -298,7 +304,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 model.DivisionName,
                 model.UnitId,
                 model.UnitCode,
-                model.UnitName
+                model.UnitName,
+                ExternalPurchaseOrderNo = string.Join('\n', model.Items.Select(item => $"- {item.EPONo}")),
+                VATAmount = vatAmount,
+                IncomeTaxAmount = incomeTaxAmount
             };
 
             string creditorAccountUri = "creditor-account/unit-receipt-note";
@@ -393,7 +402,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             var purchaseRequests = dbContext.PurchaseRequests.Where(w => purchaseRequestIds.Contains(w.Id)).Select(s => new { s.Id, s.CategoryCode, s.CategoryId }).ToList();
 
             var externalPurchaseOrderIds = model.Items.Select(s => s.EPOId).ToList();
-            var externalPurchaseOrders = dbContext.ExternalPurchaseOrders.Where(w => externalPurchaseOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.IncomeTaxId, s.UseIncomeTax, s.IncomeTaxName, s.IncomeTaxRate, s.CurrencyCode, s.CurrencyRate }).ToList();
+            var externalPurchaseOrders = dbContext.ExternalPurchaseOrders.Where(w => externalPurchaseOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.IncomeTaxId, s.UseIncomeTax, s.IncomeTaxName, s.IncomeTaxRate, s.CurrencyCode, s.CurrencyRate, s.IncomeTaxBy }).ToList();
 
 
 
@@ -508,7 +517,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
                 double.TryParse(externalPurchaseOrder.IncomeTaxRate, out var incomeTaxRate);
                 var grandTotal = Convert.ToDecimal(item.ReceiptQuantity * item.PricePerDealUnit * (double)currencyRate);
-                if (externalPurchaseOrder.UseIncomeTax)
+                if (externalPurchaseOrder.UseIncomeTax && externalPurchaseOrder.IncomeTaxBy.ToUpper() == "SUPPLIER")
                 {
                     int.TryParse(externalPurchaseOrder.IncomeTaxId, out var incomeTaxId);
                     var incomeTax = incomeTaxes.FirstOrDefault(f => f.Id.Equals(incomeTaxId));

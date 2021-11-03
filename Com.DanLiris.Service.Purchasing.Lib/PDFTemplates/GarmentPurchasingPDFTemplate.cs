@@ -17,7 +17,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
         {
 
         }
-        public MemoryStream GeneratePdfTemplate(FormDto viewModel, int clientTimeZoneOffset,string userName)
+        public MemoryStream GeneratePdfTemplate(FormDto viewModel, int clientTimeZoneOffset, string userName)
         {
             Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 18);
             Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 9);
@@ -112,13 +112,31 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             //    amount = dpp + ppn + pphRate;
             //}
 
+
+            //calculate vat and incomeTax
+            double vat = 0;
+            double incomeTax = 0;
+            foreach (var item in viewModel.Items)
+            {
+                if (item.IsPayVat)
+                {
+                    vat += item.VatValue;
+                }
+
+                if (item.IsPayIncomeTax)
+                {
+                    incomeTax += item.IncomeTaxValue;
+                }
+            }
+
+            double AmountPDF = (viewModel.DPP + vat - incomeTax) + viewModel.MiscAmount;
             var payingDisposition = Math.Round((paidToSupp + viewModel.MiscAmount + pphRate), 2, MidpointRounding.AwayFromZero);
             cellLeftNoBorder.SetLeading(13f, 0f);
             cellLeftNoBorder.Phrase = new Phrase("Mohon Disposisi Pembayaran", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase(viewModel.PaymentType + "  " + viewModel.CurrencyCode + " " + $"{viewModel.Amount.ToString("N", new CultureInfo("id-ID"))}", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase(viewModel.PaymentType + "  " + viewModel.CurrencyCode + " " + $"{(AmountPDF).ToString("N", new CultureInfo("id-ID"))}", normal_font);/*$"{viewModel.Amount.ToString("N", new CultureInfo("id-ID"))}", normal_font);*/
             cellLeftNoBorder.Colspan = 2;
             tableIdentity.AddCell(cellLeftNoBorder);
             //cellLeftNoBorder.Phrase = new Phrase( viewModel.Currency.code + " " +  $"{(paidToSupp + viewModel.PaymentCorrection + pphRate).ToString("N", new CultureInfo("id-ID")) }", normal_font);
@@ -131,7 +149,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase($"{ NumberToTextIDN.terbilang(viewModel.Amount) }" + " " + (viewModel.CurrencyCode == "IDR"?"Rupiah":viewModel.CurrencyCode == "USD"?"Dollar":viewModel.CurrencyCode), normal_font);
+            cellLeftNoBorder.Phrase = new Phrase($"{ NumberToTextIDN.terbilangv2(AmountPDF) }" + " " + (viewModel.CurrencyCode == "IDR" ? "Rupiah" : viewModel.CurrencyCode == "USD" ? "Dollar" : viewModel.CurrencyCode), normal_font);
             cellLeftNoBorder.Colspan = 2;
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase("", normal_font);
@@ -150,20 +168,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableIdentity.AddCell(cellLeftNoBorder);
 
             //calculate vat and incomeTax 
-            double vat = 0;
-            double incomeTax = 0;
-            foreach(var item in viewModel.Items)
-            {
-                if (item.IsPayVat)
-                {
-                    vat += item.VatValue;
-                }
+            //double vat = 0;
+            //double incomeTax = 0;
+            //foreach(var item in viewModel.Items)
+            //{
+            //    if (item.IsPayVat)
+            //    {
+            //        vat += item.VatValue;
+            //    }
 
-                if (item.IsPayIncomeTax)
-                {
-                    vat += item.IncomeTaxValue;
-                }
-            }
+            //    if (item.IsPayIncomeTax)
+            //    {
+            //        incomeTax += item.IncomeTaxValue;
+            //    }
+            //}
 
             cellLeftNoBorder.Colspan = 0;
             cellLeftNoBorder.Phrase = new Phrase("Biaya", normal_font);
@@ -266,7 +284,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellSuppMid.Phrase = new Phrase(":", normal_font);
             tableIdentity.AddCell(cellSuppMid);
             cellSuppRight.Colspan = 2;
-            cellSuppRight.Phrase = new Phrase(viewModel.CurrencyCode + "  " + $"{((viewModel.DPP + vat - incomeTax)+viewModel.MiscAmount).ToString("N", new CultureInfo("id-ID"))}", normal_font);
+            cellSuppRight.Phrase = new Phrase(viewModel.CurrencyCode + "  " + $"{(AmountPDF).ToString("N", new CultureInfo("id-ID"))}", normal_font);
             tableIdentity.AddCell(cellSuppRight);
             cellLeftNoBorder.Colspan = 0;
             cellLeftNoBorder.Phrase = new Phrase("", normal_font);
@@ -367,13 +385,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellCenter.Phrase = new Phrase($"{item.EPONo}", smaller_font);
                     tableContent.AddCell(cellCenter);
 
-                    cellCenter.Phrase = new Phrase($"{detail.QTYOrder}", smaller_font);
+                    cellCenter.Phrase = new Phrase($"{Math.Round(detail.QTYOrder, 2)}", smaller_font);
                     tableContent.AddCell(cellCenter);
 
-                    cellCenter.Phrase = new Phrase( $"{detail.QTYPaid}", smaller_font);
+                    cellCenter.Phrase = new Phrase($"{Math.Round(detail.QTYPaid, 2)}", smaller_font);
                     tableContent.AddCell(cellCenter);
 
-                    cellCenter.Phrase = new Phrase($"{detail.QTYRemains}", smaller_font);
+                    cellCenter.Phrase = new Phrase($"{Math.Round(detail.QTYRemains, 2)}", smaller_font);
                     tableContent.AddCell(cellCenter);
 
                     cellCenter.Phrase = new Phrase($"{detail.QTYUnit}", smaller_font);
@@ -506,11 +524,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 ).ToList();
             foreach(var perUnit in AmountPerUnit)
             {
-                var sumPerUnit = perUnit.Value.Sum(t => 
-                (t.PaidPrice) + 
-                (viewModel.Items.Where(a => a.Id == t.GarmentDispositionPurchaseItemId).FirstOrDefault().IsPayVat? t.PaidPrice * 0.1:0) - 
+                var sumPerUnit = perUnit.Value.Sum(t =>
+                (t.PaidPrice) +
+                (viewModel.Items.Where(a => a.Id == t.GarmentDispositionPurchaseItemId).FirstOrDefault().IsPayVat? t.PaidPrice * 0.1:0) -
                 (t.PaidPrice * (viewModel.Items.Where(a => a.Id == t.GarmentDispositionPurchaseItemId).FirstOrDefault()?.IncomeTaxRate / 100)))?.ToString("N", new CultureInfo("id-ID"));
-                cellLeftNoBorder.Phrase = new Phrase($"- {perUnit.Key.UnitName} = {sumPerUnit}", bold_font3); 
+                cellLeftNoBorder.Phrase = new Phrase($"- {perUnit.Key.UnitName} = {sumPerUnit}", bold_font3);
                 tableBeban.AddCell(cellLeftNoBorder);
             }
             PdfPCell cellBeban = new PdfPCell(tableBeban); // dont remove

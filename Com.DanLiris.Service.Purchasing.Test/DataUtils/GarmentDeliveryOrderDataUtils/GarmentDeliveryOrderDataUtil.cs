@@ -61,12 +61,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
                 InternNo = "InternNO1234",
                 PaymentBill = "BB181122003",
                 BillNo = "BP181122142947000001",
-				PaymentType = datas.PaymentType,
+                PaymentType = datas.PaymentType,
                 PaymentMethod = datas.PaymentMethod,
                 DOCurrencyId = datas.CurrencyId,
                 DOCurrencyCode = datas.CurrencyCode,
                 DOCurrencyRate = datas.CurrencyRate,
-                
+
                 TotalAmount = nowTicks,
 
                 Items = new List<GarmentDeliveryOrderItem>
@@ -766,13 +766,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
         }
 
         public async Task<GarmentDeliveryOrder> GetNewData(string user)
-		{
-			var data = await GetNewData();
-			await facade.Create(data, "Unit Test");
-			return data;
-		}
+        {
+            var data = await GetNewData();
+            await facade.Create(data, "Unit Test");
+            return data;
+        }
 
-        
+
 
         public async Task<GarmentDeliveryOrder> GetTestData5()
         {
@@ -781,21 +781,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDat
             return data;
         }
         public async Task<GarmentDeliveryOrder> GetDatas(string user)
-		{
-			GarmentDeliveryOrder garmentDeliveryOrder =  await GetNewData();
-			garmentDeliveryOrder.IsInvoice = false;
-			foreach (var item in garmentDeliveryOrder.Items)
-			{
-				foreach (var detail in item.Details)
-				{
-					detail.DOQuantity = 0;
-					detail.DealQuantity = 2;
-				}
-			}
+        {
+            GarmentDeliveryOrder garmentDeliveryOrder = await GetNewData();
+            garmentDeliveryOrder.IsInvoice = false;
+            foreach (var item in garmentDeliveryOrder.Items)
+            {
+                foreach (var detail in item.Details)
+                {
+                    detail.DOQuantity = 0;
+                    detail.DealQuantity = 2;
+                }
+            }
 
-			await facade.Create(garmentDeliveryOrder, user, 7);
+            await facade.Create(garmentDeliveryOrder, user, 7);
 
-			return garmentDeliveryOrder;
-		}
-	}
+            return garmentDeliveryOrder;
+        }
+    }
 }
