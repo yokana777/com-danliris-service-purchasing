@@ -558,7 +558,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                                 {
                                     COA = new COA()
                                     {
-                                        Code = !string.IsNullOrWhiteSpace(form.Bank.AccountCOA) ? $"{form.Bank.AccountCOA}.00.{division.COACode}.{unit.COACode}" : $"9999.00.{division.COACode}.{unit.COACode}"
+                                        Code = !string.IsNullOrWhiteSpace(form.Bank.AccountCOA) ? $"{form.Bank.AccountCOA}" : $"9999.00.{division.COACode}.{unit.COACode}"
                                     },
                                     Credit = incomeTaxTotal
                                 });
@@ -592,7 +592,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                                 {
                                     COA = new COA()
                                     {
-                                        Code = !string.IsNullOrWhiteSpace(form.Bank.AccountCOA) ? $"{form.Bank.AccountCOA}.00.{division.COACode}.{unit.COACode}" : $"9999.00.{division.COACode}.{unit.COACode}"
+                                        Code = !string.IsNullOrWhiteSpace(form.Bank.AccountCOA) ? $"{form.Bank.AccountCOA}" : $"9999.00.{division.COACode}.{unit.COACode}"
                                     },
                                     Credit = grandTotal
                                 });
@@ -661,7 +661,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                                 {
                                     COA = new COA()
                                     {
-                                        Code = !string.IsNullOrWhiteSpace(form.Bank.AccountCOA) ? $"{form.Bank.AccountCOA}.00.{division.COACode}.{unit.COACode}" : $"9999.00.{division.COACode}.{unit.COACode}"
+                                        Code = !string.IsNullOrWhiteSpace(form.Bank.AccountCOA) ? $"{form.Bank.AccountCOA}" : $"9999.00.{division.COACode}.{unit.COACode}"
                                     },
                                     Credit = grandTotal
                                 });
