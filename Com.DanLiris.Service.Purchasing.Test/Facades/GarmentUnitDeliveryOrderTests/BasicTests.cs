@@ -390,5 +390,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
             var Response = facade.ReadForUnitExpenditureNote();
             Assert.NotEmpty(Response.Data);
         }
+
+        [Fact]
+        public async Task Should_Success_Get_Data_Item_By_Id()
+        {
+            var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var Response = facade.ReadItemById((int)data.Items.Take(1).Select(x => x.Id).Single());
+            Assert.NotNull(Response);
+        }
     }
 }

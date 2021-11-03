@@ -270,13 +270,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
         private async Task CreateCreditorAccount(UnitReceiptNote model, bool useIncomeTaxFlag, string currencyCode, string paymentDuration)
         {
-            var dpp = model.Items.Sum(s => s.ReceiptQuantity + s.PricePerDealUnit);
+            var dpp = model.Items.Sum(s => s.ReceiptQuantity * s.PricePerDealUnit);
             var externalPurchaseOrderNo = model.Items.FirstOrDefault().EPONo;
             var externalPurchaseOrder = dbContext.ExternalPurchaseOrders.FirstOrDefault(entity => entity.EPONo == externalPurchaseOrderNo);
 
             var vatAmount = externalPurchaseOrder.UseVat ? dpp * 0.1 : 0;
             double.TryParse(externalPurchaseOrder.IncomeTaxRate, out var incomeTaxRate);
-            var incomeTaxAmount = externalPurchaseOrder.UseIncomeTax && externalPurchaseOrder.IncomeTaxBy == "SUPPLIER" ? dpp * incomeTaxRate / 100 : 0;
+            var incomeTaxAmount = externalPurchaseOrder.UseIncomeTax && externalPurchaseOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? dpp * incomeTaxRate / 100 : 0;
             var productList = string.Join("\n", model.Items.Select(s => s.ProductName).ToList());
 
             var currencyTuples = new List<Tuple<string, DateTimeOffset>> { new Tuple<string, DateTimeOffset>(currencyCode, model.ReceiptDate) };
@@ -288,8 +288,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
             var creditorAccount = new
             {
-                PPN = useIncomeTaxFlag ? 0.1 * dpp : 0,
-                DPP = dpp,
+                PPN = useIncomeTaxFlag ? 0.1 * (currencyCode != "IDR" ? dpp * currencyRate : dpp) : 0,
+                DPP = currencyCode != "IDR" ? dpp * currencyRate : dpp,
                 model.SupplierCode,
                 model.SupplierName,
                 model.SupplierIsImport,
@@ -307,7 +307,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 model.UnitName,
                 ExternalPurchaseOrderNo = string.Join('\n', model.Items.Select(item => $"- {item.EPONo}")),
                 VATAmount = vatAmount,
-                IncomeTaxAmount = incomeTaxAmount
+                IncomeTaxAmount = currencyCode != "IDR" ? incomeTaxAmount * currencyRate : incomeTaxAmount,
+                DPPCurrency = currencyCode != "IDR" ? dpp : 0
             };
 
             string creditorAccountUri = "creditor-account/unit-receipt-note";

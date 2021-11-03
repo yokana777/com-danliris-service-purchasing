@@ -172,7 +172,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
         public GarmentUnitReceiptNoteViewModel ReadById(int id)
         {
-            var model = dbSet.Where(m => m.Id == id)
+            var model = dbSet.IgnoreQueryFilters().Where(m => m.Id == id && ((m.IsDeleted == true && m.DeletedAgent == "LUCIA") || (m.IsDeleted == false)))
                             .Include(m => m.Items)
                             .FirstOrDefault();
             var viewModel = mapper.Map<GarmentUnitReceiptNoteViewModel>(model);

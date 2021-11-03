@@ -245,8 +245,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
                     if (model.BankCurrencyCode != "IDR")
                     {
-                        var garmentCurrency = await GetGarmentCurrency(model.CurrencyCode);
-                        model.CurrencyRate = garmentCurrency.Rate.GetValueOrDefault();
+                        var BICurrency = await GetBICurrency(model.CurrencyCode);
+                        model.CurrencyRate = BICurrency.Rate.GetValueOrDefault();
                     }
 
                     foreach (var detail in model.Details)
@@ -314,8 +314,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 var unitSummaries = detail.Items.GroupBy(g => g.UnitCode).Select(s => new
                 {
                     UnitCode = s.Key,
-                    Total = s.Sum(sm => sm.Price * currency.Rate)
-                    //DPP = s.Sum(sm => sm.)
+                    //Total = s.Sum(sm => sm.Price * currency.Rate)
+                    Total = s.Sum(sm => sm.Price)
                 });
 
                 var nominal = (decimal)0;
@@ -325,7 +325,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     var vatAmount = unitPaymentOrder.UseVat ? unitSummary.Total * 0.1 : 0;
                     var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? unitSummary.Total * unitPaymentOrder.IncomeTaxRate / 100 : 0;
 
-                    var debit = (dpp + vatAmount - incomeTaxAmount).GetValueOrDefault();
+                    var debit = dpp + vatAmount - incomeTaxAmount;
+                    if (model.CurrencyCode != "IDR")
+                    {
+                        debit = (dpp + vatAmount - incomeTaxAmount) * model.CurrencyRate;
+                    }
                     nominal = decimal.Add(nominal, Convert.ToDecimal(debit));
 
                     var item = new JournalTransactionItem()
@@ -381,6 +385,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
             var http = serviceProvider.GetService<IHttpClientService>();
             var response = await http.GetAsync(APIEndpoint.Core + $"master/garment-currencies/single-by-code-date?{queryString}");
+
+            var responseString = await response.Content.ReadAsStringAsync();
+            var jsonSerializationSetting = new JsonSerializerSettings() { MissingMemberHandling = MissingMemberHandling.Ignore };
+
+            var result = JsonConvert.DeserializeObject<APIDefaultResponse<GarmentCurrency>>(responseString, jsonSerializationSetting);
+
+            return result.data;
+        }
+
+        private async Task<GarmentCurrency> GetBICurrency(string codeCurrency)
+        {
+            string date = DateTimeOffset.UtcNow.ToString("yyyy/MM/dd HH:mm:ss");
+            string queryString = $"code={codeCurrency}&stringDate={date}";
+
+            var http = serviceProvider.GetService<IHttpClientService>();
+            var response = await http.GetAsync(APIEndpoint.Core + $"master/bi-currencies/single-by-code-date?{queryString}");
 
             var responseString = await response.Content.ReadAsStringAsync();
             var jsonSerializationSetting = new JsonSerializerSettings() { MissingMemberHandling = MissingMemberHandling.Ignore };
@@ -748,7 +768,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     Date = model.Date,
                     Id = (int)model.Id,
                     InvoiceNo = item.InvoiceNo,
-                    Mutation = item.TotalPaid,
+                    Mutation = model.CurrencyCode != "IDR" ? item.TotalPaid * model.CurrencyRate : item.TotalPaid,
                     SupplierCode = model.SupplierCode,
                     SupplierName = model.SupplierName
                 };

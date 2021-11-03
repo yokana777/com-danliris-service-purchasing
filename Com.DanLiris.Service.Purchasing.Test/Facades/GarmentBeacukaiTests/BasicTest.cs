@@ -7,7 +7,9 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentBeacukaiModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentBeacukaiViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentBeacukaiDataUtils;
@@ -75,6 +77,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentBeacukaiTests
                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-suppliers/byCodes"))))
                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentSupplierDataUtil().GetMultipleResultFormatterOkString()) });
 
+            HttpClientService
+                .Setup(x => x.SendAsync(It.IsAny<HttpMethod>(), It.Is<string>(s => s.Contains("master/garmentProducts")), It.IsAny<HttpContent>()))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentProductDataUtil().GetMultipleResultFormatterOkString()) });
+
+            var mockDebtBalanceService = new Mock<IGarmentDebtBalanceService>();
+            mockDebtBalanceService
+                .Setup(x => x.CreateFromCustoms(It.IsAny<CustomsFormDto>()))
+                .ReturnsAsync(1);
+
             var serviceProvider = new Mock<IServiceProvider>();
 			serviceProvider
 				.Setup(x => x.GetService(typeof(IdentityService)))
@@ -84,7 +95,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentBeacukaiTests
 				.Setup(x => x.GetService(typeof(IHttpClientService)))
 				.Returns(HttpClientService.Object);
 
-			return serviceProvider;
+            serviceProvider
+               .Setup(x => x.GetService(typeof(IGarmentDebtBalanceService)))
+               .Returns(mockDebtBalanceService.Object);
+
+            return serviceProvider;
 		}
 		private GarmentBeacukaiDataUtil dataUtil(GarmentBeacukaiFacade facade, string testName)
 		{
@@ -101,149 +116,166 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentBeacukaiTests
 			var garmentDeliveryOrderDataUtil = new GarmentDeliveryOrderDataUtil(garmentDeliveryOrderFacade, garmentExternalPurchaseOrderDataUtil);
 			return new GarmentBeacukaiDataUtil(garmentDeliveryOrderDataUtil ,facade);
 		}
-		//[Fact]
-		//public async Task Should_Success_Create_Data()
-		//{
 
-		//	var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
-		//	GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME);
+        private GarmentDeliveryOrderDataUtil dataUtilDO(GarmentDeliveryOrderFacade facade, string testName)
+        {
+            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(testName));
+            var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
 
-		//	var Response = await facade.Create(data, USERNAME);
-		//	Assert.NotEqual(0, Response);
-		//}
-		//[Fact]
-		//public async Task Should_Success_Create_Data_null_BillNo()
-		//{
+            var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));
+            var garmentInternalPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
 
-		//	var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
-		//	GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME);
-		//	data.BillNo = "";
-		//	var Response = await facade.Create(data, USERNAME);
-		//	Assert.NotEqual(0, Response);
-		//}
+            var garmentExternalPurchaseOrderFacade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(testName));
+            var garmentExternalPurchaseOrderDataUtil = new GarmentExternalPurchaseOrderDataUtil(garmentExternalPurchaseOrderFacade, garmentInternalPurchaseOrderDataUtil);
 
-		//[Fact]
-		//public async Task Should_Validate_Double_Data()
-		//{
-		//	var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
-		//	GarmentBeacukai model = await dataUtil(facade, GetCurrentMethod()).GetTestData(USERNAME);
+            //var garmentDeliveryOrderFacade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(testName));
+            //var garmentDeliveryOrderDataUtil = new GarmentDeliveryOrderDataUtil(garmentDeliveryOrderFacade, garmentExternalPurchaseOrderDataUtil);
+            return new GarmentDeliveryOrderDataUtil(facade, garmentExternalPurchaseOrderDataUtil);
+        }
 
-		//	GarmentBeacukaiViewModel viewModel = new GarmentBeacukaiViewModel
-		//	{
-		//		supplier = new SupplierViewModel(),
-		//	};
-		//	viewModel.Id = model.Id + 1;
-		//	viewModel.beacukaiNo = model.BeacukaiNo;
-		//	viewModel.supplier.Id = model.SupplierId;
-		//	viewModel.beacukaiDate = model.BeacukaiDate;
+        //[Fact]
+        //public async Task Should_Success_Create_Data()
+        //{
+
+        //	var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
+        //	GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME);
+
+        //	var Response = await facade.Create(data, USERNAME);
+        //	Assert.NotEqual(0, Response);
+        //}
+        //[Fact]
+        //public async Task Should_Success_Create_Data_null_BillNo()
+        //{
+
+        //	var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
+        //	GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME);
+        //	data.BillNo = "";
+        //	var Response = await facade.Create(data, USERNAME);
+        //	Assert.NotEqual(0, Response);
+        //}
+
+        //[Fact]
+        //public async Task Should_Validate_Double_Data()
+        //{
+        //	var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
+        //	GarmentBeacukai model = await dataUtil(facade, GetCurrentMethod()).GetTestData(USERNAME);
+
+        //	GarmentBeacukaiViewModel viewModel = new GarmentBeacukaiViewModel
+        //	{
+        //		supplier = new SupplierViewModel(),
+        //	};
+        //	viewModel.Id = model.Id + 1;
+        //	viewModel.beacukaiNo = model.BeacukaiNo;
+        //	viewModel.supplier.Id = model.SupplierId;
+        //	viewModel.beacukaiDate = model.BeacukaiDate;
 
 
-		//	Mock<IServiceProvider> serviceProvider = new Mock<IServiceProvider>();
-		//	serviceProvider.
-		//		Setup(x => x.GetService(typeof(PurchasingDbContext)))
-		//		.Returns(_dbContext(GetCurrentMethod()));
+        //	Mock<IServiceProvider> serviceProvider = new Mock<IServiceProvider>();
+        //	serviceProvider.
+        //		Setup(x => x.GetService(typeof(PurchasingDbContext)))
+        //		.Returns(_dbContext(GetCurrentMethod()));
 
-		//	ValidationContext validationContext = new ValidationContext(viewModel, serviceProvider.Object, null);
+        //	ValidationContext validationContext = new ValidationContext(viewModel, serviceProvider.Object, null);
 
-		//	var validationResultCreate = viewModel.Validate(validationContext).ToList();
+        //	var validationResultCreate = viewModel.Validate(validationContext).ToList();
 
-		//	var errorDuplicate = validationResultCreate.SingleOrDefault(r => r.ErrorMessage.Equals("No is already exist"));
-		//	Assert.NotNull(errorDuplicate);
-		//}
-	//	[Fact]
-	//	public async Task Should_Error_Create_Data()
-	//	{
-	//		var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
-	//		GarmentBeacukai model = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME);
-	//		model.Items = null;
-	//		Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(model, USERNAME));
-	//		Assert.NotNull(e.Message);
-	//	}
-	//	[Fact]
-	//	public async Task Should_Success_Get_All_Data()
-	//	{
-	//		var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
-	//		GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetNewData (USERNAME);
-	//		var Responses = await facade.Create(data, USERNAME);
-	//		var Response = facade.Read();
-	//		Assert.NotNull(Response);
-	//	}
+        //	var errorDuplicate = validationResultCreate.SingleOrDefault(r => r.ErrorMessage.Equals("No is already exist"));
+        //	Assert.NotNull(errorDuplicate);
+        //}
+        //	[Fact]
+        //	public async Task Should_Error_Create_Data()
+        //	{
+        //		var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
+        //		GarmentBeacukai model = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME);
+        //		model.Items = null;
+        //		Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(model, USERNAME));
+        //		Assert.NotNull(e.Message);
+        //	}
+        //	[Fact]
+        //	public async Task Should_Success_Get_All_Data()
+        //	{
+        //		var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
+        //		GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetNewData (USERNAME);
+        //		var Responses = await facade.Create(data, USERNAME);
+        //		var Response = facade.Read();
+        //		Assert.NotNull(Response);
+        //	}
 
-	//	[Fact]
-	//	public async Task Should_Success_Get_Data_By_Id()
-	//	{
-	//		var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
-	//		GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME);
-	//		var Responses = await facade.Create(data, USERNAME);
-	//		var Response = facade.ReadById((int)data.Id);
-	//		Assert.NotNull(Response);
-	//	}
-	//	[Fact]
-	//	public async Task Should_Success_Update_Data()
-	//{
-	//		var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
-	//		var facadeDO = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
+        //	[Fact]
+        //	public async Task Should_Success_Get_Data_By_Id()
+        //	{
+        //		var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
+        //		GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME);
+        //		var Responses = await facade.Create(data, USERNAME);
+        //		var Response = facade.ReadById((int)data.Id);
+        //		Assert.NotNull(Response);
+        //	}
+        //	[Fact]
+        //	public async Task Should_Success_Update_Data()
+        //{
+        //		var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
+        //		var facadeDO = new GarmentDeliveryOrderFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
 
-	//		GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetTestData1(USERNAME);
+        //		GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetTestData1(USERNAME);
 
- //           GarmentBeacukaiViewModel viewModel = await dataUtil(facade, GetCurrentMethod()).GetViewModel(USERNAME);
-            
- //           var newModelItem = new GarmentBeacukaiItem
- //           {
- //               GarmentDOId= viewModel.items.First().deliveryOrder.Id,
- //               TotalQty=1,
- //               TotalAmount=1
- //           };
- //           data.Items.Add(newModelItem);
+        //           GarmentBeacukaiViewModel viewModel = await dataUtil(facade, GetCurrentMethod()).GetViewModel(USERNAME);
 
- //           List<GarmentBeacukaiItemViewModel> Newitems = new List<GarmentBeacukaiItemViewModel>();
-			
+        //           var newModelItem = new GarmentBeacukaiItem
+        //           {
+        //               GarmentDOId= viewModel.items.First().deliveryOrder.Id,
+        //               TotalQty=1,
+        //               TotalAmount=1
+        //           };
+        //           data.Items.Add(newModelItem);
 
- //           foreach(GarmentBeacukaiItem i in data.Items)
- //           {
- //               var newItem =
- //               new GarmentBeacukaiItemViewModel
- //               {
- //                   selected = true,
- //                   deliveryOrder = new Lib.ViewModels.GarmentDeliveryOrderViewModel.GarmentDeliveryOrderViewModel
- //                   {
- //                       Id= i.GarmentDOId,
- //                   },
- //                   Id=i.Id,
+        //           List<GarmentBeacukaiItemViewModel> Newitems = new List<GarmentBeacukaiItemViewModel>();
 
- //                   billNo = null,
- //                   quantity = 0
- //               };
- //               Newitems.Add(newItem);
- //           }
 
- //           viewModel.Id = data.Id;
- //           viewModel.items = Newitems;
-			
-	//		var ResponseUpdate1 = await facade.Update((int)data.Id, viewModel, data, USERNAME);
-	//		Assert.NotEqual(0, ResponseUpdate1);
+        //           foreach(GarmentBeacukaiItem i in data.Items)
+        //           {
+        //               var newItem =
+        //               new GarmentBeacukaiItemViewModel
+        //               {
+        //                   selected = true,
+        //                   deliveryOrder = new Lib.ViewModels.GarmentDeliveryOrderViewModel.GarmentDeliveryOrderViewModel
+        //                   {
+        //                       Id= i.GarmentDOId,
+        //                   },
+        //                   Id=i.Id,
 
- //           var ResponseUpdate2 = await facade.Update((int)data.Id, viewModel, data, USERNAME);
- //           Assert.NotEqual(0, ResponseUpdate2);
- //       }
+        //                   billNo = null,
+        //                   quantity = 0
+        //               };
+        //               Newitems.Add(newItem);
+        //           }
 
-	//	[Fact]
-	//	public async Task Should_Success_Delete_Data()
-	//	{
-	//		var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
-	//		GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME);
-	//		await facade.Create(data, USERNAME);
-	//		var Response = facade.Delete((int)data.Id, USERNAME);
-	//		Assert.NotEqual(0, Response);
-	//	}
-	//	[Fact]
-	//	public void Should_Error_Delete_Data()
-	//	{
-	//		var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
-	//		Exception e = Assert.Throws<Exception>(() => facade.Delete(0, USERNAME));
-	//		Assert.NotNull(e.Message);
-	//	}
-		[Fact]
+        //           viewModel.Id = data.Id;
+        //           viewModel.items = Newitems;
+
+        //		var ResponseUpdate1 = await facade.Update((int)data.Id, viewModel, data, USERNAME);
+        //		Assert.NotEqual(0, ResponseUpdate1);
+
+        //           var ResponseUpdate2 = await facade.Update((int)data.Id, viewModel, data, USERNAME);
+        //           Assert.NotEqual(0, ResponseUpdate2);
+        //       }
+
+        //	[Fact]
+        //	public async Task Should_Success_Delete_Data()
+        //	{
+        //		var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
+        //		GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME);
+        //		await facade.Create(data, USERNAME);
+        //		var Response = facade.Delete((int)data.Id, USERNAME);
+        //		Assert.NotEqual(0, Response);
+        //	}
+        //	[Fact]
+        //	public void Should_Error_Delete_Data()
+        //	{
+        //		var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), ServiceProvider);
+        //		Exception e = Assert.Throws<Exception>(() => facade.Delete(0, USERNAME));
+        //		Assert.NotNull(e.Message);
+        //	}
+        [Fact]
 		public void Should_Success_Validate_Data()
 		{
 			GarmentBeacukaiViewModel nullViewModel = new GarmentBeacukaiViewModel();
@@ -300,6 +332,40 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentBeacukaiTests
 
         //    Assert.IsType<MemoryStream>(Response);
         //}
+        [Fact]
+        public async Task Should_Success_Get_Feature_NoBc()
+        {
+            var facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            GarmentDeliveryOrder dataDO = await dataUtilDO(facadeDO, GetCurrentMethod()).GetNewData();
+
+            foreach(var i in dataDO.Items)
+            {
+                foreach(var d in i.Details)
+                {
+                    d.POSerialNumber = "PONO123";
+                    d.RONo = "RONO123";
+                }
+            }
+
+            await facadeDO.Create(dataDO, USERNAME);
+
+            var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+
+            GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME, dataDO);
+
+            data.CustomsType = "BC 23";
+            var Responses = await facade.Create(data, USERNAME);
+
+            var facadeReport = new BeacukaiNoFeature(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+
+            var Response1 = facadeReport.GetBeacukaiNo("BCNo", data.BeacukaiNo);
+            var Response2 = facadeReport.GetBeacukaiNo("PONo", "PONO123");
+            var Response3 = facadeReport.GetBeacukaiNo("RONo", "RONO123");
+
+            Assert.NotNull(Response1);
+            Assert.NotNull(Response2);
+            Assert.NotNull(Response3);
+        }
 
     }
 }
