@@ -7,6 +7,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel
     public class GarmentInvoiceMonitoringViewModel
     {
         public string InvoiceNo { get; set; }
+        public string Ronos { get; set; }
         public DateTimeOffset InvoiceDate { get; set; }
         public string BuyerAgentName { get; set; }
         public DateTimeOffset PEBDate { get; set; }

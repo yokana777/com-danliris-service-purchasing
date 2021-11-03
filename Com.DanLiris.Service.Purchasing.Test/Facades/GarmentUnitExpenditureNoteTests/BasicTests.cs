@@ -79,6 +79,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
                 .Setup(x => x.SendAsync(It.IsAny<HttpMethod>(), It.Is<string>(s => s.Contains("finishing-outs/for-traceable")), It.IsAny<HttpContent>()))
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentFinishingOutDataUtil().GetMultipleResultFormatterOkString()) });
             httpClientService
+               .Setup(x => x.SendAsync(It.IsAny<HttpMethod>(), It.Is<string>(s => s.Contains("dpp-vat-bank-expenditure-notes/invoice")), It.IsAny<HttpContent>()))
+               .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new DPPVATBankExpenditureNoteDataUtil().GetResultFormatterOkString()) });
+            httpClientService
                 .Setup(x => x.SendAsync(It.IsAny<HttpMethod>(), It.Is<string>(s => s.Contains("cutting-outs/for-traceable")), It.IsAny<HttpContent>()))
                 .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentCuttingOutDataUtil().GetMultipleResultFormatterOkString()) });
             httpClientService
@@ -1163,6 +1166,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             foreach(var i in data.Items)
             {
                 i.ProductName = "FABRIC";
+                i.RONo = "RONo123";
             }
 
             data.PaymentMethod = "CMT";

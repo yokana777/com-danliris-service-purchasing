@@ -15,7 +15,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils
 
             var data = new GarmentInvoiceMonitoringViewModel
             {
-                InvoiceNo = "InvoiceNo",
+                InvoiceNo = "Invoice123",
                 InvoiceDate = DateTimeOffset.Now,
                 BuyerAgentName = "BuyerAgentName",
                 PEBDate = DateTimeOffset.Now,
