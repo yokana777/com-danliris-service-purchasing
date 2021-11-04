@@ -11,7 +11,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public string Article { get; set; }
         public double UnitQty { get; set; }
         public decimal EGAmountIDR { get; set; }
-        //
+        public string NoKasBank { get; set; }
         public string UENNo { get; set; }
         public string ProductRemark { get; set; }
         public double Quantity { get; set; }
@@ -26,6 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public string SupplierName { get; set; }
         public string BillNo { get; set; }
         public string PaymentBill { get; set; }
+        public long InvoiceId { get; set; }
         public string DONo { get; set; }
         public decimal UENPrice { get; set; }
         public decimal DORate { get; set; }
