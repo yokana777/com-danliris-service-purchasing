@@ -193,7 +193,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
                     model.URNNo = await GenerateNo(model);
 
-                    var useIncomeTaxFlag = false;
+                    var useVATFlag = false;
                     var currencyCode = "";
                     var paymentDuration = "";
                     if (model.Items != null)
@@ -209,11 +209,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                             UnitPaymentOrderDetail upoDetail = dbContext.UnitPaymentOrderDetails.FirstOrDefault(s => s.IsDeleted == false && s.POItemId == poItem.Id);
 
                             var poextItem = dbContext.ExternalPurchaseOrderItems.Select(s => new { s.Id, s.EPOId }).FirstOrDefault(f => f.Id.Equals(externalPurchaseOrderDetail.EPOItemId));
-                            var poext = dbContext.ExternalPurchaseOrders.Select(s => new { s.Id, s.UseIncomeTax, s.CurrencyCode, s.PaymentDueDays }).FirstOrDefault(f => f.Id.Equals(poextItem.EPOId));
+                            var poext = dbContext.ExternalPurchaseOrders.Select(s => new { s.Id, s.UseIncomeTax, s.UseVat, s.CurrencyCode, s.PaymentDueDays }).FirstOrDefault(f => f.Id.Equals(poextItem.EPOId));
 
                             paymentDuration = poext.PaymentDueDays;
 
-                            useIncomeTaxFlag = useIncomeTaxFlag || poext.UseIncomeTax;
+                            useVATFlag = useVATFlag || poext.UseVat;
                             currencyCode = poext.CurrencyCode;
 
                             item.PRItemId = doDetail.PRItemId;
@@ -250,7 +250,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
 
                     await CreateJournalTransactions(model);
-                    await CreateCreditorAccount(model, useIncomeTaxFlag, currencyCode, paymentDuration);
+                    await CreateCreditorAccount(model, useVATFlag, currencyCode, paymentDuration);
                     if (model.IsStorage == true)
                     {
                         insertStorage(model, user, "IN");
@@ -268,7 +268,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             return Created;
         }
 
-        private async Task CreateCreditorAccount(UnitReceiptNote model, bool useIncomeTaxFlag, string currencyCode, string paymentDuration)
+        private async Task CreateCreditorAccount(UnitReceiptNote model, bool useVATFlag, string currencyCode, string paymentDuration)
         {
             var dpp = model.Items.Sum(s => s.ReceiptQuantity * s.PricePerDealUnit);
             var externalPurchaseOrderNo = model.Items.FirstOrDefault().EPONo;
@@ -288,7 +288,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
             var creditorAccount = new
             {
-                PPN = useIncomeTaxFlag ? 0.1 * (currencyCode != "IDR" ? dpp * currencyRate : dpp) : 0,
+                PPN = useVATFlag ? 0.1 * (currencyCode != "IDR" ? dpp * currencyRate : dpp) : 0,
                 DPP = currencyCode != "IDR" ? dpp * currencyRate : dpp,
                 model.SupplierCode,
                 model.SupplierName,
