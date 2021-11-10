@@ -237,6 +237,36 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitDeliveryOr
         }
 
         [Fact]
+        public void Should_Sucscess_Get_Item_Data_By_Id()
+        {
+            var mockFacade = new Mock<IGarmentUnitDeliveryOrderFacade>();
+            mockFacade.Setup(x => x.ReadItemById(It.IsAny<int>()))
+                .Returns(new GarmentUnitDeliveryOrderItem());
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<GarmentUnitDeliveryOrderItemViewModel>(It.IsAny<GarmentUnitDeliveryOrderItem>()))
+                .Returns(new GarmentUnitDeliveryOrderItemViewModel());
+
+            GarmentUnitDeliveryOrderControllers controller = GetController(mockFacade, null, mockMapper);
+
+            var response = controller.GetItemById(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_Item_Data_By_Id()
+        {
+            var mockFacade = new Mock<IGarmentUnitDeliveryOrderFacade>();
+            mockFacade.Setup(x => x.ReadItemById(It.IsAny<int>()))
+                .Returns(new GarmentUnitDeliveryOrderItem());
+
+            GarmentUnitDeliveryOrderControllers controller = new GarmentUnitDeliveryOrderControllers(GetServiceProvider().Object, mockFacade.Object);
+
+            var response = controller.GetItemById(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
         public async Task Should_Success_Update_Data()
         {
             var validateMock = new Mock<IValidateService>();
