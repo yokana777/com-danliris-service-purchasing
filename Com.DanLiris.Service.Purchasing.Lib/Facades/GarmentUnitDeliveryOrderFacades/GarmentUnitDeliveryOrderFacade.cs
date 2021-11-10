@@ -482,11 +482,5 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
             return new ReadResponse<object>(listData, Total, OrderDictionary);
         }
 
-        public GarmentUnitDeliveryOrderItem ReadItemById(int id)
-        {
-            var model = dbSetItem.Where(m => m.Id == id)
-                .FirstOrDefault();
-            return model;
-        }
     }
 }
