@@ -125,6 +125,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
             return model;
         }
 
+        public GarmentUnitDeliveryOrderItem ReadItemById(int id)
+        {
+            var model = dbContext.GarmentUnitDeliveryOrderItems.Where(m => m.Id == id)
+                .FirstOrDefault();
+            return model;
+        }
+
         public async Task<int> Create(GarmentUnitDeliveryOrder garmentUnitDeliveryOrder)
         {
             int Created = 0;
