@@ -95,25 +95,26 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             //Jumlah dibayar ke Supplier
             double paidToSupp = dpp + ppn - pphRate;
-            if (viewModel.IncomeTaxBy == "Dan Liris")
+            if (viewModel.IncomeTaxBy.ToUpper() == "DAN LIRIS")
             {
                 paidToSupp = dpp + ppn;
             }
 
             double amount = dpp + ppn;
 
-            if (viewModel.IncomeTaxBy == "Dan Liris")
+            if (viewModel.IncomeTaxBy.ToUpper() == "SUPPLIER")
             {
-                amount = dpp + ppn + pphRate;
+                amount = dpp + ppn - pphRate;
             }
 
-            var payingDisposition = Math.Round((paidToSupp + viewModel.PaymentCorrection + pphRate), 2, MidpointRounding.AwayFromZero);
+            var amountPDF = amount + viewModel.PaymentCorrection;
+            var payingDisposition = Math.Round((paidToSupp + viewModel.PaymentCorrection), 2, MidpointRounding.AwayFromZero);
             cellLeftNoBorder.SetLeading(13f, 0f);
             cellLeftNoBorder.Phrase = new Phrase("Mohon Disposisi Pembayaran", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase(viewModel.PaymentMethod + "  " + viewModel.Currency.code + " " + $"{payingDisposition.ToString("N", new CultureInfo("id-ID"))}", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase(viewModel.PaymentMethod + "  " + viewModel.Currency.code + " " + $"{amountPDF.ToString("N", new CultureInfo("id-ID"))}", normal_font);
             cellLeftNoBorder.Colspan = 2;
             tableIdentity.AddCell(cellLeftNoBorder);
             //cellLeftNoBorder.Phrase = new Phrase( viewModel.Currency.code + " " +  $"{(paidToSupp + viewModel.PaymentCorrection + pphRate).ToString("N", new CultureInfo("id-ID")) }", normal_font);
@@ -126,7 +127,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase($"{ NumberToTextIDN.terbilang(payingDisposition) }" + " " + viewModel.Currency.description.ToLower(), normal_font);
+            cellLeftNoBorder.Phrase = new Phrase($"{ NumberToTextIDN.terbilangv2(amountPDF) }" + " " + viewModel.Currency.description.ToLower(), normal_font);
             cellLeftNoBorder.Colspan = 2;
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase("", normal_font);
@@ -246,7 +247,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellSuppMid.Phrase = new Phrase(":", normal_font);
             tableIdentity.AddCell(cellSuppMid);
             cellSuppRight.Colspan = 2;
-            cellSuppRight.Phrase = new Phrase(viewModel.Currency.code + "  " + $"{(paidToSupp + viewModel.PaymentCorrection).ToString("N", new CultureInfo("id-ID"))}", normal_font);
+            cellSuppRight.Phrase = new Phrase(viewModel.Currency.code + "  " + $"{(amountPDF).ToString("N", new CultureInfo("id-ID"))}", normal_font);
             tableIdentity.AddCell(cellSuppRight);
             cellLeftNoBorder.Colspan = 0;
             cellLeftNoBorder.Phrase = new Phrase("", normal_font);

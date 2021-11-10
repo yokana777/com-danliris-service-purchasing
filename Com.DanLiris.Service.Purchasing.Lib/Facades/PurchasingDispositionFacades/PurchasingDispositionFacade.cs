@@ -244,11 +244,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.PurchasingDispositionFacad
                     m.Position = 1;
                     if (m.IncomeTaxBy == "Supplier")
                     {
-                        m.Amount = m.DPP + m.VatValue + m.PaymentCorrection;
+                        m.Amount = (m.DPP + m.VatValue - m.IncomeTaxValue) + m.PaymentCorrection;
                     }
                     else
                     {
-                        m.Amount = m.DPP + m.VatValue - m.IncomeTaxValue + m.PaymentCorrection;
+                        m.Amount = m.DPP + m.VatValue + m.PaymentCorrection;
                     }
                     
                     foreach (var item in m.Items)
