@@ -91,7 +91,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentStockOpnameTests
             var garmentDeliveryOrderDataUtil = new GarmentDeliveryOrderDataUtil(garmentDeliveryOrderFacade, garmentExternalPurchaseOrderDataUtil);
 
             var garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(serviceProvider, dbContext);
-            var garmentUnitReceiptNoteDataUtil = new GarmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, garmentDeliveryOrderDataUtil);
+            var garmentUnitReceiptNoteDataUtil = new GarmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, garmentDeliveryOrderDataUtil, null);
 
             return new GarmentStockOpnameDataUtil(facade, garmentUnitReceiptNoteDataUtil);
         }

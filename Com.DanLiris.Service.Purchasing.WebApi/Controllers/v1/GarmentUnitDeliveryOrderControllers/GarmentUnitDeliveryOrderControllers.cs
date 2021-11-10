@@ -125,6 +125,33 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitDeliv
             }
         }
 
+        [HttpGet("item/{id}")]
+        public IActionResult GetItemById(int id)
+        {
+            try
+            {
+                var model = facade.ReadItemById(id);
+
+                var viewModel = mapper.Map<GarmentUnitDeliveryOrderItemViewModel>(model);
+
+                if (viewModel == null)
+                {
+                    throw new Exception("Invalid Id");
+                }
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(viewModel);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> Post([FromBody]GarmentUnitDeliveryOrderViewModel ViewModel)
         {
@@ -251,31 +278,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitDeliv
             }
         }
 
-        [HttpGet("item/{id}")]
-        public IActionResult GetItemById(int id)
-        {
-            try
-            {
-                var model = facade.ReadItemById(id);
-
-                var viewModel = mapper.Map<GarmentUnitDeliveryOrderItemViewModel>(model);
-
-                if (viewModel == null)
-                {
-                    throw new Exception("Invalid Id");
-                }
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
-                    .Ok(viewModel);
-                return Ok(Result);
-            }
-            catch (Exception e)
-            {
-                Dictionary<string, object> Result =
-                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
-                    .Fail();
-                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
-            }
-        }
+        
     }
 }

@@ -184,7 +184,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                     EndingBalanceQty = group.Sum(x => x.EndingBalanceQty),
                                     EndingBalancePrice = group.Sum(x => x.EndingBalancePrice),
                                 });
-
             //var BalanceStock = (from a in dbContext.BalanceStocks
             //                    join b in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on (long)a.EPOItemId equals b.Id
             //                    join c in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on b.GarmentEPOId equals c.Id
@@ -353,6 +352,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 EndingBalanceQty = group.Sum(x => x.EndingBalanceQty),
                                 EndingBalancePrice = group.Sum(x => x.EndingBalancePrice),
                             }).ToList();
+
+
             var SAKeluar = (from a in (from aa in dbContext.GarmentUnitExpenditureNoteItems select aa)
                             join b in dbContext.GarmentUnitExpenditureNotes on a.UENId equals b.Id
                             join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
@@ -466,6 +467,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 EndingBalanceQty = group.Sum(x => x.EndingBalanceQty),
                                 EndingBalancePrice = group.Sum(x => x.EndingBalancePrice),
                             }).ToList();
+
             var SAKoreksi = (from a in dbContext.GarmentUnitReceiptNotes
                              join b in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa) on a.Id equals b.URNId
                              join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
@@ -577,13 +579,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  EndingBalanceQty = group.Sum(x => x.EndingBalanceQty),
                                  EndingBalancePrice = group.Sum(x => x.EndingBalancePrice),
                              }).ToList();
+
             var SaldoAwal1 = BalanceStock.Concat(SATerima).Concat(SAKeluar).Concat(SAKoreksi).AsEnumerable();
-            var SaldoAwal = SaldoAwal1.GroupBy(x => new { x.ProductCode, /*x.ProductName,*/ x.BeginningBalanceUom, x.Buyer, x.NoArticle, x.PlanPo, x.RO }, (key, group) => new AccountingStockTempViewModel
+            var SaldoAwal = SaldoAwal1.GroupBy(x => new { x.ProductCode, /*x.ProductName,*/ x.BeginningBalanceUom, /*x.Buyer,*/ x.NoArticle, x.PlanPo, x.RO }, (key, group) => new AccountingStockTempViewModel
             {
                 ProductCode = key.ProductCode,
                 //ProductName = key.ProductName,
                 RO = key.RO,
-                Buyer = key.Buyer,
+                Buyer = group.FirstOrDefault().Buyer,
                 PlanPo = key.PlanPo,
                 NoArticle = key.NoArticle,
                 BeginningBalanceQty = group.Sum(x => x.BeginningBalanceQty),
@@ -962,12 +965,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                            });
 
             var SaldoAkhir1 = Terima.Concat(Keluar).Concat(Koreksi).AsEnumerable();
-            var SaldoAkhir = SaldoAkhir1.GroupBy(x => new { x.ProductCode, /*x.ProductName,*/ x.BeginningBalanceUom, x.Buyer, x.NoArticle, x.PlanPo, x.RO }, (key, group) => new AccountingStockTempViewModel
+            var SaldoAkhir = SaldoAkhir1.GroupBy(x => new { x.ProductCode, /*x.ProductName,*/ x.BeginningBalanceUom, /*x.Buyer,*/ x.NoArticle, x.PlanPo, x.RO }, (key, group) => new AccountingStockTempViewModel
             {
                 ProductCode = key.ProductCode,
                 //ProductName = key.ProductName,
                 RO = key.RO,
-                Buyer = key.Buyer,
+                Buyer = group.FirstOrDefault().Buyer,
                 PlanPo = key.PlanPo,
                 NoArticle = key.NoArticle,
                 BeginningBalanceQty = group.Sum(x => x.BeginningBalanceQty),
@@ -1012,12 +1015,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             }).ToList();
 
             var Stock = SaldoAwal.Concat(SaldoAkhir).AsEnumerable();
-            var SaldoAkhirs = Stock.GroupBy(x => new { x.ProductCode, /*x.ProductName,*/ x.BeginningBalanceUom, x.Buyer, x.NoArticle, x.PlanPo, x.RO }, (key, data) => new AccountingStockTempViewModel
+            var SaldoAkhirs = Stock.GroupBy(x => new { x.ProductCode, /*x.ProductName,*/ x.BeginningBalanceUom, /*x.Buyer,*/ x.NoArticle, x.PlanPo, x.RO }, (key, data) => new AccountingStockTempViewModel
             {
                 ProductCode = key.ProductCode,
                 //ProductName = key.ProductName,
                 RO = key.RO,
-                Buyer = key.Buyer,
+                Buyer = data.FirstOrDefault().Buyer,
                 PlanPo = key.PlanPo,
                 NoArticle = key.NoArticle,
                 BeginningBalanceQty = data.Sum(x => x.BeginningBalanceQty),
