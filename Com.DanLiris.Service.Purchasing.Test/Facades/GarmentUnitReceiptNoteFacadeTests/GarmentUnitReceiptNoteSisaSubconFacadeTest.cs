@@ -4,58 +4,44 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFacade;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
-using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteViewModels;
+using Com.DanLiris.Service.Purchasing.Lib.Migrations;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitExpenditureNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitExpenditureNoteViewModel;
+using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteViewModels;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchaseOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestDataUtils;
-using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestDataUtils;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrderDataUtils;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteDataUtils;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Xunit;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacades;
-using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
 using System.Threading.Tasks;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade;
-using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentBeacukaiDataUtils;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillReceptionFacades;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCentralBillExpenditureFacades;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentCorrectionNoteFacades;
-using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentCorrectionNoteDataUtils;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteReceptionFacades;
-using Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringCorrectionNoteExpenditureFacades;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDailyPurchasingReportFacade;
-using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrderDataUtils;
-using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureDataUtils;
-using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentReceiptCorrectionDataUtils;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNoteFacade;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReceiptCorrectionFacades;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFacades;
+using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFacadeTests
 {
-    public class GarmentUnitReceiptNoteGudangSisaTest
+    public class GarmentUnitReceiptNoteSisaSubconFacadeTest
     {
-        private const string ENTITY = "GarmentUnitReceiptNoteGudangSisa";
+        private const string ENTITY = "GarmentUnitReceiptNoteSisaSubcon";
 
         private const string USERNAME = "Unit Test";
         private IServiceProvider ServiceProvider { get; set; }
@@ -71,49 +57,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             httpClientService
                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-suppliers"))))
                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new SupplierDataUtil().GetResultFormatterOkString()) });
-
-            httpClientService
-               .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("delivery-returns"))))
-               .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentDeliveryReturnDataUtil().GetResultFormatterOkString()) });
-
-            httpClientService
-               .Setup(x => x.PutAsync(It.Is<string>(s => s.Contains("delivery-returns")), It.IsAny<HttpContent>()))
-               .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentDeliveryReturnDataUtil().GetResultFormatterOkString()) });
-
-            httpClientService
-                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-categories"))))
-                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentCategoryDataUtil().GetMultipleResultFormatterOkString()) });
-
-            httpClientService
-                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garmentProducts"))))
-                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentProductDataUtil().GetMultipleResultFormatterOkString()) });
-
-            httpClientService
-                .Setup(x => x.SendAsync(It.IsAny<HttpMethod>(), It.Is<string>(s => s.Contains("master/garmentProducts")), It.IsAny<HttpContent>()))
-                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentProductDataUtil().GetMultipleResultFormatterOkString()) });
-
-            httpClientService
-                .Setup(x => x.SendAsync(It.IsAny<HttpMethod>(), It.Is<string>(s => s.Contains("garment/leftover-warehouse-expenditures/fabric")), It.IsAny<HttpContent>()))
-                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentLeftoverWarehouseExpenditureFabricDataUtil().GetResultFormatterOkString()) });
-            httpClientService
-                .Setup(x => x.SendAsync(It.IsAny<HttpMethod>(), It.Is<string>(s => s.Contains("garment/leftover-warehouse-expenditures/accessories")), It.IsAny<HttpContent>()))
-                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentLeftoverWarehouseExpenditureAccessoriesDataUtil().GetResultFormatterOkString()) });
-
-            httpClientService
-                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("garment/leftover-warehouse-expenditures/fabric"))))
-                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentLeftoverWarehouseExpenditureFabricDataUtil().GetResultFormatterOkString()) });
-
-            httpClientService
-                .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("garment/leftover-warehouse-expenditures/accessories"))))
-                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentLeftoverWarehouseExpenditureAccessoriesDataUtil().GetResultFormatterOkString()) });
-
-            httpClientService
-               .Setup(x => x.PutAsync(It.Is<string>(s => s.Contains("garment/leftover-warehouse-expenditures/fabric")), It.IsAny<HttpContent>()))
-               .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentLeftoverWarehouseExpenditureFabricDataUtil().GetResultFormatterOkString()) });
-            httpClientService
-               .Setup(x => x.PutAsync(It.Is<string>(s => s.Contains("garment/leftover-warehouse-expenditures/accessories")), It.IsAny<HttpContent>()))
-               .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentLeftoverWarehouseExpenditureAccessoriesDataUtil().GetResultFormatterOkString()) });
-
 
             var mapper = new Mock<IMapper>();
             mapper
@@ -139,6 +82,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
                 .Setup(x => x.ReadById(It.IsAny<int>()))
                 .Returns(new GarmentDeliveryOrder());
 
+            var mockGarmentUENFacade = new Mock<IGarmentUnitExpenditureNoteFacade>();
+            mockGarmentUENFacade
+                .Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(new GarmentUnitExpenditureNoteViewModel());
+
             var serviceProviderMock = new Mock<IServiceProvider>();
             serviceProviderMock
                 .Setup(x => x.GetService(typeof(IdentityService)))
@@ -152,6 +100,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             serviceProviderMock
                 .Setup(x => x.GetService(typeof(IGarmentDeliveryOrderFacade)))
                 .Returns(mockGarmentDeliveryOrderFacade.Object);
+
+            serviceProviderMock
+                .Setup(x => x.GetService(typeof(IGarmentUnitExpenditureNoteFacade)))
+                .Returns(mockGarmentUENFacade.Object);
+
 
             serviceProviderMock
                 .Setup(x => x.GetService(typeof(IdentityService)))
@@ -269,83 +222,82 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var garmentDeliveryOrderFacade = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(testName));
             var garmentDeliveryOrderDataUtil = new GarmentDeliveryOrderDataUtil(garmentDeliveryOrderFacade, garmentExternalPurchaseOrderDataUtil);
 
-            return new GarmentUnitReceiptNoteDataUtil(facade, garmentDeliveryOrderDataUtil, null);
+            var garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(testName));
+            var garmentUnitReceiptNoteDatautil = new GarmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, garmentDeliveryOrderDataUtil,null);
+
+            var garmentUnitDeliveryOrderFacade = new GarmentUnitDeliveryOrderFacade(_dbContext(testName), GetServiceProvider());
+            var garmentUnitDeliveryOrderDatautil = new GarmentUnitDeliveryOrderDataUtil(garmentUnitDeliveryOrderFacade, garmentUnitReceiptNoteDatautil);
+
+            var garmentUENFacade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(testName));
+            var dataUtilUEN = new GarmentUnitExpenditureNoteDataUtil(garmentUENFacade, garmentUnitDeliveryOrderDatautil);
+
+            return new GarmentUnitReceiptNoteDataUtil(facade, garmentDeliveryOrderDataUtil, dataUtilUEN);
         }
+        
 
-        private GarmentUnitReceiptNoteDataUtil dataUtil_DOCurrency(GarmentUnitReceiptNoteFacade facade, string testName)
+        private IServiceProvider GetServiceProviderUnitReceiptNote()
         {
-            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(GetServiceProvider_DOCurrency(), _dbContext(testName));
-            var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
-
-            var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));
-            var garmentInternalPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
-
-            var garmentExternalPurchaseOrderFacade = new GarmentExternalPurchaseOrderFacade(GetServiceProvider_DOCurrency(), _dbContext(testName));
-            var garmentExternalPurchaseOrderDataUtil = new GarmentExternalPurchaseOrderDataUtil(garmentExternalPurchaseOrderFacade, garmentInternalPurchaseOrderDataUtil);
-
-            var garmentDeliveryOrderFacade = new GarmentDeliveryOrderFacade(GetServiceProvider_DOCurrency(), _dbContext(testName));
-            var garmentDeliveryOrderDataUtil = new GarmentDeliveryOrderDataUtil(garmentDeliveryOrderFacade, garmentExternalPurchaseOrderDataUtil);
-
-            return new GarmentUnitReceiptNoteDataUtil(facade, garmentDeliveryOrderDataUtil, null);
-        }
-
-        private GarmentDeliveryOrderDataUtil dataUtilDO(GarmentDeliveryOrderFacade facade, string testName)
-        {
-            var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(testName));
-            var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
-
-            var garmentInternalPurchaseOrderFacade = new GarmentInternalPurchaseOrderFacade(_dbContext(testName));
-            var garmentInternalPurchaseOrderDataUtil = new GarmentInternalPurchaseOrderDataUtil(garmentInternalPurchaseOrderFacade, garmentPurchaseRequestDataUtil);
-
-            var garmentExternalPurchaseOrderFacade = new GarmentExternalPurchaseOrderFacade(ServiceProvider, _dbContext(testName));
-            var garmentExternalPurchaseOrderDataUtil = new GarmentExternalPurchaseOrderDataUtil(garmentExternalPurchaseOrderFacade, garmentInternalPurchaseOrderDataUtil);
-
-            return new GarmentDeliveryOrderDataUtil(facade, garmentExternalPurchaseOrderDataUtil);
+            throw new NotImplementedException();
         }
 
         [Fact]
-        public async Task Should_Success_Create_Data_GUDANG_SISA()
+        public async Task Should_Success_Create_Data_SISA_SUBCON()
         {
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorage();
-            data.URNType = "GUDANG SISA";
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorageSubcon();
+            data.URNType = "SISA SUBCON";
             data.ExpenditureId = 1;
             data.ExpenditureNo = "no";
             data.Category = "FABRIC";
+            data.UENId = 1;
+            data.UENNo = "no";
             var Response = await facade.Create(data);
             Assert.NotEqual(0, Response);
 
-            //var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var data1 = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorage();
-            data1.StorageId = data.StorageId;
-            data1.Items.First().UomId = data.Items.First().UomId;
-            data1.UnitId = data.UnitId;
-            data.URNType = "GUDANG SISA";
-            data.ExpenditureId = 1;
-            data.ExpenditureNo = "no";
-            data.Category = "ACCESSORIES";
-            var Response1 = await facade.Create(data1);
-            Assert.NotEqual(0, Response1);
         }
 
         [Fact]
-        public async Task Should_Success_Delete_Data_ACC()
+        public async Task Should_Success_Delete_Data_SISA_SUBCON()
         {
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorageGudangSisaACC();
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorageSubcon();
 
             var Response = await facade.Delete((int)data.Id, (string)data.DeletedReason);
             Assert.NotEqual(0, Response);
         }
 
         [Fact]
-        public async Task Should_Success_Delete_Data_FAB()
+        public async Task Should_Success_Validate_Data()
         {
-            var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorageGudangSisaFabric();
+            GarmentUnitReceiptNoteViewModel viewModel = new GarmentUnitReceiptNoteViewModel
+            {
+                Unit = new Lib.ViewModels.NewIntegrationViewModel.UnitViewModel
+                {
+                    Id = "1"
+                },
+                URNType = "SISA SUBCON"
+            };
+            Assert.True(viewModel.Validate(null).Count() > 0);
 
-            var Response = await facade.Delete((int)data.Id, (string)data.DeletedReason);
-            Assert.NotEqual(0, Response);
+            GarmentUnitReceiptNoteViewModel viewModelNullItems = new GarmentUnitReceiptNoteViewModel
+            {
+                URNType = "SISA SUBCON"
+            };
+            Assert.True(viewModelNullItems.Validate(null).Count() > 0);
+
+            GarmentUnitReceiptNoteViewModel viewModelWithItems = new GarmentUnitReceiptNoteViewModel
+            {
+                URNType = "SISA SUBCON",
+                Items = new List<GarmentUnitReceiptNoteItemViewModel>
+                {
+                    new GarmentUnitReceiptNoteItemViewModel
+                    {
+                        ReceiptQuantity=0
+                    }
+                }
+            };
+            Assert.True(viewModelWithItems.Validate(null).Count() > 0);
+
         }
     }
 }
