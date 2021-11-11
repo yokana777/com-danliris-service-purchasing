@@ -12,7 +12,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<int> Update(int id, GarmentUnitDeliveryOrder garmentUnitDeliveryOrder);
         Task<int> Delete(int id);
         ReadResponse<object> ReadForUnitExpenditureNote(int Page = 1, int Size = 10, string Order = "{}", string Keyword = null, string Filter = "{}");
-
         GarmentUnitDeliveryOrderItem ReadItemById(int id);
     }
 }

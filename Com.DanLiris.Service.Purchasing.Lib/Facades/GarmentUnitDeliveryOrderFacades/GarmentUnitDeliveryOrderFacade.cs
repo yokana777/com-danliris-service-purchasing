@@ -27,6 +27,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
 
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<GarmentUnitDeliveryOrder> dbSet;
+        private readonly DbSet<GarmentUnitDeliveryOrderItem> dbSetItem;
         private readonly DbSet<GarmentDOItems> dbSetGarmentDOItems;
         private readonly IMapper mapper;
 
@@ -37,6 +38,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
 
             this.dbContext = dbContext;
             dbSet = dbContext.Set<GarmentUnitDeliveryOrder>();
+            dbSetItem = dbContext.Set<GarmentUnitDeliveryOrderItem>();
             dbSetGarmentDOItems = dbContext.Set<GarmentDOItems>();
             mapper = serviceProvider == null ? null : (IMapper)serviceProvider.GetService(typeof(IMapper));
         }
@@ -478,6 +480,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                 }).ToList()
             );
             return new ReadResponse<object>(listData, Total, OrderDictionary);
+        }
+
+        public GarmentUnitDeliveryOrderItem ReadItemById(int id)
+        {
+            var model = dbSetItem.Where(m => m.Id == id)
+                .FirstOrDefault();
+            return model;
         }
     }
 }
