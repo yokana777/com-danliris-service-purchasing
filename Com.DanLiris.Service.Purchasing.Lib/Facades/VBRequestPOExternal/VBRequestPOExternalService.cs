@@ -385,6 +385,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             return _dbContext.SaveChanges();
         }
 
+        private async Task<GarmentCurrency> GetBICurrency(string codeCurrency, DateTimeOffset date)
+        {
+            string stringDate = date.ToString("yyyy/MM/dd HH:mm:ss");
+            string queryString = $"code={codeCurrency}&stringDate={stringDate}";
+
+            var http = _serviceProvider.GetService<IHttpClientService>();
+            var response = await http.GetAsync(APIEndpoint.Core + $"master/bi-currencies/single-by-code-date?{queryString}");
+
+            var responseString = await response.Content.ReadAsStringAsync();
+            var jsonSerializationSetting = new JsonSerializerSettings() { MissingMemberHandling = MissingMemberHandling.Ignore };
+
+            var result = JsonConvert.DeserializeObject<APIDefaultResponse<GarmentCurrency>>(responseString, jsonSerializationSetting);
+
+            return result.data;
+        }
+
+
         public async Task<int> AutoJournalVBRequest(VBFormDto form)
         {
             var jsonSerializerSettings = new JsonSerializerSettings
@@ -515,13 +532,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                                 }
                             }
 
-                            var currency = await _currencyProvider.GetCurrencyByCurrencyCodeDate(externalPurchaseOrder.CurrencyCode, unitReceiptNote.ReceiptDate);
+                            var currency = await GetBICurrency(externalPurchaseOrder.CurrencyCode, unitReceiptNote.ReceiptDate);
                             var currencyRate = currency != null ? (decimal)currency.Rate.GetValueOrDefault() : (decimal)externalPurchaseOrder.CurrencyRate;
 
                             var externalPOPriceTotal = externalPurchaseOrderDetail.PricePerDealUnit * externalPurchaseOrderDetail.DealQuantity;
                             double.TryParse(externalPurchaseOrder.IncomeTaxRate, out var incomeTaxRate);
                             var grandTotal = Convert.ToDecimal(unitReceiptNoteItem.ReceiptQuantity * unitReceiptNoteItem.PricePerDealUnit * (double)currencyRate);
 
+                            var incomeTaxTotal = (decimal)0;
+                            var vatTotal = (decimal)0;
                             if (externalPurchaseOrder.UseIncomeTax && externalPurchaseOrder.IncomeTaxBy.ToUpper() == "SUPPLIER")
                             {
                                 int.TryParse(externalPurchaseOrder.IncomeTaxId, out var incomeTaxId);
@@ -534,7 +553,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                                     };
                                 }
 
-                                var incomeTaxTotal = (decimal)incomeTaxRate / 100 * grandTotal;
+                                incomeTaxTotal = (decimal)incomeTaxRate / 100 * grandTotal;
 
                                 //journalDebitItems.Add(new UAT.Data.Models.JournalTransactionItem()
                                 //{
@@ -545,23 +564,28 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                                 //    Debit = incomeTaxTotal
                                 //});
 
-                                journalDebitItems.Add(new JournalTransactionItem()
-                                {
-                                    COA = new COA()
-                                    {
-                                        Code = $"{incomeTax.COACodeCredit}.{division.COACode}.{unit.COACode}"
-                                    },
-                                    Debit = incomeTaxTotal
-                                });
+                                //journalDebitItems.Add(new JournalTransactionItem()
+                                //{
+                                //    COA = new COA()
+                                //    {
+                                //        Code = $"{incomeTax.COACodeCredit}.{division.COACode}.{unit.COACode}"
+                                //    },
+                                //    Debit = incomeTaxTotal
+                                //});
 
-                                journalCreditItems.Add(new JournalTransactionItem()
-                                {
-                                    COA = new COA()
-                                    {
-                                        Code = currency.Code.ToUpper() == "IDR" ? $"1011.00.{division.COACode}.{unit.COACode}" : $"1012.00.{division.COACode}.{unit.COACode}"
-                                    },
-                                    Credit = incomeTaxTotal
-                                });
+                                //journalCreditItems.Add(new JournalTransactionItem()
+                                //{
+                                //    COA = new COA()
+                                //    {
+                                //        Code = !string.IsNullOrWhiteSpace(form.Bank.AccountCOA) ? $"{form.Bank.AccountCOA}" : $"9999.00.{division.COACode}.{unit.COACode}"
+                                //    },
+                                //    Credit = incomeTaxTotal
+                                //});
+                            }
+
+                            if (externalPurchaseOrder.UseVat)
+                            {
+                                vatTotal = grandTotal * (decimal)0.1;
                             }
 
                             if (unitReceiptNote.SupplierIsImport && ((decimal)externalPOPriceTotal * currencyRate) > 100000000)
@@ -584,7 +608,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                                     {
                                         Code = $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}"
                                     },
-                                    Debit = grandTotal,
+                                    Debit = grandTotal - incomeTaxTotal + vatTotal,
                                     Remark = $"- {unitReceiptNoteItem.ProductName}"
                                 });
 
@@ -592,9 +616,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                                 {
                                     COA = new COA()
                                     {
-                                        Code = currency.Code.ToUpper() == "IDR" ? $"1011.00.{division.COACode}.{unit.COACode}" : $"1012.00.{division.COACode}.{unit.COACode}"
+                                        Code = !string.IsNullOrWhiteSpace(form.Bank.AccountCOA) ? $"{form.Bank.AccountCOA}" : $"9999.00.{division.COACode}.{unit.COACode}"
                                     },
-                                    Credit = grandTotal
+                                    Credit = grandTotal - incomeTaxTotal + vatTotal
                                 });
 
                                 //Stock Journal Item
@@ -653,7 +677,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                                     {
                                         Code = unitReceiptNote.SupplierIsImport ? $"{category.ImportDebtCOA}.{division.COACode}.{unit.COACode}" : $"{category.LocalDebtCOA}.{division.COACode}.{unit.COACode}"
                                     },
-                                    Debit = grandTotal,
+                                    Debit = grandTotal - incomeTaxTotal + vatTotal,
                                     Remark = $"- {unitReceiptNoteItem.ProductName}"
                                 });
 
@@ -661,9 +685,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                                 {
                                     COA = new COA()
                                     {
-                                        Code = currency.Code.ToUpper() == "IDR" ? $"1011.00.{division.COACode}.{unit.COACode}" : $"1012.00.{division.COACode}.{unit.COACode}"
+                                        Code = !string.IsNullOrWhiteSpace(form.Bank.AccountCOA) ? $"{form.Bank.AccountCOA}" : $"9999.00.{division.COACode}.{unit.COACode}"
                                     },
-                                    Credit = grandTotal
+                                    Credit = grandTotal - incomeTaxTotal + vatTotal
                                 });
 
                                 //if (SpecialCategoryCode.Contains(category.Code))

@@ -604,6 +604,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             if (spb == null)
                 spb = new UnitPaymentOrder() { SupplierId = "1" };
 
+            var nominal = model.TotalIncomeTax;
+            var nominalValas = 0.0;
+
+            if (model.Currency != "IDR")
+            {
+                nominalValas = model.TotalIncomeTax;
+                nominal = model.TotalIncomeTax * model.CurrencyRate.GetValueOrDefault();
+            }
+
             int.TryParse(model.BankId, out var bankId);
             long.TryParse(spb.SupplierId, out var supplierId);
             var modelToPost = new DailyBankTransactionViewModel()
@@ -622,7 +631,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     }
                 },
                 Date = model.Date,
-                Nominal = model.TotalIncomeTax,
+                Nominal = nominal,
                 CurrencyRate= model.CurrencyRate.GetValueOrDefault(),
                 ReferenceNo = model.No,
                 ReferenceType = "Bayar PPh",
@@ -635,11 +644,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     code = spb.SupplierCode,
                     name = spb.SupplierName
                 },
-                IsPosted = true
+                IsPosted = true,
+                NominalValas = nominalValas
             };
 
-            if (model.Currency != "IDR")
-                modelToPost.NominalValas = model.TotalIncomeTax * model.CurrencyRate;
+            //if (model.Currency != "IDR")
+            //    modelToPost.NominalValas = model.TotalIncomeTax * model.CurrencyRate;
 
             string dailyBankTransactionUri = "daily-bank-transactions";
             //var httpClient = new HttpClientService(identityService);

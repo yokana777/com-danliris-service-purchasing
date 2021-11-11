@@ -297,11 +297,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
         {
             var upoNos = model.Details.Select(detail => detail.UnitPaymentOrderNo).ToList();
             var unitPaymentOrders = dbContext.UnitPaymentOrders.Where(unitPaymentOrder => upoNos.Contains(unitPaymentOrder.UPONo)).ToList();
-            var currency = await _currencyProvider.GetCurrencyByCurrencyCodeDate(model.CurrencyCode, model.Date);
+            var currency = await GetBICurrency(model.CurrencyCode, model.Date);
 
             if (currency == null)
             {
-                currency = new Currency() { Rate = model.CurrencyRate };
+                currency = new GarmentCurrency() { Rate = model.CurrencyRate };
             }
 
             var items = new List<JournalTransactionItem>();
@@ -705,6 +705,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
         public void CreateDailyBankTransaction(BankExpenditureNoteModel model, IdentityService identityService)
         {
+            var nominal = model.GrandTotal;
+            var nominalValas = 0.0;
+
+            if (model.CurrencyCode != "IDR")
+            {
+                nominalValas = model.GrandTotal;
+                nominal = model.GrandTotal * model.CurrencyRate;
+            }
+
             DailyBankTransactionViewModel modelToPost = new DailyBankTransactionViewModel()
             {
                 Bank = new ViewModels.NewIntegrationViewModel.AccountBankViewModel()
@@ -722,7 +731,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     }
                 },
                 Date = model.Date,
-                Nominal = model.GrandTotal,
+                Nominal = nominal,
                 CurrencyRate = model.CurrencyRate,
                 ReferenceNo = model.DocumentNo,
                 ReferenceType = "Bayar Hutang",
@@ -735,11 +744,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     code = model.SupplierCode,
                     name = model.SupplierName
                 },
-                IsPosted = true
+                IsPosted = true,
+                NominalValas = nominalValas
             };
 
-            if (model.BankCurrencyCode != "IDR")
-                modelToPost.NominalValas = model.GrandTotal * model.CurrencyRate;
+            //if (model.BankCurrencyCode != "IDR")
+            //    modelToPost.NominalValas = model.GrandTotal * model.CurrencyRate;
 
             string dailyBankTransactionUri = "daily-bank-transactions";
             //var httpClient = new HttpClientService(identityService);
