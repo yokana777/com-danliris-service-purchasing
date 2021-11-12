@@ -163,7 +163,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     TotalDPP = s.TotalDPP,
                     TotalIncomeTax = s.TotalIncomeTax,
                     Currency = s.Currency,
-                    Items = s.Items.Select(p => new PPHBankExpenditureNoteItem { UnitPaymentOrderNo = p.UnitPaymentOrderNo, PPHBankExpenditureNoteId = p.PPHBankExpenditureNoteId }).Where(p => p.PPHBankExpenditureNoteId == s.Id).ToList(),
+                    Items = s.Items.Select(p => new PPHBankExpenditureNoteItem { UnitPaymentOrderNo = p.UnitPaymentOrderNo, PPHBankExpenditureNoteId = p.PPHBankExpenditureNoteId, PurchasingDocumentExpedition = p.PurchasingDocumentExpedition }).Where(p => p.PPHBankExpenditureNoteId == s.Id).ToList(),
                     LastModifiedUtc = s.LastModifiedUtc,
                     IsPosted = s.IsPosted
                 });
@@ -187,8 +187,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                    No = s.No,
                    CreatedUtc = s.CreatedUtc,
                    BankAccountName = s.BankAccountName,
-                   IncomeTaxName = s.IncomeTaxName,
-                   IncomeTaxRate = s.IncomeTaxRate,
+                   IncomeTaxName = s.Items
+                                    .GroupBy(p => new { IncomeTaxName = p.PurchasingDocumentExpedition.IncomeTaxName, IncomeTaxId = p.PurchasingDocumentExpedition.IncomeTaxId, PPHBankExpenditureNoteId = p.PPHBankExpenditureNoteId })
+                                    .Select(g => new { IncomeTaxName = g.Key.IncomeTaxName, IncomeTaxId = g.Key.IncomeTaxId, PPHBankExpenditureNoteId = g.Key.PPHBankExpenditureNoteId })
+                                    .Where(g => g.PPHBankExpenditureNoteId == s.Id).ToList(),
+                   IncomeTaxRate = s.Items
+                                    .GroupBy(p => new { IncomeTaxRate = p.PurchasingDocumentExpedition.IncomeTaxRate, IncomeTaxId = p.PurchasingDocumentExpedition.IncomeTaxId, PPHBankExpenditureNoteId = p.PPHBankExpenditureNoteId })
+                                    .Select(g => new { IncomeTaxRate = g.Key.IncomeTaxRate, IncomeTaxId = g.Key.IncomeTaxId, PPHBankExpenditureNoteId = g.Key.PPHBankExpenditureNoteId })
+                                    .Where(g => g.PPHBankExpenditureNoteId == s.Id).ToList(),
                    TotalDPP = s.TotalDPP,
                    TotalIncomeTax = s.TotalIncomeTax,
                    Currency = s.Currency,
