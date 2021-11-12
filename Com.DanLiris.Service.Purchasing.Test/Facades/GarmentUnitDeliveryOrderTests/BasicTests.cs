@@ -390,5 +390,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
             var Response = facade.ReadForUnitExpenditureNote();
             Assert.NotEmpty(Response.Data);
         }
+
+
+        [Fact]
+        public async Task Should_Success_Get_by_RONO()
+        {
+            var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var ros = new List<string>();
+
+            ros.Add(data.RONo);ros.Add(data.RONo);
+
+
+
+            var Response = facade.ReadForLeftOver(string.Join(",",ros));
+            Assert.NotNull(Response);
+        }
     }
 }
