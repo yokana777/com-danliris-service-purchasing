@@ -69,11 +69,33 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             headerTable2.AddCell(cellHeaderBody);
             cellHeaderBody.Phrase = new Phrase(": " + model.No, normal_font);
             headerTable2.AddCell(cellHeaderBody);
-            
+
+            var purchasingDocumentExpedition = model.Items
+                .GroupBy(p => new { IncomeTaxName = p.PurchasingDocumentExpedition.IncomeTaxName, IncomeTaxRate = p.PurchasingDocumentExpedition.IncomeTaxRate, 
+                                    IncomeTaxId = p.PurchasingDocumentExpedition.IncomeTaxId, PPHBankExpenditureNoteId = p.PPHBankExpenditureNoteId })
+                .OrderBy(p => p.Key.IncomeTaxId)
+                .Select(g => new { IncomeTaxName = g.Key.IncomeTaxName, IncomeTaxRate = g.Key.IncomeTaxRate, IncomeTaxId = g.Key.IncomeTaxId, PPHBankExpenditureNoteId = g.Key.PPHBankExpenditureNoteId }).ToList();
+
             cellHeaderBody.Phrase = new Phrase("Pasal PPH", normal_font);
             headerTable2.AddCell(cellHeaderBody);
-            cellHeaderBody.Phrase = new Phrase(": " + model.IncomeTaxName, normal_font);
-            headerTable2.AddCell(cellHeaderBody);
+
+            var count = 0;
+            foreach (var item in purchasingDocumentExpedition)
+            {
+                if (count == 0)
+                {
+                    cellHeaderBody.Phrase = new Phrase(": - " + item.IncomeTaxName + " - " + item.IncomeTaxRate, normal_font);
+                    headerTable2.AddCell(cellHeaderBody);
+                }
+                else
+                {
+                    cellHeaderBody.Phrase = new Phrase("", normal_font);
+                    headerTable2.AddCell(cellHeaderBody);
+                    cellHeaderBody.Phrase = new Phrase("  - " + item.IncomeTaxName + " - " + item.IncomeTaxRate, normal_font);
+                    headerTable2.AddCell(cellHeaderBody);
+                }
+                count++;
+            }
 
             cellHeaderBody.Phrase = new Phrase("Bank", normal_font);
             headerTable2.AddCell(cellHeaderBody);
@@ -110,7 +132,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             bodyCell.Colspan = 1;
             bodyCell.Rowspan = 2;
-            bodyCell.Phrase = new Phrase("PPH (" + model.IncomeTaxRate  + "%)", normal_font);
+            bodyCell.Phrase = new Phrase("PPH", normal_font);
             bodyTable.AddCell(bodyCell);
 
             bodyCell.Phrase = new Phrase("DPP", normal_font);
@@ -146,7 +168,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         UnitCode = s.First().UnitCode,
                         UnitName = s.First().UnitName,
                         TotalDPP = s.Sum(d => d.Price),
-                        TotalPPH = (s.Sum(d => d.Price) * model.IncomeTaxRate) / 100
+                        TotalPPH = item.PurchasingDocumentExpedition.IncomeTax//(s.Sum(d => d.Price) * ((model.IncomeTaxRate == 0 ? 1 : model.IncomeTaxRate) / 100))
                     });
 
                 foreach (var pdeItem in pdeItems)
