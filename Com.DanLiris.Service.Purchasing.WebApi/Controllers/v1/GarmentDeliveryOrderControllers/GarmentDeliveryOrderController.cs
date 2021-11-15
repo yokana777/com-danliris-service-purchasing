@@ -135,11 +135,16 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
                     arrivalDate = x.ArrivalDate,
                     billNo = x.BillNo,
                     paymentBill = x.PaymentBill,
-                    supplier = new { Name = x.SupplierName },
+                    supplier = new { Id = x.SupplierId, Code = x.SupplierCode, Name = x.SupplierName },
                     items = x.Items.Select(i => new
                     {
                         purchaseOrderExternal = new { Id = i.EPOId, no = i.EPONo },
-                        fulfillments = new List<object>()
+                        fulfillments = new List<object>(),
+                        details = i.Details.Select(d => new
+                        {
+                            d.Id,
+                            doQuantity = d.DOQuantity,
+                        }),
                     }),
                     x.CreatedBy,
                     isClosed = x.IsClosed,
