@@ -106,6 +106,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var Code = GetProductCode(ProductCode);
 
+            Query = Query.GroupBy(x => new { x.BCType, x.BCDate, x.ProductCode, x.PO, x.BCNo, x.DONo, x.RONo }, (key, group) => new BeacukaiNoFeatureViewModel
+            {
+                BCType = key.BCType,
+                BCDate = key.BCDate,
+                ProductCode = key.ProductCode,
+                PO = key.PO,
+                BCNo = key.BCNo,
+                DONo = key.DONo,
+                QtyBC = group.Sum(x=>x.QtyBC),
+                RONo = key.RONo
+            });
+
             var Query2 = from a in Query
                          join b in Code on a.ProductCode equals b.Code into Codes
                          from code in Codes.DefaultIfEmpty()
