@@ -733,12 +733,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
                 .Verifiable();
 
             var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
-            mockFacade.Setup(x => x.UrnDateRevise(It.IsAny<List<GarmentUnitReceiptNote>>(), It.IsAny<string>(), It.IsAny<DateTime>()))
-                .ReturnsAsync(1);
+            mockFacade.Setup(x => x.UrnDateRevise(It.IsAny<List<long>>(), It.IsAny<string>(), It.IsAny<DateTime>()))
+                .Returns(1);
 
             var controller = GetController(mockFacade, validateMock, mockMapper);
 
-            var response = controller.UrnReviseDate(new List<GarmentUnitReceiptNoteViewModel> { ViewModel }, DateTime.Now); ;
+            var response = controller.UrnReviseDate(DateTime.Now, new List<GarmentUnitReceiptNoteViewModel> { ViewModel }); ;
             Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
         }
 
@@ -750,7 +750,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
 
             var controller = new GarmentUnitReceiptNoteController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object);
 
-            var response = controller.UrnReviseDate(new List<GarmentUnitReceiptNoteViewModel>(), DateTime.Now);
+            var response = controller.UrnReviseDate(DateTime.Now, new List<GarmentUnitReceiptNoteViewModel>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 

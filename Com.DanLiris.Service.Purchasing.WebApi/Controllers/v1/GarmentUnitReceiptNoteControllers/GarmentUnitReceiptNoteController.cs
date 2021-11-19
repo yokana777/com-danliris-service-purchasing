@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitReceiptNoteControllers
 {
@@ -514,15 +515,16 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
             }
         }
 
-        [HttpPost("revisedate-urn/{reviseDate}")]
-        public IActionResult UrnReviseDate([FromBody]List<GarmentUnitReceiptNoteViewModel> ListGarmentUnitReceiptNoteViewModel, DateTime reviseDate)
+        [HttpPut("revisedate-urn/{reviseDate}")]
+        public IActionResult UrnReviseDate(DateTime reviseDate, [FromBody]List<GarmentUnitReceiptNoteViewModel> Ids)
         {
             
             try
             {
+                var ids = Ids.Select(x => x.Id).ToList();
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
                 facade.UrnDateRevise(
-                    ListGarmentUnitReceiptNoteViewModel.Select(vm => mapper.Map<GarmentUnitReceiptNote>(vm)).ToList(), identityService.Username, reviseDate
+                    ids, identityService.Username, reviseDate
                 );
 
                 return NoContent();
@@ -532,6 +534,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitRecei
                 return StatusCode(General.INTERNAL_ERROR_STATUS_CODE);
             }
         }
+
+       
 
 
     }

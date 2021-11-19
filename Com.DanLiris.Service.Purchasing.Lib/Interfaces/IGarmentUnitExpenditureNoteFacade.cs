@@ -30,6 +30,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
 
         GarmentUnitExpenditureNoteItem GetBasicPriceByPOSerialNumber(string po);
 
-        Task<int> UenDateRevise(List<GarmentUnitExpenditureNote> listURN, string user, DateTime reviseDate);
+        int UenDateRevise(List<long> ids, string user, DateTime reviseDate);
     }
 }
