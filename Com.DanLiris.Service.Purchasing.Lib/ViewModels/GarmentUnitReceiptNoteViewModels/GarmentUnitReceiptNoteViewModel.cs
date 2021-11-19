@@ -65,7 +65,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
                 yield return new ValidationResult("Supplier tidak boleh kosong.", new List<string> { "Supplier" });
                 checkDO = false;
             }
-            else if(URNType == "PROSES")
+            else if(URNType == "PROSES" && URNType == "GUDANG SISA")
             {
                 checkDO = false;
             }
@@ -82,7 +82,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
                 }
             }
 
-            if ((DOId == null || DOId == 0) && URNType != "GUDANG SISA")
+            if (URNType == "SISA SUBCON")
+            {
+                if (string.IsNullOrWhiteSpace(UENNo))
+                {
+                    yield return new ValidationResult("No bon pengeluaran unit tidak boleh kosong.", new List<string> { "UENNo" });
+                }
+            }
+
+            if ((DOId == null || DOId == 0) && URNType != "GUDANG SISA" && URNType != "SISA SUBCON")
             {
                 if (checkDO)
                 {
@@ -106,6 +114,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
                     {
                         itemErrorCount++;
                         itemError += "ReceiptQuantity: 'Jumlah harus lebih dari 0', ";
+                    }
+
+                    if (item.SmallQuantity <= 0)
+                    {
+                        itemErrorCount++;
+                        itemError += "SmallQuantity: 'Jumlah harus lebih dari 0', ";
                     }
 
                     if (item.Conversion <= 0)

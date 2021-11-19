@@ -546,15 +546,16 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitExpen
             }
         }
 
-        [HttpPost("revisedate-uen/{reviseDate}")]
-        public IActionResult UrnReviseDate([FromBody]List<GarmentUnitExpenditureNoteViewModel> ListGarmentUnitExpenditureNoteViewModel, DateTime reviseDate)
+        [HttpPut("revisedate-uen/{reviseDate}")]
+        public IActionResult UrnReviseDate(DateTime reviseDate, [FromBody]List<GarmentUnitExpenditureNoteViewModel> Ids)
         {
-            
+
             try
             {
+                var ids = Ids.Select(x => x.Id).ToList();
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
                 facade.UenDateRevise(
-                    ListGarmentUnitExpenditureNoteViewModel.Select(vm => mapper.Map<GarmentUnitExpenditureNote>(vm)).ToList(), identityService.Username, reviseDate
+                    ids, identityService.Username, reviseDate
                 );
 
                 return NoContent();
