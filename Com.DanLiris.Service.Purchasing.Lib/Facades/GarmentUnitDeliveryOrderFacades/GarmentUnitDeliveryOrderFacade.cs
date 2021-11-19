@@ -482,5 +482,38 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
             return new ReadResponse<object>(listData, Total, OrderDictionary);
         }
 
+        public List<object> ReadForLeftOver(string ro)
+        {
+            var ROs = ro.Split(",").ToList();
+            var query = from a in dbContext.GarmentUnitDeliveryOrders
+                        join b in dbContext.GarmentUnitDeliveryOrderItems on a.Id equals b.UnitDOId
+                        where ROs.Contains(a.RONo) && a.IsDeleted == false && b.IsDeleted == false
+                        select new
+                        {
+                            b.ProductCode,
+                            b.POSerialNumber,
+                            b.ProductName,
+                            b.RONo
+                        };
+
+            List<object> listdata = new List<object>();
+
+            listdata.AddRange
+                (
+                query.Select(s => new
+                {
+                    s.ProductCode,
+                    s.POSerialNumber,
+                    s.ProductName,
+                    s.RONo
+
+                })
+                );
+
+            return listdata;
+                        
+        }
+
+        
     }
 }
