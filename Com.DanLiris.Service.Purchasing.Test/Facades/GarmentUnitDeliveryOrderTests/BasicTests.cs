@@ -471,5 +471,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
             //Assert.NotNull(Response2);
             //Assert.NotNull(Response3);
          }
+
+        [Fact]
+        public async Task Should_Success_ReadForLeftOver()
+        {
+            var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var Response = facade.ReadForLeftOver("1,1");
+            Assert.NotNull(Response);
+        }
     }
 }
