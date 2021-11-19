@@ -172,7 +172,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             select new GarmentStockReportViewModelTemp
                             {
                                 //BeginningBalanceQty = Convert.ToDecimal(a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * -1 * 0.9144 : b.ExpenditureType == "EXTERNAL" ? Convert.ToDouble(urnitem == null ? 0 : urnitem.SmallQuantity) * -1 : -1 * a.Quantity),
-                                BeginningBalanceQty = a.UomUnit == "YARD" && ctg == "BB" ? Convert.ToDecimal(a.Quantity * -1 * 0.9144) : b.ExpenditureType == "EXTERNAL" ? Convert.ToDecimal(a.Quantity) * urnitem.Conversion * -1 : -1 * Convert.ToDecimal(a.Quantity),
+                                BeginningBalanceQty = a.UomUnit == "YARD" && ctg == "BB" ? Convert.ToDecimal(a.Quantity * -1 * 0.9144) : (b.ExpenditureType == "EXTERNAL" && a.UomUnit != "PCS") ? Convert.ToDecimal(a.Quantity) * urnitem.Conversion * -1 : -1 * Convert.ToDecimal(a.Quantity),
                                 BeginningBalanceUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : b.ExpenditureType == "EXTERNAL" ? urnitem.SmallUomUnit : a.UomUnit.Trim(),
                                 Buyer = a.BuyerCode == null ? "-" : a.BuyerCode,
                                 EndingBalanceQty = 0,
@@ -355,7 +355,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                               EndingBalanceQty = 0,
                               EndingUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : b.ExpenditureType == "EXTERNAL" ? urnitem.SmallUomUnit : a.UomUnit.Trim(),
                               ExpandUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : b.ExpenditureType == "EXTERNAL" ? urnitem.SmallUomUnit : a.UomUnit.Trim(),
-                              ExpendQty = a.UomUnit == "YARD" && ctg == "BB" ? Convert.ToDecimal(a.Quantity * 0.9144) :  b.ExpenditureType == "EXTERNAL" ? Convert.ToDecimal(a.Quantity) * urnitem.Conversion : Convert.ToDecimal(a.Quantity),
+                              ExpendQty = a.UomUnit == "YARD" && ctg == "BB" ? Convert.ToDecimal(a.Quantity * 0.9144) :  (b.ExpenditureType == "EXTERNAL" && a.UomUnit != "PCS") ? Convert.ToDecimal(a.Quantity) * urnitem.Conversion : Convert.ToDecimal(a.Quantity),
                               NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
                               PaymentMethod = d.PaymentMethod == "FREE FROM BUYER" || d.PaymentMethod == "CMT" || d.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL",
                               PlanPo = a.POSerialNumber.Trim(),

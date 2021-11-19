@@ -12,6 +12,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public string DONo { get; set; }
         public string PO { get; set; }
         public string ProductCode { get; set; }
+        public string RONo { get; set; }
         public string Composition { get; set; }
         public string Construction { get; set; }
         public double QtyBC { get; set; }

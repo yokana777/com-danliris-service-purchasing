@@ -332,15 +332,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentBeacukaiTests
 
         //    Assert.IsType<MemoryStream>(Response);
         //}
+        
+
         [Fact]
-        public async Task Should_Success_Get_Feature_NoBc()
+        public async Task Should_Success_Get_by_PO()
         {
+
             var facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             GarmentDeliveryOrder dataDO = await dataUtilDO(facadeDO, GetCurrentMethod()).GetNewData();
 
-            foreach(var i in dataDO.Items)
+            foreach (var i in dataDO.Items)
             {
-                foreach(var d in i.Details)
+                foreach (var d in i.Details)
                 {
                     d.POSerialNumber = "PONO123";
                     d.RONo = "RONO123";
@@ -356,15 +359,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentBeacukaiTests
             data.CustomsType = "BC 23";
             var Responses = await facade.Create(data, USERNAME);
 
-            var facadeReport = new BeacukaiNoFeature(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            //var facadeReport = new GarmentBeacukaiFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
 
-            var Response1 = facadeReport.GetBeacukaiNo("BCNo", data.BeacukaiNo);
-            var Response2 = facadeReport.GetBeacukaiNo("PONo", "PONO123");
-            var Response3 = facadeReport.GetBeacukaiNo("RONo", "RONO123");
+            var Response = facade.ReadBCByPOSerialNumbers("PONO123,PONO123");
 
-            Assert.NotNull(Response1);
-            Assert.NotNull(Response2);
-            Assert.NotNull(Response3);
+            Assert.NotNull(Response);
+
         }
 
     }
