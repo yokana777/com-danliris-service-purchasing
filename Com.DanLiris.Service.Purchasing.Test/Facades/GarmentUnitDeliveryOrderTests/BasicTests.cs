@@ -419,55 +419,57 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
         [Fact]
         public async Task Should_Success_Get_Feature_NoBc()
         {
-              var facadeReport = new BeacukaiNoFeature(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var facadeReport = new BeacukaiNoFeature(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
 
-              var PO = "";
-              var RO = "";
+            var PO = "";
+            var RO = "";
 
-              foreach (var item in data.Items)
-              {
-                  PO = item.POSerialNumber;
-                  RO = item.RONo;
-              }
+            foreach (var item in data.Items)
+            {
+                PO = item.POSerialNumber;
+                RO = item.RONo;
+            }
 
-              var Response1 = facadeReport.GetBeacukaiNo("BCNo", "");
-              var Response2 = facadeReport.GetBeacukaiNo("PONo", PO);
-              var Response3 = facadeReport.GetBeacukaiNo("RONo", RO);
+            var Response1 = facadeReport.GetBeacukaiNo("BCNo", "");
+            var Response2 = facadeReport.GetBeacukaiNo("PONo", PO);
+            var Response3 = facadeReport.GetBeacukaiNo("RONo", RO);
 
-              Assert.NotNull(Response1);
-              Assert.NotNull(Response2);
-              Assert.NotNull(Response3);
+            Assert.NotNull(Response1);
+            Assert.NotNull(Response2);
+            Assert.NotNull(Response3);
 
-              //var facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-              //GarmentDeliveryOrder dataDO = await dataUtilDO(facadeDO, GetCurrentMethod()).GetNewData();
+            //var facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            //GarmentDeliveryOrder dataDO = await dataUtilDO(facadeDO, GetCurrentMethod()).GetNewData();
 
-              //foreach (var i in dataDO.Items)
-              //{
-              //    foreach (var d in i.Details)
-              //    {
-              //        d.POSerialNumber = "PONO123";
-              //        d.RONo = "RONO123";
-              //    }
-              //}
+            //foreach (var i in dataDO.Items)
+            //{
+            //    foreach (var d in i.Details)
+            //    {
+            //        d.POSerialNumber = "PONO123";
+            //        d.RONo = "RONO123";
+            //    }
+            //}
 
-              //await facadeDO.Create(dataDO, USERNAME);
+            //await facadeDO.Create(dataDO, USERNAME);
 
-              //var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            //var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
 
-              //GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME, dataDO);
+            //GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME, dataDO);
 
-              //data.CustomsType = "BC 23";
-              //var Responses = await facade.Create(data, USERNAME);
+            //data.CustomsType = "BC 23";
+            //var Responses = await facade.Create(data, USERNAME);
 
-              //var facadeReport = new BeacukaiNoFeature(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            //var facadeReport = new BeacukaiNoFeature(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
 
-              //var Response1 = facadeReport.GetBeacukaiNo("BCNo", data.BeacukaiNo);
-              //var Response2 = facadeReport.GetBeacukaiNo("PONo", "PONO123");
-              //var Response3 = facadeReport.GetBeacukaiNo("RONo", "RONO123");
+            //var Response1 = facadeReport.GetBeacukaiNo("BCNo", data.BeacukaiNo);
+            //var Response2 = facadeReport.GetBeacukaiNo("PONo", "PONO123");
+            //var Response3 = facadeReport.GetBeacukaiNo("RONo", "RONO123");
 
-              //Assert.NotNull(Response1);
-              //Assert.NotNull(Response2);
-              //Assert.NotNull(Response3);
+            //Assert.NotNull(Response1);
+            //Assert.NotNull(Response2);
+            //Assert.NotNull(Response3);
          }
     }
 }
