@@ -841,7 +841,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             var dataDo = await dataUtilDo(facadeDo, GetCurrentMethod()).GetTestData();
 
             GarmentUnitReceiptNoteFacade facadeURN = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var datautilURN = new GarmentUnitReceiptNoteDataUtil(facadeURN, datautildelivery);
+            var datautilURN = new GarmentUnitReceiptNoteDataUtil(facadeURN, datautildelivery,null);
             var dataUrn = await datautilURN.GetNewData(null,dataDo);
             await facadeURN.Create(dataUrn);
 
@@ -862,7 +862,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             var dataDo = await dataUtilDo(facadeDo, GetCurrentMethod()).GetTestData();
 
             GarmentUnitReceiptNoteFacade facadeURN = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var datautilURN = new GarmentUnitReceiptNoteDataUtil(facadeURN, datautildelivery);
+            var datautilURN = new GarmentUnitReceiptNoteDataUtil(facadeURN, datautildelivery, null);
             var dataUrn = await datautilURN.GetNewData(null, dataDo);
             await facadeURN.Create(dataUrn);
 
@@ -882,7 +882,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             var dataDo = await dataUtilDo(facadeDo, GetCurrentMethod()).GetTestData();
 
             GarmentUnitReceiptNoteFacade facadeURN = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var datautilURN = new GarmentUnitReceiptNoteDataUtil(facadeURN, datautildelivery);
+            var datautilURN = new GarmentUnitReceiptNoteDataUtil(facadeURN, datautildelivery, null);
             var dataUrn = await datautilURN.GetNewData(null, dataDo);
             await facadeURN.Create(dataUrn);
 
@@ -902,7 +902,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             var dataDo = await dataUtilDo(facadeDo, GetCurrentMethod()).GetTestData();
 
             GarmentUnitReceiptNoteFacade facadeURN = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var datautilURN = new GarmentUnitReceiptNoteDataUtil(facadeURN, datautildelivery);
+            var datautilURN = new GarmentUnitReceiptNoteDataUtil(facadeURN, datautildelivery, null);
             var dataUrn = await datautilURN.GetNewData(null, dataDo);
             await facadeURN.Create(dataUrn);
 
