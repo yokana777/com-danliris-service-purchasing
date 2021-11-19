@@ -26,15 +26,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             this.dbSet = dbContext.Set<GarmentDeliveryOrder>();
         }
 
-        //public Tuple<List<BeacukaiNoFeatureViewModel>, int> GetBeacukaiNoReport(string filter, string keyword)
-        //{
+        public Tuple<List<BeacukaiNoFeatureViewModel>, int> GetBeacukaiNoReport(string filter, string keyword)
+        {
             //var Query = GetStockQuery(tipebarang, unitcode, dateFrom, dateTo, offset);
             //Query = Query.OrderByDescending(x => x.SupplierName).ThenBy(x => x.Dono);
-            //List<BeacukaiNoFeatureViewModel> Data = GetBeacukaiNo(filter, keyword);
+            List<BeacukaiNoFeatureViewModel> Data = GetBeacukaiNo(filter, keyword);
             //Data = Data.OrderByDescending(x => x.KodeBarang).ToList();
             //int TotalData = Data.Count();
-            //return Tuple.Create(Data, Data.Count());
-        //}
+            return Tuple.Create(Data, Data.Count());
+        }
 
         public List<BeacukaiNoFeatureViewModel> GetBeacukaiNo(string filter, string keyword)
         {
