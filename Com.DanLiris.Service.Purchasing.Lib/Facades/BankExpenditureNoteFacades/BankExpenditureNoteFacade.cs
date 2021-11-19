@@ -6,6 +6,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.BankExpenditureNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
@@ -31,8 +32,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
         private readonly DbSet<BankExpenditureNoteModel> dbSet;
         private readonly DbSet<BankExpenditureNoteDetailModel> detailDbSet;
         private readonly DbSet<UnitPaymentOrder> unitPaymentOrderDbSet;
+        private readonly ICurrencyProvider _currencyProvider;
         private readonly IBankDocumentNumberGenerator bankDocumentNumberGenerator;
         public readonly IServiceProvider serviceProvider;
+
 
         private readonly string USER_AGENT = "Facade";
         private readonly string CREDITOR_ACCOUNT_URI = "creditor-account/bank-expenditure-note/list";
@@ -44,6 +47,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             dbSet = dbContext.Set<BankExpenditureNoteModel>();
             detailDbSet = dbContext.Set<BankExpenditureNoteDetailModel>();
             unitPaymentOrderDbSet = dbContext.Set<UnitPaymentOrder>();
+            _currencyProvider = serviceProvider.GetService<ICurrencyProvider>();
             this.serviceProvider = serviceProvider;
         }
 
@@ -241,8 +245,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
                     if (model.BankCurrencyCode != "IDR")
                     {
-                        var garmentCurrency = await GetGarmentCurrency(model.CurrencyCode);
-                        model.CurrencyRate = garmentCurrency.Rate.GetValueOrDefault();
+                        var BICurrency = await GetBICurrency(model.CurrencyCode, model.Date);
+                        model.CurrencyRate = BICurrency.Rate.GetValueOrDefault();
                     }
 
                     foreach (var detail in model.Details)
@@ -291,50 +295,52 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
         private async Task CreateJournalTransaction(BankExpenditureNoteModel model, IdentityService identityService)
         {
-            //var unitPaymentOrderIds = model.Details.Select(detail => detail.UnitPaymentOrderId).ToList();
-            //var unitPaymentOrders = dbContext.UnitPaymentOrders.Where(unitPaymentOrder => unitPaymentOrderIds.Contains(unitPaymentOrder.Id)).ToList();
+            var upoNos = model.Details.Select(detail => detail.UnitPaymentOrderNo).ToList();
+            var unitPaymentOrders = dbContext.UnitPaymentOrders.Where(unitPaymentOrder => upoNos.Contains(unitPaymentOrder.UPONo)).ToList();
+            var currency = await GetBICurrency(model.CurrencyCode, model.Date);
+
+            if (currency == null)
+            {
+                currency = new GarmentCurrency() { Rate = model.CurrencyRate };
+            }
+
             var items = new List<JournalTransactionItem>();
             foreach (var detail in model.Details)
             {
-                //var unitPaymentOrder = unitPaymentOrders.FirstOrDefault(entity => entity.Id == detail.UnitPaymentOrderId);
-                var sumDataByUnit = detail.Items.GroupBy(g => g.UnitCode).Select(s => new
+                var unitPaymentOrder = unitPaymentOrders.FirstOrDefault(element => element.UPONo == detail.UnitPaymentOrderNo);
+
+                if (unitPaymentOrder == null)
+                    unitPaymentOrder = new UnitPaymentOrder();
+                var unitSummaries = detail.Items.GroupBy(g => g.UnitCode).Select(s => new
                 {
                     UnitCode = s.Key,
-                    Total = s.Sum(sm => sm.Price * model.CurrencyRate)
+                    //Total = s.Sum(sm => sm.Price * currency.Rate)
+                    Total = s.Sum(sm => sm.Price)
                 });
 
-
-
-                foreach (var datum in sumDataByUnit)
+                var nominal = (decimal)0;
+                foreach (var unitSummary in unitSummaries)
                 {
+                    var dpp = unitSummary.Total;
+                    var vatAmount = unitPaymentOrder.UseVat ? unitSummary.Total * 0.1 : 0;
+                    var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? unitSummary.Total * unitPaymentOrder.IncomeTaxRate / 100 : 0;
+
+                    var debit = dpp + vatAmount - incomeTaxAmount;
+                    if (model.CurrencyCode != "IDR")
+                    {
+                        debit = (dpp + vatAmount - incomeTaxAmount) * model.CurrencyRate;
+                    }
+                    nominal = decimal.Add(nominal, Convert.ToDecimal(debit));
+
                     var item = new JournalTransactionItem()
                     {
                         COA = new COA()
                         {
-                            Code = COAGenerator.GetDebtCOA(model.SupplierImport, detail.DivisionName, datum.UnitCode)
+                            Code = COAGenerator.GetDebtCOA(model.SupplierImport, detail.DivisionName, unitSummary.UnitCode)
                         },
-                        //Debit = Convert.ToDecimal(datum.Total + (datum.Total * 0.1)),
-                        Debit = Convert.ToDecimal(datum.Total),
+                        Debit = Convert.ToDecimal(debit),
                         Remark = detail.UnitPaymentOrderNo + " / " + detail.InvoiceNo
                     };
-
-                    var vatCOA = "";
-                    if (detail.Vat > 0)
-                    {
-                        if (model.SupplierImport)
-                        {
-                            vatCOA = "1510.00." + COAGenerator.GetDivisionAndUnitCOACode(detail.DivisionName, datum.UnitCode);
-                        }
-                        else
-                        {
-                            vatCOA = "1509.00." + COAGenerator.GetDivisionAndUnitCOACode(detail.DivisionName, datum.UnitCode);
-                        }
-                    }
-
-                    //if (!string.IsNullOrWhiteSpace(vatCOA))
-                    //{
-                    //    item.Debit += Convert.ToDecimal(datum.Total * 0.1);
-                    //}
 
                     items.Add(item);
                 }
@@ -372,13 +378,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             response.EnsureSuccessStatusCode();
         }
 
-        private async Task<GarmentCurrency> GetGarmentCurrency(string codeCurrency)
+        //private async Task<GarmentCurrency> GetGarmentCurrency(string codeCurrency)
+        //{
+        //    string date = DateTimeOffset.UtcNow.ToString("yyyy/MM/dd HH:mm:ss");
+        //    string queryString = $"code={codeCurrency}&stringDate={date}";
+
+        //    var http = serviceProvider.GetService<IHttpClientService>();
+        //    var response = await http.GetAsync(APIEndpoint.Core + $"master/garment-currencies/single-by-code-date?{queryString}");
+
+        //    var responseString = await response.Content.ReadAsStringAsync();
+        //    var jsonSerializationSetting = new JsonSerializerSettings() { MissingMemberHandling = MissingMemberHandling.Ignore };
+
+        //    var result = JsonConvert.DeserializeObject<APIDefaultResponse<GarmentCurrency>>(responseString, jsonSerializationSetting);
+
+        //    return result.data;
+        //}
+
+        private async Task<GarmentCurrency> GetBICurrency(string codeCurrency, DateTimeOffset date)
         {
-            string date = DateTimeOffset.UtcNow.ToString("yyyy/MM/dd HH:mm:ss");
-            string queryString = $"code={codeCurrency}&stringDate={date}";
+            string stringDate = date.ToString("yyyy/MM/dd HH:mm:ss");
+            string queryString = $"code={codeCurrency}&stringDate={stringDate}";
 
             var http = serviceProvider.GetService<IHttpClientService>();
-            var response = await http.GetAsync(APIEndpoint.Core + $"master/garment-currencies/single-by-code-date?{queryString}");
+            var response = await http.GetAsync(APIEndpoint.Core + $"master/bi-currencies/single-by-code-date?{queryString}");
 
             var responseString = await response.Content.ReadAsStringAsync();
             var jsonSerializationSetting = new JsonSerializerSettings() { MissingMemberHandling = MissingMemberHandling.Ignore };
@@ -683,6 +705,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
         public void CreateDailyBankTransaction(BankExpenditureNoteModel model, IdentityService identityService)
         {
+            var nominal = model.GrandTotal;
+            var nominalValas = 0.0;
+
+            if (model.CurrencyCode != "IDR")
+            {
+                nominalValas = model.GrandTotal;
+                nominal = model.GrandTotal * model.CurrencyRate;
+            }
+
             DailyBankTransactionViewModel modelToPost = new DailyBankTransactionViewModel()
             {
                 Bank = new ViewModels.NewIntegrationViewModel.AccountBankViewModel()
@@ -700,7 +731,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     }
                 },
                 Date = model.Date,
-                Nominal = model.GrandTotal,
+                Nominal = nominal,
                 CurrencyRate = model.CurrencyRate,
                 ReferenceNo = model.DocumentNo,
                 ReferenceType = "Bayar Hutang",
@@ -713,11 +744,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     code = model.SupplierCode,
                     name = model.SupplierName
                 },
-                IsPosted = true
+                IsPosted = true,
+                NominalValas = nominalValas
             };
 
-            if (model.BankCurrencyCode != "IDR")
-                modelToPost.NominalValas = model.GrandTotal * model.CurrencyRate;
+            //if (model.BankCurrencyCode != "IDR")
+            //    modelToPost.NominalValas = model.GrandTotal * model.CurrencyRate;
 
             string dailyBankTransactionUri = "daily-bank-transactions";
             //var httpClient = new HttpClientService(identityService);
@@ -746,7 +778,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     Date = model.Date,
                     Id = (int)model.Id,
                     InvoiceNo = item.InvoiceNo,
-                    Mutation = item.TotalPaid,
+                    Mutation = model.CurrencyCode != "IDR" ? item.TotalPaid * model.CurrencyRate : item.TotalPaid,
                     SupplierCode = model.SupplierCode,
                     SupplierName = model.SupplierName
                 };
