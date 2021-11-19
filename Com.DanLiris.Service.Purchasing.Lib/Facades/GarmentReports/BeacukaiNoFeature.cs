@@ -33,7 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             List<BeacukaiNoFeatureViewModel> Data = GetBeacukaiNo(filter, keyword);
             //Data = Data.OrderByDescending(x => x.KodeBarang).ToList();
             //int TotalData = Data.Count();
-            return Tuple.Create(Data, Data.Count());
+            return Tuple.Create(Data.OrderByDescending(x=>x.PO).ToList(), Data.OrderByDescending(x => x.PO).Count());
         }
 
         public List<BeacukaiNoFeatureViewModel> GetBeacukaiNo(string filter, string keyword)
@@ -43,6 +43,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                            join c in dbContext.GarmentDeliveryOrders on b.GarmentDOId equals c.Id
                                            join d in dbContext.GarmentDeliveryOrderItems on c.Id equals d.GarmentDOId
                                            join e in dbContext.GarmentDeliveryOrderDetails on d.Id equals e.GarmentDOItemId
+                                           join f in dbContext.GarmentUnitDeliveryOrderItems on e.POSerialNumber equals f.POSerialNumber
+                                           join g in dbContext.GarmentUnitDeliveryOrders on f.UnitDOId equals g.Id
                                            where a.BeacukaiNo == keyword
                                            //&& a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false && d.IsDeleted == false
                                            //&& e.IsDeleted == false
@@ -50,49 +52,71 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                            {
                                                BCType = a.CustomsType,
                                                BCDate = a.BeacukaiDate.DateTime,
-                                               ProductCode = e.ProductCode,
-                                               PO = e.POSerialNumber,
-                                               BCNo = a.BeacukaiNo
+                                               ProductCode = f.ProductCode,
+                                               PO = f.POSerialNumber,
+                                               BCNo = a.BeacukaiNo,
+                                               DONo = c.DONo,
+                                               QtyBC = f.Quantity,
+                                               RONo = g.RONo
                                            }
                          : filter == "PONo" ? from a in dbContext.GarmentBeacukais
                                               join b in dbContext.GarmentBeacukaiItems on a.Id equals b.BeacukaiId
                                               join c in dbContext.GarmentDeliveryOrders on b.GarmentDOId equals c.Id
                                               join d in dbContext.GarmentDeliveryOrderItems on c.Id equals d.GarmentDOId
                                               join e in dbContext.GarmentDeliveryOrderDetails on d.Id equals e.GarmentDOItemId
-                                              where e.POSerialNumber == keyword
+                                              join f in dbContext.GarmentUnitDeliveryOrderItems on e.POSerialNumber equals f.POSerialNumber
+                                              join g in dbContext.GarmentUnitDeliveryOrders on f.UnitDOId equals g.Id
+                                              where f.POSerialNumber == keyword
                                               //&& a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false && d.IsDeleted == false
                                               //&& e.IsDeleted == false
                                               select new BeacukaiNoFeatureViewModel
                                               {
                                                   BCType = a.CustomsType,
                                                   BCDate = a.BeacukaiDate.DateTime,
-                                                  ProductCode = e.ProductCode,
-                                                  PO = e.POSerialNumber,
+                                                  ProductCode = f.ProductCode,
+                                                  PO = f.POSerialNumber,
+                                                  BCNo = a.BeacukaiNo,
                                                   DONo = c.DONo,
-                                                  QtyBC = e.SmallQuantity,
-                                                  BCNo = a.BeacukaiNo
+                                                  QtyBC = f.Quantity,
+                                                  RONo = g.RONo
                                               } :
-                                              //from a in dbContext.GarmentBeacukais
-                                              //join b in dbContext.GarmentBeacukaiItems on a.Id equals b.BeacukaiId
-                                              from c in dbContext.GarmentDeliveryOrders
+                                              from a in dbContext.GarmentBeacukais
+                                              join b in dbContext.GarmentBeacukaiItems on a.Id equals b.BeacukaiId
+                                              join c in dbContext.GarmentDeliveryOrders on b.GarmentDOId equals c.Id
                                               join d in dbContext.GarmentDeliveryOrderItems on c.Id equals d.GarmentDOId
                                               join e in dbContext.GarmentDeliveryOrderDetails on d.Id equals e.GarmentDOItemId
-                                              where e.RONo == keyword
+                                              join f in dbContext.GarmentUnitDeliveryOrderItems on e.POSerialNumber equals f.POSerialNumber
+                                              join g in dbContext.GarmentUnitDeliveryOrders on f.UnitDOId equals g.Id
+                                              where g.RONo == keyword
                                               //&& a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false && d.IsDeleted == false
                                               //&& e.IsDeleted == false
                                               select new BeacukaiNoFeatureViewModel
                                               {
-                                                  //BCType = a.CustomsType,
-                                                  //BCDate = a.BeacukaiDate.DateTime,
-                                                  ProductCode = e.ProductCode,
-                                                  PO = e.POSerialNumber,
+                                                  BCType = a.CustomsType,
+                                                  BCDate = a.BeacukaiDate.DateTime,
+                                                  ProductCode = f.ProductCode,
+                                                  PO = f.POSerialNumber,
+                                                  BCNo = a.BeacukaiNo,
                                                   DONo = c.DONo,
-                                                  QtyBC = e.SmallQuantity,
+                                                  QtyBC = f.Quantity,
+                                                  RONo = g.RONo
                                               };
 
             var ProductCode = string.Join(",", Query.Select(x => x.ProductCode).Distinct().ToList());
 
             var Code = GetProductCode(ProductCode);
+
+            Query = Query.GroupBy(x => new { x.BCType, x.BCDate, x.ProductCode, x.PO, x.BCNo, x.DONo, x.RONo }, (key, group) => new BeacukaiNoFeatureViewModel
+            {
+                BCType = key.BCType,
+                BCDate = key.BCDate,
+                ProductCode = key.ProductCode,
+                PO = key.PO,
+                BCNo = key.BCNo,
+                DONo = key.DONo,
+                QtyBC = group.Sum(x=>x.QtyBC),
+                RONo = key.RONo
+            });
 
             var Query2 = from a in Query
                          join b in Code on a.ProductCode equals b.Code into Codes
@@ -108,6 +132,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              Composition = code != null ? code.Composition : "-",
                              Construction = code != null ? code.Const : "-",
                              BCNo = a.BCNo,
+                             RONo = a.RONo
                          };
 
             return Query2.ToList();
