@@ -99,9 +99,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
                                 });
 
-           
-
-            var SATerima = (from a in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa)
+            var SATerima = (from a in dbContext.GarmentUnitReceiptNoteItems
                             join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
                             join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                             join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
@@ -152,8 +150,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 RO = key.RO
                             });
 
-
-            var SAKeluar = (from a in (from aa in dbContext.GarmentUnitExpenditureNoteItems select aa)
+            var SAKeluar = (from a in dbContext.GarmentUnitExpenditureNoteItems
                             join b in dbContext.GarmentUnitExpenditureNotes on a.UENId equals b.Id
                             join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                             join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
@@ -206,10 +203,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 RO = key.RO
                             });
 
-
-
-            
-
             var SAKoreksi = (from a in dbContext.GarmentUnitReceiptNotes
                              join b in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa) on a.Id equals b.URNId
                              join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals c.Id
@@ -218,7 +211,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              join g in dbContext.GarmentReceiptCorrections on e.CorrectionId equals g.Id
                              join f in (from gg in dbContext.GarmentPurchaseRequests where gg.IsDeleted == false select new { gg.BuyerCode, gg.Article, gg.RONo }).Distinct() on b.RONo equals f.RONo into PR
                              from prs in PR.DefaultIfEmpty()
-                                 //join h in Codes on b.ProductCode equals h.Code
+
                              where
                              a.IsDeleted == false && b.IsDeleted == false
                              &&
@@ -283,7 +276,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 RO = key.RO
             }).ToList();
 
-            var Terima = (from a in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa)
+            var Terima = (from a in dbContext.GarmentUnitReceiptNoteItems
                           join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
                           join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                           join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
@@ -332,7 +325,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                               RO = key.RO
                           }).ToList();
 
-            var Keluar = (from a in (from aa in dbContext.GarmentUnitExpenditureNoteItems select aa)
+            var Keluar = (from a in dbContext.GarmentUnitExpenditureNoteItems
                           join b in dbContext.GarmentUnitExpenditureNotes on a.UENId equals b.Id
                           join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
                           join d in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on c.GarmentEPOId equals d.Id
@@ -486,40 +479,63 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var Codes = GetProductCode(PrdoctCodes);
 
-            foreach (var i in stock)
-            {
-                //var BeginningBalanceQty = i.BeginningBalanceQty > 0 ? i.BeginningBalanceQty : 0;
-                //var EndingBalanceQty = i.EndingBalanceQty > 0 ? i.EndingBalanceQty : 0;
-                var remark = Codes.FirstOrDefault(x => x.Code == i.ProductCode);
+            stock1 = (from i in stock
+                      join b in Codes on i.ProductCode equals b.Code into produtcodes
+                      from bb in produtcodes.DefaultIfEmpty()
+                      select new GarmentStockReportViewModel
+                      {
+                          BeginningBalanceQty = i.BeginningBalanceQty,
+                          BeginningBalanceUom = i.BeginningBalanceUom,
+                          Buyer = i.Buyer,
+                          EndingBalanceQty = i.EndingBalanceQty,
+                          EndingUom = i.EndingUom,
+                          ExpandUom = i.ExpandUom,
+                          ExpendQty = decimal.ToDouble(i.ExpendQty),
+                          NoArticle = i.NoArticle,
+                          PaymentMethod = i.PaymentMethod,
+                          PlanPo = i.PlanPo,
+                          ProductCode = i.ProductCode,
+                          ProductRemark = ctg == "BB" ? string.Concat((bb == null ? "-" : bb.Composition), "", (bb == null ? "-" : bb.Width), "", (bb == null ? "-" : bb.Const), "", (bb == null ? "-" : bb.Yarn)) : bb.Name,
+                          ReceiptCorrectionQty = i.ReceiptCorrectionQty,
+                          ReceiptQty = i.ReceiptQty,
+                          ReceiptUom = i.ReceiptUom,
+                          RO = i.RO
+                      }).ToList();
 
-                var Composition = remark == null ? "-" : remark.Composition;
-                var Width = remark == null ? "-" : remark.Width;
-                var Const = remark == null ? "-" : remark.Const;
-                var Yarn = remark == null ? "-" : remark.Yarn;
+            //foreach (var i in stock)
+            //{
+            //    //var BeginningBalanceQty = i.BeginningBalanceQty > 0 ? i.BeginningBalanceQty : 0;
+            //    //var EndingBalanceQty = i.EndingBalanceQty > 0 ? i.EndingBalanceQty : 0;
+            //    var remark = Codes.FirstOrDefault(x => x.Code == i.ProductCode);
 
-                stock1.Add(new GarmentStockReportViewModel
-                {
-                    BeginningBalanceQty = i.BeginningBalanceQty,
-                    BeginningBalanceUom = i.BeginningBalanceUom,
-                    Buyer = i.Buyer,
-                    EndingBalanceQty = i.EndingBalanceQty,
-                    EndingUom = i.EndingUom,
-                    ExpandUom = i.ExpandUom,
-                    ExpendQty = decimal.ToDouble(i.ExpendQty),
-                    NoArticle = i.NoArticle,
-                    PaymentMethod = i.PaymentMethod,
-                    PlanPo = i.PlanPo,
-                    ProductCode = i.ProductCode,
-                    ProductRemark = ctg == "BB" ? string.Concat(Composition, "", Width, "", Const, "", Yarn) : remark.Name,
-                    ReceiptCorrectionQty = i.ReceiptCorrectionQty,
-                    ReceiptQty = i.ReceiptQty,
-                    ReceiptUom = i.ReceiptUom,
-                    RO = i.RO
+                     //    var Composition = remark == null ? "-" : remark.Composition;
+                     //    var Width = remark == null ? "-" : remark.Width;
+                     //    var Const = remark == null ? "-" : remark.Const;
+                     //    var Yarn = remark == null ? "-" : remark.Yarn;
 
-                });
+                     //    stock1.Add(new GarmentStockReportViewModel
+                     //    {
+                     //        BeginningBalanceQty = i.BeginningBalanceQty,
+                     //        BeginningBalanceUom = i.BeginningBalanceUom,
+                     //        Buyer = i.Buyer,
+                     //        EndingBalanceQty = i.EndingBalanceQty,
+                     //        EndingUom = i.EndingUom,
+                     //        ExpandUom = i.ExpandUom,
+                     //        ExpendQty = decimal.ToDouble(i.ExpendQty),
+                     //        NoArticle = i.NoArticle,
+                     //        PaymentMethod = i.PaymentMethod,
+                     //        PlanPo = i.PlanPo,
+                     //        ProductCode = i.ProductCode,
+                     //        ProductRemark = ctg == "BB" ? string.Concat(Composition, "", Width, "", Const, "", Yarn) : remark.Name,
+                     //        ReceiptCorrectionQty = i.ReceiptCorrectionQty,
+                     //        ReceiptQty = i.ReceiptQty,
+                     //        ReceiptUom = i.ReceiptUom,
+                     //        RO = i.RO
+
+                     //    });
 
 
-            }
+                     //}
 
             stock1 = stock1.Where(x => (x.ProductCode != "EMB001") && (x.ProductCode != "WSH001") && (x.ProductCode != "PRC001") && (x.ProductCode != "APL001") && (x.ProductCode != "QLT001") && (x.ProductCode != "SMT001") && (x.ProductCode != "GMT001") && (x.ProductCode != "PRN001") && (x.ProductCode != "SMP001")).ToList(); ;
             stock1 = stock1.Where(x => (x.BeginningBalanceQty != 0) || (x.EndingBalanceQty != 0) || (x.ReceiptCorrectionQty != 0) || (x.ReceiptQty != 0) || (x.ExpendQty != 0)).ToList();
@@ -530,14 +546,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             decimal TotalEndingBalanceQty = 0;
             double TotalExpendQty = 0;
 
-            foreach (var item in stock1)
-            {
-                TotalReceiptQty += item.ReceiptQty;
-                TotalCorrectionQty += item.ReceiptCorrectionQty;
-                TotalBeginningBalanceQty += item.BeginningBalanceQty;
-                TotalEndingBalanceQty += item.EndingBalanceQty;
-                TotalExpendQty += item.ExpendQty;
-            }
+            TotalReceiptQty = stock1.Sum(x=>x.ReceiptQty);
+            TotalCorrectionQty = stock1.Sum(x => x.ReceiptCorrectionQty);
+            TotalBeginningBalanceQty = stock1.Sum(x => x.BeginningBalanceQty);
+            TotalEndingBalanceQty = stock1.Sum(x => x.EndingBalanceQty);
+            TotalExpendQty = stock1.Sum(x => x.ExpendQty);
+
+            //foreach (var item in stock1)
+            //{
+            //    TotalReceiptQty += item.ReceiptQty;
+            //    TotalCorrectionQty += item.ReceiptCorrectionQty;
+            //    TotalBeginningBalanceQty += item.BeginningBalanceQty;
+            //    TotalEndingBalanceQty += item.EndingBalanceQty;
+            //    TotalExpendQty += item.ExpendQty;
+            //}
 
             var stocks = new GarmentStockReportViewModel
             {

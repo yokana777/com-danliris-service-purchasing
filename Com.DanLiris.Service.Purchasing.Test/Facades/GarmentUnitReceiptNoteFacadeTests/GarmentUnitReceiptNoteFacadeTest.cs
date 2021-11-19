@@ -2925,9 +2925,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         {
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
-            List<GarmentUnitReceiptNote> garmentUnitReceipts = new List<GarmentUnitReceiptNote>();
-            garmentUnitReceipts.Add(data);
-            var Response = await facade.UrnDateRevise(garmentUnitReceipts, "test", DateTime.Now);
+            List<long> garmentUnitReceipts = new List<long>();
+            garmentUnitReceipts.Add(data.Id);
+            var Response = facade.UrnDateRevise(garmentUnitReceipts, "test", DateTime.Now);
             Assert.NotEqual(0, Response);
         }
 
@@ -2937,8 +2937,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorage();
             data.Id = 0;
-            List<GarmentUnitReceiptNote> garmentUnitReceipts = new List<GarmentUnitReceiptNote>();
-            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.UrnDateRevise(garmentUnitReceipts, "test", DateTime.Now));
+            List<long> garmentUnitReceipts = new List<long>();
+            //Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.UrnDateRevise(garmentUnitReceipts, "test", DateTime.Now));
+            Exception e = Assert.Throws<Exception>(() => facade.UrnDateRevise(garmentUnitReceipts, "test", DateTime.Now));
             Assert.NotNull(e.Message);
         }
 

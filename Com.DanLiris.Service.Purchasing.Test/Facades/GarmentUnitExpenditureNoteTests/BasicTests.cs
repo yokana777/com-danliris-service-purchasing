@@ -2237,9 +2237,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         {
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
-            List<GarmentUnitExpenditureNote> garmentUnitReceipts = new List<GarmentUnitExpenditureNote>();
-            garmentUnitReceipts.Add(data);
-            var Response = await facade.UenDateRevise(garmentUnitReceipts, "test", DateTime.Now);
+            List<long> garmentUnitReceipts = new List<long>();
+            garmentUnitReceipts.Add(data.Id);
+
+            var Response = facade.UenDateRevise(garmentUnitReceipts, "test", DateTime.Now);
             Assert.NotEqual(0, Response);
         }
 
@@ -2249,8 +2250,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorage();
             data.Id = 0;
-            List<GarmentUnitExpenditureNote> garmentUnitReceipts = new List<GarmentUnitExpenditureNote>();
-            Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.UenDateRevise(garmentUnitReceipts, "test", DateTime.Now));
+            List<long> garmentUnitReceipts = new List<long>();
+            Exception e = Assert.Throws<Exception>(() => facade.UenDateRevise(garmentUnitReceipts, "test", DateTime.Now));
             Assert.NotNull(e.Message);
         }
 
