@@ -31,7 +31,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.ViewModels.GarmentInternNoteViewM
 
             Assert.NotEqual(0, viewModel.Amount);
             Assert.NotEqual(0, viewModel.TotalAmount);
-            Assert.NotEqual(0, viewModel.CorrectionAmount);
             Assert.Equal(1, viewModel.Id);
             Assert.NotNull(viewModel);
         }
