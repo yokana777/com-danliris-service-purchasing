@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDeliveryOrderModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitExpenditureNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUtils;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureDataUtils;
 
 namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteDataUtils
 {
@@ -13,19 +16,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
     {
         private readonly GarmentUnitReceiptNoteFacade facade;
         private readonly GarmentDeliveryOrderDataUtil garmentDeliveryOrderDataUtil;
+        private readonly GarmentUnitExpenditureNoteDataUtil garmentUENDataUtil;
 
-        public GarmentUnitReceiptNoteDataUtil(GarmentUnitReceiptNoteFacade facade, GarmentDeliveryOrderDataUtil garmentDeliveryOrderDataUtil)
+        public GarmentUnitReceiptNoteDataUtil(GarmentUnitReceiptNoteFacade facade, GarmentDeliveryOrderDataUtil garmentDeliveryOrderDataUtil, GarmentUnitExpenditureNoteDataUtil garmentUENDataUtil)
         {
             this.facade = facade;
             this.garmentDeliveryOrderDataUtil = garmentDeliveryOrderDataUtil;
+            this.garmentUENDataUtil = garmentUENDataUtil;
         }
 
-        public async Task<GarmentUnitReceiptNote> GetNewData(long? ticks = null, GarmentDeliveryOrder garmentDeliveryOrder=null)
+        public async Task<GarmentUnitReceiptNote> GetNewData(long? ticks = null, GarmentDeliveryOrder garmentDeliveryOrder=null, GarmentUnitExpenditureNote garmentUnitExpenditureNote=null)
         {
             long nowTicks = ticks ?? DateTimeOffset.Now.Ticks;
 
             garmentDeliveryOrder = garmentDeliveryOrder ?? await Task.Run(() => garmentDeliveryOrderDataUtil.GetTestData());
-
             var garmentUnitReceiptNote = new GarmentUnitReceiptNote
             {
                 URNType="PEMBELIAN",
@@ -94,7 +98,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
                         Conversion = (decimal)1,
                         CorrectionConversion = (decimal)12,
 						
-                        DOCurrencyRate=1
+                        DOCurrencyRate=1,
+
+                        UENItemId=1
                     };
 					var garmentUnitReceiptNoteItem2 = new GarmentUnitReceiptNoteItem
 					{
@@ -133,8 +139,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
 						Conversion = (decimal)1,
 						CorrectionConversion = (decimal)12,
 
-						DOCurrencyRate = 1
-					};
+						DOCurrencyRate = 1,
+
+                        UENItemId = 1
+                    };
 
 					garmentUnitReceiptNote.Items.Add(garmentUnitReceiptNoteItem);
 					garmentUnitReceiptNote.Items.Add(garmentUnitReceiptNoteItem2);
@@ -222,6 +230,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
             return garmentUnitReceiptNote;
         }
 
+
         public async Task<GarmentUnitReceiptNote> GetNewData3(long? ticks = null, GarmentDeliveryOrder garmentDeliveryOrder = null)
         {
             long nowTicks = ticks ?? DateTimeOffset.Now.Ticks;
@@ -301,6 +310,135 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
             return garmentUnitReceiptNote;
         }
 
+        public async Task<GarmentUnitReceiptNote> GetNewDataSubcon(long? ticks = null, GarmentDeliveryOrder garmentDeliveryOrder = null, GarmentUnitExpenditureNote garmentUnitExpenditureNote = null)
+        {
+            long nowTicks = ticks ?? DateTimeOffset.Now.Ticks;
+
+            garmentDeliveryOrder = garmentDeliveryOrder ?? await Task.Run(() => garmentDeliveryOrderDataUtil.GetTestData());
+            garmentUnitExpenditureNote = garmentUnitExpenditureNote ?? await Task.Run(() => garmentUENDataUtil.GetTestData());
+            var garmentUnitReceiptNote = new GarmentUnitReceiptNote
+            {
+                URNType = "PEMBELIAN",
+                UnitId = nowTicks,
+                UnitCode = string.Concat("UnitCode", nowTicks),
+                UnitName = string.Concat("UnitName", nowTicks),
+
+                StorageId = nowTicks,
+                StorageCode = string.Concat("StorageCode", nowTicks),
+                StorageName = string.Concat("StorageName", nowTicks),
+
+                SupplierId = garmentDeliveryOrder.SupplierId,
+                SupplierCode = garmentDeliveryOrder.SupplierCode,
+                SupplierName = garmentDeliveryOrder.SupplierName,
+
+                DOId = garmentDeliveryOrder.Id,
+                DONo = garmentDeliveryOrder.DONo,
+
+                DeletedReason = nowTicks.ToString(),
+
+                DOCurrencyRate = garmentDeliveryOrder.DOCurrencyRate,
+                UENNo= garmentUnitExpenditureNote.UENNo,
+                UENId= garmentUnitExpenditureNote.Id,
+                ReceiptDate = DateTimeOffset.Now,
+
+                Items = new List<GarmentUnitReceiptNoteItem>()
+            };
+
+            foreach (var item in garmentDeliveryOrder.Items)
+            {
+                foreach (var detail in item.Details)
+                {
+                    var garmentUnitReceiptNoteItem = new GarmentUnitReceiptNoteItem
+                    {
+                        DODetailId = detail.Id,
+
+                        EPOItemId = detail.EPOItemId,
+                        DRItemId = string.Concat("drItemId", nowTicks),
+                        PRId = detail.PRId,
+                        PRNo = detail.PRNo,
+                        PRItemId = detail.PRItemId,
+
+                        POId = detail.POId,
+                        POItemId = detail.POItemId,
+                        POSerialNumber = detail.POSerialNumber,
+
+                        ProductId = detail.ProductId,
+                        ProductCode = detail.ProductCode,
+                        ProductName = detail.ProductName,
+                        ProductRemark = detail.ProductRemark,
+
+                        RONo = detail.RONo,
+
+                        ReceiptQuantity = (decimal)100,
+
+                        UomId = long.Parse(detail.UomId),
+                        UomUnit = detail.UomUnit,
+
+                        PricePerDealUnit = (decimal)detail.PricePerDealUnit,
+
+                        DesignColor = string.Concat("DesignColor", nowTicks),
+
+                        SmallQuantity = (decimal)detail.SmallQuantity,
+                        OrderQuantity = 30,
+                        SmallUomId = long.Parse(detail.SmallUomId),
+                        SmallUomUnit = detail.SmallUomUnit,
+                        Conversion = (decimal)1,
+                        CorrectionConversion = (decimal)12,
+
+                        DOCurrencyRate = 1,
+
+                        UENItemId = garmentUnitExpenditureNote.Items.First().Id
+                    };
+                    var garmentUnitReceiptNoteItem2 = new GarmentUnitReceiptNoteItem
+                    {
+                        DODetailId = detail.Id,
+
+                        EPOItemId = detail.EPOItemId,
+                        DRItemId = string.Concat("drItemId", nowTicks),
+                        PRId = detail.PRId,
+                        PRNo = detail.PRNo,
+                        PRItemId = detail.PRItemId,
+
+                        POId = detail.POId,
+                        POItemId = detail.POItemId,
+                        POSerialNumber = detail.POSerialNumber,
+
+                        ProductId = detail.ProductId,
+                        ProductCode = detail.ProductCode,
+                        ProductName = detail.ProductName,
+                        ProductRemark = detail.ProductRemark,
+
+                        RONo = detail.RONo + "S",
+
+                        ReceiptQuantity = (decimal)100,
+
+                        UomId = long.Parse(detail.UomId),
+                        UomUnit = detail.UomUnit,
+
+                        PricePerDealUnit = (decimal)detail.PricePerDealUnit,
+
+                        DesignColor = string.Concat("DesignColor", nowTicks),
+
+                        SmallQuantity = (decimal)detail.SmallQuantity,
+                        OrderQuantity = 30,
+                        SmallUomId = long.Parse(detail.SmallUomId),
+                        SmallUomUnit = detail.SmallUomUnit,
+                        Conversion = (decimal)1,
+                        CorrectionConversion = (decimal)12,
+
+                        DOCurrencyRate = 1,
+
+                        UENItemId = garmentUnitExpenditureNote.Items.First().Id
+                    };
+
+                    garmentUnitReceiptNote.Items.Add(garmentUnitReceiptNoteItem);
+                    garmentUnitReceiptNote.Items.Add(garmentUnitReceiptNoteItem2);
+                }
+            }
+
+            return garmentUnitReceiptNote;
+        }
+
         public void SetDataWithStorage(GarmentUnitReceiptNote garmentUnitReceiptNote, long? unitId = null)
         {
             long nowTicks = unitId ?? DateTimeOffset.Now.Ticks;
@@ -356,7 +494,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
             await facade.Create(data);
             return data;
         }
+        public async Task<GarmentUnitReceiptNote> GetNewDataWithStorageSubcon(long? ticks = null)
+        {
+            var data = await GetNewDataSubcon(ticks);
+            SetDataWithStorage(data, data.UnitId);
 
+            return data;
+        }
+
+        public async Task<GarmentUnitReceiptNote> GetTestDataWithStorageSubcon(long? ticks = null)
+        {
+            var data = await GetNewDataSubcon(ticks);
+            data.URNType = "SISA SUBCON";
+            await facade.Create(data);
+            return data;
+        }
         public async Task<GarmentUnitReceiptNote> GetTestDataWithStorageGudangSisaACC(long? ticks = null)
         {
             var data = await GetNewDataWithStorage(ticks);
