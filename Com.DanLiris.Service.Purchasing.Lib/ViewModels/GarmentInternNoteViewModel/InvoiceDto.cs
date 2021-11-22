@@ -57,14 +57,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
             TotalAmount = amount;
 
             Amount = amount;
+            var correction = correctionAmount;
 
             if (useVAT && isPayVAT)
+            {
                 Amount += amount * 0.1;
+                correction += correctionAmount * 0.1;
+            }
 
             if (useIncomeTax && isPayTax)
+            {
                 Amount -= amount * (incomeTaxRate / 100);
+                correction -= correctionAmount * (incomeTaxRate / 100);
+            }
 
-            Amount += correctionAmount;
+            Amount += correction;
             CorrectionAmount = correctionAmount;
             DetailDO = detailDO;
         }
