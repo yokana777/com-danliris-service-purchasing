@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
@@ -18,6 +19,7 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchaseOrde
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteDataUtils;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
@@ -71,6 +73,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
                 .Setup(x => x.GetAsync(It.IsAny<string>()))
                 .ReturnsAsync(message);
 
+            HttpClientService
+                .Setup(x => x.SendAsync(It.IsAny<HttpMethod>(), It.Is<string>(s => s.Contains("master/garmentProducts")), It.IsAny<HttpContent>()))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentProductDataUtil().GetMultipleResultFormatterOkString()) });
+
             var serviceProvider = new Mock<IServiceProvider>();
             serviceProvider
                 .Setup(x => x.GetService(typeof(IdentityService)))
@@ -97,7 +103,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
             var garmentDeliveryOrderFacade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(testName));
             var garmentDeliveryOrderDataUtil = new GarmentDeliveryOrderDataUtil(garmentDeliveryOrderFacade, garmentExternalPurchaseOrderDataUtil);
 
-            return new GarmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, garmentDeliveryOrderDataUtil, null);
+            return new GarmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, garmentDeliveryOrderDataUtil);
         }
 
         private GarmentUnitDeliveryOrderDataUtil dataUtil(GarmentUnitDeliveryOrderFacade garmentUnitDeliveryOrderFacade, string testName)
@@ -296,16 +302,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
         }
 
         [Fact]
-        public async Task Should_Success_Get_Item_Data_By_Id()
-        {
-            var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
-            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-
-            var Response = facade.ReadItemById((int)data.Items.First().Id);
-            Assert.NotNull(Response);
-        }
-
-        [Fact]
         public async Task Should_Success_Validate_Data()
         {
             GarmentUnitDeliveryOrderViewModel viewModel = new GarmentUnitDeliveryOrderViewModel {
@@ -402,13 +398,60 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
         }
 
         [Fact]
-        public async Task Should_Success_Get_Data_Item_By_Id()
+        public async Task Should_Success_Get_Feature_NoBc()
         {
             var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
 
-            var Response = facade.ReadItemById((int)data.Items.Take(1).Select(x => x.Id).Single());
-            Assert.NotNull(Response);
+            var facadeReport = new BeacukaiNoFeature(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+
+            var PO = "";
+            var RO = "";
+
+            foreach (var item in data.Items)
+            {
+                PO = item.POSerialNumber;
+                RO = item.RONo;
+            }
+
+            var Response1 = facadeReport.GetBeacukaiNo("BCNo", "");
+            var Response2 = facadeReport.GetBeacukaiNo("PONo", PO);
+            var Response3 = facadeReport.GetBeacukaiNo("RONo", RO);
+
+            Assert.NotNull(Response1);
+            Assert.NotNull(Response2);
+            Assert.NotNull(Response3);
+
+            //var facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            //GarmentDeliveryOrder dataDO = await dataUtilDO(facadeDO, GetCurrentMethod()).GetNewData();
+
+            //foreach (var i in dataDO.Items)
+            //{
+            //    foreach (var d in i.Details)
+            //    {
+            //        d.POSerialNumber = "PONO123";
+            //        d.RONo = "RONO123";
+            //    }
+            //}
+
+            //await facadeDO.Create(dataDO, USERNAME);
+
+            //var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+
+            //GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME, dataDO);
+
+            //data.CustomsType = "BC 23";
+            //var Responses = await facade.Create(data, USERNAME);
+
+            //var facadeReport = new BeacukaiNoFeature(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+
+            //var Response1 = facadeReport.GetBeacukaiNo("BCNo", data.BeacukaiNo);
+            //var Response2 = facadeReport.GetBeacukaiNo("PONo", "PONO123");
+            //var Response3 = facadeReport.GetBeacukaiNo("RONo", "RONO123");
+
+            //Assert.NotNull(Response1);
+            //Assert.NotNull(Response2);
+            //Assert.NotNull(Response3);
         }
     }
 }

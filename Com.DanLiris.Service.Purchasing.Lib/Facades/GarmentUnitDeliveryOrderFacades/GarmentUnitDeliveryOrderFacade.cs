@@ -27,7 +27,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
 
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<GarmentUnitDeliveryOrder> dbSet;
-        private readonly DbSet<GarmentUnitDeliveryOrderItem> dbSetItem;
         private readonly DbSet<GarmentDOItems> dbSetGarmentDOItems;
         private readonly IMapper mapper;
 
@@ -38,7 +37,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
 
             this.dbContext = dbContext;
             dbSet = dbContext.Set<GarmentUnitDeliveryOrder>();
-            dbSetItem = dbContext.Set<GarmentUnitDeliveryOrderItem>();
             dbSetGarmentDOItems = dbContext.Set<GarmentDOItems>();
             mapper = serviceProvider == null ? null : (IMapper)serviceProvider.GetService(typeof(IMapper));
         }
@@ -123,13 +121,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
         {
             var model = dbSet.Where(m => m.Id == id)
                 .Include(m => m.Items)
-                .FirstOrDefault();
-            return model;
-        }
-
-        public GarmentUnitDeliveryOrderItem ReadItemById(int id)
-        {
-            var model = dbContext.GarmentUnitDeliveryOrderItems.Where(m => m.Id == id)
                 .FirstOrDefault();
             return model;
         }
@@ -481,6 +472,39 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
             );
             return new ReadResponse<object>(listData, Total, OrderDictionary);
         }
+
+        public List<object> ReadForLeftOver(string ro)
+        {
+            var ROs = ro.Split(",").ToList();
+            var query = from a in dbContext.GarmentUnitDeliveryOrders
+                        join b in dbContext.GarmentUnitDeliveryOrderItems on a.Id equals b.UnitDOId
+                        where ROs.Contains(a.RONo) && a.IsDeleted == false && b.IsDeleted == false
+                        select new
+                        {
+                            b.ProductCode,
+                            b.POSerialNumber,
+                            b.ProductName,
+                            b.RONo
+                        };
+
+            List<object> listdata = new List<object>();
+
+            listdata.AddRange
+                (
+                query.Select(s => new
+                {
+                    s.ProductCode,
+                    s.POSerialNumber,
+                    s.ProductName,
+                    s.RONo
+
+                })
+                );
+
+            return listdata;
+                        
+        }
+
         
     }
 }
