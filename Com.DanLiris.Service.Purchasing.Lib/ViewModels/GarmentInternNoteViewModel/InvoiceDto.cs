@@ -72,6 +72,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
             }
 
             Amount += correction;
+            CorrectionAmount = correctionAmount;
+            DetailDO = detailDO;
         }
 
         public string DocumentNo { get; set; }
