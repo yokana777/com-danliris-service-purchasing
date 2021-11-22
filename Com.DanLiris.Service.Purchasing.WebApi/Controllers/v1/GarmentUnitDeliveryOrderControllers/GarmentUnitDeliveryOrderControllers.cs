@@ -278,7 +278,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitDeliv
             }
         }
 
-
         [HttpGet("leftoverwarehouse")]
         public IActionResult GetbyROleftover([FromBody]string ro)
         {
