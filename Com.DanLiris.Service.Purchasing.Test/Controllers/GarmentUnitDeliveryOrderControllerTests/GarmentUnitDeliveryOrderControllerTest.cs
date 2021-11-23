@@ -396,9 +396,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitDeliveryOr
             GarmentUnitDeliveryOrderControllers controller = GetController(mockFacade, null, mockMapper);
 
             var response = controller.GetbyROleftover(It.IsAny<string>());
+        
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
-      
+        
+        [Fact]
         public void Should_Success_Get_Data_Item_By_Id()
         {
             var mockFacade = new Mock<IGarmentUnitDeliveryOrderFacade>();
@@ -429,9 +431,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitDeliveryOr
             GarmentUnitDeliveryOrderControllers controller = GetController(mockFacade, null, mockMapper);
 
             var response = controller.GetbyROleftover(It.IsAny<string>());
+      
+        
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
+        [Fact]
         public void Should_Error_Get_Data_Item_By_Id()
         {
             var mockFacade = new Mock<IGarmentUnitDeliveryOrderFacade>();
