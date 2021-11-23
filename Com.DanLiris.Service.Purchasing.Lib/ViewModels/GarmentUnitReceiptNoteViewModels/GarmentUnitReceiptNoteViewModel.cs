@@ -90,7 +90,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
                 }
             }
 
-            if ((DOId == null || DOId == 0) && URNType != "GUDANG SISA" && URNType != "SISA SUBCON")
+            if ((DOId == null || DOId == 0) && URNType != "GUDANG SISA" && URNType != "SISA SUBCON" && URNType != "PROSES")
             {
                 if (checkDO)
                 {
