@@ -915,7 +915,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                 ExpenditureDate = m.ExpenditureDate,
                 ExpenditureTo = m.ExpenditureTo,
                 ExpenditureType = m.ExpenditureType,
-                UnitDOId=m.UnitDOId,
+                UnitDOId = m.UnitDOId,
+                UnitRequestId = m.UnitRequestId,
+                UnitRequestCode = m.UnitRequestCode,
+                UnitRequestName = m.UnitRequestName,
+                UnitSenderId = m.UnitSenderId,
+                UnitSenderCode = m.UnitSenderCode,
+                UnitSenderName = m.UnitSenderName,
                 Items = m.Items.Select(i => new GarmentUnitExpenditureNoteItem
                 {
                     Id = i.Id,
@@ -929,8 +935,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                     UomUnit = i.UomUnit,
                     ReturQuantity = i.ReturQuantity,
                     UnitDOItemId = i.UnitDOItemId,
-                    FabricType=i.FabricType,
-                    ProductRemark=i.ProductRemark
+                    FabricType = i.FabricType,
+                    ProductRemark = i.ProductRemark
                 }).ToList(),
                 CreatedAgent = m.CreatedAgent,
                 CreatedBy = m.CreatedBy,
@@ -956,6 +962,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                 s.LastModifiedUtc,
                 s.UnitDOId,
                 s.CreatedUtc,
+                s.UnitRequestId,
+                s.UnitRequestCode,
+                s.UnitRequestName,
+                s.UnitSenderId,
+                s.UnitSenderCode,
+                s.UnitSenderName,
                 s.Items
             }));
 

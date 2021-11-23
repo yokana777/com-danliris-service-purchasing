@@ -257,7 +257,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var garmentDeliveryOrderFacade = new GarmentDeliveryOrderFacade(GetServiceProvider(), _dbContext(testName));
             var garmentDeliveryOrderDataUtil = new GarmentDeliveryOrderDataUtil(garmentDeliveryOrderFacade, garmentExternalPurchaseOrderDataUtil);
 
-            return new GarmentUnitReceiptNoteDataUtil(facade, garmentDeliveryOrderDataUtil);
+            return new GarmentUnitReceiptNoteDataUtil(facade, garmentDeliveryOrderDataUtil, null);
         }
 
         private GarmentUnitReceiptNoteDataUtil dataUtil_DOCurrency(GarmentUnitReceiptNoteFacade facade, string testName)
@@ -274,7 +274,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var garmentDeliveryOrderFacade = new GarmentDeliveryOrderFacade(GetServiceProvider_DOCurrency(), _dbContext(testName));
             var garmentDeliveryOrderDataUtil = new GarmentDeliveryOrderDataUtil(garmentDeliveryOrderFacade, garmentExternalPurchaseOrderDataUtil);
 
-            return new GarmentUnitReceiptNoteDataUtil(facade, garmentDeliveryOrderDataUtil);
+            return new GarmentUnitReceiptNoteDataUtil(facade, garmentDeliveryOrderDataUtil, null);
         }
 
         private GarmentDeliveryOrderDataUtil dataUtilDO(GarmentDeliveryOrderFacade facade, string testName)

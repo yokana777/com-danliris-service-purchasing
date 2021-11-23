@@ -334,5 +334,38 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentBeacukaiTests
         //}
         
 
+        [Fact]
+        public async Task Should_Success_Get_by_PO()
+        {
+
+            var facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            GarmentDeliveryOrder dataDO = await dataUtilDO(facadeDO, GetCurrentMethod()).GetNewData();
+
+            foreach (var i in dataDO.Items)
+            {
+                foreach (var d in i.Details)
+                {
+                    d.POSerialNumber = "PONO123";
+                    d.RONo = "RONO123";
+                }
+            }
+
+            await facadeDO.Create(dataDO, USERNAME);
+
+            var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+
+            GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME, dataDO);
+
+            data.CustomsType = "BC 23";
+            var Responses = await facade.Create(data, USERNAME);
+
+            //var facadeReport = new GarmentBeacukaiFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+
+            var Response = facade.ReadBCByPOSerialNumbers("PONO123,PONO123");
+
+            Assert.NotNull(Response);
+
+        }
+
     }
 }

@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
@@ -240,6 +240,31 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentUnitDeliv
                 Dictionary<string, object> Result =
                     new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
                     .Ok(result.Data, info);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
+        [HttpGet("leftoverwarehouse")]
+        public IActionResult GetbyROleftover([FromBody]string ro)
+        {
+
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                var data = facade.ReadForLeftOver(
+                    ro
+                );
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(data);
                 return Ok(Result);
             }
             catch (Exception e)

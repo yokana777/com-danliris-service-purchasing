@@ -249,6 +249,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                             garmentUnitReceiptNoteItem.PRItemId = prItem == null ? 0 : prItem.Id;
 
                         }
+                        else if(garmentUnitReceiptNote.URNType == "SISA SUBCON")
+                        {
+                            var doDetail = dbSetGarmentDeliveryOrderDetail.IgnoreQueryFilters().Where(i => (i.IsDeleted == true && i.DeletedAgent == "LUCIA") || (i.IsDeleted == false)).OrderByDescending(a => a.DOQuantity).FirstOrDefault(a => a.POSerialNumber == garmentUnitReceiptNoteItem.POSerialNumber);
+                            garmentUnitReceiptNoteItem.DODetailId = doDetail == null ? 0 : doDetail.Id;
+
+                            var epoItem = dbSetGarmentExternalPurchaseOrderItems.IgnoreQueryFilters().Where(i => (i.IsDeleted == true && i.DeletedAgent == "LUCIA") || (i.IsDeleted == false)).First(a => a.PO_SerialNumber == garmentUnitReceiptNoteItem.POSerialNumber);
+                            garmentUnitReceiptNoteItem.PRId = epoItem.PRId;
+                            garmentUnitReceiptNoteItem.EPOItemId = epoItem.Id;
+                            garmentUnitReceiptNoteItem.PRNo = epoItem.PRNo;
+                            garmentUnitReceiptNoteItem.RONo = epoItem.RONo;
+                            garmentUnitReceiptNoteItem.POId = epoItem.POId;
+
+                            var poItem = dbSetGarmentInternalPurchaseOrderItems.FirstOrDefault(a => a.PO_SerialNumber == garmentUnitReceiptNoteItem.POSerialNumber);
+                            garmentUnitReceiptNoteItem.POItemId = poItem == null ? 0 : poItem.Id;
+
+                            var prItem = dbContext.GarmentPurchaseRequestItems.FirstOrDefault(a => a.PO_SerialNumber == garmentUnitReceiptNoteItem.POSerialNumber);
+                            garmentUnitReceiptNoteItem.PRItemId = prItem == null ? 0 : prItem.Id;
+                            
+                        }
 
                         garmentUnitReceiptNoteItem.DOCurrencyRate = garmentUnitReceiptNote.DOCurrencyRate != null && garmentUnitReceiptNote.URNType == "PEMBELIAN" ?
                         (double)garmentUnitReceiptNote.DOCurrencyRate : garmentUnitReceiptNoteItem.DOCurrencyRate;
@@ -309,6 +328,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     {
                         await UpdateExpenditure(garmentUnitReceiptNote.ExpenditureId, true, garmentUnitReceiptNote.Category);
                     }
+                    else if(garmentUnitReceiptNote.URNType == "SISA SUBCON")
+                    {
+                        var garmentUnitExpenditureNote = dbContext.GarmentUnitExpenditureNotes.Single(a => a.Id == garmentUnitReceiptNote.UENId);
+                        garmentUnitExpenditureNote.IsReceived = true;
+                    }
 
                     var garmentInventoryDocument = GenerateGarmentInventoryDocument(garmentUnitReceiptNote);
                     dbSetGarmentInventoryDocument.Add(garmentInventoryDocument);
@@ -317,7 +341,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     Created = await dbContext.SaveChangesAsync();
 
 
-                    if (garmentUnitReceiptNote.URNType == "PEMBELIAN" || garmentUnitReceiptNote.URNType == "GUDANG SISA")
+                    if (garmentUnitReceiptNote.URNType == "PEMBELIAN" || garmentUnitReceiptNote.URNType == "GUDANG SISA" || garmentUnitReceiptNote.URNType == "SISA SUBCON")
                     {
                         foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
                         {
@@ -888,7 +912,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         EntityExtension.FlagForDelete(garmentUnitReceiptNoteItem, identityService.Username, USER_AGENT);
 
                         //update per 10-06-21
-                        if (garmentUnitReceiptNote.URNType != "PROSES" && garmentUnitReceiptNote.URNType != "GUDANG SISA")
+                        if (garmentUnitReceiptNote.URNType != "PROSES" && garmentUnitReceiptNote.URNType != "GUDANG SISA" && garmentUnitReceiptNote.URNType != "SISA SUBCON")
                         {
                             var garmentDeliveryOrderDetail = dbSetGarmentDeliveryOrderDetail.First(d => d.Id == garmentUnitReceiptNoteItem.DODetailId);
                             EntityExtension.FlagForUpdate(garmentDeliveryOrderDetail, identityService.Username, USER_AGENT);
@@ -934,7 +958,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                         }
                     }
 
-                    if (garmentUnitReceiptNote.URNType == "PEMBELIAN" || garmentUnitReceiptNote.URNType == "PROSES" || garmentUnitReceiptNote.URNType == "GUDANG SISA")
+                    if (garmentUnitReceiptNote.URNType == "PEMBELIAN" || garmentUnitReceiptNote.URNType == "PROSES" || garmentUnitReceiptNote.URNType == "GUDANG SISA" || garmentUnitReceiptNote.URNType == "SISA SUBCON")
                     {
                         foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
                         {
@@ -948,6 +972,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                     if (garmentUnitReceiptNote.URNType == "GUDANG SISA")
                     {
                         await UpdateExpenditure(garmentUnitReceiptNote.ExpenditureId, false, garmentUnitReceiptNote.Category);
+                    }
+                    else if (garmentUnitReceiptNote.URNType == "SISA SUBCON")
+                    {
+                        var garmentUnitExpenditureNote = dbContext.GarmentUnitExpenditureNotes.Single(a => a.Id == garmentUnitReceiptNote.UENId);
+                        garmentUnitExpenditureNote.IsReceived = false;
                     }
 
                     if (garmentUnitReceiptNote.URNType == "PROSES")

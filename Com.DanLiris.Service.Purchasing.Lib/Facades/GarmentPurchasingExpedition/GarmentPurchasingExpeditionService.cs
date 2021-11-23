@@ -26,7 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
 
         public List<GarmentDispositionNoteDto> GetGarmentDispositionNotes(string keyword, PurchasingGarmentExpeditionPosition position)
         {
-            var query = _dbContext.GarmentDispositionPurchases.AsQueryable();
+            var query = _dbContext.GarmentDispositionPurchases.Where(entity => entity.Position == PurchasingGarmentExpeditionPosition.Purchasing || entity.Position == PurchasingGarmentExpeditionPosition.SendToPurchasing).AsQueryable();
 
             if (position > 0)
                 query = query.Where(entity => entity.Position == position);
@@ -124,6 +124,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                     else
                         total = (double)element.TotalCorrection;
 
+                    if (element.UseVat)
+                        total += total * 0.1;
+
+                    if (element.UseIncomeTax)
+                        total -= total * (double)(element.IncomeTaxRate / 100);
+
                     return total;
                 });
 
@@ -180,6 +186,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                     return total;
                 });
 
+                var correctionVat = selectedCorrections.Sum(element =>
+                {
+                    var selectedCorrectionItems = correctionItems.Where(item => item.GCorrectionId == element.Id);
+
+                    var total = 0.0;
+
+                    if (element.UseVat)
+                        total += element.CorrectionType.ToUpper() == "RETUR" ? (double)selectedCorrectionItems.Sum(item => item.PricePerDealUnitAfter * item.Quantity) * 0.1 : (double)element.TotalCorrection * 0.1;
+
+                    return total;
+                });
+
                 var vatTotal = invoices.Where(element => selectedInvoiceIds.Contains(element.Id)).Sum(element =>
                 {
                     var vat = 0.0;
@@ -190,6 +208,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                     }
                     
                     return vat;
+                });
+                vatTotal += correctionVat;
+
+                var correctionIncomeTax = selectedCorrections.Sum(element =>
+                {
+                    var selectedCorrectionItems = correctionItems.Where(item => item.GCorrectionId == element.Id);
+
+                    var total = 0.0;
+
+                    if (element.UseIncomeTax)
+                        total += element.CorrectionType.ToUpper() == "RETUR" ? (double)selectedCorrectionItems.Sum(item => item.PricePerDealUnitAfter * item.Quantity) * (double)(element.IncomeTaxRate / 100) : (double)element.TotalCorrection * (double)(element.IncomeTaxRate / 100);
+
+                    return total;
                 });
 
                 if (vatTotal != 0)
@@ -222,6 +253,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
 
                     return incomeTax;
                 });
+                incomeTaxTotal += correctionIncomeTax;
 
                 if (incomeTaxTotal != 0)
                 {

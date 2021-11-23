@@ -50,5 +50,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitReceiptNoteV
         public decimal CorrectionConversion { get; set; }
         public double DOCurrencyRate { get; set; }
         public long ExpenditureItemId { get; set; }
+
+        public long UENItemId { get; set; }
     }
 }
