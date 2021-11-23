@@ -11,6 +11,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderMod
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInventoryModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUenUrnChangeDateHistory;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitExpenditureNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitReceiptNoteModel;
@@ -54,6 +55,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
         private readonly DbSet<GarmentExternalPurchaseOrder> dbSetGarmentExternalPurchaseOrder;
         private readonly DbSet<GarmentUnitReceiptNote> dbSetGarmentUnitReceiptNote;
         private readonly DbSet<GarmentDOItems> dbSetGarmentDOItems;
+        private readonly DbSet<GarmentUenUrnChangeDateHistory> dbSetUenUrnChangeDate;
 
         //private GarmentReturnCorrectionNoteFacade garmentReturnCorrectionNoteFacade;
 
@@ -77,6 +79,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             dbSetGarmentExternalPurchaseOrder= dbContext.Set<GarmentExternalPurchaseOrder>();
             dbSetGarmentUnitReceiptNote= dbContext.Set<GarmentUnitReceiptNote>();
             dbSetGarmentDOItems= dbContext.Set<GarmentDOItems>();
+            dbSetUenUrnChangeDate = dbContext.Set<GarmentUenUrnChangeDateHistory>();
 
             mapper = (IMapper)serviceProvider.GetService(typeof(IMapper));
 
@@ -1850,26 +1853,82 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             return uenItem;
         }
 
-        public async Task<int> UenDateRevise(List<GarmentUnitExpenditureNote> listURN, string user, DateTime reviseDate)
+        //public async Task<int> UenDateRevise(List<long> ids, string user, DateTime reviseDate)
+        //{
+        //    int Updated = 0;
+        //    using (var transaction = this.dbContext.Database.BeginTransaction())
+        //    {
+        //        try
+        //        {
+
+        //            //var Ids = listURN.Select(d => d.Id).ToList();
+        //            //var Id = listURN.Select(x => x.Id).Single();
+        //            var listData = this.dbSet
+        //                .Where(m => ids.Contains(m.Id) && !m.IsDeleted)
+        //                //.Include(d => d.Items)
+        //                .ToList();
+        //            listData.ForEach(m =>
+        //            {
+        //                GarmentUenUrnChangeDateHistory changeDateHistory = new GarmentUenUrnChangeDateHistory
+        //                {
+        //                    DateOld = m.CreatedUtc,
+        //                    DateNow = reviseDate,
+        //                    DocumentNo = m.UENNo,
+
+        //                };
+        //                EntityExtension.FlagForUpdate(m, user, "Facade");
+        //                m.CreatedUtc = reviseDate;
+        //                EntityExtension.FlagForCreate(changeDateHistory, user, "Facade");
+        //                dbSetUenUrnChangeDate.Add(changeDateHistory);
+        //            });
+
+        //            Updated = await dbContext.SaveChangesAsync();
+        //            transaction.Commit();
+        //        }
+        //        catch (Exception e)
+        //        {
+        //            transaction.Rollback();
+        //            throw new Exception(e.Message);
+        //        }
+        //    }
+
+        //    return Updated;
+        //}
+
+        public int UenDateRevise(List<long> ids, string user, DateTime reviseDate)
         {
             int Updated = 0;
             using (var transaction = this.dbContext.Database.BeginTransaction())
             {
                 try
                 {
-                    var Ids = listURN.Select(d => d.Id).ToList();
-                    var Id = listURN.Select(x => x.Id).Single();
+                    //var Ids = ListEPO.Select(d => d.Id).ToList();
                     var listData = this.dbSet
-                        .Where(m => Ids.Contains(m.Id) && !m.IsDeleted)
+                        .Where(m => ids.Contains(m.Id) && !m.IsDeleted)
                         .Include(d => d.Items)
                         .ToList();
                     listData.ForEach(m =>
                     {
                         EntityExtension.FlagForUpdate(m, user, "Facade");
+
+                        GarmentUenUrnChangeDateHistory changeDateHistory = new GarmentUenUrnChangeDateHistory
+                        {
+                            DateOld = m.CreatedUtc,
+                            DateNow = reviseDate,
+                            DocumentNo = m.UENNo,
+
+                        };
+
                         m.CreatedUtc = reviseDate;
+
+                        
+
+                        EntityExtension.FlagForCreate(changeDateHistory, user, "Facade");
+                        dbSetUenUrnChangeDate.Add(changeDateHistory);
+
                     });
 
-                    Updated = await dbContext.SaveChangesAsync();
+                    Updated = dbContext.SaveChanges();
                     transaction.Commit();
                 }
                 catch (Exception e)

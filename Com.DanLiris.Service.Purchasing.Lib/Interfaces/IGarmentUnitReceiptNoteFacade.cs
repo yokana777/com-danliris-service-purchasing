@@ -28,6 +28,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         MemoryStream GenerateExcelMonIN(DateTime? dateFrom, DateTime? dateTo, string category, int offset);
 
         GarmentDOItems ReadDOItemsByURNItemId(int id);
-        Task<int> UrnDateRevise(List<GarmentUnitReceiptNote> listURN, string user, DateTime reviseDate);
+        int UrnDateRevise(List<long> ids, string user, DateTime reviseDate);
     }
 }
