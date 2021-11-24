@@ -366,11 +366,61 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitDeliveryOr
             GarmentUnitDeliveryOrderControllers controller = GetController(mockFacade, null, mockMapper);
 
             var response = controller.GetbyROleftover(It.IsAny<string>());
+        
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+        
+        [Fact]
+        public void Should_Success_Get_Data_Item_By_Id()
+        {
+            var mockFacade = new Mock<IGarmentUnitDeliveryOrderFacade>();
+            mockFacade.Setup(x => x.ReadForLeftOver(It.IsAny<string>()))
+                .Returns(new List<object>());
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<GarmentUnitDeliveryOrderViewModel>(It.IsAny<GarmentUnitDeliveryOrder>()))
+                .Returns(new GarmentUnitDeliveryOrderViewModel());
+
+            GarmentUnitDeliveryOrderControllers controller = GetController(mockFacade, null, mockMapper);
+
+            var response = controller.GetbyROleftover(It.IsAny<string>());
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
 
         [Fact]
         public void Should_Error_Get_Data_By_RO()
+        {
+            var mockFacade = new Mock<IGarmentUnitDeliveryOrderFacade>();
+            mockFacade.Setup(x => x.ReadForLeftOver(It.IsAny<string>()))
+                .Throws(new Exception());
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<GarmentUnitDeliveryOrderViewModel>(It.IsAny<GarmentUnitDeliveryOrder>()))
+                .Returns(new GarmentUnitDeliveryOrderViewModel());
+
+            GarmentUnitDeliveryOrderControllers controller = GetController(mockFacade, null, mockMapper);
+
+            var response = controller.GetbyROleftover(It.IsAny<string>());
+      
+        
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_Get_Data_Item_By_Id()
+        {
+            var mockFacade = new Mock<IGarmentUnitDeliveryOrderFacade>();
+            mockFacade.Setup(x => x.ReadItemById(It.IsAny<int>()))
+                .Returns(new GarmentUnitDeliveryOrderItem());
+
+            GarmentUnitDeliveryOrderControllers controller = new GarmentUnitDeliveryOrderControllers(GetServiceProvider().Object, mockFacade.Object);
+
+            var response = controller.GetItemById(It.IsAny<int>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Null_Mapper_Get_Data_Item_By_Id()
         {
             var mockFacade = new Mock<IGarmentUnitDeliveryOrderFacade>();
             mockFacade.Setup(x => x.ReadForLeftOver(It.IsAny<string>()))

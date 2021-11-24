@@ -402,153 +402,73 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
             var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
 
-        //[Fact]
-        //public async Task Should_Success_Validate_Data()
-        //{
-        //    GarmentUnitDeliveryOrderViewModel viewModel = new GarmentUnitDeliveryOrderViewModel {
-        //        UnitRequest = new Lib.ViewModels.NewIntegrationViewModel.UnitViewModel
-        //        {
-        //            Id = "1"
-        //        },
-        //        UnitSender = new Lib.ViewModels.NewIntegrationViewModel.UnitViewModel
-        //        {
-        //            Id = "1"
-        //        },
-        //        UnitDOType = "TRANSFER" };
-        //    Assert.True(viewModel.Validate(null).Count() > 0);
+            var Response = facade.ReadItemById((int)data.Items.Take(1).Select(x => x.Id).Single());
+            Assert.NotNull(Response);
+        }
+        [Fact]
+        public async Task Should_Success_Get_Feature_NoBc()
+        {
+            var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var facadeReport = new BeacukaiNoFeature(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
 
-        //    GarmentUnitDeliveryOrderViewModel viewModelNullItems = new GarmentUnitDeliveryOrderViewModel
-        //    {
-        //        RONo = "RONo"
-        //    };
-        //    Assert.True(viewModelNullItems.Validate(null).Count() > 0);
+            var PO = "";
+            var RO = "";
 
-        //    GarmentUnitDeliveryOrderViewModel viewModelWithItems = new GarmentUnitDeliveryOrderViewModel
-        //    {
-        //        RONo = "RONo",
-        //        Items = new List<GarmentUnitDeliveryOrderItemViewModel>
-        //        {
-        //            new GarmentUnitDeliveryOrderItemViewModel
-        //            {
-        //                IsSave = true,
-        //                Quantity = 0
-        //            }
-        //        }
-        //    };
-        //    Assert.True(viewModelWithItems.Validate(null).Count() > 0);
+            foreach (var item in data.Items)
+            {
+                PO = item.POSerialNumber;
+                RO = item.RONo;
+            }
 
-        //    var garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-        //    var dataUtil = garmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, GetCurrentMethod());
-        //    var data = await dataUtil.GetTestData();
-        //    var item = data.Items.First();
+            var Response1 = facadeReport.GetBeacukaiNo("BCNo", "");
+            var Response2 = facadeReport.GetBeacukaiNo("PONo", PO);
+            var Response3 = facadeReport.GetBeacukaiNo("RONo", RO);
 
-        //    var serviceProvider = GetServiceProvider();
-        //    serviceProvider.Setup(x => x.GetService(typeof(PurchasingDbContext)))
-        //        .Returns(_dbContext(GetCurrentMethod()));
+            Assert.NotNull(Response1);
+            Assert.NotNull(Response2);
+            Assert.NotNull(Response3);
 
-        //    GarmentUnitDeliveryOrderViewModel viewModelWithItemsQuantityOver = new GarmentUnitDeliveryOrderViewModel
-        //    {
-        //        RONo = "RONo",
-        //        Items = new List<GarmentUnitDeliveryOrderItemViewModel>
-        //        {
-        //            new GarmentUnitDeliveryOrderItemViewModel
-        //            {
-        //                URNItemId = item.Id,
-        //                DOItemsId = (int)dataUtil.ReadDOItemsByURNItemId((int)item.Id).Id,
-        //                IsSave = true,
-        //                Quantity = (double)10000
-        //            }
-        //        }
-        //    };
-        //    System.ComponentModel.DataAnnotations.ValidationContext validationDuplicateContext = new System.ComponentModel.DataAnnotations.ValidationContext(viewModelWithItemsQuantityOver, serviceProvider.Object, null);
-        //    Assert.True(viewModelWithItemsQuantityOver.Validate(validationDuplicateContext).Count() > 0);
+            //var facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            //GarmentDeliveryOrder dataDO = await dataUtilDO(facadeDO, GetCurrentMethod()).GetNewData();
 
-        //    GarmentUnitDeliveryOrderViewModel viewModel1 = new GarmentUnitDeliveryOrderViewModel
-        //    {
-        //        UnitDOType = "MARKETING",
-        //        UnitDODate= DateTimeOffset.Now.AddDays(3)
-        //    };
-        //    Assert.True(viewModel1.Validate(null).Count() > 0);
-        //}
+            //foreach (var i in dataDO.Items)
+            //{
+            //    foreach (var d in i.Details)
+            //    {
+            //        d.POSerialNumber = "PONO123";
+            //        d.RONo = "RONO123";
+            //    }
+            //}
 
-        //[Fact]
-        //public async Task Should_Success_Get_Data_For_GarmentUnitExpenditureNote()
-        //{
-        //    var mapper = new Mock<IMapper>();
-        //    mapper.Setup(m => m.Map<List<GarmentUnitDeliveryOrderViewModel>>(It.IsAny<List<GarmentUnitDeliveryOrder>>()))
-        //        .Returns(new List<GarmentUnitDeliveryOrderViewModel>
-        //        {
-        //            new GarmentUnitDeliveryOrderViewModel
-        //            {
-        //                Items = new List<GarmentUnitDeliveryOrderItemViewModel>
-        //                {
-        //                    new GarmentUnitDeliveryOrderItemViewModel()
-        //                }
-        //            }
-        //        });
+            //await facadeDO.Create(dataDO, USERNAME);
 
-        //    var serviceProvider = GetServiceProvider();
-        //    serviceProvider
-        //        .Setup(x => x.GetService(typeof(IMapper)))
-        //        .Returns(mapper.Object);
+            //var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
 
-        //    GarmentUnitDeliveryOrderFacade facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), serviceProvider.Object);
-        //    var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-        //    var Response = facade.ReadForUnitExpenditureNote();
-        //    Assert.NotEmpty(Response.Data);
-        //}
+            //GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME, dataDO);
 
-        //[Fact]
-        //public async Task Should_Success_Get_Feature_NoBc()
-        //{
-        //    var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
-        //    var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            //data.CustomsType = "BC 23";
+            //var Responses = await facade.Create(data, USERNAME);
 
-        //    var facadeReport = new BeacukaiNoFeature(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            //var facadeReport = new BeacukaiNoFeature(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
 
-        //    var PO = "";
-        //    var RO = "";
-
-        //    foreach (var item in data.Items)
-        //    {
-        //        PO = item.POSerialNumber;
-        //        RO = item.RONo;
-        //    }
-
-        //    var Response1 = facadeReport.GetBeacukaiNo("BCNo", "");
-        //    var Response2 = facadeReport.GetBeacukaiNo("PONo", PO);
-        //    var Response3 = facadeReport.GetBeacukaiNo("RONo", RO);
-
-        //    Assert.NotNull(Response1);
-        //    Assert.NotNull(Response2);
-        //    Assert.NotNull(Response3);
-
-        //    //var facadeDO = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-        //    //GarmentDeliveryOrder dataDO = await dataUtilDO(facadeDO, GetCurrentMethod()).GetNewData();
-
-        //    //foreach (var i in dataDO.Items)
-        //    //{
-        //    //    foreach (var d in i.Details)
-        //    //    {
-        //    //        d.POSerialNumber = "PONO123";
-        //    //        d.RONo = "RONO123";
-        //    //    }
-        //    //}
-
-        //    //await facadeDO.Create(dataDO, USERNAME);
-
-        //    //var facade = new GarmentBeacukaiFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
-
-        //    //GarmentBeacukai data = await dataUtil(facade, GetCurrentMethod()).GetNewData(USERNAME, dataDO);
-
-        //    //data.CustomsType = "BC 23";
-        //    //var Responses = await facade.Create(data, USERNAME);
-
-        //    //var facadeReport = new BeacukaiNoFeature(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            //var Response1 = facadeReport.GetBeacukaiNo("BCNo", data.BeacukaiNo);
+            //var Response2 = facadeReport.GetBeacukaiNo("PONo", "PONO123");
+            //var Response3 = facadeReport.GetBeacukaiNo("RONo", "RONO123");
 
             //Assert.NotNull(Response1);
             //Assert.NotNull(Response2);
             //Assert.NotNull(Response3);
-        }*/
+         }
+
+        [Fact]
+        public async Task Should_Success_ReadForLeftOver()
+        {
+            var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var Response = facade.ReadForLeftOver("1,1");
+            Assert.NotNull(Response);
+        }
     }
 }
