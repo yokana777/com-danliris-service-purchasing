@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPaymentReport;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpedition;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance;
 using Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -132,5 +134,165 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
+        [Fact]
+        public void Should_Success_GetGarmentDispositionNotesWithMemoDetail()
+        {
+            Mock<IGarmentDebtBalanceService> serviceMock = new Mock<IGarmentDebtBalanceService>();
+            var mockMapper = new Mock<IMapper>();
+            var mockService = GetServiceProvider();
+            mockService
+                .Setup(s => s.GetService(typeof(IGarmentDebtBalanceService)))
+                .Returns(serviceMock.Object);
+
+            var controller = GetController(mockService.Object, mockMapper);
+            var response = controller.GetGarmentDispositionNotesWithMemoDetail("");
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_GetGarmentDispositionNotesWithMemoDetail()
+        {
+            var mockMapper = new Mock<IMapper>();
+
+            var controller = GetController(GetServiceProvider().Object, mockMapper);
+            var response = controller.GetGarmentDispositionNotesWithMemoDetail("");
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_GetGarmentInternalNoteDetails()
+        {
+            Mock<IGarmentPurchasingExpeditionService> serviceMock = new Mock<IGarmentPurchasingExpeditionService>();
+            var mockMapper = new Mock<IMapper>();
+            var mockService = GetServiceProvider();
+            mockService
+                .Setup(s => s.GetService(typeof(IGarmentPurchasingExpeditionService)))
+                .Returns(serviceMock.Object);
+
+            var controller = GetController(mockService.Object, mockMapper);
+            GarmentInternalNoteFilterDto filterDto = new GarmentInternalNoteFilterDto();
+            var response = controller.GetGarmentInternalNoteDetails("", filterDto);
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_GetGarmentInternalNoteDetails()
+        {
+            var mockMapper = new Mock<IMapper>();
+
+            var controller = GetController(GetServiceProvider().Object, mockMapper);
+            GarmentInternalNoteFilterDto filterDto = new GarmentInternalNoteFilterDto();
+            var response = controller.GetGarmentInternalNoteDetails("", filterDto);
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_UpdateGarmentInternalNoteIsPaidPph()
+        {
+            Mock<IGarmentPurchasingExpeditionService> serviceMock = new Mock<IGarmentPurchasingExpeditionService>();
+            var mockMapper = new Mock<IMapper>();
+            var mockService = GetServiceProvider();
+            mockService
+                .Setup(s => s.GetService(typeof(IGarmentPurchasingExpeditionService)))
+                .Returns(serviceMock.Object);
+
+            var controller = GetController(mockService.Object, mockMapper);
+            List<GarmentInternNoteUpdateIsPphPaidDto> filterDto = new List<GarmentInternNoteUpdateIsPphPaidDto>();
+            var response = controller.UpdateGarmentInternalNoteIsPaidPph(filterDto);
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_UpdateGarmentInternalNoteIsPaidPph()
+        {
+            var mockMapper = new Mock<IMapper>();
+
+            var controller = GetController(GetServiceProvider().Object, mockMapper);
+            List<GarmentInternNoteUpdateIsPphPaidDto> filterDto = new List<GarmentInternNoteUpdateIsPphPaidDto>();
+            var response = controller.UpdateGarmentInternalNoteIsPaidPph(filterDto);
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_UpdateGarmentInternalNotePosition()
+        {
+            Mock<IGarmentPurchasingExpeditionService> serviceMock = new Mock<IGarmentPurchasingExpeditionService>();
+            var mockMapper = new Mock<IMapper>();
+            var mockService = GetServiceProvider();
+            mockService
+                .Setup(s => s.GetService(typeof(IGarmentPurchasingExpeditionService)))
+                .Returns(serviceMock.Object);
+
+            var controller = GetController(mockService.Object, mockMapper);
+            UpdatePositionFormDto filterDto = new UpdatePositionFormDto();
+            var response = controller.UpdateGarmentInternalNotePosition(filterDto);
+            Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_UpdateGarmentInternalNotePosition()
+        {
+            var mockMapper = new Mock<IMapper>();
+
+            var controller = GetController(GetServiceProvider().Object, mockMapper);
+            UpdatePositionFormDto filterDto = new UpdatePositionFormDto();
+            var response = controller.UpdateGarmentInternalNotePosition(filterDto);
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_UpdateGarmentDispositionNotePosition()
+        {
+            Mock<IGarmentPurchasingExpeditionService> serviceMock = new Mock<IGarmentPurchasingExpeditionService>();
+            var mockMapper = new Mock<IMapper>();
+            var mockService = GetServiceProvider();
+            mockService
+                .Setup(s => s.GetService(typeof(IGarmentPurchasingExpeditionService)))
+                .Returns(serviceMock.Object);
+
+            var controller = GetController(mockService.Object, mockMapper);
+            UpdatePositionFormDto filterDto = new UpdatePositionFormDto();
+            var response = controller.UpdateGarmentDispositionNotePosition(filterDto);
+            Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Error_UpdateGarmentDispositionNotePosition()
+        {
+            var mockMapper = new Mock<IMapper>();
+
+            var controller = GetController(GetServiceProvider().Object, mockMapper);
+            UpdatePositionFormDto filterDto = new UpdatePositionFormDto();
+            var response = controller.UpdateGarmentDispositionNotePosition(filterDto);
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Success_GetDispositionPaymentReport()
+        {
+            Mock<IGarmentDispositionPaymentReportService> serviceMock = new Mock<IGarmentDispositionPaymentReportService>();
+            var mockMapper = new Mock<IMapper>();
+            var mockService = GetServiceProvider();
+            mockService
+                .Setup(s => s.GetService(typeof(IGarmentDispositionPaymentReportService)))
+                .Returns(serviceMock.Object);
+
+            var controller = GetController(mockService.Object, mockMapper);
+            var response = controller.GetDispositionPaymentReport(DateTimeOffset.Now, DateTimeOffset.Now);
+            var response2 = controller.GetDispositionPaymentReport(DateTimeOffset.Now, DateTimeOffset.Now, "[1]");
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response2));
+        }
+
+        [Fact]
+        public void Should_Error_GetDispositionPaymentReport()
+        {
+            var mockMapper = new Mock<IMapper>();
+
+            var controller = GetController(GetServiceProvider().Object, mockMapper);
+            UpdatePositionFormDto filterDto = new UpdatePositionFormDto();
+            var response = controller.GetDispositionPaymentReport(DateTimeOffset.Now, DateTimeOffset.Now);
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
     }
 }
