@@ -26,7 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
 
         public List<GarmentDispositionNoteDto> GetGarmentDispositionNotes(string keyword, PurchasingGarmentExpeditionPosition position)
         {
-            var query = _dbContext.GarmentDispositionPurchases.Where(entity => entity.Position == PurchasingGarmentExpeditionPosition.Purchasing || entity.Position == PurchasingGarmentExpeditionPosition.SendToPurchasing).AsQueryable();
+            var query = _dbContext.GarmentDispositionPurchases.AsQueryable();
 
             if (position > 0)
                 query = query.Where(entity => entity.Position == position);
