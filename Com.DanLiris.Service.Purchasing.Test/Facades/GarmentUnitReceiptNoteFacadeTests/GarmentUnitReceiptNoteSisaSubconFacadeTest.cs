@@ -240,21 +240,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             throw new NotImplementedException();
         }
 
-        //[Fact]
-        //public async Task Should_Success_Create_Data_SISA_SUBCON()
-        //{
-        //    var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-        //    var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorageSubcon();
-        //    data.URNType = "SISA SUBCON";
-        //    data.ExpenditureId = 1;
-        //    data.ExpenditureNo = "no";
-        //    data.Category = "FABRIC";
-        //    data.UENId = 1;
-        //    data.UENNo = "no";
-        //    var Response = await facade.Create(data);
-        //    Assert.NotEqual(0, Response);
+        [Fact]
+        public async Task Should_Success_Create_Data_SISA_SUBCON()
+        {
+            var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorageSubcon();
+            data.URNType = "SISA SUBCON";
+            data.ExpenditureId = 1;
+            data.ExpenditureNo = "no";
+            data.Category = "FABRIC";
+            data.UENId = 1;
+            data.UENNo = "no";
+            var Response = await facade.Create(data);
+            Assert.NotEqual(0, Response);
 
-        //}
+        }
 
         [Fact]
         public async Task Should_Success_Delete_Data_SISA_SUBCON()
