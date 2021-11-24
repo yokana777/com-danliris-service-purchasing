@@ -2367,7 +2367,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var Response = stockreport.GenerateExcelAStockReport("BB", "BAHAN BAKU", "C1B", "KONFEKSI 1B", new DateTime(2010, 12, 26), DateTime.Now, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
-        [Fact]
+        /*[Fact]
         public async void Should_Success_Get_Excel_Stock_Report_C1A()
         {
             var serviceProvider = GetServiceProvider();
@@ -2438,7 +2438,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             //var Response = stockreport.GenerateExcelAStockReport(null, dataUrn1.UnitCode, new DateTime(2019, 12, 26), new DateTime(2019, 12, 27), 7);
             var Response = stockreport.GenerateExcelAStockReport("BB", "BAHAN BAKU", "C1A", "KONFEKSI 1A", new DateTime(2010, 12, 26), DateTime.Now, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
-        }
+        }*/
         #endregion
         [Fact]
         public async Task Should_Success_Get_Monitoring_IN()

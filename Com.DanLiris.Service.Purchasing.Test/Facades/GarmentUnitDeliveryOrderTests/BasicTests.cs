@@ -89,7 +89,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
             return serviceProvider;
         }
 
-        private GarmentUnitReceiptNoteDataUtil garmentUnitReceiptNoteDataUtil(GarmentUnitReceiptNoteFacade garmentUnitReceiptNoteFacade, string testName)
+        /*private GarmentUnitReceiptNoteDataUtil garmentUnitReceiptNoteDataUtil(GarmentUnitReceiptNoteFacade garmentUnitReceiptNoteFacade, string testName)
         {
             var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(GetServiceProvider().Object, _dbContext(testName));
             var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
@@ -104,17 +104,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
             var garmentDeliveryOrderDataUtil = new GarmentDeliveryOrderDataUtil(garmentDeliveryOrderFacade, garmentExternalPurchaseOrderDataUtil);
 
             return new GarmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, garmentDeliveryOrderDataUtil);
-        }
+        }*/
 
-        private GarmentUnitDeliveryOrderDataUtil dataUtil(GarmentUnitDeliveryOrderFacade garmentUnitDeliveryOrderFacade, string testName)
+        /*private GarmentUnitDeliveryOrderDataUtil dataUtil(GarmentUnitDeliveryOrderFacade garmentUnitDeliveryOrderFacade, string testName)
         {
             var garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(testName));
             var garmentUnitReceiptNoteDataUtil = this.garmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, testName);
 
             return new GarmentUnitDeliveryOrderDataUtil(garmentUnitDeliveryOrderFacade, garmentUnitReceiptNoteDataUtil);
-        }
+        }*/
 
-        [Fact]
+        /*[Fact]
         public async Task Should_Success_Create_Data()
         {
             var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
@@ -122,9 +122,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
 
             var Response = await facade.Create(data);
             Assert.NotEqual(0, Response);
-        }
+        }*/
 
-        [Fact]
+        /*[Fact]
         public async Task Should_Error_Create_Data()
         {
             var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
@@ -132,7 +132,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
 
             Exception e = await Assert.ThrowsAsync<Exception>(async () => await facade.Create(null));
             Assert.NotNull(e.Message);
-        }
+        }*/
 
         //[Fact]
         //public async Task Should_Error_Create_Data_DOCurrencyRate()
@@ -150,7 +150,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
         //    Assert.NotNull(e.Message);
         //}
 
-        [Fact]
+        /*[Fact]
         public async Task Should_Success_Update_Data()
         {
             var dbContext = _dbContext(GetCurrentMethod());
@@ -182,9 +182,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
 
             var ResponseUpdateRemoveItem = await facade.Update((int)newData.Id, newData);
             Assert.NotEqual(0, ResponseUpdateRemoveItem);
-        }
+        }*/
 
-        [Fact]
+        /*[Fact]
         public async Task Should_Success_Update_Data_MARKETING()
         {
             var dbContext = _dbContext(GetCurrentMethod());
@@ -216,9 +216,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
 
             var ResponseUpdateRemoveItem = await facade.Update((int)newData.Id, newData);
             Assert.NotEqual(0, ResponseUpdateRemoveItem);
-        }
+        }*/
 
-        [Fact]
+        /*[Fact]
         public async Task Should_Error_Update_Data()
         {
             var dbContext = _dbContext(GetCurrentMethod());
@@ -235,9 +235,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
 
             Exception errorNullItems = await Assert.ThrowsAsync<Exception>(async () => await facade.Update((int)data.Id, data));
             Assert.NotNull(errorNullItems.Message);
-        }
+        }*/
 
-        [Fact]
+        /*[Fact]
         public async Task Should_Error_Update_Data_DOCurrencyRate()
         {
             var dbContext = _dbContext(GetCurrentMethod());
@@ -260,9 +260,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
 
             Exception errorNullItems = await Assert.ThrowsAsync<Exception>(async () => await facade.Update((int)data.Id, data));
             Assert.NotNull(errorNullItems.Message);
-        }
+        }*/
 
-        [Fact]
+        /*[Fact]
         public async Task Should_Success_Delete_Data()
         {
             var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
@@ -270,7 +270,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
 
             var Response = await facade.Delete((int)data.Id);
             Assert.NotEqual(0, Response);
-        }
+        }*/
 
         [Fact]
         public async Task Should_Error_Delete_Data()
@@ -281,7 +281,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
             Assert.NotNull(e.Message);
         }
 
-        [Fact]
+       /* [Fact]
         public async Task Should_Success_Get_All_Data()
         {
             var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
@@ -289,9 +289,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
 
             var Response = facade.Read();
             Assert.NotEmpty(Response.Data);
-        }
+        }*/
 
-        [Fact]
+        /*[Fact]
         public async Task Should_Success_Get_Data_By_Id()
         {
             var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
@@ -299,9 +299,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
 
             var Response = facade.ReadById((int)data.Id);
             Assert.NotNull(Response);
-        }
+        }*/
 
-        [Fact]
+        /*[Fact]
         public async Task Should_Success_Validate_Data()
         {
             GarmentUnitDeliveryOrderViewModel viewModel = new GarmentUnitDeliveryOrderViewModel {
@@ -368,9 +368,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
                 UnitDODate= DateTimeOffset.Now.AddDays(3)
             };
             Assert.True(viewModel1.Validate(null).Count() > 0);
-        }
+        }*/
 
-        [Fact]
+        /*[Fact]
         public async Task Should_Success_Get_Data_For_GarmentUnitExpenditureNote()
         {
             var mapper = new Mock<IMapper>();
@@ -395,9 +395,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var Response = facade.ReadForUnitExpenditureNote();
             Assert.NotEmpty(Response.Data);
-        }
+        }*/
 
-        [Fact]
+        /*[Fact]
         public async Task Should_Success_Get_Feature_NoBc()
         {
             var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
@@ -452,6 +452,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
             //Assert.NotNull(Response1);
             //Assert.NotNull(Response2);
             //Assert.NotNull(Response3);
-        }
+        }*/
     }
 }
