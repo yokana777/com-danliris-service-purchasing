@@ -36,9 +36,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BudgetCashflowService.PdfG
         private readonly List<CurrencyDto> _currencies;
         private readonly List<UnitDto> _units;
         private List<UnitDto> _selectedUnits;
-        private List<UnitDto> _writtenUnits;
+        //private List<UnitDto> _writtenUnits;
         private List<DivisionDto> _selectedDivisions;
-        private List<DivisionDto> _writtenDivisions;
+        //private List<DivisionDto> _writtenDivisions;
 
         public BudgetCashflowDivisionPdf(IServiceProvider serviceProvider)
         {
