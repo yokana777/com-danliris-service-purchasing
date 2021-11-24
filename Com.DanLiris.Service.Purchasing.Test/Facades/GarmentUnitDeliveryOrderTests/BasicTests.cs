@@ -396,32 +396,21 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
             Assert.NotEmpty(Response.Data);
         }*/
 
-        /*[Fact]
-        public async Task Should_Success_Get_Feature_NoBc()
+        [Fact]
+        public async Task Should_Success_Get_Data_Item_By_Id()
         {
             var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
 
-        //[Fact]
-        //public async Task Should_Success_Validate_Data()
-        //{
-        //    GarmentUnitDeliveryOrderViewModel viewModel = new GarmentUnitDeliveryOrderViewModel {
-        //        UnitRequest = new Lib.ViewModels.NewIntegrationViewModel.UnitViewModel
-        //        {
-        //            Id = "1"
-        //        },
-        //        UnitSender = new Lib.ViewModels.NewIntegrationViewModel.UnitViewModel
-        //        {
-        //            Id = "1"
-        //        },
-        //        UnitDOType = "TRANSFER" };
-        //    Assert.True(viewModel.Validate(null).Count() > 0);
-
-        //    GarmentUnitDeliveryOrderViewModel viewModelNullItems = new GarmentUnitDeliveryOrderViewModel
-        //    {
-        //        RONo = "RONo"
-        //    };
-        //    Assert.True(viewModelNullItems.Validate(null).Count() > 0);
+            var Response = facade.ReadItemById((int)data.Items.Take(1).Select(x => x.Id).Single());
+            Assert.NotNull(Response);
+        }
+        [Fact]
+        public async Task Should_Success_Get_Feature_NoBc()
+        {
+            var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var facadeReport = new BeacukaiNoFeature(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
 
         //    GarmentUnitDeliveryOrderViewModel viewModelWithItems = new GarmentUnitDeliveryOrderViewModel
         //    {
@@ -549,6 +538,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
             //Assert.NotNull(Response1);
             //Assert.NotNull(Response2);
             //Assert.NotNull(Response3);
-        }*/
+         }
+
+        [Fact]
+        public async Task Should_Success_ReadForLeftOver()
+        {
+            var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var Response = facade.ReadForLeftOver("1,1");
+            Assert.NotNull(Response);
+        }
     }
 }
