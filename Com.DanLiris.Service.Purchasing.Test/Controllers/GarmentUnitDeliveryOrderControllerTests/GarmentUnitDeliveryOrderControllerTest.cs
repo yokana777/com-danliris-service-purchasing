@@ -374,16 +374,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitDeliveryOr
         public void Should_Success_Get_Data_Item_By_Id()
         {
             var mockFacade = new Mock<IGarmentUnitDeliveryOrderFacade>();
-            mockFacade.Setup(x => x.ReadItemById(It.IsAny<int>()))
-                .Returns(new GarmentUnitDeliveryOrderItem());
+            mockFacade.Setup(x => x.ReadForLeftOver(It.IsAny<string>()))
+                .Returns(new List<object>());
 
             var mockMapper = new Mock<IMapper>();
-            mockMapper.Setup(x => x.Map<GarmentUnitDeliveryOrderItemViewModel>(It.IsAny<GarmentUnitDeliveryOrderItem>()))
-                .Returns(new GarmentUnitDeliveryOrderItemViewModel());
+            mockMapper.Setup(x => x.Map<GarmentUnitDeliveryOrderViewModel>(It.IsAny<GarmentUnitDeliveryOrder>()))
+                .Returns(new GarmentUnitDeliveryOrderViewModel());
 
             GarmentUnitDeliveryOrderControllers controller = GetController(mockFacade, null, mockMapper);
 
-            var response = controller.GetItemById(It.IsAny<int>());
+            var response = controller.GetbyROleftover(It.IsAny<string>());
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
 

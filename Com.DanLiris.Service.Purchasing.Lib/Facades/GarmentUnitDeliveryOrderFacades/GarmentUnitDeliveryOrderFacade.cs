@@ -506,5 +506,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
         }
 
         
+=========
+        
+>>>>>>>>> Temporary merge branch 2
     }
 }
