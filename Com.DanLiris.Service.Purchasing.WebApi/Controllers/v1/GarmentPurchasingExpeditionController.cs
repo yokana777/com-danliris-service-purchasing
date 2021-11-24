@@ -85,6 +85,26 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1
             }
         }
 
+        [HttpGet("disposition-notes-verification")]
+        public IActionResult GetGarmentDispositionNotesVerification([FromQuery] string keyword, [FromQuery] PurchasingGarmentExpeditionPosition position)
+        {
+            try
+            {
+                var result = _service.GetGarmentDispositionNotesVerification(keyword, position);
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    statusCode = General.OK_STATUS_CODE,
+                    message = General.OK_MESSAGE,
+                    data = result
+                });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, e.Message + " " + e.StackTrace);
+            }
+        }
+
         [HttpGet("disposition-notes/memo-detail")]
         public IActionResult GetGarmentDispositionNotesWithMemoDetail([FromQuery] string keyword)
         {
