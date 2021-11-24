@@ -575,7 +575,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
         [Fact]
         public async Task Should_Success_ReadForUnitDO_With_Filter()
-       {
+        {
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
             var filter = new
@@ -667,7 +667,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         //        DONo= data.DONo,
         //        UnitCode = data.UnitCode,
         //        StorageCode= data.StorageCode
-                
+
         //    };
         //    var Response = facade.ReadURNItem("", JsonConvert.SerializeObject(filter));
         //    Assert.NotEmpty(Response);
@@ -2382,8 +2382,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var dataUtilUEN = new GarmentUnitExpenditureNoteDataUtil(facadeUEN, dataUtilUDO);
             GarmentReceiptCorrectionFacade facadeRC = new GarmentReceiptCorrectionFacade(dbContext, serviceProvider);
             var dataUtilRC = new GarmentReceiptCorrectionDataUtil(facadeRC, dataUtilUrn);
-
-
             foreach (var a in dataDO.Items)
             {
                 foreach (var b in a.Details)
@@ -2413,7 +2411,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             dataUrn2.UnitCode = dataUrn1.UnitCode;
             dataUrn2.ReceiptDate = new DateTime(2019, 12, 26);
             dataUrn2.CreatedUtc = new DateTime(2019, 12, 25);
-
             foreach (var i in dataUrn1.Items)
             {
                 i.UENItemId = 1;
@@ -2498,7 +2495,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
                 i.ProductName = "Name123";
                 i.ReceiptQuantity = 5;
                 i.Conversion = 1;
-                
+
             }
             foreach (var i in dataUrn2.Items)
             {
@@ -2861,7 +2858,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var facadeMutation = new MutationBeacukaiFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewData();
-            foreach(var b in data.Items)
+            foreach (var b in data.Items)
             {
                 b.ProductName = "Name123";
             }
