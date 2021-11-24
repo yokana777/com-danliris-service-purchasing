@@ -9,6 +9,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager;
 using Com.DanLiris.Service.Purchasing.Lib.Utilities.CacheManager.CacheData;
@@ -293,6 +294,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.VBRequestPOExternal
         {
             //Setup
             PurchasingDbContext dbContext = GetDbContext(GetCurrentAsyncMethod());
+            GarmentInternNote garmentInternNote = new GarmentInternNote();
+            garmentInternNote.Id = 1;
+            garmentInternNote.IsCreatedVB = false;
+
+            dbContext.GarmentInternNotes.Add(garmentInternNote);
             var serviceProviderMock = GetServiceProvider();
 
             var data = dataUtil(dbContext).GetTestData_VBRequestPOExternal();
@@ -300,9 +306,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.VBRequestPOExternal
             //Act
             VBRequestPOExternalService service = new VBRequestPOExternalService(dbContext, serviceProviderMock.Object);
             var result = service.UpdateSPB("", 1);
+            var result2 = service.UpdateSPB("GARMENT", 1);
 
             //Assert
             Assert.NotEqual(0, result);
+            Assert.NotEqual(0, result2);
 
         }
 

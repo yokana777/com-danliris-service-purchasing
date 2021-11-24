@@ -33,6 +33,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentStockOpnameModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.BudgetCashflowWorstCaseModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentClosingDateModels;
+using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUenUrnChangeDateHistory;
 //using Com.DanLiris.Service.Purchasing.Lib.Models.ImportValueModel;
 
 namespace Com.DanLiris.Service.Purchasing.Lib
@@ -144,6 +145,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib
         public DbSet<GarmentDispositionPurchase> GarmentDispositionPurchases { get; set; }
         public DbSet<GarmentDispositionPurchaseItem> GarmentDispositionPurchaseItems { get; set; }
         public DbSet<GarmentDispositionPurchaseDetail> GarmentDispositionPurchaseDetailss { get; set; }
+
+        public DbSet<GarmentUenUrnChangeDateHistory> GarmentUenUrnChangeDateHistories { get; set; }
 
         //public DbSet<ImportValue> ImportValues { get; set; }
 
