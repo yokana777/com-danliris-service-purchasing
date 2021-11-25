@@ -14,6 +14,5 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         Task<int> Delete(int id);
         ReadResponse<object> ReadForUnitExpenditureNote(int Page = 1, int Size = 10, string Order = "{}", string Keyword = null, string Filter = "{}");
         List<object> ReadForLeftOver(string ro);
-        GarmentUnitDeliveryOrderItem ReadItemById(int id);
     }
 }
