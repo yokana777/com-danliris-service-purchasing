@@ -460,16 +460,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                                  bc.CustomsType
                              }).Distinct();
 
-            var Ids = QueryData.Select(a => a.POSerialNumber).Distinct().ToList();
+            // var Ids = QueryData.Select(a => a.POSerialNumber).Distinct().ToList();
             //var data = this.dbSet.Where(o => Ids.Contains(o.Id))
             //    .Select(bc => new { bc.Id, bc.BeacukaiNo, bc.BeacukaiDate, bc.CustomsType });
+            var listdata = QueryData.GroupBy(x => x.POSerialNumber).Select(x => new
+            {
+                POSerialNumber = x.Key,
+                customnos = x.Select(y=>y.BeacukaiNo).ToList(),
+                customdate = x.Select(y => y.BeacukaiDate).ToList(),
+                customtype = x.Select(y => y.CustomsType).ToList()
+            }).ToList();
 
             List<object> ListData = new List<object>();
-            foreach (var item in Ids)
+            foreach (var item in listdata)
             {
-                var customno = QueryData.Where(f => f.POSerialNumber.Equals(item)).Select(x=>x.BeacukaiNo).ToList();
-                var customdate = QueryData.Where(f => f.POSerialNumber.Equals(item)).Select(x => x.BeacukaiDate).ToList();
-                var customtype = QueryData.Where(f => f.POSerialNumber.Equals(item)).Select(x => x.CustomsType).ToList();
+                // var customno = QueryData.Where(f => f.POSerialNumber.Equals(item)).Select(x=>x.BeacukaiNo).ToList();
+                // var customdate = QueryData.Where(f => f.POSerialNumber.Equals(item)).Select(x => x.BeacukaiDate).ToList();
+                // var customtype = QueryData.Where(f => f.POSerialNumber.Equals(item)).Select(x => x.CustomsType).ToList();
 
                 ListData.Add(new { POSerialNumber = item, customnos = customno, customdates = customdate, customtypes = customtype });
             }
