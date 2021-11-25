@@ -478,7 +478,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade
                 // var customdate = QueryData.Where(f => f.POSerialNumber.Equals(item)).Select(x => x.BeacukaiDate).ToList();
                 // var customtype = QueryData.Where(f => f.POSerialNumber.Equals(item)).Select(x => x.CustomsType).ToList();
 
-                ListData.Add(new { POSerialNumber = item, customnos = customno, customdates = customdate, customtypes = customtype });
+                ListData.Add(new { POSerialNumber = item.POSerialNumber, customnos = item.customnos, customdates = item.customdate, customtypes = item.customtype;
             }
             return ListData.Distinct().ToList();
         }
