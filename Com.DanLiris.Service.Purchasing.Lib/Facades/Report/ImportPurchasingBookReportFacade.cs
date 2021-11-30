@@ -936,7 +936,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 //var epoDetail = epoItem.Details.FirstOrDefault(f => f.Id.Equals(urnItem.EPODetailId));
                 //var selectedCurrencies = currencies.Where(element => element.Code == item.CurrencyCode).ToList();
                 //var currency = selectedCurrencies.OrderBy(entity => (entity.Date - item.ReceiptDate).Duration()).FirstOrDefault();
-                var currency = currencies.Where(entity => entity.Date <= item.ReceiptDate && entity.Code == item.CurrencyCode).OrderByDescending(entity => entity.Date).FirstOrDefault();
+                var currency = currencies.Where(entity => entity.Date.ToUniversalTime() <= item.ReceiptDate && entity.Code == item.CurrencyCode).OrderByDescending(entity => entity.Date.ToUniversalTime()).FirstOrDefault();
 
                 if (currency == null)
                     currency = currencies.FirstOrDefault(element => element.Code == item.CurrencyCode);
@@ -969,6 +969,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 //default IDR
                 double currencyRate = 1;
                 var currencyCode = "IDR";
+                if (item.CurrencyCode != "IDR")
+                {
+                    currencyCode = item.CurrencyCode;
+                };
 
                 if (item.UseVat)
                     ppn = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity * 0.1);
@@ -982,7 +986,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     currencyCode = currency.Code;
                 }
                 else
+                {
                     dpp = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity);
+                }
+                    
 
                 var reportItem = new PurchasingReport()
                 {
@@ -1192,7 +1199,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 //var epoDetail = epoItem.Details.FirstOrDefault(f => f.Id.Equals(urnItem.EPODetailId));
                 //var selectedCurrencies = currencies.Where(element => element.Code == item.CurrencyCode).ToList();
                 //var currency = selectedCurrencies.OrderBy(entity => (entity.Date - item.ReceiptDate).Duration()).FirstOrDefault();
-                var currency = currencies.Where(entity => entity.Date <= item.ReceiptDate && entity.Code == item.CurrencyCode).OrderByDescending(entity => entity.Date).FirstOrDefault();
+                var currency = currencies.Where(entity => entity.Date.ToUniversalTime() <= item.ReceiptDate && entity.Code == item.CurrencyCode).OrderByDescending(entity => entity.Date.ToUniversalTime()).FirstOrDefault();
 
                 if (currency == null)
                     currency = new Currency()
@@ -1233,6 +1240,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                 //default IDR
                 double currencyRate = 1;
                 var currencyCode = "IDR";
+                if (item.CurrencyCode != "IDR")
+                {
+                    currencyCode = item.CurrencyCode;
+                };
                 decimal.TryParse(item.IncomeTaxRate, out var incomeTaxRate);
 
 
