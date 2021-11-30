@@ -608,9 +608,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                              BankName = string.Concat(a.BankAccountName, " - ", a.BankName, " - ", a.BankAccountNumber, " - ", a.BankCurrencyCode),
                              DPP = c.TotalPaid - c.Vat,
                              VAT = c.Vat,
-                             TotalPaid = c.IncomeTaxBy.ToUpper() == "SUPPLIER" ? c.TotalPaid - c.IncomeTax : c.TotalPaid,
+                             TotalPaid = a.GrandTotal,
                              InvoiceNumber = c.InvoiceNo,
-                             DivisionCode = c.DivisionCode
+                             DivisionCode = c.DivisionCode,
+                             TotalDPP = c.TotalPaid - c.Vat,
+                             TotalPPN = c.Vat
                          }
                       );
             }
@@ -643,7 +645,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                              BankName = string.Concat(a.BankAccountName, " - ", a.BankName, " - ", a.BankAccountNumber, " - ", a.BankCurrencyCode),
                              DPP = c.TotalPaid - c.Vat,
                              VAT = c.Vat,
-                             TotalPaid = c.IncomeTaxBy.ToUpper() == "SUPPLIER" ? c.TotalPaid - c.IncomeTax : c.TotalPaid,
+                             TotalPaid = a.GrandTotal,
                              InvoiceNumber = c.InvoiceNo,
                              DivisionCode = c.DivisionCode,
                              TotalDPP = c.TotalPaid - c.Vat,
