@@ -183,12 +183,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             viewModel.IsInvoice = dbContext.GarmentDeliveryOrders.Where(gdo => gdo.Id == viewModel.DOId).Select(gdo => gdo.IsInvoice).FirstOrDefault();
 
             var dataDo = dbContext.GarmentDeliveryOrders.Where(gdo => gdo.Id == viewModel.DOId).Include(x => x.Items).FirstOrDefault();
-            var epoId = dataDo.Items.Select(x => x.EPOId).FirstOrDefault();
+            long epoId = 0;
+            if(dataDo != null)
+            {
+                epoId = dataDo.Items.Select(x => x.EPOId).FirstOrDefault();
+            }
 
             foreach (var item in viewModel.Items)
             {
-                item.PaymentType = dbContext.GarmentExternalPurchaseOrders.Where(x => x.Id == epoId).FirstOrDefault().PaymentType;
-                item.PaymentMethod = dbContext.GarmentExternalPurchaseOrders.Where(x => x.Id == epoId).FirstOrDefault().PaymentMethod;
+                if (epoId > 0)
+                {
+                    item.PaymentType = dbContext.GarmentExternalPurchaseOrders.Where(x => x.Id == epoId).FirstOrDefault().PaymentType;
+                    item.PaymentMethod = dbContext.GarmentExternalPurchaseOrders.Where(x => x.Id == epoId).FirstOrDefault().PaymentMethod;
+                }
                 item.Buyer = new BuyerViewModel
                 {
                     Name = dbContext.GarmentPurchaseRequests.Where(m => m.Id == item.PRId).Select(m => m.BuyerName).FirstOrDefault()
