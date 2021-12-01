@@ -582,6 +582,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             Query = (from a in dbContext.BankExpenditureNotes
                      join b in dbContext.BankExpenditureNoteDetails on a.Id equals b.BankExpenditureNoteId
                      join c in dbContext.PurchasingDocumentExpeditions on new { BankExpenditureNoteNo = b.BankExpenditureNote.DocumentNo, b.UnitPaymentOrderNo } equals new { c.BankExpenditureNoteNo, c.UnitPaymentOrderNo }
+                     join d in dbContext.UnitPaymentOrders on c.UnitPaymentOrderNo equals d.UPONo
                      //where c.InvoiceNo == (InvoiceNo ?? c.InvoiceNo)
                      //   && c.SupplierCode == (SupplierCode ?? c.SupplierCode)
                      //   && c.UnitPaymentOrderNo == (UnitPaymentOrderNo ?? c.UnitPaymentOrderNo)
@@ -606,7 +607,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                          BankName = string.Concat(a.BankAccountName, " - ", a.BankName, " - ", a.BankAccountNumber, " - ", a.BankCurrencyCode),
                          DPP = c.TotalPaid - c.Vat,
                          VAT = c.Vat,
-                         TotalPaid = c.TotalPaid,
+                         TotalPaid = d.IncomeTaxBy == "Supplier" ? c.TotalPaid - c.IncomeTax : c.TotalPaid, 
                          InvoiceNumber = c.InvoiceNo,
                          DivisionCode = c.DivisionCode,
                          TotalDPP = c.TotalPaid - c.Vat,
