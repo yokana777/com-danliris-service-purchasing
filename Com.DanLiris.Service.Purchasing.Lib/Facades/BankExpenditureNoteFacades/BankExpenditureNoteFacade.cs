@@ -579,80 +579,114 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             DateFrom = DateFrom.HasValue ? DateFrom : DateTimeOffset.MinValue;
             DateTo = DateTo.HasValue ? DateTo : DateFrom.GetValueOrDefault().AddMonths(1);
 
-            if (DateFrom == null || DateTo == null)
-            {
-                Query = (from a in dbContext.BankExpenditureNotes
-                         join b in dbContext.BankExpenditureNoteDetails on a.Id equals b.BankExpenditureNoteId
-                         join c in dbContext.PurchasingDocumentExpeditions on new { BankExpenditureNoteNo = b.BankExpenditureNote.DocumentNo, b.UnitPaymentOrderNo } equals new { c.BankExpenditureNoteNo, c.UnitPaymentOrderNo }
-                         //where c.InvoiceNo == (InvoiceNo ?? c.InvoiceNo)
-                         //   && c.SupplierCode == (SupplierCode ?? c.SupplierCode)
-                         //   && c.UnitPaymentOrderNo == (UnitPaymentOrderNo ?? c.UnitPaymentOrderNo)
-                         //   && c.DivisionCode == (DivisionCode ?? c.DivisionCode)
-                         //   && !c.PaymentMethod.ToUpper().Equals("CASH")
-                         //   && c.IsPaid
-                         //   && c.PaymentMethod == (PaymentMethod ?? c.PaymentMethod)
-                         where a.IsPosted
-                         orderby a.DocumentNo
-                         select new BankExpenditureNoteReportViewModel
-                         {
-                             Id = a.Id,
-                             DocumentNo = a.DocumentNo,
-                             Currency = a.BankCurrencyCode,
-                             Date = a.Date,
-                             SupplierCode = c.SupplierCode,
-                             SupplierName = c.SupplierName,
-                             CategoryName = c.CategoryName == null ? "-" : c.CategoryName,
-                             DivisionName = c.DivisionName,
-                             PaymentMethod = c.PaymentMethod,
-                             UnitPaymentOrderNo = b.UnitPaymentOrderNo,
-                             BankName = string.Concat(a.BankAccountName, " - ", a.BankName, " - ", a.BankAccountNumber, " - ", a.BankCurrencyCode),
-                             DPP = c.TotalPaid - c.Vat,
-                             VAT = c.Vat,
-                             TotalPaid = a.GrandTotal,
-                             InvoiceNumber = c.InvoiceNo,
-                             DivisionCode = c.DivisionCode,
-                             TotalDPP = c.TotalPaid - c.Vat,
-                             TotalPPN = c.Vat
-                         }
-                      );
-            }
-            else
-            {
-                Query = (from a in dbContext.BankExpenditureNotes
-                         join b in dbContext.BankExpenditureNoteDetails on a.Id equals b.BankExpenditureNoteId
-                         join c in dbContext.PurchasingDocumentExpeditions on new { BankExpenditureNoteNo = b.BankExpenditureNote.DocumentNo, b.UnitPaymentOrderNo } equals new { c.BankExpenditureNoteNo, c.UnitPaymentOrderNo }
-                         //where c.InvoiceNo == (InvoiceNo ?? c.InvoiceNo)
-                         //   && c.SupplierCode == (SupplierCode ?? c.SupplierCode)
-                         //   && c.UnitPaymentOrderNo == (UnitPaymentOrderNo ?? c.UnitPaymentOrderNo)
-                         //   && c.DivisionCode == (DivisionCode ?? c.DivisionCode)
-                         //   && !c.PaymentMethod.ToUpper().Equals("CASH")
-                         //   && c.IsPaid
-                         //   && c.PaymentMethod == (PaymentMethod ?? c.PaymentMethod)
-                         where a.IsPosted
-                         orderby a.DocumentNo
-                         select new BankExpenditureNoteReportViewModel
-                         {
-                             Id = a.Id,
-                             DocumentNo = a.DocumentNo,
-                             Currency = a.BankCurrencyCode,
-                             Date = a.Date,
-                             SupplierCode = c.SupplierCode,
-                             SupplierName = c.SupplierName,
-                             CategoryName = c.CategoryName == null ? "-" : c.CategoryName,
-                             DivisionName = c.DivisionName,
-                             PaymentMethod = c.PaymentMethod,
-                             UnitPaymentOrderNo = b.UnitPaymentOrderNo,
-                             BankName = string.Concat(a.BankAccountName, " - ", a.BankName, " - ", a.BankAccountNumber, " - ", a.BankCurrencyCode),
-                             DPP = c.TotalPaid - c.Vat,
-                             VAT = c.Vat,
-                             TotalPaid = a.GrandTotal,
-                             InvoiceNumber = c.InvoiceNo,
-                             DivisionCode = c.DivisionCode,
-                             TotalDPP = c.TotalPaid - c.Vat,
-                             TotalPPN = c.Vat,
-                         }
-                      );
-            }
+            Query = (from a in dbContext.BankExpenditureNotes
+                     join b in dbContext.BankExpenditureNoteDetails on a.Id equals b.BankExpenditureNoteId
+                     join c in dbContext.PurchasingDocumentExpeditions on new { BankExpenditureNoteNo = b.BankExpenditureNote.DocumentNo, b.UnitPaymentOrderNo } equals new { c.BankExpenditureNoteNo, c.UnitPaymentOrderNo }
+                     //where c.InvoiceNo == (InvoiceNo ?? c.InvoiceNo)
+                     //   && c.SupplierCode == (SupplierCode ?? c.SupplierCode)
+                     //   && c.UnitPaymentOrderNo == (UnitPaymentOrderNo ?? c.UnitPaymentOrderNo)
+                     //   && c.DivisionCode == (DivisionCode ?? c.DivisionCode)
+                     //   && !c.PaymentMethod.ToUpper().Equals("CASH")
+                     //   && c.IsPaid
+                     //   && c.PaymentMethod == (PaymentMethod ?? c.PaymentMethod)
+                     where a.IsPosted
+                     orderby a.DocumentNo
+                     select new BankExpenditureNoteReportViewModel
+                     {
+                         Id = a.Id,
+                         DocumentNo = a.DocumentNo,
+                         Currency = a.BankCurrencyCode,
+                         Date = a.Date,
+                         SupplierCode = c.SupplierCode,
+                         SupplierName = c.SupplierName,
+                         CategoryName = c.CategoryName == null ? "-" : c.CategoryName,
+                         DivisionName = c.DivisionName,
+                         PaymentMethod = c.PaymentMethod,
+                         UnitPaymentOrderNo = b.UnitPaymentOrderNo,
+                         BankName = string.Concat(a.BankAccountName, " - ", a.BankName, " - ", a.BankAccountNumber, " - ", a.BankCurrencyCode),
+                         DPP = c.TotalPaid - c.Vat,
+                         VAT = c.Vat,
+                         TotalPaid = c.TotalPaid,
+                         InvoiceNumber = c.InvoiceNo,
+                         DivisionCode = c.DivisionCode,
+                         TotalDPP = c.TotalPaid - c.Vat,
+                         TotalPPN = c.Vat,
+                     });
+
+            //if (DateFrom == null || DateTo == null)
+            //{
+            //    Query = (from a in dbContext.BankExpenditureNotes
+            //             join b in dbContext.BankExpenditureNoteDetails on a.Id equals b.BankExpenditureNoteId
+            //             join c in dbContext.PurchasingDocumentExpeditions on new { BankExpenditureNoteNo = b.BankExpenditureNote.DocumentNo, b.UnitPaymentOrderNo } equals new { c.BankExpenditureNoteNo, c.UnitPaymentOrderNo }
+            //             //where c.InvoiceNo == (InvoiceNo ?? c.InvoiceNo)
+            //             //   && c.SupplierCode == (SupplierCode ?? c.SupplierCode)
+            //             //   && c.UnitPaymentOrderNo == (UnitPaymentOrderNo ?? c.UnitPaymentOrderNo)
+            //             //   && c.DivisionCode == (DivisionCode ?? c.DivisionCode)
+            //             //   && !c.PaymentMethod.ToUpper().Equals("CASH")
+            //             //   && c.IsPaid
+            //             //   && c.PaymentMethod == (PaymentMethod ?? c.PaymentMethod)
+            //             where a.IsPosted
+            //             orderby a.DocumentNo
+            //             select new BankExpenditureNoteReportViewModel
+            //             {
+            //                 Id = a.Id,
+            //                 DocumentNo = a.DocumentNo,
+            //                 Currency = a.BankCurrencyCode,
+            //                 Date = a.Date,
+            //                 SupplierCode = c.SupplierCode,
+            //                 SupplierName = c.SupplierName,
+            //                 CategoryName = c.CategoryName == null ? "-" : c.CategoryName,
+            //                 DivisionName = c.DivisionName,
+            //                 PaymentMethod = c.PaymentMethod,
+            //                 UnitPaymentOrderNo = b.UnitPaymentOrderNo,
+            //                 BankName = string.Concat(a.BankAccountName, " - ", a.BankName, " - ", a.BankAccountNumber, " - ", a.BankCurrencyCode),
+            //                 DPP = c.TotalPaid - c.Vat,
+            //                 VAT = c.Vat,
+            //                 TotalPaid = c.TotalPaid,
+            //                 InvoiceNumber = c.InvoiceNo,
+            //                 DivisionCode = c.DivisionCode,
+            //                 TotalDPP = c.TotalPaid - c.Vat,
+            //                 TotalPPN = c.Vat
+            //             }
+            //          );
+            //}
+            //else
+            //{
+            //    Query = (from a in dbContext.BankExpenditureNotes
+            //             join b in dbContext.BankExpenditureNoteDetails on a.Id equals b.BankExpenditureNoteId
+            //             join c in dbContext.PurchasingDocumentExpeditions on new { BankExpenditureNoteNo = b.BankExpenditureNote.DocumentNo, b.UnitPaymentOrderNo } equals new { c.BankExpenditureNoteNo, c.UnitPaymentOrderNo }
+            //             //where c.InvoiceNo == (InvoiceNo ?? c.InvoiceNo)
+            //             //   && c.SupplierCode == (SupplierCode ?? c.SupplierCode)
+            //             //   && c.UnitPaymentOrderNo == (UnitPaymentOrderNo ?? c.UnitPaymentOrderNo)
+            //             //   && c.DivisionCode == (DivisionCode ?? c.DivisionCode)
+            //             //   && !c.PaymentMethod.ToUpper().Equals("CASH")
+            //             //   && c.IsPaid
+            //             //   && c.PaymentMethod == (PaymentMethod ?? c.PaymentMethod)
+            //             where a.IsPosted
+            //             orderby a.DocumentNo
+            //             select new BankExpenditureNoteReportViewModel
+            //             {
+            //                 Id = a.Id,
+            //                 DocumentNo = a.DocumentNo,
+            //                 Currency = a.BankCurrencyCode,
+            //                 Date = a.Date,
+            //                 SupplierCode = c.SupplierCode,
+            //                 SupplierName = c.SupplierName,
+            //                 CategoryName = c.CategoryName == null ? "-" : c.CategoryName,
+            //                 DivisionName = c.DivisionName,
+            //                 PaymentMethod = c.PaymentMethod,
+            //                 UnitPaymentOrderNo = b.UnitPaymentOrderNo,
+            //                 BankName = string.Concat(a.BankAccountName, " - ", a.BankName, " - ", a.BankAccountNumber, " - ", a.BankCurrencyCode),
+            //                 DPP = c.TotalPaid - c.Vat,
+            //                 VAT = c.Vat,
+            //                 TotalPaid = c.TotalPaid,
+            //                 InvoiceNumber = c.InvoiceNo,
+            //                 DivisionCode = c.DivisionCode,
+            //                 TotalDPP = c.TotalPaid - c.Vat,
+            //                 TotalPPN = c.Vat,
+            //             }
+            //          );
+            //}
 
             Query = Query.Where(entity => entity.Date.AddHours(Offset) >= DateFrom.GetValueOrDefault() && entity.Date.AddHours(Offset) <= DateTo.GetValueOrDefault().AddDays(1).AddSeconds(-1));
             // override duplicate 
