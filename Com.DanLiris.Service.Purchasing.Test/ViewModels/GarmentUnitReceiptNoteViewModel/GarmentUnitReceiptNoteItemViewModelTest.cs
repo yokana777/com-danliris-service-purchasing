@@ -25,6 +25,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.ViewModels.GarmentUnitReceiptNote
             viewModel.DOCurrencyRate = 1;
             viewModel.ExpenditureItemId = 1;
             viewModel.UENItemId = 1;
+            viewModel.PaymentType = "asd";
+            viewModel.PaymentMethod = "asdasd";
 
             Assert.NotNull(viewModel);
         }
