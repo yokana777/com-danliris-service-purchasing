@@ -1183,7 +1183,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
             var accountingUnits = await _currencyProvider.GetAccountingUnitsByUnitIds(unitIds);
 
             var categoryIds = queryResult.Select(item =>
-            {
+            {   
                 int.TryParse(item.CategoryId, out var categoryId);
                 return categoryId;
             }).Distinct().ToList();
