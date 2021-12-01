@@ -541,8 +541,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                     //deletedItems.ForEach(t =>
                     foreach (var t in deletedItems)
                     {
-                        EntityExtension.FlagForDelete(t, identityService.Username, USER_AGENT);
-                        var afterDeletedItems = this.dbContext.GarmentDispositionPurchaseItems.Update(t);
+                        var EPOItems = this.dbContext.GarmentDispositionPurchaseItems.AsNoTracking().Where(a => a.Id == t.Id).FirstOrDefault();
+                        EntityExtension.FlagForDelete(EPOItems, identityService.Username, USER_AGENT);
+                        var afterDeletedItems = this.dbContext.GarmentDispositionPurchaseItems.Update(EPOItems);
                         dbContext.SaveChanges();
 
 
