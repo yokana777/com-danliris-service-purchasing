@@ -169,7 +169,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             select new GarmentStockReportViewModelTemp
                             {
                                 //BeginningBalanceQty = Convert.ToDecimal(a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * -1 * 0.9144 : b.ExpenditureType == "EXTERNAL" ? Convert.ToDouble(urnitem == null ? 0 : urnitem.SmallQuantity) * -1 : -1 * a.Quantity),
-                                BeginningBalanceQty = a.UomUnit == "YARD" && ctg == "BB" ? Convert.ToDecimal(a.Quantity * -1 * 0.9144) : (b.ExpenditureType == "EXTERNAL" && a.UomUnit != "PCS") ? Convert.ToDecimal(a.Quantity) * urnitem.Conversion * -1 : -1 * Convert.ToDecimal(a.Quantity),
+                                BeginningBalanceQty = a.UomUnit == "YARD" && ctg == "BB" ? Convert.ToDecimal(a.Quantity * -1 * 0.9144) : (b.ExpenditureType == "EXTERNAL" && a.UomUnit != "PCS" && ctg != "BB") ? Convert.ToDecimal(a.Quantity) * urnitem.Conversion * -1 : -1 * Convert.ToDecimal(a.Quantity),
                                 BeginningBalanceUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : b.ExpenditureType == "EXTERNAL" ? urnitem.SmallUomUnit : a.UomUnit.Trim(),
                                 Buyer = a.BuyerCode == null ? "-" : a.BuyerCode,
                                 EndingBalanceQty = 0,
@@ -348,7 +348,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                               EndingBalanceQty = 0,
                               EndingUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : b.ExpenditureType == "EXTERNAL" ? urnitem.SmallUomUnit : a.UomUnit.Trim(),
                               ExpandUom = a.UomUnit == "YARD" && ctg == "BB" ? "MT" : b.ExpenditureType == "EXTERNAL" ? urnitem.SmallUomUnit : a.UomUnit.Trim(),
-                              ExpendQty = a.UomUnit == "YARD" && ctg == "BB" ? Convert.ToDecimal(a.Quantity * 0.9144) :  (b.ExpenditureType == "EXTERNAL" && a.UomUnit != "PCS") ? Convert.ToDecimal(a.Quantity) * urnitem.Conversion : Convert.ToDecimal(a.Quantity),
+                              ExpendQty = a.UomUnit == "YARD" && ctg == "BB" ? Convert.ToDecimal(a.Quantity * 0.9144) :  (b.ExpenditureType == "EXTERNAL" && a.UomUnit != "PCS" && ctg != "BB") ? Convert.ToDecimal(a.Quantity) * urnitem.Conversion : Convert.ToDecimal(a.Quantity),
                               NoArticle = prs != null ? prs.Article.TrimEnd() : "-",
                               PaymentMethod = d.PaymentMethod == "FREE FROM BUYER" || d.PaymentMethod == "CMT" || d.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL",
                               PlanPo = a.POSerialNumber.Trim(),
@@ -508,34 +508,34 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             //    //var EndingBalanceQty = i.EndingBalanceQty > 0 ? i.EndingBalanceQty : 0;
             //    var remark = Codes.FirstOrDefault(x => x.Code == i.ProductCode);
 
-                     //    var Composition = remark == null ? "-" : remark.Composition;
-                     //    var Width = remark == null ? "-" : remark.Width;
-                     //    var Const = remark == null ? "-" : remark.Const;
-                     //    var Yarn = remark == null ? "-" : remark.Yarn;
+            //    var Composition = remark == null ? "-" : remark.Composition;
+            //    var Width = remark == null ? "-" : remark.Width;
+            //    var Const = remark == null ? "-" : remark.Const;
+            //    var Yarn = remark == null ? "-" : remark.Yarn;
 
-                     //    stock1.Add(new GarmentStockReportViewModel
-                     //    {
-                     //        BeginningBalanceQty = i.BeginningBalanceQty,
-                     //        BeginningBalanceUom = i.BeginningBalanceUom,
-                     //        Buyer = i.Buyer,
-                     //        EndingBalanceQty = i.EndingBalanceQty,
-                     //        EndingUom = i.EndingUom,
-                     //        ExpandUom = i.ExpandUom,
-                     //        ExpendQty = decimal.ToDouble(i.ExpendQty),
-                     //        NoArticle = i.NoArticle,
-                     //        PaymentMethod = i.PaymentMethod,
-                     //        PlanPo = i.PlanPo,
-                     //        ProductCode = i.ProductCode,
-                     //        ProductRemark = ctg == "BB" ? string.Concat(Composition, "", Width, "", Const, "", Yarn) : remark.Name,
-                     //        ReceiptCorrectionQty = i.ReceiptCorrectionQty,
-                     //        ReceiptQty = i.ReceiptQty,
-                     //        ReceiptUom = i.ReceiptUom,
-                     //        RO = i.RO
+            //    stock1.Add(new GarmentStockReportViewModel
+            //    {
+            //        BeginningBalanceQty = i.BeginningBalanceQty,
+            //        BeginningBalanceUom = i.BeginningBalanceUom,
+            //        Buyer = i.Buyer,
+            //        EndingBalanceQty = i.EndingBalanceQty,
+            //        EndingUom = i.EndingUom,
+            //        ExpandUom = i.ExpandUom,
+            //        ExpendQty = decimal.ToDouble(i.ExpendQty),
+            //        NoArticle = i.NoArticle,
+            //        PaymentMethod = i.PaymentMethod,
+            //        PlanPo = i.PlanPo,
+            //        ProductCode = i.ProductCode,
+            //        ProductRemark = ctg == "BB" ? string.Concat(Composition, "", Width, "", Const, "", Yarn) : remark.Name,
+            //        ReceiptCorrectionQty = i.ReceiptCorrectionQty,
+            //        ReceiptQty = i.ReceiptQty,
+            //        ReceiptUom = i.ReceiptUom,
+            //        RO = i.RO
 
-                     //    });
+            //    });
 
 
-                     //}
+            //}
 
             stock1 = stock1.Where(x => (x.ProductCode != "EMB001") && (x.ProductCode != "WSH001") && (x.ProductCode != "PRC001") && (x.ProductCode != "APL001") && (x.ProductCode != "QLT001") && (x.ProductCode != "SMT001") && (x.ProductCode != "GMT001") && (x.ProductCode != "PRN001") && (x.ProductCode != "SMP001")).ToList(); ;
             stock1 = stock1.Where(x => (x.BeginningBalanceQty != 0) || (x.EndingBalanceQty != 0) || (x.ReceiptCorrectionQty != 0) || (x.ReceiptQty != 0) || (x.ExpendQty != 0)).ToList();
