@@ -576,6 +576,24 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         }
 
         [Fact]
+        public async Task Should_Success_Update_Data_Type_Sample()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), dbContext);
+            var dataUtil = this.dataUtil(facade, GetCurrentMethod());
+            var dataTransfer = await dataUtil.GetTestDataSample();
+
+            var newData = dbContext.GarmentUnitExpenditureNotes
+                .AsNoTracking()
+                .Include(x => x.Items)
+                .Single(m => m.Id == dataTransfer.Id);
+
+            newData.Items.First().IsSave = true;
+            var ResponseUpdateTypeTransfer = await facade.Update((int)newData.Id, newData);
+            Assert.NotEqual(0, ResponseUpdateTypeTransfer);
+        }
+
+        [Fact]
         public async Task Should_Success_Update_Data_Type_Transfer_null_Summary()
         {
             var dbContext = _dbContext(GetCurrentMethod());
@@ -647,6 +665,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         {
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var Response = await facade.Delete((int)data.Id);
+            Assert.NotEqual(0, Response);
+        }
+
+        [Fact]
+        public async Task Should_Success_Delete_Data_Sample()
+        {
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataSample();
 
             var Response = await facade.Delete((int)data.Id);
             Assert.NotEqual(0, Response);
