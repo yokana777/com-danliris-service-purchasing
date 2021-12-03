@@ -517,6 +517,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
             return data;
         }
 
+        public async Task<GarmentUnitExpenditureNote> GetTestDataSample()
+        {
+            var data = await GetNewDataTypeTransfer();
+            data.ExpenditureType = "SAMPLE";
+            await facade.Create(data);
+            return data;
+        }
+
         public async Task<GarmentUnitExpenditureNote> GetTestDataWithStorage(long? ticks = null)
         {
             var data = await GetNewDataWithStorage(ticks);
