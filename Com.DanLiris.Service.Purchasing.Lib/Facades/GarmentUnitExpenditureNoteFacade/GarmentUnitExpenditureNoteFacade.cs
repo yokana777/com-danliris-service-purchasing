@@ -851,7 +851,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             garmentInventoryMovement.After = garmentInventorySummaryExisting.Quantity;
                         }
                     }
-                    if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER")
+                    if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" || garmentUnitExpenditureNote.ExpenditureType == "SAMPLE")
                     {
                         var urn = dbSetGarmentUnitReceiptNote.Include(a=>a.Items).FirstOrDefault(a => a.UENId == id);
                         EntityExtension.FlagForDelete(urn, identityService.Username, USER_AGENT);
@@ -1086,7 +1086,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                     }
 
 
-                    if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER")
+                    if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" || garmentUnitExpenditureNote.ExpenditureType == "SAMPLE")
                     {
                         var garmentInventoryDocumentIn = GenerateGarmentInventoryDocument(oldGarmentUnitExpenditureNote, "IN");
                         dbSetGarmentInventoryDocument.Add(garmentInventoryDocumentIn);
