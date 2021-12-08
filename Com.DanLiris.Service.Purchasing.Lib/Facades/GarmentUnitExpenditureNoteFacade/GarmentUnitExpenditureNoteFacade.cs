@@ -460,7 +460,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                     }
 
-                    if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER")
+                    if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" || garmentUnitExpenditureNote.ExpenditureType == "SAMPLE")
                     {
                         GarmentUnitReceiptNoteFacade garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(this.serviceProvider, dbContext);
                         GarmentUnitDeliveryOrderFacade garmentUnitDeliveryOrderFacade= new GarmentUnitDeliveryOrderFacade( dbContext,this.serviceProvider);
@@ -607,7 +607,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                         GarmentUnitDeliveryOrder garmentUnitDO = new GarmentUnitDeliveryOrder
                         {
-                            UnitDOType="PROSES",
+                            UnitDOType= garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" ? "PROSES" : "SAMPLE",
                             UnitDODate= garmentUnitExpenditureNote.ExpenditureDate,
                             UnitRequestId= garmentUnitExpenditureNote.UnitRequestId,
                             UnitRequestCode = garmentUnitExpenditureNote.UnitRequestCode,
@@ -679,8 +679,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         GarmentUnitExpenditureNote uen = new GarmentUnitExpenditureNote
                         {
                             ExpenditureDate = garmentUnitExpenditureNote.ExpenditureDate,
-                            ExpenditureType = "PROSES",
-                            ExpenditureTo = "PROSES",
+                            ExpenditureType = garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" ? "PROSES" : "SAMPLE",
+                            ExpenditureTo = garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" ? "PROSES" : "SAMPLE",
                             UnitDOId = garmentUnitDO.Id,
                             UnitDONo = garmentUnitDO.UnitDONo,
                             UnitSenderId = garmentUnitDO.UnitSenderId,
@@ -851,7 +851,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             garmentInventoryMovement.After = garmentInventorySummaryExisting.Quantity;
                         }
                     }
-                    if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER")
+                    if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" || garmentUnitExpenditureNote.ExpenditureType == "SAMPLE")
                     {
                         var urn = dbSetGarmentUnitReceiptNote.Include(a=>a.Items).FirstOrDefault(a => a.UENId == id);
                         EntityExtension.FlagForDelete(urn, identityService.Username, USER_AGENT);
@@ -1086,7 +1086,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                     }
 
 
-                    if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER")
+                    if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" || garmentUnitExpenditureNote.ExpenditureType == "SAMPLE")
                     {
                         var garmentInventoryDocumentIn = GenerateGarmentInventoryDocument(oldGarmentUnitExpenditureNote, "IN");
                         dbSetGarmentInventoryDocument.Add(garmentInventoryDocumentIn);
