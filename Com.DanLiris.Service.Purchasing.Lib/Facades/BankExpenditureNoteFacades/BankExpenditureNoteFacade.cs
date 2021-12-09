@@ -591,7 +591,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                      //   && c.IsPaid
                      //   && c.PaymentMethod == (PaymentMethod ?? c.PaymentMethod)
                      where a.IsPosted
-                     orderby a.DocumentNo
+                     orderby a.DocumentNo, b.Id
                      select new BankExpenditureNoteReportViewModel
                      {
                          Id = a.Id,
