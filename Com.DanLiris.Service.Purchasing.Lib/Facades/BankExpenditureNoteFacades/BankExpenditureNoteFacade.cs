@@ -577,12 +577,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             TimeSpan offset = new TimeSpan(7, 0, 0);
 
             DateFrom = DateFrom.HasValue ? DateFrom : DateTimeOffset.MinValue;
-            DateTo = DateTo.HasValue ? DateTo : DateFrom.GetValueOrDefault().AddMonths(1);
+            DateTo = DateTo.HasValue ? DateTo : DateTimeOffset.Now;
 
             Query = (from a in dbContext.BankExpenditureNotes
                      join b in dbContext.BankExpenditureNoteDetails on a.Id equals b.BankExpenditureNoteId
-                     join c in dbContext.PurchasingDocumentExpeditions on new { BankExpenditureNoteNo = b.BankExpenditureNote.DocumentNo, b.UnitPaymentOrderNo } equals new { c.BankExpenditureNoteNo, c.UnitPaymentOrderNo }
-                     join d in dbContext.UnitPaymentOrders on c.UnitPaymentOrderNo equals d.UPONo
+                     //join c in dbContext.PurchasingDocumentExpeditions on new { BankExpenditureNoteNo = b.BankExpenditureNote.DocumentNo, b.UnitPaymentOrderNo } equals new { c.BankExpenditureNoteNo, c.UnitPaymentOrderNo }
+                     join d in dbContext.UnitPaymentOrders on b.UnitPaymentOrderNo equals d.UPONo
                      //where c.InvoiceNo == (InvoiceNo ?? c.InvoiceNo)
                      //   && c.SupplierCode == (SupplierCode ?? c.SupplierCode)
                      //   && c.UnitPaymentOrderNo == (UnitPaymentOrderNo ?? c.UnitPaymentOrderNo)
@@ -598,20 +598,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                          DocumentNo = a.DocumentNo,
                          Currency = a.BankCurrencyCode,
                          Date = a.Date,
-                         SupplierCode = c.SupplierCode,
-                         SupplierName = c.SupplierName,
-                         CategoryName = c.CategoryName == null ? "-" : c.CategoryName,
-                         DivisionName = c.DivisionName,
-                         PaymentMethod = c.PaymentMethod,
+                         SupplierCode = b.SupplierCode,
+                         SupplierName = b.SupplierName,
+                         CategoryName = b.CategoryName == null ? "-" : b.CategoryName,
+                         DivisionName = b.DivisionName,
+                         PaymentMethod = d.PaymentMethod,
                          UnitPaymentOrderNo = b.UnitPaymentOrderNo,
                          BankName = string.Concat(a.BankAccountName, " - ", a.BankName, " - ", a.BankAccountNumber, " - ", a.BankCurrencyCode),
-                         DPP = c.TotalPaid - c.Vat,
-                         VAT = c.Vat,
-                         TotalPaid = d.IncomeTaxBy == "Supplier" ? c.TotalPaid - c.IncomeTax : c.TotalPaid, 
-                         InvoiceNumber = c.InvoiceNo,
-                         DivisionCode = c.DivisionCode,
-                         TotalDPP = c.TotalPaid - c.Vat,
-                         TotalPPN = c.Vat,
+                         DPP = b.TotalPaid - b.Vat,
+                         VAT = b.Vat,
+                         TotalPaid = b.TotalPaid, 
+                         InvoiceNumber = b.InvoiceNo,
+                         DivisionCode = b.DivisionCode,
+                         TotalDPP = b.TotalPaid - b.Vat,
+                         TotalPPN = b.Vat,
                      });
 
             //if (DateFrom == null || DateTo == null)
