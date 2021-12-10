@@ -108,13 +108,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             }
 
             var amountPDF = amount + viewModel.PaymentCorrection;
+            double paidDispo = amountPDF + pphRate;
             var payingDisposition = Math.Round((paidToSupp + viewModel.PaymentCorrection), 2, MidpointRounding.AwayFromZero);
             cellLeftNoBorder.SetLeading(13f, 0f);
             cellLeftNoBorder.Phrase = new Phrase("Mohon Disposisi Pembayaran", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase(viewModel.PaymentMethod + "  " + viewModel.Currency.code + " " + $"{amountPDF.ToString("N", new CultureInfo("id-ID"))}", normal_font);
+            cellLeftNoBorder.Phrase = new Phrase(viewModel.PaymentMethod + "  " + viewModel.Currency.code + " " + $"{paidDispo.ToString("N", new CultureInfo("id-ID"))}", normal_font);
             cellLeftNoBorder.Colspan = 2;
             tableIdentity.AddCell(cellLeftNoBorder);
             //cellLeftNoBorder.Phrase = new Phrase( viewModel.Currency.code + " " +  $"{(paidToSupp + viewModel.PaymentCorrection + pphRate).ToString("N", new CultureInfo("id-ID")) }", normal_font);
@@ -127,7 +128,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase(":", normal_font);
             tableIdentity.AddCell(cellLeftNoBorder);
-            cellLeftNoBorder.Phrase = new Phrase($"{ NumberToTextIDN.terbilangv2(amountPDF) }" + " " + viewModel.Currency.description.ToLower(), normal_font);
+            cellLeftNoBorder.Phrase = new Phrase($"{ NumberToTextIDN.terbilangv2(paidDispo) }" + " " + viewModel.Currency.description.ToLower(), normal_font);
             cellLeftNoBorder.Colspan = 2;
             tableIdentity.AddCell(cellLeftNoBorder);
             cellLeftNoBorder.Phrase = new Phrase("", normal_font);
