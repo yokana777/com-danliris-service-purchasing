@@ -2088,8 +2088,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                          join i in dbContext.GarmentDeliveryOrderItems on a.Id equals i.GarmentDOId
                          join j in dbContext.GarmentDeliveryOrderDetails on i.Id equals j.GarmentDOItemId
                          join m in dbContext.GarmentExternalPurchaseOrders on i.EPOId equals m.Id
-                         join o in dbContext.GarmentBeacukaiItems on a.Id equals o.GarmentDOId
-                         join r in dbContext.GarmentBeacukais on o.BeacukaiId equals r.Id
+                         join o in dbContext.GarmentBeacukaiItems on a.Id equals o.GarmentDOId into beaitems
+                         from oo in beaitems.DefaultIfEmpty()
+                         join r in dbContext.GarmentBeacukais on oo.BeacukaiId equals r.Id into beas
+                         from rr in beas.DefaultIfEmpty()
                          join n in dbContext.GarmentUnitReceiptNoteItems on j.Id equals n.DODetailId into p
                          from URNItem in p.DefaultIfEmpty()
                          join k in dbContext.GarmentUnitReceiptNotes on URNItem.URNId equals k.Id into l
@@ -2141,11 +2143,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              EPOcreatedBy = m.CreatedBy,
                              INNo = a.InternNo,
                              TermPayment = m.PaymentMethod,
-                             BeacukaiNo = r.BeacukaiNo,
-                             BeacukaiDate = r.CreatedUtc,
+                             BeacukaiNo = rr != null ? rr.BeacukaiNo : "-",
+                             BeacukaiDate = rr != null? rr.CreatedUtc : DateTimeOffset.MinValue,
                              BillNo = a.BillNo,
                              PaymentBill = a.PaymentBill,
-                             BCDate = r.BeacukaiDate
+                             BCDate = rr != null? rr.BeacukaiDate : new DateTime(1970, 1, 1)
                          });
 
             var Query = (from gdo in Query1
@@ -2286,7 +2288,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     string dikenakan = item.isCustoms == true ? "Ya" : "Tidak";
                     string jenissupp = item.shipmentType == "" ? "Local" : "Import";
                     string URNDate = item.URNDate == new DateTime(1970, 1, 1) ? "-" : item.URNDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-                    string BcinputDate = item.BeacukaiDate == new DateTime(1970, 1, 1) ? "-" : item.BeacukaiDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string BcinputDate = item.BeacukaiDate == DateTimeOffset.MinValue ? "-" : item.BeacukaiDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     string BcDate = item.BCDate == new DateTime(1970, 1, 1) ? "-" : item.BCDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
 
                     // result.Rows.Add(index, item.supplierCode, item.supplierName, item.no, supplierDoDate, date, item.ePONo, item.productCode, item.productName, item.productRemark, item.dealQuantity, item.dOQuantity, item.remainingQuantity, item.uomUnit);
