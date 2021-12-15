@@ -817,7 +817,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     InvoiceNo = item.InvoiceNo,
                     Mutation = model.CurrencyCode != "IDR" ? item.TotalPaid * model.CurrencyRate : item.TotalPaid,
                     SupplierCode = model.SupplierCode,
-                    SupplierName = model.SupplierName
+                    SupplierName = model.SupplierName,
+                    MemoNo = item.UnitPaymentOrderNo
                 };
                 postedData.Add(viewModel);
             }
