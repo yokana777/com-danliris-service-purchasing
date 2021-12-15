@@ -720,15 +720,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
 
                 DPPVATBankExpenditureNoteViewModel viewModel;
-                //if (result.GetValueOrDefault("data") == null)
-                //{
-                //    viewModel = new DPPVATBankExpenditureNoteViewModel();
-                //}
-                //else
-                //{
+                if (result.GetValueOrDefault("data") == null)
+                {
+                    viewModel = new DPPVATBankExpenditureNoteViewModel();
+                }
+                else
+                {
                     viewModel = JsonConvert.DeserializeObject<DPPVATBankExpenditureNoteViewModel>(result.GetValueOrDefault("data").ToString());
 
-                //}
+                }
                 return viewModel;
             }
             else

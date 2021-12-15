@@ -1082,7 +1082,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         public void Should_Success_GetReportDO()
         {
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var Response = facade.GetReportDO("", "", 0, DateTime.Now, DateTime.Now, 1, 1, "{}", 0);
+            var Response = facade.GetReportDO("", "", 0, "", "" , DateTime.Now, DateTime.Now, 1, 1, "{}", 0);
             Assert.NotNull(Response);
         }
 
@@ -1090,7 +1090,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         public void Should_Success_GenerateExcelDO()
         {
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var Response = facade.GenerateExcelDO("", "", 0, DateTime.Now, DateTime.Now, 0);
+            var Response = facade.GenerateExcelDO("", "", 0, "", "", DateTime.Now, DateTime.Now, 0);
             Assert.NotNull(Response);
         }
     }

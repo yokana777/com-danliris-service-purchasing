@@ -2081,7 +2081,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Territory") }, true);
         }
 
-        public IQueryable<GarmentDeliveryOrderReportViewModel> GetReportQueryDO(string no, string poEksNo, long supplierId, DateTime? dateFrom, DateTime? dateTo, int offset)
+        public IQueryable<GarmentDeliveryOrderReportViewModel> GetReportQueryDO(string no, string poEksNo, long supplierId, string billNo, string paymentBill, DateTime? dateFrom, DateTime? dateTo, int offset)
 
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
@@ -2091,6 +2091,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                          join i in dbContext.GarmentDeliveryOrderItems on a.Id equals i.GarmentDOId
                          join j in dbContext.GarmentDeliveryOrderDetails on i.Id equals j.GarmentDOItemId
                          join m in dbContext.GarmentExternalPurchaseOrders on i.EPOId equals m.Id
+                         join o in dbContext.GarmentBeacukaiItems on a.Id equals o.GarmentDOId into beaitems
+                         from oo in beaitems.DefaultIfEmpty()
+                         join r in dbContext.GarmentBeacukais on oo.BeacukaiId equals r.Id into beas
+                         from rr in beas.DefaultIfEmpty()
                          join n in dbContext.GarmentUnitReceiptNoteItems on j.Id equals n.DODetailId into p
                          from URNItem in p.DefaultIfEmpty()
                          join k in dbContext.GarmentUnitReceiptNotes on URNItem.URNId equals k.Id into l
@@ -2102,6 +2106,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              && URN.IsDeleted == false
                              && a.DONo == (string.IsNullOrWhiteSpace(no) ? a.DONo : no)
                              && a.SupplierId == (supplierId == 0 ? a.SupplierId : supplierId)
+                             && a.BillNo == (string.IsNullOrWhiteSpace(billNo) ? a.BillNo : billNo)
+                             && a.PaymentBill == (string.IsNullOrWhiteSpace(paymentBill) ? a.PaymentBill : paymentBill)
                              && a.DODate.AddHours(offset).Date >= DateFrom.Date
                              && a.DODate.AddHours(offset).Date <= DateTo.Date
                              && i.EPONo == (string.IsNullOrWhiteSpace(poEksNo) ? i.EPONo : poEksNo)
@@ -2140,6 +2146,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              EPOcreatedBy = m.CreatedBy,
                              INNo = a.InternNo,
                              TermPayment = m.PaymentMethod,
+                             BeacukaiNo = rr != null ? rr.BeacukaiNo : "-",
+                             BeacukaiDate = rr != null? rr.CreatedUtc : DateTimeOffset.MinValue,
+                             BillNo = a.BillNo,
+                             PaymentBill = a.PaymentBill,
+                             BCDate = rr != null? rr.BeacukaiDate : new DateTime(1970, 1, 1)
                          });
 
             var Query = (from gdo in Query1
@@ -2178,7 +2189,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              INNo = gdo.INNo,
                              TermPayment = gdo.TermPayment,
                              URNType = gdo.URNType,
-                         });
+                             BeacukaiNo = gdo.BeacukaiNo,
+                             BeacukaiDate = gdo.BeacukaiDate,
+                             BillNo = gdo.BillNo,
+                             PaymentBill = gdo.PaymentBill,
+                             BCDate = gdo.BCDate
+                          });
 
             Dictionary<string, double> q = new Dictionary<string, double>();
             List<GarmentDeliveryOrderReportViewModel> urn = new List<GarmentDeliveryOrderReportViewModel>();
@@ -2201,10 +2217,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             return Query = urn.AsQueryable();
         }
 
-        public Tuple<List<GarmentDeliveryOrderReportViewModel>, int> GetReportDO(string no, string poEksNo, long supplierId, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
+        public Tuple<List<GarmentDeliveryOrderReportViewModel>, int> GetReportDO(string no, string poEksNo, long supplierId, string billNo, string paymentBill, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset)
 
         {
-            var Query = GetReportQueryDO(no, poEksNo, supplierId, dateFrom, dateTo, offset);
+            var Query = GetReportQueryDO(no, poEksNo, supplierId, billNo, paymentBill, dateFrom, dateTo, offset);
 
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
@@ -2221,9 +2237,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             return Tuple.Create(Data, TotalData);
         }
 
-        public MemoryStream GenerateExcelDO(string no, string poEksNo, long supplierId, DateTime? dateFrom, DateTime? dateTo, int offset)
+        public MemoryStream GenerateExcelDO(string no, string poEksNo, long supplierId, string billNo, string paymentBill, DateTime? dateFrom, DateTime? dateTo, int offset)
         {
-            var Query = GetReportQueryDO(no, poEksNo, supplierId, dateFrom, dateTo, offset);
+            var Query = GetReportQueryDO(no, poEksNo, supplierId, billNo, paymentBill, dateFrom, dateTo, offset);
             Query = Query.OrderByDescending(b => b.supplierDoDate).ThenByDescending(b => b.createdUtc);
             DataTable result = new DataTable();
             result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
@@ -2232,11 +2248,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Tiba", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Jenis Supplier", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Pengiriman", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Nomor BL", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Dikenakan", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "Pengiriman", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "Nomor BL", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "Dikenakan", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor PO Eksternal", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Nomor PR", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "Nomor PR", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor RO", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor Referensi PR", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
@@ -2250,6 +2266,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             result.Columns.Add(new DataColumn() { ColumnName = "Keterangan", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Staff Pembelian (S/J)", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Staff Pembelian (P/O)", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No BC", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal BC", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Input BC", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No BP Besar", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "No BP Kecil", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor Bon Unit", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Bon Unit", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Unit Yang Membutuhkan", DataType = typeof(String) });
@@ -2258,7 +2279,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
             if (Query.ToArray().Count() == 0)
                 // result.Rows.Add("", "", "", "", "", "", "", "", "", "", 0, 0, 0, ""); // to allow column name to be generated properly for empty data as template
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, 0, "", 0, "", 0, "", "", "", "", "", "", "", "");
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", 0, 0, "", 0, "", 0, "", "", "", "", "", "", "", "", "", "", "", "", "");
             else
             {
                 int index = 0;
@@ -2270,9 +2291,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     string dikenakan = item.isCustoms == true ? "Ya" : "Tidak";
                     string jenissupp = item.shipmentType == "" ? "Local" : "Import";
                     string URNDate = item.URNDate == new DateTime(1970, 1, 1) ? "-" : item.URNDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string BcinputDate = item.BeacukaiDate == DateTimeOffset.MinValue ? "-" : item.BeacukaiDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string BcDate = item.BCDate == new DateTime(1970, 1, 1) ? "-" : item.BCDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
 
                     // result.Rows.Add(index, item.supplierCode, item.supplierName, item.no, supplierDoDate, date, item.ePONo, item.productCode, item.productName, item.productRemark, item.dealQuantity, item.dOQuantity, item.remainingQuantity, item.uomUnit);
-                    result.Rows.Add(index, item.no, supplierDoDate, date, item.supplierName, jenissupp, item.shipmentType, item.shipmentNo, dikenakan, item.ePONo, item.prNo, item.roNo, item.prRefNo, item.productCode, item.productName, item.dealQuantity, item.dOQuantity, item.uomUnit, item.price, item.doCurrencyCode, item.doCurrencyRate, item.productRemark, item.createdBy, item.EPOcreatedBy, item.URNNo, URNDate, item.UnitName, item.INNo, item.TermPayment);
+                    result.Rows.Add(index, item.no, supplierDoDate, date, item.supplierName, jenissupp, item.ePONo, item.roNo, item.prRefNo, item.productCode, item.productName, item.dealQuantity, item.dOQuantity, item.uomUnit, item.price, item.doCurrencyCode, item.doCurrencyRate, item.productRemark, item.createdBy, item.EPOcreatedBy, item.BeacukaiNo, BcDate, BcinputDate, item.BillNo, item.PaymentBill, item.URNNo, URNDate, item.UnitName, item.INNo, item.TermPayment);
                 }
             }
 
