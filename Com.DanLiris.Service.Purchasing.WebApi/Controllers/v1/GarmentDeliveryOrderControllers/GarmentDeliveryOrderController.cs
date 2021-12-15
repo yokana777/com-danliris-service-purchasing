@@ -625,14 +625,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
         //MONITORING
         #region MONITORING DELIVERY ORDER
         [HttpGet("monitoring")]
-        public IActionResult GetReportDO(DateTime? dateFrom, DateTime? dateTo, string no, string poEksNo, long supplierId, int page, int size, string Order = "{}")
+        public IActionResult GetReportDO(DateTime? dateFrom, DateTime? dateTo, string no, string poEksNo, long supplierId, string billNo, string paymentBill, int page, int size, string Order = "{}")
         {
             try
             {
                 int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
                 string accept = Request.Headers["Accept"];
 
-                var data = facade.GetReportDO(no, poEksNo, supplierId, dateFrom, dateTo, page, size, Order, offset);
+                var data = facade.GetReportDO(no, poEksNo, supplierId, billNo, paymentBill, dateFrom, dateTo, page, size, Order, offset);
 
 
                 return Ok(new
@@ -654,7 +654,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
         }
 
         [HttpGet("monitoring/download")]
-        public IActionResult GetXlsDO(string no, string poEksNo, long supplierId, DateTime? dateFrom, DateTime? dateTo)
+        public IActionResult GetXlsDO(string no, string poEksNo, long supplierId, string billNo, string paymentBill, DateTime? dateFrom, DateTime? dateTo)
         {
 
             try
@@ -664,7 +664,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDeliveryO
                 DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : Convert.ToDateTime(dateFrom);
                 DateTime DateTo = dateTo == null ? DateTime.Now : Convert.ToDateTime(dateTo);
 
-                var xls = facade.GenerateExcelDO(no, poEksNo, supplierId, dateFrom, dateTo, offset);
+                var xls = facade.GenerateExcelDO(no, poEksNo, supplierId, billNo, paymentBill, dateFrom, dateTo, offset);
 
                 string filename = String.Format("Surat Jalan - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
 

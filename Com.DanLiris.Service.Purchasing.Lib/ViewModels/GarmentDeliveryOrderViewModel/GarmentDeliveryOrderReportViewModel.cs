@@ -39,6 +39,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
         public string INNo { get; set; }
         public string TermPayment { get; set; }
         public string URNType { get; set; }
+        public string BillNo { get; set; }
+        public string PaymentBill { get; set; }
+        public string BeacukaiNo { get; set; }
+        public DateTimeOffset BeacukaiDate { get; set; }
+        public DateTimeOffset BCDate { get; set; }
 
     }
 }

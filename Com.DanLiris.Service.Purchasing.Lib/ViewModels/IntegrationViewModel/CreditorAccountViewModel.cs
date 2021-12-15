@@ -21,5 +21,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel
         public int Id { get; set; }
 
         public double Mutation { get; set; }
+
+        public string MemoNo { get; set; }
     }
 }
