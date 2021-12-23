@@ -740,7 +740,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             return new ReadResponse<object>(data, pageable.TotalCount, new Dictionary<string, string>());
         }
 
-        public void CreateDailyBankTransaction(BankExpenditureNoteModel model, IdentityService identityService)
+        public async Task CreateDailyBankTransaction(BankExpenditureNoteModel model, IdentityService identityService)
         {
             var nominal = model.GrandTotal;
             var nominalValas = 0.0;
@@ -875,7 +875,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
         }
 
-        public async Task<int> Posting(List<long> ids)
+        public async Task<string> Posting(List<long> ids)
         {
             var models = dbContext.BankExpenditureNotes.Include(entity => entity.Details).ThenInclude(detail => detail.Items).Where(entity => ids.Contains(entity.Id)).ToList();
             var identityService = serviceProvider.GetService<IdentityService>();
@@ -893,6 +893,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 .ToList();
             dbContext.UnitPaymentOrders.UpdateRange(unitPaymentOrders);
 
+            var result = "";
+
             //var bankExpenditureNoteNos = models.Select(element => element.DocumentNo).ToList();
             //var expeditions = dbContext
             //    .PurchasingDocumentExpeditions
@@ -909,15 +911,22 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
             foreach (var model in models)
             {
-                model.IsPosted = true;
-                await CreateJournalTransaction(model, identityService);
-                CreateDailyBankTransaction(model, identityService);
-                CreateCreditorAccount(model, identityService);
-                EntityExtension.FlagForUpdate(model, identityService.Username, USER_AGENT);
+                if (model.IsPosted)
+                {
+                    result += "Nomor " + model.DocumentNo + ", ";
+                }
+                else
+                {
+                    model.IsPosted = true;
+                    await CreateJournalTransaction(model, identityService);
+                    await CreateDailyBankTransaction(model, identityService);
+                    CreateCreditorAccount(model, identityService);
+                    EntityExtension.FlagForUpdate(model, identityService.Username, USER_AGENT);
+                    await dbContext.SaveChangesAsync();
+                }
             }
 
-            dbContext.BankExpenditureNotes.UpdateRange(models);
-            return dbContext.SaveChanges();
+            return result;
         }
     }
 
