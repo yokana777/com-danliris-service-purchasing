@@ -284,12 +284,29 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
         [HttpPut("posting")]
         public async Task<IActionResult> Posting([FromBody] List<long> ids)
         {
-            identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
-            identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
+            try
+            {
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 
-            var result = await facade.Posting(ids);
+                var result = await facade.Posting(ids);
 
-            return NoContent();
+                return Ok(new
+                {
+                    apiVersion = "1.0.0",
+                    data = result,
+                    message = General.OK_MESSAGE,
+                    statusCode = General.CREATED_STATUS_CODE
+                });
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter("1.0.0", General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+            
         }
 
         [HttpGet("reports/list")]
