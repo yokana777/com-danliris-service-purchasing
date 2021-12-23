@@ -287,14 +287,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
         {
             var mockFacade = new Mock<IBankExpenditureNoteFacade>();
             mockFacade.Setup(x => x.Posting(It.IsAny<List<long>>()))
-               .ReturnsAsync(1);
+               .ReturnsAsync("1");
 
             var mockMapper = new Mock<IMapper>();
 
             var controller = GetController(mockFacade, new Mock<IValidateService>(), mockMapper);
 
             var response = await controller.Posting(It.IsAny<List<long>>());
-            Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
 
         [Fact]
