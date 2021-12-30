@@ -80,7 +80,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
         public void Should_Success_Get_Report()
         {
             var mockFacade = new Mock<IGarmentRealizationCMTReportFacade>();
-            mockFacade.Setup(x => x.GetReport(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<long>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
+            mockFacade.Setup(x => x.GetReport(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
                 .Returns(Tuple.Create(new List<GarmentRealizationCMTReportViewModel> { viewModel }, 25));
 
             var mockMapper = new Mock<IMapper>();
@@ -107,14 +107,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
             controller.ControllerContext.HttpContext.Request.Path = new PathString("/v1/unit-test");
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "7";
 
-            var response = controller.GetReport(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<long>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>());
+            var response = controller.GetReport(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>());
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
         [Fact]
         public void Should_Success_Get_Xls_Data()
         {
             var mockFacade = new Mock<IGarmentRealizationCMTReportFacade>();
-            mockFacade.Setup(x => x.GenerateExcel(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<long>(), It.IsAny<int>(), It.IsAny<string>()))
+            mockFacade.Setup(x => x.GenerateExcel(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>()))
                 .Returns(new MemoryStream());
 
             var mockMapper = new Mock<IMapper>();
@@ -142,14 +142,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
             controller.ControllerContext.HttpContext.Request.Path = new PathString("/v1/unit-test");
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "7";
 
-            var response = controller.GetXlsCMT(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<long>(), It.IsAny<string>());
+            var response = controller.GetXlsCMT(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>());
             Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.GetType().GetProperty("ContentType").GetValue(response, null));
         }
         [Fact]
         public void Should_Error_Get_Report()
         {
             var mockFacade = new Mock<IGarmentRealizationCMTReportFacade>();
-            mockFacade.Setup(x => x.GetReport(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<long>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
+            mockFacade.Setup(x => x.GetReport(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
                 .Returns(Tuple.Create(new List<GarmentRealizationCMTReportViewModel> { viewModel }, 25));
 
             var mockMapper = new Mock<IMapper>();
@@ -176,14 +176,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
             controller.ControllerContext.HttpContext.Request.Path = new PathString("/v1/unit-test");
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "7";
 
-            var response = controller.GetXlsCMT(null, null, 0, null);
+            var response = controller.GetXlsCMT(null, null, null, null);
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
         [Fact]
         public void Should_Error_Get_Xls()
         {
             var mockFacade = new Mock<IGarmentRealizationCMTReportFacade>();
-            mockFacade.Setup(x => x.GetReport(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<long>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
+            mockFacade.Setup(x => x.GetReport(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
                     .Returns(Tuple.Create(new List<GarmentRealizationCMTReportViewModel> { viewModel }, 25));
 
             var mockMapper = new Mock<IMapper>();
@@ -210,7 +210,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentReport
             controller.ControllerContext.HttpContext.Request.Path = new PathString("/v1/unit-test");
             controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "7";
 
-            var response = controller.GetXlsCMT(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<long>(), It.IsAny<string>());
+            var response = controller.GetXlsCMT(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>());
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 

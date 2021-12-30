@@ -36,7 +36,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             this.dbContext = dbContext;
         }
 
-        public IQueryable<GarmentRealizationCMTReportViewModel> GetQuery(DateTime? dateFrom, DateTime? dateTo, long unit, int offset)
+        public IQueryable<GarmentRealizationCMTReportViewModel> GetQuery(DateTime? dateFrom, DateTime? dateTo, string unit, int offset)
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
@@ -70,7 +70,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                //a.ExpenditureDate.AddHours(offset).Date >= DateFrom.Date
                                //      && a.ExpenditureDate.AddHours(offset).Date <= DateTo.Date
                                //&& 
-                               a.UnitSenderId == (unit == 0 ? a.UnitSenderId : unit)
+                               a.UnitSenderCode == (string.IsNullOrWhiteSpace(unit) ? a.UnitSenderCode : unit)
                                && b.ProductName == "FABRIC"
                                && a.ExpenditureType == "PROSES"
                                && Ros.Contains(j.RONo)
@@ -91,7 +91,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              ReceiptQuantity = e.ReceiptQuantity,
                              UAmountVLS = e.ReceiptQuantity * e.PricePerDealUnit,
                              UAmountIDR = e.ReceiptQuantity * e.PricePerDealUnit * (decimal)h.DOCurrencyRate,
-                             SupplierName = d.SupplierName == null ? "-" : d.SupplierName,
+                             SupplierName = h.SupplierName == null ? "-" : h.SupplierName,
                              BillNo = h.BillNo,
                              PaymentBill = h.PaymentBill,
                              DONo = h.DONo
@@ -211,7 +211,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
         }
 
-        public Tuple<List<GarmentRealizationCMTReportViewModel>, int> GetReport(DateTime? dateFrom, DateTime? dateTo, long unit, int page, int size, string Order, int offset)
+        public Tuple<List<GarmentRealizationCMTReportViewModel>, int> GetReport(DateTime? dateFrom, DateTime? dateTo, string unit, int page, int size, string Order, int offset)
         {
             var Query = GetQuery(dateFrom, dateTo, unit, offset);
 
@@ -244,7 +244,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             return Tuple.Create(Data, TotalData);
         }
 
-        public MemoryStream GenerateExcel(DateTime? dateFrom, DateTime? dateTo, long unit, int offset, string unitname)
+        public MemoryStream GenerateExcel(DateTime? dateFrom, DateTime? dateTo, string unit, int offset, string unitname)
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
@@ -326,7 +326,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     sheet.Cells[$"A2:U2"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
                     sheet.Cells[$"A2:U2"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
                     sheet.Cells[$"A2:U2"].Style.Font.Bold = true;
-                    sheet.Cells[$"A3:U3"].Value = string.Format("Konfeksi {0}", string.IsNullOrWhiteSpace(unitname) ? "ALL" : unitname);
+                    sheet.Cells[$"A3:U3"].Value = string.Format("Konfeksi {0}", string.IsNullOrWhiteSpace(unit) ? "ALL" : unit == "C2A" ? "2A" : unit == "C2B" ? "2B" : unit == "C2C" ? "2C" : unit == "C1A" ? "1A" : "1B");
                     sheet.Cells[$"A3:U3"].Merge = true;
                     sheet.Cells[$"A3:U3"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
                     sheet.Cells[$"A3:U3"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
