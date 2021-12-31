@@ -96,19 +96,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              PaymentBill = h.PaymentBill,
                              DONo = h.DONo
 
-                         }).GroupBy(a => new { a.UENNo, a.RONo, a.URNNo, a.BillNo, a.PaymentBill, a.ProductRemark, a.ProductRemark2, a.SupplierName, a.DONo }, (key, group) => new GarmentRealizationCMTReportViewModel
+                         }).GroupBy(a => new { a.UENNo, a.RONo, a.URNNo, a.BillNo, a.PaymentBill, a.ProductRemark, a.ProductRemark2, a.SupplierName, a.DONo, a.EAmountVLS, a.EAmountIDR, a.ReceiptQuantity, a.UAmountIDR, a.UAmountVLS, a.Quantity }, (key, group) => new GarmentRealizationCMTReportViewModel
                          {
                              UENNo = key.UENNo,
                              ProductRemark = key.ProductRemark,
-                             Quantity = group.Sum(x => x.Quantity),
-                             EAmountVLS = group.Sum(x => x.EAmountVLS),
-                             EAmountIDR = group.Sum(x => x.EAmountIDR),
+                             //Quantity = group.Sum(x => x.Quantity),
+                             Quantity = key.Quantity,
+                             //EAmountVLS = group.Sum(x => x.EAmountVLS),
+                             EAmountVLS = key.EAmountVLS,
+                             //EAmountIDR = group.Sum(x => x.EAmountIDR),
+                             EAmountIDR = key.EAmountVLS,
                              RONo = key.RONo,
                              URNNo = key.URNNo,
                              ProductRemark2 = key.ProductRemark2,
-                             ReceiptQuantity = group.Sum(x => x.ReceiptQuantity),
-                             UAmountVLS = group.Sum(x => x.UAmountVLS),
-                             UAmountIDR = group.Sum(x => x.UAmountIDR),
+                             //ReceiptQuantity = group.Sum(x => x.ReceiptQuantity),
+                             ReceiptQuantity = key.ReceiptQuantity,
+                             //UAmountVLS = group.Sum(x => x.UAmountVLS),
+                             UAmountVLS = key.UAmountVLS,
+                             //UAmountIDR = group.Sum(x => x.UAmountIDR),
+                             UAmountIDR = key.UAmountIDR,
                              SupplierName = key.SupplierName,
                              BillNo = key.BillNo,
                              PaymentBill = key.PaymentBill,
