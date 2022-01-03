@@ -478,10 +478,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
             var ROs = ro.Split(",").ToList();
             var query = (from a in dbContext.GarmentUnitDeliveryOrders
                         join b in dbContext.GarmentUnitDeliveryOrderItems on a.Id equals b.UnitDOId
-                        join c in dbContext.GarmentDeliveryOrderDetails on b.POSerialNumber equals c.POSerialNumber
-                        join d in dbContext.GarmentDeliveryOrderItems on c.GarmentDOItemId equals d.Id
-                        join e in dbContext.GarmentBeacukaiItems on d.GarmentDOId equals e.GarmentDOId
-                        join f in dbContext.GarmentBeacukais on e.BeacukaiId equals f.Id
+                        join c in dbContext.GarmentDeliveryOrderDetails.IgnoreQueryFilters() on b.POSerialNumber equals c.POSerialNumber
+                        join d in dbContext.GarmentDeliveryOrderItems.IgnoreQueryFilters() on c.GarmentDOItemId equals d.Id
+                        join e in dbContext.GarmentBeacukaiItems on d.GarmentDOId equals e.GarmentDOId into bcitem
+                        from ee in bcitem.DefaultIfEmpty()
+                        join f in dbContext.GarmentBeacukais on ee.BeacukaiId equals f.Id into bc
+                        from ff in bc.DefaultIfEmpty()
                         where ROs.Contains(a.RONo) && a.IsDeleted == false && b.IsDeleted == false
                         select new
                         {
@@ -489,9 +491,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
                             b.POSerialNumber,
                             b.ProductName,
                             a.RONo,
-                            f.BeacukaiNo,
-                            f.BeacukaiDate,
-                            f.CustomsType
+                            BeacukaiNo = ff != null ? ff.BeacukaiNo : "-",
+                            BeacukaiDate = ff != null ? ff.BeacukaiDate : DateTimeOffset.MinValue,
+                            CustomsType = ff != null ? ff.CustomsType : "-"
                         }).Distinct().ToList();
 
             List<object> listdata = new List<object>();
