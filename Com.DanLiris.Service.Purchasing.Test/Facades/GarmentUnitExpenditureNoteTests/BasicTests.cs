@@ -511,16 +511,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             Assert.NotEqual(0, Response);
         }
 
-        [Fact]
-        public async Task Should_Success_Create_Data_Type_Sample_FromSample()
-        {
-            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataTypeTransfer();
-            data.ExpenditureType = "SAMPLE";
-            data.UnitSenderCode = "SMP1";
-            var Response = await facade.Create(data);
-            Assert.NotEqual(0, Response);
-        }
+        //[Fact]
+        //public async Task Should_Success_Create_Data_Type_Sample_FromSample()
+        //{
+        //    var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+        //    var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataTypeTransfer();
+        //    data.ExpenditureType = "SAMPLE";
+        //    data.UnitSenderCode = "SMP1";
+        //    var Response = await facade.Create(data);
+        //    Assert.NotEqual(0, Response);
+        //}
 
         [Fact]
         public async Task Should_Error_Create_Data_Null_Items()
@@ -860,24 +860,24 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         //          Assert.NotNull(e.Message);
         //      }
 
-        //[Fact]
-        //public async Task Should_Success_Update_Data_For_DeliveryReturn()
-        //{
-        //    var dbContext = _dbContext(GetCurrentMethod());
-        //    var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), dbContext);
-        //    var dataUtil = this.dataUtil(facade, GetCurrentMethod());
-        //    var data = await dataUtil.GetTestData();
+        [Fact]
+        public async Task Should_Success_Update_Data_For_DeliveryReturn()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), dbContext);
+            var dataUtil = this.dataUtil(facade, GetCurrentMethod());
+            var data = await dataUtil.GetTestData();
 
-        //    var newData = dbContext.GarmentUnitExpenditureNotes
-        //        .AsNoTracking()
-        //        .Include(x => x.Items)
-        //        .Single(m => m.Id == data.Id);
+            var newData = dbContext.GarmentUnitExpenditureNotes
+                .AsNoTracking()
+                .Include(x => x.Items)
+                .Single(m => m.Id == data.Id);
 
-        //    newData.Items.First().IsSave = false;
+            newData.Items.First().IsSave = false;
 
-        //    var ResponseUpdate = await facade.UpdateReturQuantity((int)newData.Id, 1, 0);
-        //    Assert.NotEqual(0, ResponseUpdate);
-        //}
+            var ResponseUpdate = await facade.UpdateReturQuantity((int)newData.Id, 1, 0);
+            Assert.NotEqual(0, ResponseUpdate);
+        }
 
         //      [Fact]
         //      public async Task Should_Error_Update_Data_Null_Items_For_DeliveryReturn()
