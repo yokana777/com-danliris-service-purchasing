@@ -45,6 +45,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<GarmentUnitReceiptNote> dbSet;
         private readonly DbSet<GarmentDeliveryOrderDetail> dbSetGarmentDeliveryOrderDetail;
+        private readonly DbSet<GarmentExternalPurchaseOrder> dbSetGarmentExternalPurchaseOrder;
         private readonly DbSet<GarmentExternalPurchaseOrderItem> dbSetGarmentExternalPurchaseOrderItems;
         private readonly DbSet<GarmentInternalPurchaseOrderItem> dbSetGarmentInternalPurchaseOrderItems;
         private readonly DbSet<GarmentInventoryDocument> dbSetGarmentInventoryDocument;
@@ -66,6 +67,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             this.dbContext = dbContext;
             dbSet = dbContext.Set<GarmentUnitReceiptNote>();
             dbSetGarmentDeliveryOrderDetail = dbContext.Set<GarmentDeliveryOrderDetail>();
+            dbSetGarmentExternalPurchaseOrder = dbContext.Set<GarmentExternalPurchaseOrder>();
             dbSetGarmentExternalPurchaseOrderItems = dbContext.Set<GarmentExternalPurchaseOrderItem>();
             dbSetGarmentInternalPurchaseOrderItems = dbContext.Set<GarmentInternalPurchaseOrderItem>();
             dbSetGarmentInventoryDocument = dbContext.Set<GarmentInventoryDocument>();
@@ -182,8 +184,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
             viewModel.IsInvoice = dbContext.GarmentDeliveryOrders.Where(gdo => gdo.Id == viewModel.DOId).Select(gdo => gdo.IsInvoice).FirstOrDefault();
 
+            var dataDo = dbsetGarmentDeliveryOrder.Where(gdo => gdo.Id == viewModel.DOId).Include(x => x.Items).FirstOrDefault();
+            long epoId = 0;
+            if(dataDo != null)
+            {
+                epoId = dataDo.Items.Select(x => x.EPOId).FirstOrDefault();
+            }
+
             foreach (var item in viewModel.Items)
             {
+                if (epoId > 0)
+                {
+                    item.PaymentType = dbSetGarmentExternalPurchaseOrder.Where(x => x.Id == epoId).FirstOrDefault().PaymentType;
+                    item.PaymentMethod = dbSetGarmentExternalPurchaseOrder.Where(x => x.Id == epoId).FirstOrDefault().PaymentMethod;
+                }
                 item.Buyer = new BuyerViewModel
                 {
                     Name = dbContext.GarmentPurchaseRequests.Where(m => m.Id == item.PRId).Select(m => m.BuyerName).FirstOrDefault()

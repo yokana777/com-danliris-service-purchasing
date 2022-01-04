@@ -612,6 +612,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     Items = m.Items.Select(i => new GarmentDeliveryOrderItem
                     {
                         Id = i.Id,
+                        EPOId = i.EPOId,
                         Details = i.Details.Where(d => d.ReceiptQuantity == 0 && (string.IsNullOrWhiteSpace(filterUnitId) ? true : d.UnitId == filterUnitId)).ToList()
                     }).ToList()
                 });
@@ -637,6 +638,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     items = s.items.Select(i => new
                     {
                         i.Id,
+                        paymentType = dbContext.GarmentExternalPurchaseOrders.Where(m => m.Id == i.ePOId).Select(m => m.PaymentType).FirstOrDefault(),
+                        paymentMethod = dbContext.GarmentExternalPurchaseOrders.Where(m => m.Id == i.ePOId).Select(m => m.PaymentMethod).FirstOrDefault(),
                         fulfillments = i.fulfillments.Select(d => new
                         {
                             d.Id,

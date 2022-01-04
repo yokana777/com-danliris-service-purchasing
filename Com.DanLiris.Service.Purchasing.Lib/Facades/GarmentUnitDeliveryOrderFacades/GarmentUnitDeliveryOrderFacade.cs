@@ -514,7 +514,5 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFa
             return listdata;
                         
         }
-
-        
     }
 }
