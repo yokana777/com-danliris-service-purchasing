@@ -116,7 +116,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             garmentDOItems.RemainingQuantity += (decimal)unitDOItem.Quantity;
                         }
                     }
-
                     var garmentUnitExpenditureNoteItems = garmentUnitExpenditureNote.Items.Where(x => x.IsSave).ToList();
                     foreach (var garmentUnitExpenditureNoteItem in garmentUnitExpenditureNoteItems)
                     {
