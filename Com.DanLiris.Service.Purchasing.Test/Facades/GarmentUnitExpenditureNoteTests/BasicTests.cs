@@ -512,6 +512,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         }
 
         [Fact]
+        public async Task Should_Success_Create_Data_Type_Sample_FromSample()
+        {
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataTypeTransfer();
+            data.ExpenditureType = "SAMPLE";
+            data.UnitSenderCode = "SMP1";
+            var Response = await facade.Create(data);
+            Assert.NotEqual(0, Response);
+        }
+
+        [Fact]
         public async Task Should_Error_Create_Data_Null_Items()
         {
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
