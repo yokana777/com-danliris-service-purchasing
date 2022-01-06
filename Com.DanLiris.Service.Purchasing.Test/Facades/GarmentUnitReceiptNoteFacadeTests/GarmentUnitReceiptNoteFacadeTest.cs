@@ -330,6 +330,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         }
 
         [Fact]
+        public async Task Should_Success_Generate_Pdf_NoDOId()
+        {
+            var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
+            data.DOId = 0;
+            var dataViewModel = facade.ReadById((int)data.Id);
+            var temp = dataViewModel.DOCurrency.Rate + 1;
+            var Response = facade.GeneratePdf(dataViewModel);
+            Assert.IsType<MemoryStream>(Response);
+        }
+
+        [Fact]
         public async Task Should_Success_Create_Data()
         {
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
