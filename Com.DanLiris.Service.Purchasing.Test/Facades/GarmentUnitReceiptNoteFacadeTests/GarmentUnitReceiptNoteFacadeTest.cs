@@ -334,8 +334,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         {
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
-            data.DOId = 0;
+            
             var dataViewModel = facade.ReadById((int)data.Id);
+            dataViewModel.DOId = 0;
             var temp = dataViewModel.DOCurrency.Rate + 1;
             var Response = facade.GeneratePdf(dataViewModel);
             Assert.IsType<MemoryStream>(Response);
