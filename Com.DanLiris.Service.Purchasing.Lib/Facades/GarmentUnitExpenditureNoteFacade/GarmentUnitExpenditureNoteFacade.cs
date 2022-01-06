@@ -606,7 +606,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                         GarmentUnitDeliveryOrder garmentUnitDO = new GarmentUnitDeliveryOrder
                         {
-                            UnitDOType="PROSES",
+                            UnitDOType= garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" ? "PROSES" : "SAMPLE",
                             UnitDODate= garmentUnitExpenditureNote.ExpenditureDate,
                             UnitRequestId= garmentUnitExpenditureNote.UnitRequestId,
                             UnitRequestCode = garmentUnitExpenditureNote.UnitRequestCode,
@@ -678,8 +678,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         GarmentUnitExpenditureNote uen = new GarmentUnitExpenditureNote
                         {
                             ExpenditureDate = garmentUnitExpenditureNote.ExpenditureDate,
-                            ExpenditureType = "PROSES",
-                            ExpenditureTo = "PROSES",
+                            ExpenditureType = garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" ? "PROSES" : "SAMPLE",
+                            ExpenditureTo = garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" ? "PROSES" : "SAMPLE",
                             UnitDOId = garmentUnitDO.Id,
                             UnitDONo = garmentUnitDO.UnitDONo,
                             UnitSenderId = garmentUnitDO.UnitSenderId,
