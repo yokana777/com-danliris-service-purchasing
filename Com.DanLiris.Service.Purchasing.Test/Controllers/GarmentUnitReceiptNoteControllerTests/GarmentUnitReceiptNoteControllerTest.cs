@@ -292,6 +292,29 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentUnitReceiptNot
         }
 
         [Fact]
+        public void Should_Success_Get_PDF_By_Id_NoDOId()
+        {
+            var Model = this.Model;
+
+            var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
+            ViewModel.DOId = 0;
+            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(ViewModel);
+            mockFacade.Setup(x => x.GeneratePdf(It.IsAny<GarmentUnitReceiptNoteViewModel>()))
+                .Returns(new MemoryStream());
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(x => x.Map<GarmentUnitReceiptNoteViewModel>(It.IsAny<GarmentUnitReceiptNote>()))
+                .Returns(ViewModel);
+
+            GarmentUnitReceiptNoteController controller = GetController(mockFacade, null, mockMapper);
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
+
+            var response = controller.Get(It.IsAny<int>());
+            Assert.NotNull(response.GetType().GetProperty("FileStream"));
+        }
+
+        [Fact]
         public void Should_Error_Get_Data_By_Id()
         {
             var mockFacade = new Mock<IGarmentUnitReceiptNoteFacade>();
