@@ -330,13 +330,29 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
         }
 
         [Fact]
-        public async Task Should_Success_Generate_Pdf_NoDOId()
+        public async Task Should_Success_Generate_Pdf_NoDOId_GDLAIN()
         {
             var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
             
             var dataViewModel = facade.ReadById((int)data.Id);
             dataViewModel.DOId = 0;
+            dataViewModel.URNType = "GUDANG LAIN";
+            var temp = dataViewModel.DOCurrency.Rate + 1;
+            var Response = facade.GeneratePdf(dataViewModel);
+            Assert.IsType<MemoryStream>(Response);
+        }
+
+
+        [Fact]
+        public async Task Should_Success_Generate_Pdf_PROSES()
+        {
+            var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
+
+            var dataViewModel = facade.ReadById((int)data.Id);
+            dataViewModel.DOId = 0;
+            dataViewModel.URNType = "PROSES";
             var temp = dataViewModel.DOCurrency.Rate + 1;
             var Response = facade.GeneratePdf(dataViewModel);
             Assert.IsType<MemoryStream>(Response);
