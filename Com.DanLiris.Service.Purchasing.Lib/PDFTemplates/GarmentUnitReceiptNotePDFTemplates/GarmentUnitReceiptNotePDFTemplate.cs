@@ -26,7 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentUnitReceiptNot
             document.Open();
 
             IGarmentDeliveryOrderFacade garmentDeliveryOrderFacade = (IGarmentDeliveryOrderFacade)serviceProvider.GetService(typeof(IGarmentDeliveryOrderFacade));
-            var garmentDeliveryOrder = garmentDeliveryOrderFacade.ReadById((int)viewModel.DOId);
+            var garmentDeliveryOrder = viewModel.DOId>0 ?garmentDeliveryOrderFacade.ReadById((int)viewModel.DOId) : null;
 
             IdentityService identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
 
@@ -52,21 +52,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentUnitReceiptNot
 
             #region Identity
 
+            var receiptDate = viewModel.ReceiptDate.GetValueOrDefault().ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"));
+            var receivedFrom = viewModel.URNType == "PROSES" ? "PROSES" : viewModel.URNType == "GUDANG LAIN" ? "GUDANG LAIN" : viewModel.URNType == "GUDANG SISA" ? "GUDANG SISA" : viewModel.URNType == "SISA SUBCON" ? "SISA SUBCON" : viewModel.Supplier.Name;
+            var receiptNo = viewModel.URNType == "PROSES" ? viewModel.DRNo : viewModel.URNType == "GUDANG LAIN" ? viewModel.UENNo : viewModel.URNType == "GUDANG SISA" ? viewModel.ExpenditureNo : viewModel.URNType == "SISA SUBCON" ? viewModel.UENNo : viewModel.DONo;
+            var date = garmentDeliveryOrder == null ? receiptDate : garmentDeliveryOrder.DODate.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID"));
             PdfPTable tableIdentity = new PdfPTable(4);
             tableIdentity.SetWidths(new float[] { 3f, 4f, 3f, 4f });
             PdfPCell cellIdentityContentLeft = new PdfPCell() { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT };
 
             cellIdentityContentLeft.Phrase = new Phrase("Tgl. Terima", normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase(": " + garmentDeliveryOrder.DODate.ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font);
+            cellIdentityContentLeft.Phrase = new Phrase(": " + date, normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentLeft.Phrase = new Phrase("Tgl. Bon Penerimaan", normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase(": " + viewModel.ReceiptDate.GetValueOrDefault().ToOffset(new TimeSpan(identityService.TimezoneOffset, 0, 0)).ToString("dd MMMM yyyy", new CultureInfo("id-ID")), normal_font);
+            cellIdentityContentLeft.Phrase = new Phrase(": " + receiptDate, normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentLeft.Phrase = new Phrase("Diterima dari", normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase(": " + viewModel.Supplier.Name, normal_font);
+            cellIdentityContentLeft.Phrase = new Phrase(": " + receivedFrom, normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentLeft.Phrase = new Phrase("Bagian", normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
@@ -74,7 +78,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentUnitReceiptNot
             tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentLeft.Phrase = new Phrase("Dasar Penerimaan", normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
-            cellIdentityContentLeft.Phrase = new Phrase(": " + viewModel.DONo, normal_font);
+            cellIdentityContentLeft.Phrase = new Phrase(": " + receiptNo, normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
             cellIdentityContentLeft.Phrase = new Phrase("No.", normal_font);
             tableIdentity.AddCell(cellIdentityContentLeft);
