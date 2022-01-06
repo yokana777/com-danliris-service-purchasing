@@ -511,6 +511,17 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             Assert.NotEqual(0, Response);
         }
 
+        //[Fact]
+        //public async Task Should_Success_Create_Data_Type_Sample_FromSample()
+        //{
+        //    var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+        //    var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataTypeTransfer();
+        //    data.ExpenditureType = "SAMPLE";
+        //    data.UnitSenderCode = "SMP1";
+        //    var Response = await facade.Create(data);
+        //    Assert.NotEqual(0, Response);
+        //}
+
         [Fact]
         public async Task Should_Error_Create_Data_Null_Items()
         {
@@ -800,24 +811,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             Assert.NotEmpty(Response.Data);
         }
 
-        [Fact]
-        public async Task Should_Success_Update_Data_For_Preparing_Create()
-        {
-            var dbContext = _dbContext(GetCurrentMethod());
-            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), dbContext);
-            var dataUtil = this.dataUtil(facade, GetCurrentMethod());
-            var data = await dataUtil.GetTestData();
-
-            var newData = dbContext.GarmentUnitExpenditureNotes
-                .AsNoTracking()
-                .Include(x => x.Items)
-                .Single(m => m.Id == data.Id);
-
-            newData.Items.First().IsSave = false;
-
-            var ResponseUpdate = await facade.UpdateIsPreparing((int)newData.Id, newData);
-            Assert.NotEqual(0, ResponseUpdate);
-        }
 
         [Fact]
         public async Task Should_Error_Update_Data_Null_Items_For_Preparing_Create()
@@ -1250,7 +1243,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var dateTo = DateTime.UtcNow.AddDays(1);
             var dateFrom = dateTo.AddDays(-30);
 
-            var results = reportService.GetReport(dateFrom, dateTo, 20, 1, 25, "", 0);
+            var results = reportService.GetReport(dateFrom, dateTo, datauen.UnitSenderCode, 1, 25, "", 0);
 
             Assert.NotNull(results);
 
@@ -1334,7 +1327,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var dateTo = DateTime.UtcNow.AddDays(1);
             var dateFrom = dateTo.AddDays(-30);
 
-            var results = reportService.GetReport(dateFrom, dateTo, 20, 1, 25, "", 0);
+            var results = reportService.GetReport(dateFrom, dateTo, datauen.UnitSenderCode, 1, 25, "", 0);
 
             Assert.NotNull(results);
 
@@ -1418,7 +1411,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var dateTo = DateTime.UtcNow.AddDays(1);
             var dateFrom = dateTo.AddDays(-30);
 
-            var results = reportService.GetReport(dateFrom, dateTo, 20, 1, 25, "", 0);
+            var results = reportService.GetReport(dateFrom, dateTo, datauen.UnitSenderCode, 1, 25, "", 0);
 
             Assert.NotNull(results);
 
@@ -1477,7 +1470,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var dateTo = DateTime.UtcNow.AddDays(1);
             var dateFrom = dateTo.AddDays(-30);
 
-            var results = reportService.GenerateExcel(dateFrom, dateTo, 20, 0, "");
+            var results = reportService.GenerateExcel(dateFrom, dateTo, datauen.UnitSenderCode, 0, "");
 
             Assert.IsType<MemoryStream>(results);
         }
@@ -1530,7 +1523,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var dateTo = DateTime.UtcNow.AddDays(1);
             var dateFrom = dateTo.AddDays(-30);
 
-            var results = reportService.GenerateExcel(null, null, 200, 0, null);
+            var results = reportService.GenerateExcel(null, null, "cvc", 0, null);
 
             Assert.IsType<MemoryStream>(results);
         }

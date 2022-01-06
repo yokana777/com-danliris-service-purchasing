@@ -242,7 +242,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentSupplierBalanceDeb
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var facadedebt = new GarmentSupplierBalanceDebtFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var Response = facadedebt.ReadLoader(1, 25, "{}", DateTime.Now.Year);
-            Assert.NotEmpty(Response.Data);
+            Assert.NotNull(Response.Data);
         }
 
         [Fact]
@@ -252,7 +252,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentSupplierBalanceDeb
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             var facadedebt = new GarmentSupplierBalanceDebtFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var Response = facadedebt.ReadLoader(Search: "[\"BillNo\"]", Select: "{ \"billNo\" : \"BillNo\", \"dONo\" : \"DONo\", \"ArrivalDate\" : 1 }", year: DateTime.Now.Year);
-            Assert.NotEmpty(Response.Data);
+            Assert.NotNull(Response.Data);
         }
         [Fact]
         public void Should_Success_Validate_Data()

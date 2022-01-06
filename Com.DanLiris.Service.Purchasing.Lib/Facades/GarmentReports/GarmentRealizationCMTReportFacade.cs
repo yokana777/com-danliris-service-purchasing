@@ -36,7 +36,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             this.dbContext = dbContext;
         }
 
-        public IQueryable<GarmentRealizationCMTReportViewModel> GetQuery(DateTime? dateFrom, DateTime? dateTo, long unit, int offset)
+        public IQueryable<GarmentRealizationCMTReportViewModel> GetQuery(DateTime? dateFrom, DateTime? dateTo, string unit, int offset)
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
@@ -70,7 +70,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                //a.ExpenditureDate.AddHours(offset).Date >= DateFrom.Date
                                //      && a.ExpenditureDate.AddHours(offset).Date <= DateTo.Date
                                //&& 
-                               a.UnitSenderId == (unit == 0 ? a.UnitSenderId : unit)
+                               a.UnitSenderCode == (string.IsNullOrWhiteSpace(unit) ? a.UnitSenderCode : unit)
                                && b.ProductName == "FABRIC"
                                && a.ExpenditureType == "PROSES"
                                && Ros.Contains(j.RONo)
@@ -91,24 +91,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              ReceiptQuantity = e.ReceiptQuantity,
                              UAmountVLS = e.ReceiptQuantity * e.PricePerDealUnit,
                              UAmountIDR = e.ReceiptQuantity * e.PricePerDealUnit * (decimal)h.DOCurrencyRate,
-                             SupplierName = d.SupplierName == null ? "-" : d.SupplierName,
+                             SupplierName = h.SupplierName == null ? "-" : h.SupplierName,
                              BillNo = h.BillNo,
                              PaymentBill = h.PaymentBill,
                              DONo = h.DONo
 
-                         }).GroupBy(a => new { a.UENNo, a.RONo, a.URNNo, a.BillNo, a.PaymentBill, a.ProductRemark, a.ProductRemark2, a.SupplierName, a.DONo }, (key, group) => new GarmentRealizationCMTReportViewModel
+                         }).GroupBy(a => new { a.UENNo, a.RONo, a.URNNo, a.BillNo, a.PaymentBill, a.ProductRemark, a.ProductRemark2, a.SupplierName, a.DONo, a.EAmountVLS, a.EAmountIDR, a.ReceiptQuantity, a.UAmountIDR, a.UAmountVLS, a.Quantity }, (key, group) => new GarmentRealizationCMTReportViewModel
                          {
                              UENNo = key.UENNo,
                              ProductRemark = key.ProductRemark,
-                             Quantity = group.Sum(x => x.Quantity),
-                             EAmountVLS = group.Sum(x => x.EAmountVLS),
-                             EAmountIDR = group.Sum(x => x.EAmountIDR),
+                             //Quantity = group.Sum(x => x.Quantity),
+                             Quantity = key.Quantity,
+                             //EAmountVLS = group.Sum(x => x.EAmountVLS),
+                             EAmountVLS = key.EAmountVLS,
+                             //EAmountIDR = group.Sum(x => x.EAmountIDR),
+                             EAmountIDR = key.EAmountVLS,
                              RONo = key.RONo,
                              URNNo = key.URNNo,
                              ProductRemark2 = key.ProductRemark2,
-                             ReceiptQuantity = group.Sum(x => x.ReceiptQuantity),
-                             UAmountVLS = group.Sum(x => x.UAmountVLS),
-                             UAmountIDR = group.Sum(x => x.UAmountIDR),
+                             //ReceiptQuantity = group.Sum(x => x.ReceiptQuantity),
+                             ReceiptQuantity = key.ReceiptQuantity,
+                             //UAmountVLS = group.Sum(x => x.UAmountVLS),
+                             UAmountVLS = key.UAmountVLS,
+                             //UAmountIDR = group.Sum(x => x.UAmountIDR),
+                             UAmountIDR = key.UAmountIDR,
                              SupplierName = key.SupplierName,
                              BillNo = key.BillNo,
                              PaymentBill = key.PaymentBill,
@@ -211,7 +217,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
         }
 
-        public Tuple<List<GarmentRealizationCMTReportViewModel>, int> GetReport(DateTime? dateFrom, DateTime? dateTo, long unit, int page, int size, string Order, int offset)
+        public Tuple<List<GarmentRealizationCMTReportViewModel>, int> GetReport(DateTime? dateFrom, DateTime? dateTo, string unit, int page, int size, string Order, int offset)
         {
             var Query = GetQuery(dateFrom, dateTo, unit, offset);
 
@@ -244,7 +250,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             return Tuple.Create(Data, TotalData);
         }
 
-        public MemoryStream GenerateExcel(DateTime? dateFrom, DateTime? dateTo, long unit, int offset, string unitname)
+        public MemoryStream GenerateExcel(DateTime? dateFrom, DateTime? dateTo, string unit, int offset, string unitname)
         {
             DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : (DateTime)dateFrom;
             DateTime DateTo = dateTo == null ? DateTime.Now : (DateTime)dateTo;
@@ -326,7 +332,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     sheet.Cells[$"A2:U2"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
                     sheet.Cells[$"A2:U2"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
                     sheet.Cells[$"A2:U2"].Style.Font.Bold = true;
-                    sheet.Cells[$"A3:U3"].Value = string.Format("Konfeksi {0}", string.IsNullOrWhiteSpace(unitname) ? "ALL" : unitname);
+                    sheet.Cells[$"A3:U3"].Value = string.Format("Konfeksi {0}", string.IsNullOrWhiteSpace(unit) ? "ALL" : unit == "C2A" ? "2A" : unit == "C2B" ? "2B" : unit == "C2C" ? "2C" : unit == "C1A" ? "1A" : "1B");
                     sheet.Cells[$"A3:U3"].Merge = true;
                     sheet.Cells[$"A3:U3"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
                     sheet.Cells[$"A3:U3"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
@@ -485,35 +491,38 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     index = 8;
                     foreach (KeyValuePair<string, int> b in invoicespan)
                     {
+                        sheet.Cells["A" + index + ":A" + (index + b.Value - 1)].Merge = true;
+                        sheet.Cells["A" + index + ":A" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                        sheet.Cells["B" + index + ":B" + (index + b.Value - 1)].Merge = true;
+                        sheet.Cells["B" + index + ":B" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
                         sheet.Cells["C" + index + ":C" + (index + b.Value - 1)].Merge = true;
                         sheet.Cells["C" + index + ":C" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
                         sheet.Cells["D" + index + ":D" + (index + b.Value - 1)].Merge = true;
                         sheet.Cells["D" + index + ":D" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
                         sheet.Cells["E" + index + ":E" + (index + b.Value - 1)].Merge = true;
                         sheet.Cells["E" + index + ":E" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-
-
-
-                        index += b.Value;
-                    }
-
-                    index = 8;
-                    foreach (KeyValuePair<string, int> b in invoicespan)
-                    {
-                        sheet.Cells["A" + index + ":A" + (index + b.Value - 1)].Merge = true;
-                        sheet.Cells["A" + index + ":A" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-                        sheet.Cells["B" + index + ":B" + (index + b.Value - 1)].Merge = true;
-                        sheet.Cells["B" + index + ":B" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
                         sheet.Cells["F" + index + ":F" + (index + b.Value - 1)].Merge = true;
                         sheet.Cells["F" + index + ":F" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-                        sheet.Cells["G" + index + ":G" + (index + b.Value - 1)].Merge = true;
-                        sheet.Cells["G" + index + ":G" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
-                        sheet.Cells["W" + index + ":W" + (index + b.Value - 1)].Merge = true;
-                        sheet.Cells["W" + index + ":W" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
 
 
                         index += b.Value;
                     }
+
+                    //index = 8;
+                    //foreach (KeyValuePair<string, int> b in invoicespan)
+                    //{
+                        
+                    //    sheet.Cells["F" + index + ":F" + (index + b.Value - 1)].Merge = true;
+                    //    sheet.Cells["F" + index + ":F" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //    sheet.Cells["G" + index + ":G" + (index + b.Value - 1)].Merge = true;
+                    //    sheet.Cells["G" + index + ":G" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                    //    sheet.Cells["W" + index + ":W" + (index + b.Value - 1)].Merge = true;
+                    //    sheet.Cells["W" + index + ":W" + (index + b.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+
+
+                    //    index += b.Value;
+                    //}
 
                     index = 8;
                     foreach (KeyValuePair<string, int> c in uenspan)
@@ -571,15 +580,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     index = 8;
                     foreach (KeyValuePair<string, int> c in supplierspan)
                     {
-                        sheet.Cells["R" + index + ":R" + (index + c.Value - 1)].Merge = true;
-                        sheet.Cells["R" + index + ":R" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                        sheet.Cells["S" + index + ":S" + (index + c.Value - 1)].Merge = true;
+                        sheet.Cells["S" + index + ":S" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
                         index += c.Value;
                     }
                     index = 8;
                     foreach (KeyValuePair<string, int> c in billspan)
                     {
-                        sheet.Cells["S" + index + ":S" + (index + c.Value - 1)].Merge = true;
-                        sheet.Cells["S" + index + ":S" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+                        sheet.Cells["R" + index + ":R" + (index + c.Value - 1)].Merge = true;
+                        sheet.Cells["R" + index + ":R" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
                         sheet.Cells["T" + index + ":T" + (index + c.Value - 1)].Merge = true;
                         sheet.Cells["T" + index + ":T" + (index + c.Value - 1)].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
                         sheet.Cells["U" + index + ":U" + (index + c.Value - 1)].Merge = true;
