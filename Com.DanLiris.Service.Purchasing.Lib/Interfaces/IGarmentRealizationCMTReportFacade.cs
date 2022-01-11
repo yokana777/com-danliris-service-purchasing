@@ -11,7 +11,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
 {
     public interface IGarmentRealizationCMTReportFacade
     {
-        Tuple<List<GarmentRealizationCMTReportViewModel>, int> GetReport( DateTime? dateFrom, DateTime? dateTo, long unit, int page, int size, string Order, int offset);
-        MemoryStream GenerateExcel(DateTime? dateFrom, DateTime? dateTo, long unit, int offset, string unitname);
+        Tuple<List<GarmentRealizationCMTReportViewModel>, int> GetReport( DateTime? dateFrom, DateTime? dateTo, string unit, int page, int size, string Order, int offset);
+        MemoryStream GenerateExcel(DateTime? dateFrom, DateTime? dateTo, string unit, int offset, string unitname);
     }
 }
