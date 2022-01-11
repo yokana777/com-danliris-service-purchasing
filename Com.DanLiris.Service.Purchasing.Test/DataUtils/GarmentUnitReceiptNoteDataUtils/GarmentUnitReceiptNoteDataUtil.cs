@@ -438,8 +438,260 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
 
             return garmentUnitReceiptNote;
         }
+		public async Task<GarmentUnitReceiptNote> GetNewDataMonitoring(long? ticks = null, GarmentDeliveryOrder garmentDeliveryOrder = null, GarmentUnitExpenditureNote garmentUnitExpenditureNote = null)
+		{
+			long nowTicks = ticks ?? DateTimeOffset.Now.Ticks;
 
-        public void SetDataWithStorage(GarmentUnitReceiptNote garmentUnitReceiptNote, long? unitId = null)
+			garmentDeliveryOrder = garmentDeliveryOrder ?? await Task.Run(() => garmentDeliveryOrderDataUtil.GetTestData());
+			var garmentUnitReceiptNote = new GarmentUnitReceiptNote
+			{
+				URNType = "PEMBELIAN",
+				UnitId = nowTicks,
+				UnitCode = string.Concat("UnitCode", nowTicks),
+				UnitName = string.Concat("UnitName", nowTicks),
+
+				StorageId = nowTicks,
+				StorageCode = string.Concat("StorageCode", nowTicks),
+				StorageName = string.Concat("StorageName", nowTicks),
+
+				SupplierId = garmentDeliveryOrder.SupplierId,
+				SupplierCode = garmentDeliveryOrder.SupplierCode,
+				SupplierName = garmentDeliveryOrder.SupplierName,
+
+				DOId = garmentDeliveryOrder.Id,
+				DONo = garmentDeliveryOrder.DONo,
+
+				DeletedReason = nowTicks.ToString(),
+
+				DOCurrencyRate = garmentDeliveryOrder.DOCurrencyRate,
+
+				ReceiptDate = DateTimeOffset.Now,
+
+				Items = new List<GarmentUnitReceiptNoteItem>()
+			};
+
+			foreach (var item in garmentDeliveryOrder.Items)
+			{
+				foreach (var detail in item.Details)
+				{
+					var garmentUnitReceiptNoteItem = new GarmentUnitReceiptNoteItem
+					{
+						DODetailId = detail.Id,
+
+						EPOItemId = detail.EPOItemId,
+						DRItemId = string.Concat("drItemId", nowTicks),
+						PRId = detail.PRId,
+						PRNo = detail.PRNo,
+						PRItemId = detail.PRItemId,
+
+						POId = detail.POId,
+						POItemId = detail.POItemId,
+						POSerialNumber = detail.POSerialNumber,
+
+						ProductId = detail.ProductId,
+						ProductCode = detail.ProductCode,
+						ProductName = "FABRIC",
+						ProductRemark = detail.ProductRemark,
+
+						RONo = detail.RONo,
+
+						ReceiptQuantity = (decimal)100,
+
+						UomId = long.Parse(detail.UomId),
+						UomUnit = detail.UomUnit,
+
+						PricePerDealUnit = (decimal)detail.PricePerDealUnit,
+
+						DesignColor = string.Concat("DesignColor", nowTicks),
+
+						SmallQuantity = (decimal)detail.SmallQuantity,
+						OrderQuantity = 30,
+						SmallUomId = long.Parse(detail.SmallUomId),
+						SmallUomUnit = detail.SmallUomUnit,
+						Conversion = (decimal)1,
+						CorrectionConversion = (decimal)12,
+
+						DOCurrencyRate = 1,
+
+						UENItemId = 1
+					};
+					var garmentUnitReceiptNoteItem2 = new GarmentUnitReceiptNoteItem
+					{
+						DODetailId = detail.Id,
+
+						EPOItemId = detail.EPOItemId,
+						DRItemId = string.Concat("drItemId", nowTicks),
+						PRId = detail.PRId,
+						PRNo = detail.PRNo,
+						PRItemId = detail.PRItemId,
+
+						POId = detail.POId,
+						POItemId = detail.POItemId,
+						POSerialNumber = detail.POSerialNumber,
+
+						ProductId = detail.ProductId,
+						ProductCode = detail.ProductCode,
+						ProductName = detail.ProductName,
+						ProductRemark = detail.ProductRemark,
+
+						RONo = detail.RONo + "S",
+
+						ReceiptQuantity = (decimal)100,
+
+						UomId = long.Parse(detail.UomId),
+						UomUnit = detail.UomUnit,
+
+						PricePerDealUnit = (decimal)detail.PricePerDealUnit,
+
+						DesignColor = string.Concat("DesignColor", nowTicks),
+
+						SmallQuantity = (decimal)detail.SmallQuantity,
+						OrderQuantity = 30,
+						SmallUomId = long.Parse(detail.SmallUomId),
+						SmallUomUnit = detail.SmallUomUnit,
+						Conversion = (decimal)1,
+						CorrectionConversion = (decimal)12,
+
+						DOCurrencyRate = 1,
+
+						UENItemId = 1
+					};
+
+					garmentUnitReceiptNote.Items.Add(garmentUnitReceiptNoteItem);
+					garmentUnitReceiptNote.Items.Add(garmentUnitReceiptNoteItem2);
+				}
+			}
+
+			return garmentUnitReceiptNote;
+		}
+		public async Task<GarmentUnitReceiptNote> GetNewDataMonitoringFlow(long? ticks = null, GarmentDeliveryOrder garmentDeliveryOrder = null, GarmentUnitExpenditureNote garmentUnitExpenditureNote = null)
+		{
+			long nowTicks = ticks ?? DateTimeOffset.Now.Ticks;
+
+			garmentDeliveryOrder = garmentDeliveryOrder ?? await Task.Run(() => garmentDeliveryOrderDataUtil.GetTestData());
+			var garmentUnitReceiptNote = new GarmentUnitReceiptNote
+			{
+				URNType = "PEMBELIAN",
+				UnitId = nowTicks,
+				UnitCode = "SMP1",
+				UnitName = string.Concat("UnitName", nowTicks),
+
+				StorageId = nowTicks,
+				StorageCode = string.Concat("StorageCode", nowTicks),
+				StorageName = string.Concat("StorageName", nowTicks),
+
+				SupplierId = garmentDeliveryOrder.SupplierId,
+				SupplierCode = garmentDeliveryOrder.SupplierCode,
+				SupplierName = garmentDeliveryOrder.SupplierName,
+
+				DOId = garmentDeliveryOrder.Id,
+				DONo = garmentDeliveryOrder.DONo,
+
+				DeletedReason = nowTicks.ToString(),
+
+				DOCurrencyRate = garmentDeliveryOrder.DOCurrencyRate,
+
+				ReceiptDate = DateTimeOffset.Now,
+
+				Items = new List<GarmentUnitReceiptNoteItem>()
+			};
+
+			foreach (var item in garmentDeliveryOrder.Items)
+			{
+				foreach (var detail in item.Details)
+				{
+					var garmentUnitReceiptNoteItem = new GarmentUnitReceiptNoteItem
+					{
+						DODetailId = detail.Id,
+
+						EPOItemId = detail.EPOItemId,
+						DRItemId = string.Concat("drItemId", nowTicks),
+						PRId = detail.PRId,
+						PRNo = detail.PRNo,
+						PRItemId = detail.PRItemId,
+
+						POId = detail.POId,
+						POItemId = detail.POItemId,
+						POSerialNumber = detail.POSerialNumber,
+
+						ProductId = detail.ProductId,
+						ProductCode = detail.ProductCode,
+						ProductName = "FABRIC",
+						ProductRemark = detail.ProductRemark,
+
+						RONo = detail.RONo,
+
+						ReceiptQuantity = (decimal)100,
+
+						UomId = long.Parse(detail.UomId),
+						UomUnit = detail.UomUnit,
+
+						PricePerDealUnit = (decimal)detail.PricePerDealUnit,
+
+						DesignColor = string.Concat("DesignColor", nowTicks),
+
+						SmallQuantity = (decimal)detail.SmallQuantity,
+						OrderQuantity = 30,
+						SmallUomId = long.Parse(detail.SmallUomId),
+						SmallUomUnit = detail.SmallUomUnit,
+						Conversion = (decimal)1,
+						CorrectionConversion = (decimal)12,
+
+						DOCurrencyRate = 1,
+
+						UENItemId = 1
+					};
+					var garmentUnitReceiptNoteItem2 = new GarmentUnitReceiptNoteItem
+					{
+						DODetailId = detail.Id,
+
+						EPOItemId = detail.EPOItemId,
+						DRItemId = string.Concat("drItemId", nowTicks),
+						PRId = detail.PRId,
+						PRNo = detail.PRNo,
+						PRItemId = detail.PRItemId,
+
+						POId = detail.POId,
+						POItemId = detail.POItemId,
+						POSerialNumber = detail.POSerialNumber,
+
+						ProductId = detail.ProductId,
+						ProductCode = detail.ProductCode,
+						ProductName = detail.ProductName,
+						ProductRemark = detail.ProductRemark,
+
+						RONo = detail.RONo + "S",
+
+						ReceiptQuantity = (decimal)100,
+
+						UomId = long.Parse(detail.UomId),
+						UomUnit = detail.UomUnit,
+
+						PricePerDealUnit = (decimal)detail.PricePerDealUnit,
+
+						DesignColor = string.Concat("DesignColor", nowTicks),
+
+						SmallQuantity = (decimal)detail.SmallQuantity,
+						OrderQuantity = 30,
+						SmallUomId = long.Parse(detail.SmallUomId),
+						SmallUomUnit = detail.SmallUomUnit,
+						Conversion = (decimal)1,
+						CorrectionConversion = (decimal)12,
+
+						DOCurrencyRate = 1,
+
+						UENItemId = 1
+					};
+
+					garmentUnitReceiptNote.Items.Add(garmentUnitReceiptNoteItem);
+					garmentUnitReceiptNote.Items.Add(garmentUnitReceiptNoteItem2);
+				}
+			}
+
+			return garmentUnitReceiptNote;
+		}
+
+		public void SetDataWithStorage(GarmentUnitReceiptNote garmentUnitReceiptNote, long? unitId = null)
         {
             long nowTicks = unitId ?? DateTimeOffset.Now.Ticks;
 
@@ -509,7 +761,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
             await facade.Create(data);
             return data;
         }
-        public async Task<GarmentUnitReceiptNote> GetTestDataWithStorageGudangSisaACC(long? ticks = null)
+		public async Task<GarmentUnitReceiptNote> GetTestDataMonitoringFlow(long? ticks = null)
+		{
+			var data = await GetNewDataMonitoringFlow(ticks);
+			await facade.Create(data);
+			return data;
+		}
+		public async Task<GarmentUnitReceiptNote> GetTestDataWithStorageGudangSisaACC(long? ticks = null)
         {
             var data = await GetNewDataWithStorage(ticks);
             data.URNType = "GUDANG SISA";
