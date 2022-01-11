@@ -18,94 +18,139 @@ using System.Text;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 {
-    public class GarmentFlowDetailMaterialReportFacade : IGarmentFlowDetailMaterialReport
-    {
-        private readonly PurchasingDbContext dbContext;
-        public readonly IServiceProvider serviceProvider;
-        private readonly DbSet<GarmentUnitExpenditureNote> dbSet;
+	public class GarmentFlowDetailMaterialReportFacade : IGarmentFlowDetailMaterialReport
+	{
+		private readonly PurchasingDbContext dbContext;
+		public readonly IServiceProvider serviceProvider;
+		private readonly DbSet<GarmentUnitExpenditureNote> dbSet;
 
 
-        public GarmentFlowDetailMaterialReportFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
-        {
-            this.serviceProvider = serviceProvider;
-            this.dbContext = dbContext;
-            this.dbSet = dbContext.Set<GarmentUnitExpenditureNote>();
-        }
+		public GarmentFlowDetailMaterialReportFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
+		{
+			this.serviceProvider = serviceProvider;
+			this.dbContext = dbContext;
+			this.dbSet = dbContext.Set<GarmentUnitExpenditureNote>();
+		}
 
-        private List<GarmentCategoryViewModel> GetProductCodes(int page, int size, string order, string filter)
-        {
-            //var param = new StringContent(JsonConvert.SerializeObject(codes), Encoding.UTF8, "application/json");
-            IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
-            if (httpClient != null)
-            {
-                var garmentSupplierUri = APIEndpoint.Core + $"master/garment-categories";
-                string queryUri = "?page=" + page + "&size=" + size + "&order=" + order + "&filter=" + filter;
-                string uri = garmentSupplierUri + queryUri;
-                var response = httpClient.GetAsync($"{uri}").Result.Content.ReadAsStringAsync();
-                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
-                List<GarmentCategoryViewModel> viewModel = JsonConvert.DeserializeObject<List<GarmentCategoryViewModel>>(result.GetValueOrDefault("data").ToString());
-                return viewModel;
-            }
-            else
-            {
-                List<GarmentCategoryViewModel> viewModel = null;
-                return viewModel;
-            }
-        }
+		private List<GarmentCategoryViewModel> GetProductCodes(int page, int size, string order, string filter)
+		{
+			//var param = new StringContent(JsonConvert.SerializeObject(codes), Encoding.UTF8, "application/json");
+			IHttpClientService httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
+			if (httpClient != null)
+			{
+				var garmentSupplierUri = APIEndpoint.Core + $"master/garment-categories";
+				string queryUri = "?page=" + page + "&size=" + size + "&order=" + order + "&filter=" + filter;
+				string uri = garmentSupplierUri + queryUri;
+				var response = httpClient.GetAsync($"{uri}").Result.Content.ReadAsStringAsync();
+				Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(response.Result);
+				List<GarmentCategoryViewModel> viewModel = JsonConvert.DeserializeObject<List<GarmentCategoryViewModel>>(result.GetValueOrDefault("data").ToString());
+				return viewModel;
+			}
+			else
+			{
+				List<GarmentCategoryViewModel> viewModel = null;
+				return viewModel;
+			}
+		}
 
-        public IQueryable<GarmentFlowDetailMaterialViewModel> GetQuery(string category, string productcode, string unit, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int offset)
-        {
-            //DateTimeOffset dateFrom = DateFrom == null ? new DateTime(1970, 1, 1) : (DateTimeOffset)DateFrom;
-            //DateTimeOffset dateTo = DateTo == null ? new DateTime(2100, 1, 1) : (DateTimeOffset)DateTo;
+		public IQueryable<GarmentFlowDetailMaterialViewModel> GetQuery(string category, string productcode, string unit, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int offset)
+		{
+			//DateTimeOffset dateFrom = DateFrom == null ? new DateTime(1970, 1, 1) : (DateTimeOffset)DateFrom;
+			//DateTimeOffset dateTo = DateTo == null ? new DateTime(2100, 1, 1) : (DateTimeOffset)DateTo;
 
-            var categories = GetProductCodes(1, int.MaxValue, "{}", "{}");
+			var categories = GetProductCodes(1, int.MaxValue, "{}", "{}");
 
-            var categories1 = category == "BB" ? categories.Where(x => x.CodeRequirement == "BB").Select(x => x.Name).ToArray() : category == "BP" ? categories.Where(x => x.CodeRequirement == "BP").Select(x => x.Name).ToArray() : categories.Where(x => x.CodeRequirement == "BE").Select(x => x.Name).ToArray();
+			var categories1 = category == null || category=="undefined" || category =="" ? categories.Select(x => x.Name).ToArray():category == "BB" ? categories.Where(x => x.CodeRequirement == "BB").Select(x => x.Name).ToArray() : category == "BP" ? categories.Where(x => x.CodeRequirement == "BP").Select(x => x.Name).ToArray() : categories.Where(x => x.CodeRequirement == "BE").Select(x => x.Name).ToArray();
 
-            var Query = (from a in dbContext.GarmentUnitExpenditureNoteItems 
-                         join b in dbContext.GarmentUnitExpenditureNotes on a.UENId equals b.Id
+			if(unit == "SMP1")
+			{
+				var Query = (from a in dbContext.GarmentUnitExpenditureNoteItems
+							 join b in dbContext.GarmentUnitExpenditureNotes on a.UENId equals b.Id
 
-                         join e in dbContext.GarmentUnitDeliveryOrderItems on a.UnitDOItemId equals e.Id
-                         join d in dbContext.GarmentUnitDeliveryOrders on e.UnitDOId equals d.Id
-                         join g in dbContext.GarmentUnitReceiptNoteItems on a.URNItemId equals g.Id
-                         join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on g.EPOItemId equals c.Id
-                         //join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on g.EPOItemId equals c.Id
-                         //join f in categories on a.ProductCode equals f.Code
-                         where
-                         a.IsDeleted == false && b.IsDeleted == false &&
-                         categories1.Contains(a.ProductName) &&
-                         //f.CodeRequirement == (string.IsNullOrWhiteSpace(category) ? f.CodeRequirement : category)
-                         //(string.IsNullOrWhiteSpace(category) ? a.ProductCode == a.ProductCode : categories1.Contains(a.ProductCode))
-                         //&& f.ProductCode.Substring(0, 3) == (string.IsNullOrWhiteSpace(productcode) ? f.ProductCode.Substring(0, 3) : productcode)
-                         b.CreatedUtc.Date >= DateFrom
-                         && b.CreatedUtc.Date <= DateTo
-                         && b.UnitSenderCode == (string.IsNullOrWhiteSpace(unit) ? b.UnitSenderCode : unit)
+							 join e in dbContext.GarmentUnitDeliveryOrderItems on a.UnitDOItemId equals e.Id
+							 join d in dbContext.GarmentUnitDeliveryOrders on e.UnitDOId equals d.Id
+							 join g in dbContext.GarmentUnitReceiptNoteItems on a.URNItemId equals g.Id
+							 join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on g.EPOItemId equals c.Id
+							 where
+							 a.IsDeleted == false && b.IsDeleted == false &&
+							 categories1.Contains(a.ProductName) &&
+							 b.CreatedUtc.Date >= DateFrom
+							 && b.CreatedUtc.Date <= DateTo
+							 && b.UnitSenderCode == "SMP1"
 
-                         orderby a.CreatedUtc descending
-                         select new GarmentFlowDetailMaterialViewModel {
-                             ProductCode = a.ProductCode,
-                             ProductName = e.ProductName == "" ? a.ProductName : e.ProductName,
-                             POSerialNumber = a.POSerialNumber,
-                             ProductRemark = a.ProductRemark,
-                             RONo = a.RONo,
-                             Article = c.Article,
-                             BuyerCode = a.BuyerCode,
-                             RONoDO = d.RONo,
-                             ArticleDO = d.Article,
-                             UnitDOType = d.UnitDOType,
-                             UENNo = b.UENNo,
-                             ExpenditureDate = b.ExpenditureDate,
-                             Quantity = a.Quantity,
-                             UomUnit = a.UomUnit,
-                             Total = (a.BasicPrice / (a.Conversion == 0 ? 1 : a.Conversion)) * Convert.ToDecimal(a.Quantity),
-                             UnitDestination = (b.ExpenditureType == "TRANSFER" || b.ExpenditureType == "GUDANG LAIN") ? b.UnitRequestName : b.ExpenditureType == "EXTERNAL" ? "RETUR" : b.ExpenditureType
+							 orderby a.CreatedUtc descending
+							 select new GarmentFlowDetailMaterialViewModel
+							 {
+								 ProductCode = a.ProductCode,
+								 ProductName = e.ProductName == "" ? a.ProductName : e.ProductName,
+								 POSerialNumber = a.POSerialNumber,
+								 ProductRemark = a.ProductRemark,
+								 RONo = a.RONo,
+								 Article = c.Article,
+								 BuyerCode = a.BuyerCode,
+								 RONoDO = d.RONo,
+								 ArticleDO = d.Article,
+								 UnitDOType = d.UnitDOType,
+								 UENNo = b.UENNo,
+								 ExpenditureDate = b.ExpenditureDate,
+								 Quantity = a.Quantity,
+								 UomUnit = a.UomUnit,
+								 Total = (a.BasicPrice / (a.Conversion == 0 ? 1 : a.Conversion)) * Convert.ToDecimal(a.Quantity),
+								 UnitDestination = (b.ExpenditureType == "TRANSFER" || b.ExpenditureType == "GUDANG LAIN") ? b.UnitRequestName : b.ExpenditureType == "EXTERNAL" ? "RETUR" : b.ExpenditureType
 
-                         });
+							 });
+				return Query.AsQueryable();
+			}
+			else
+			{
+				var Query = (from a in dbContext.GarmentUnitExpenditureNoteItems
+							 join b in dbContext.GarmentUnitExpenditureNotes on a.UENId equals b.Id
+
+							 join e in dbContext.GarmentUnitDeliveryOrderItems on a.UnitDOItemId equals e.Id
+							 join d in dbContext.GarmentUnitDeliveryOrders on e.UnitDOId equals d.Id
+							 join g in dbContext.GarmentUnitReceiptNoteItems on a.URNItemId equals g.Id
+							 join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on g.EPOItemId equals c.Id
+							 //join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on g.EPOItemId equals c.Id
+							 //join f in categories on a.ProductCode equals f.Code
+							 where
+							 a.IsDeleted == false && b.IsDeleted == false &&
+							 categories1.Contains(a.ProductName) &&
+							 //f.CodeRequirement == (string.IsNullOrWhiteSpace(category) ? f.CodeRequirement : category)
+							 //(string.IsNullOrWhiteSpace(category) ? a.ProductCode == a.ProductCode : categories1.Contains(a.ProductCode))
+							 //&& f.ProductCode.Substring(0, 3) == (string.IsNullOrWhiteSpace(productcode) ? f.ProductCode.Substring(0, 3) : productcode)
+							 b.CreatedUtc.Date >= DateFrom
+							 && b.CreatedUtc.Date <= DateTo
+							 && b.UnitSenderCode == (string.IsNullOrWhiteSpace(unit) ? b.UnitSenderCode : unit)
+
+							 orderby a.CreatedUtc descending
+							 select new GarmentFlowDetailMaterialViewModel
+							 {
+								 ProductCode = a.ProductCode,
+								 ProductName = e.ProductName == "" ? a.ProductName : e.ProductName,
+								 POSerialNumber = a.POSerialNumber,
+								 ProductRemark = a.ProductRemark,
+								 RONo = a.RONo,
+								 Article = c.Article,
+								 BuyerCode = a.BuyerCode,
+								 RONoDO = d.RONo,
+								 ArticleDO = d.Article,
+								 UnitDOType = d.UnitDOType,
+								 UENNo = b.UENNo,
+								 ExpenditureDate = b.ExpenditureDate,
+								 Quantity = a.Quantity,
+								 UomUnit = a.UomUnit,
+								 Total = (a.BasicPrice / (a.Conversion == 0 ? 1 : a.Conversion)) * Convert.ToDecimal(a.Quantity),
+								 UnitDestination = (b.ExpenditureType == "TRANSFER" || b.ExpenditureType == "GUDANG LAIN") ? b.UnitRequestName : b.ExpenditureType == "EXTERNAL" ? "RETUR" : b.ExpenditureType
+
+							 });
+				return Query.AsQueryable();
+			}
+           
 
             //Query = string.IsNullOrWhiteSpace(category) ? Query : Query.Where(x => categories1.Contains(x.ProductName)).Select(x => x);
 
 
-            return Query.AsQueryable();
+            
         }
 
         public Tuple<List<GarmentFlowDetailMaterialViewModel>, int> GetReport(string category, string productcode, string unit, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int offset, string order, int page, int size)

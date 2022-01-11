@@ -66,7 +66,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 		private Mock<IServiceProvider> GetServiceProvider()
 		{
 			HttpResponseMessage message = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
-			message.Content = new StringContent("{\"apiVersion\":\"1.0\",\"statusCode\":200,\"message\":\"Ok\",\"data\":[{\"Id\":7,\"codeRequirement\":\"FABRIC\",\"code\":\"BB\",\"rate\":13700.0,\"name\":\"FABRIC\",\"date\":\"2018/10/20\"}],\"info\":{\"count\":1,\"page\":1,\"size\":1,\"total\":2,\"order\":{\"date\":\"desc\"},\"select\":[\"Id\",\"code\",\"rate\",\"date\"]}}");
+			message.Content = new StringContent("{\"apiVersion\":\"1.0\",\"statusCode\":200,\"message\":\"Ok\",\"data\":[{\"Id\":7,\"codeRequirement\":\"BB\",\"code\":\"BB\",\"rate\":13700.0,\"name\":\"FABRIC\",\"date\":\"2018/10/20\"}],\"info\":{\"count\":1,\"page\":1,\"size\":1,\"total\":2,\"order\":{\"date\":\"desc\"},\"select\":[\"Id\",\"code\",\"rate\",\"date\"]}}");
 			var HttpClientService = new Mock<IHttpClientService>();
 			HttpClientService
 				.Setup(x => x.GetAsync(It.IsAny<string>()))
@@ -114,164 +114,43 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 		[Fact]
 		public async Task Should_Success_GENERATEEXCELSMP1()
 		{
-			var facade1 = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
-			var data1 = await UnitDOdataUtil(facade1, GetCurrentMethod()).GetTestDataMultipleItemForURNProcess();
-
-			 
-
-			HttpResponseMessage httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK);
-			httpResponseMessage.Content = new StringContent("\"apiVersion\":\"1.0\",\"statusCode\":200,\"message\":\"Ok\",\"data\":[{\"Id\":7,\"code\":\"BB\",\"codeRequirement\":\"FABRIC\",\"name\":\"FABRIC\",\"date\":\"2018/10/20\"}],\"info\":{\"count\":1,\"page\":1,\"size\":1,\"total\":2,\"order\":{\"date\":\"desc\"},\"select\":[\"Id\",\"code\",\"rate\",\"date\"]}");
-
-			var httpClientService = new Mock<IHttpClientService>();
-
-			 
-			httpClientService
-				.Setup(x => x.GetAsync(It.IsAny<string>()))
-				.ReturnsAsync(httpResponseMessage);
-
-			httpClientService
-			   .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-categories"))))
-			   .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentCategoryDataUtil().GetMultipleResultFormatterOkString()) });
-
-			httpClientService
-			   .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("delivery-returns"))))
-			   .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentDeliveryReturnDataUtil().GetResultFormatterOkString(data1)) });
-
-			httpClientService
-			   .Setup(x => x.PutAsync(It.Is<string>(s => s.Contains("delivery-returns")), It.IsAny<HttpContent>()))
-			   .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentDeliveryReturnDataUtil().GetResultFormatterOkString()) });
-
-			var mapper = new Mock<IMapper>();
-			mapper
-				.Setup(x => x.Map<GarmentUnitReceiptNoteViewModel>(It.IsAny<GarmentUnitReceiptNote>()))
-				.Returns(new GarmentUnitReceiptNoteViewModel
-				{
-					Id = 1,
-					DOId = 1,
-					DOCurrency = new CurrencyViewModel(),
-					Supplier = new SupplierViewModel(),
-					Unit = new UnitViewModel(),
-					Items = new List<GarmentUnitReceiptNoteItemViewModel>
-					{
-						new GarmentUnitReceiptNoteItemViewModel {
-							Product = new GarmentProductViewModel(),
-							Uom = new UomViewModel()
-						}
-					}
-				});
-
-			var mockGarmentDeliveryOrderFacade = new Mock<IGarmentDeliveryOrderFacade>();
-			mockGarmentDeliveryOrderFacade
-				.Setup(x => x.ReadById(It.IsAny<int>()))
-				.Returns(new GarmentDeliveryOrder());
-
-			var serviceProviderMock = new Mock<IServiceProvider>();
-			serviceProviderMock
-				.Setup(x => x.GetService(typeof(IdentityService)))
-				.Returns(new IdentityService { Username = "Username" });
-			serviceProviderMock
-				.Setup(x => x.GetService(typeof(IHttpClientService)))
-				.Returns(httpClientService.Object);
-			serviceProviderMock
-				.Setup(x => x.GetService(typeof(IMapper)))
-				.Returns(mapper.Object);
-			serviceProviderMock
-				.Setup(x => x.GetService(typeof(IGarmentDeliveryOrderFacade)))
-				.Returns(mockGarmentDeliveryOrderFacade.Object);
-
-			serviceProviderMock
-				.Setup(x => x.GetService(typeof(IdentityService)))
-				.Returns(new IdentityService() { Token = "Token", Username = "Test" });
-
-
-
+			var dbContext = _dbContext(GetCurrentMethod());
 			var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-			var data = await garmentUnitReceiptNoteDataUtil(facade, GetCurrentMethod()).GetNewDataMonitoring();
+			var data = await garmentUnitReceiptNoteDataUtil(facade, GetCurrentMethod()).GetTestDataMonitoringFlow();
+			var Response = facade.GenerateExcelFlowForUnit(DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), "SMP1", "BB", "fabric", 7, "SAMPLE");
 
-			var result =  facade.GenerateExcelFlowForUnit(DateTime.Now.AddDays(-7),DateTime.Now.AddDays(7),"SMP1","BB","fabric",7,"SAMPLE");
-			Assert.NotNull(result);
+			Assert.NotNull(Response);
 
 		}
 		[Fact]
 		public async Task Should_Success_GENERATEEXCENotSample()
 		{
-			var facade1 = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
-			var data1 = await UnitDOdataUtil(facade1, GetCurrentMethod()).GetTestDataMultipleItemForURNProcess();
-
-
-
-			HttpResponseMessage httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK);
-			httpResponseMessage.Content = new StringContent("\"apiVersion\":\"1.0\",\"statusCode\":200,\"message\":\"Ok\",\"data\":[{\"Id\":7,\"code\":\"BB\",\"codeRequirement\":\"FABRIC\",\"name\":\"FABRIC\",\"date\":\"2018/10/20\"}],\"info\":{\"count\":1,\"page\":1,\"size\":1,\"total\":2,\"order\":{\"date\":\"desc\"},\"select\":[\"Id\",\"code\",\"rate\",\"date\"]}");
-
-			var httpClientService = new Mock<IHttpClientService>();
-
-
-			httpClientService
-				.Setup(x => x.GetAsync(It.IsAny<string>()))
-				.ReturnsAsync(httpResponseMessage);
-
-			httpClientService
-			   .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("master/garment-categories"))))
-			   .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentCategoryDataUtil().GetMultipleResultFormatterOkString()) });
-
-			httpClientService
-			   .Setup(x => x.GetAsync(It.Is<string>(s => s.Contains("delivery-returns"))))
-			   .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentDeliveryReturnDataUtil().GetResultFormatterOkString(data1)) });
-
-			httpClientService
-			   .Setup(x => x.PutAsync(It.Is<string>(s => s.Contains("delivery-returns")), It.IsAny<HttpContent>()))
-			   .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentDeliveryReturnDataUtil().GetResultFormatterOkString()) });
-
-			var mapper = new Mock<IMapper>();
-			mapper
-				.Setup(x => x.Map<GarmentUnitReceiptNoteViewModel>(It.IsAny<GarmentUnitReceiptNote>()))
-				.Returns(new GarmentUnitReceiptNoteViewModel
-				{
-					Id = 1,
-					DOId = 1,
-					DOCurrency = new CurrencyViewModel(),
-					Supplier = new SupplierViewModel(),
-					Unit = new UnitViewModel(),
-					Items = new List<GarmentUnitReceiptNoteItemViewModel>
-					{
-						new GarmentUnitReceiptNoteItemViewModel {
-							Product = new GarmentProductViewModel(),
-							Uom = new UomViewModel()
-						}
-					}
-				});
-
-			var mockGarmentDeliveryOrderFacade = new Mock<IGarmentDeliveryOrderFacade>();
-			mockGarmentDeliveryOrderFacade
-				.Setup(x => x.ReadById(It.IsAny<int>()))
-				.Returns(new GarmentDeliveryOrder());
-
-			var serviceProviderMock = new Mock<IServiceProvider>();
-			serviceProviderMock
-				.Setup(x => x.GetService(typeof(IdentityService)))
-				.Returns(new IdentityService { Username = "Username" });
-			serviceProviderMock
-				.Setup(x => x.GetService(typeof(IHttpClientService)))
-				.Returns(httpClientService.Object);
-			serviceProviderMock
-				.Setup(x => x.GetService(typeof(IMapper)))
-				.Returns(mapper.Object);
-			serviceProviderMock
-				.Setup(x => x.GetService(typeof(IGarmentDeliveryOrderFacade)))
-				.Returns(mockGarmentDeliveryOrderFacade.Object);
-
-			serviceProviderMock
-				.Setup(x => x.GetService(typeof(IdentityService)))
-				.Returns(new IdentityService() { Token = "Token", Username = "Test" });
-
-
-
+			var dbContext = _dbContext(GetCurrentMethod());
 			var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-			var data = await garmentUnitReceiptNoteDataUtil(facade, GetCurrentMethod()).GetNewDataMonitoring();
+			var data = await garmentUnitReceiptNoteDataUtil(facade, GetCurrentMethod()).GetTestDataMonitoringFlow();
+			var Response = facade.GenerateExcelFlowForUnit(DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), "", "BB", "fabric", 7, "SAMPLE");
 
-			var result = facade.GenerateExcelFlowForUnit(DateTime.Now.AddDays(-7), DateTime.Now.AddDays(7), "", "BB", "fabric", 7, "");
-			Assert.NotNull(result);
+			Assert.NotNull(Response);
 
+		}
+
+		[Fact]
+		public async Task Should_Success_Get_Monitoring()
+		{
+			var dbContext = _dbContext(GetCurrentMethod());
+			var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var data = await garmentUnitReceiptNoteDataUtil(facade, GetCurrentMethod()).GetTestDataMonitoringFlow();
+			var Response = facade.GetReportFlow(null, null,"","BB", 1, 25, "{}", 7);
+			Assert.NotNull(Response.Item1);
+		}
+		[Fact]
+		public async Task Should_Success_Get_MonitoringSMP()
+		{
+			var dbContext = _dbContext(GetCurrentMethod());
+			var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var data = await garmentUnitReceiptNoteDataUtil(facade, GetCurrentMethod()).GetTestDataMonitoringFlow();
+			var Response = facade.GetReportFlow(null, null, "SMP1", "BB", 1, 25, "{}", 7);
+			Assert.NotNull(Response.Item1);
 		}
 	}
 }
