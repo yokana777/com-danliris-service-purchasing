@@ -41,7 +41,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
 
 
         [HttpGet]
-        public IActionResult GetReport( DateTime? dateFrom, DateTime? dateTo, long unit, int page, int size,  string Order = "{}")
+        public IActionResult GetReport( DateTime? dateFrom, DateTime? dateTo, string unit, int page, int size,  string Order = "{}")
         {
             try
             {
@@ -70,7 +70,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentReports
         }
 
         [HttpGet("download")]
-        public IActionResult GetXlsCMT( DateTime? dateFrom, DateTime? dateTo, long unit, string unitname)
+        public IActionResult GetXlsCMT( DateTime? dateFrom, DateTime? dateTo, string unit, string unitname)
         {
             int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
             string accept = Request.Headers["Accept"];

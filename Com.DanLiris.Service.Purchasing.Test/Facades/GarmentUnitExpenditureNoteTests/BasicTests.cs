@@ -1279,7 +1279,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var dateTo = DateTime.UtcNow.AddDays(1);
             var dateFrom = dateTo.AddDays(-30);
 
-            var results = reportService.GetReport(dateFrom, dateTo, 20, 1, 25, "", 0);
+            var results = reportService.GetReport(dateFrom, dateTo, datauen.UnitSenderCode, 1, 25, "", 0);
 
             Assert.NotNull(results);
 
@@ -1363,7 +1363,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var dateTo = DateTime.UtcNow.AddDays(1);
             var dateFrom = dateTo.AddDays(-30);
 
-            var results = reportService.GetReport(dateFrom, dateTo, 20, 1, 25, "", 0);
+            var results = reportService.GetReport(dateFrom, dateTo, datauen.UnitSenderCode, 1, 25, "", 0);
 
             Assert.NotNull(results);
 
@@ -1447,7 +1447,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var dateTo = DateTime.UtcNow.AddDays(1);
             var dateFrom = dateTo.AddDays(-30);
 
-            var results = reportService.GetReport(dateFrom, dateTo, 20, 1, 25, "", 0);
+            var results = reportService.GetReport(dateFrom, dateTo, datauen.UnitSenderCode, 1, 25, "", 0);
 
             Assert.NotNull(results);
 
@@ -1506,7 +1506,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var dateTo = DateTime.UtcNow.AddDays(1);
             var dateFrom = dateTo.AddDays(-30);
 
-            var results = reportService.GenerateExcel(dateFrom, dateTo, 20, 0, "");
+            var results = reportService.GenerateExcel(dateFrom, dateTo, datauen.UnitSenderCode, 0, "");
 
             Assert.IsType<MemoryStream>(results);
         }
@@ -1559,7 +1559,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             var dateTo = DateTime.UtcNow.AddDays(1);
             var dateFrom = dateTo.AddDays(-30);
 
-            var results = reportService.GenerateExcel(null, null, 200, 0, null);
+            var results = reportService.GenerateExcel(null, null, "cvc", 0, null);
 
             Assert.IsType<MemoryStream>(results);
         }
