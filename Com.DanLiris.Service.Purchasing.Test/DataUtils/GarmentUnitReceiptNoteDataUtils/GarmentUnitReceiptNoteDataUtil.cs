@@ -581,17 +581,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
 				StorageName = string.Concat("StorageName", nowTicks),
 
 				SupplierId = garmentDeliveryOrder.SupplierId,
-				SupplierCode = garmentDeliveryOrder.SupplierCode,
-				SupplierName = garmentDeliveryOrder.SupplierName,
+				SupplierCode = "SupplierCode",
+				SupplierName = "SupplierName",
 
 				DOId = garmentDeliveryOrder.Id,
-				DONo = garmentDeliveryOrder.DONo,
+				DONo = "DONo",
 
 				DeletedReason = nowTicks.ToString(),
 
 				DOCurrencyRate = garmentDeliveryOrder.DOCurrencyRate,
 
 				ReceiptDate = DateTimeOffset.Now,
+				URNNo="URNNo",
 
 				Items = new List<GarmentUnitReceiptNoteItem>()
 			};
@@ -607,19 +608,19 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteD
 						EPOItemId = detail.EPOItemId,
 						DRItemId = string.Concat("drItemId", nowTicks),
 						PRId = detail.PRId,
-						PRNo = detail.PRNo,
+						PRNo = "PRNo",
 						PRItemId = detail.PRItemId,
 
 						POId = detail.POId,
 						POItemId = detail.POItemId,
-						POSerialNumber = detail.POSerialNumber,
+						POSerialNumber = "POSerialNumber",
 
 						ProductId = detail.ProductId,
 						ProductCode = detail.ProductCode,
 						ProductName = "FABRIC",
 						ProductRemark = detail.ProductRemark,
 
-						RONo = detail.RONo,
+						RONo = "RONo",
 
 						ReceiptQuantity = (decimal)100,
 

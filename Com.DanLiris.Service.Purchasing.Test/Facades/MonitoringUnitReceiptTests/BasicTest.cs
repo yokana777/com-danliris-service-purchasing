@@ -113,7 +113,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.MonitoringUnitReceiptTest
 
 			var facade = new MonitoringUnitReceiptAllFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
 			var data = await garmentUnitReceiptNoteDataUtil(facadeExpend, GetCurrentMethod()).GetTestDataMonitoringFlow();
-			var Response = facade.GetReport("", "","","", "SMP1","", DateTime.Now, DateTime.Now, 1, 25,"", 7);
+			var Response = facade.GetReport(null, "POSerialNumber", "RONo", "DONo", "SMP1","SupplierCode", DateTime.Now.AddDays(-1), DateTime.Now.AddDays(1), 1, 25,"", 7);
 			Assert.NotNull(Response.Item1);
 		}
 		[Fact]
@@ -124,7 +124,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.MonitoringUnitReceiptTest
 
 			var facade = new MonitoringUnitReceiptAllFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
 			var data = await garmentUnitReceiptNoteDataUtil(facadeExpend, GetCurrentMethod()).GetTestDataMonitoringFlow();
-			var Response = facade.GenerateExcel("", "", "", "", "SMP1", "", DateTime.Now, DateTime.Now, 1, 25, "", 7);
+			var Response = facade.GenerateExcel(null, "POSerialNumber", "RONo", "DONo", "SMP1", "SupplierCode", DateTime.Now.AddDays(-1), DateTime.Now.AddDays(1), 1, 25, "", 7);
 			Assert.NotNull(Response);
 		}
 
