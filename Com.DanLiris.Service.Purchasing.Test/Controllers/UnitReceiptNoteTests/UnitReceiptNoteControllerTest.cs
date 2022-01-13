@@ -668,7 +668,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
 
             UnitReceiptNoteController controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
             var response = await controller.Delete(It.IsAny<int>());
-            Assert.Equal((int)HttpStatusCode.NoContent, GetStatusCode(response));
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
 
         [Fact]
