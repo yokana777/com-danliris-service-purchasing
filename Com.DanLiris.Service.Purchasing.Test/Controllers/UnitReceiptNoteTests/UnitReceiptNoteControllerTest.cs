@@ -662,7 +662,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
             var mockFacade = new Mock<IUnitReceiptNoteFacade>();
             mockFacade
                 .Setup(x => x.Delete(It.IsAny<int>(), It.IsAny<string>()))
-                .ReturnsAsync(1);
+                .ReturnsAsync("");
 
             var mockMapper = new Mock<IMapper>();
 
