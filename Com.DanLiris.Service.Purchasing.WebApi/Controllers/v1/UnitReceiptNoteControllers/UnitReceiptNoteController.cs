@@ -225,9 +225,15 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
 
             try
             {
-                await _facade.Delete(id, identityService.Username);
+                var result  = await _facade.Delete(id, identityService.Username);
 
-                return NoContent();
+                return Ok(new
+                {
+                    apiVersion = ApiVersion,
+                    data = result,
+                    message = General.OK_MESSAGE,
+                    statusCode = General.CREATED_STATUS_CODE
+                });
             }
             catch (Exception e)
             {

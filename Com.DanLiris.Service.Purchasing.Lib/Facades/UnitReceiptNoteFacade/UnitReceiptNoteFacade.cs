@@ -1243,77 +1243,89 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task<int> Delete(int id, string user)
+        public async Task<string> Delete(int id, string user)
         {
+            string Message = "";
+
             int Deleted = 0;
 
             using (var transaction = this.dbContext.Database.BeginTransaction())
             {
                 try
                 {
-                    var m = this.dbSet
+                    var spb = dbContext.UnitPaymentOrderItems.Where(entity => entity.URNId == id && !entity.IsDeleted).FirstOrDefault();
+
+                    if (spb == null)
+                    {
+                        var m = this.dbSet
                         .Include(d => d.Items)
                         .SingleOrDefault(pr => pr.Id == id && !pr.IsDeleted);
 
-                    EntityExtension.FlagForDelete(m, user, USER_AGENT);
+                        EntityExtension.FlagForDelete(m, user, USER_AGENT);
 
-                    foreach (var item in m.Items)
-                    {
-                        EntityExtension.FlagForDelete(item, user, USER_AGENT);
+                        foreach (var item in m.Items)
+                        {
+                            EntityExtension.FlagForDelete(item, user, USER_AGENT);
 
-                        ExternalPurchaseOrderDetail externalPurchaseOrderDetail = this.dbContext.ExternalPurchaseOrderDetails.FirstOrDefault(s => s.IsDeleted == false && s.Id == item.EPODetailId);
-                        PurchaseRequestItem prItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.IsDeleted == false && s.Id == externalPurchaseOrderDetail.PRItemId);
-                        InternalPurchaseOrderItem poItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.IsDeleted == false && s.Id == externalPurchaseOrderDetail.POItemId);
-                        DeliveryOrderDetail doDetail = dbContext.DeliveryOrderDetails.FirstOrDefault(s => s.IsDeleted == false && s.Id == item.DODetailId);
-                        UnitPaymentOrderDetail upoDetail = dbContext.UnitPaymentOrderDetails.FirstOrDefault(s => s.IsDeleted == false && s.POItemId == poItem.Id);
-                        doDetail.ReceiptQuantity -= item.ReceiptQuantity;
-                        externalPurchaseOrderDetail.ReceiptQuantity -= item.ReceiptQuantity;
-                        if (externalPurchaseOrderDetail.ReceiptQuantity == 0 && upoDetail == null)
-                        {
-                            if (externalPurchaseOrderDetail.DOQuantity > 0 && externalPurchaseOrderDetail.DOQuantity >= externalPurchaseOrderDetail.DealQuantity)
+                            ExternalPurchaseOrderDetail externalPurchaseOrderDetail = this.dbContext.ExternalPurchaseOrderDetails.FirstOrDefault(s => s.IsDeleted == false && s.Id == item.EPODetailId);
+                            PurchaseRequestItem prItem = this.dbContext.PurchaseRequestItems.FirstOrDefault(s => s.IsDeleted == false && s.Id == externalPurchaseOrderDetail.PRItemId);
+                            InternalPurchaseOrderItem poItem = this.dbContext.InternalPurchaseOrderItems.FirstOrDefault(s => s.IsDeleted == false && s.Id == externalPurchaseOrderDetail.POItemId);
+                            DeliveryOrderDetail doDetail = dbContext.DeliveryOrderDetails.FirstOrDefault(s => s.IsDeleted == false && s.Id == item.DODetailId);
+                            UnitPaymentOrderDetail upoDetail = dbContext.UnitPaymentOrderDetails.FirstOrDefault(s => s.IsDeleted == false && s.POItemId == poItem.Id);
+                            doDetail.ReceiptQuantity -= item.ReceiptQuantity;
+                            externalPurchaseOrderDetail.ReceiptQuantity -= item.ReceiptQuantity;
+                            if (externalPurchaseOrderDetail.ReceiptQuantity == 0 && upoDetail == null)
                             {
-                                //prItem.Status = "Barang sudah diterima Unit semua";
-                                poItem.Status = "Barang sudah datang semua";
-                            }
-                            else if (externalPurchaseOrderDetail.DOQuantity > 0 && externalPurchaseOrderDetail.DOQuantity < externalPurchaseOrderDetail.DealQuantity)
-                            {
-                                //prItem.Status = "Barang sudah diterima Unit parsial";
-                                poItem.Status = "Barang sudah datang parsial";
-                            }
-                        }
-                        else if (externalPurchaseOrderDetail.ReceiptQuantity > 0 && upoDetail == null)
-                        {
-                            if (externalPurchaseOrderDetail.DOQuantity >= externalPurchaseOrderDetail.DealQuantity)
-                            {
-                                if (externalPurchaseOrderDetail.ReceiptQuantity < externalPurchaseOrderDetail.DealQuantity)
-                                {
-                                    //prItem.Status = "Barang sudah diterima Unit parsial";
-                                    poItem.Status = "Barang sudah diterima Unit parsial";
-                                }
-                                else if (externalPurchaseOrderDetail.ReceiptQuantity >= externalPurchaseOrderDetail.DealQuantity)
+                                if (externalPurchaseOrderDetail.DOQuantity > 0 && externalPurchaseOrderDetail.DOQuantity >= externalPurchaseOrderDetail.DealQuantity)
                                 {
                                     //prItem.Status = "Barang sudah diterima Unit semua";
-                                    poItem.Status = "Barang sudah diterima Unit semua";
+                                    poItem.Status = "Barang sudah datang semua";
                                 }
-                                else if (externalPurchaseOrderDetail.DOQuantity < externalPurchaseOrderDetail.DealQuantity)
+                                else if (externalPurchaseOrderDetail.DOQuantity > 0 && externalPurchaseOrderDetail.DOQuantity < externalPurchaseOrderDetail.DealQuantity)
                                 {
-                                    poItem.Status = "Barang sudah diterima Unit parsial";
+                                    //prItem.Status = "Barang sudah diterima Unit parsial";
+                                    poItem.Status = "Barang sudah datang parsial";
+                                }
+                            }
+                            else if (externalPurchaseOrderDetail.ReceiptQuantity > 0 && upoDetail == null)
+                            {
+                                if (externalPurchaseOrderDetail.DOQuantity >= externalPurchaseOrderDetail.DealQuantity)
+                                {
+                                    if (externalPurchaseOrderDetail.ReceiptQuantity < externalPurchaseOrderDetail.DealQuantity)
+                                    {
+                                        //prItem.Status = "Barang sudah diterima Unit parsial";
+                                        poItem.Status = "Barang sudah diterima Unit parsial";
+                                    }
+                                    else if (externalPurchaseOrderDetail.ReceiptQuantity >= externalPurchaseOrderDetail.DealQuantity)
+                                    {
+                                        //prItem.Status = "Barang sudah diterima Unit semua";
+                                        poItem.Status = "Barang sudah diterima Unit semua";
+                                    }
+                                    else if (externalPurchaseOrderDetail.DOQuantity < externalPurchaseOrderDetail.DealQuantity)
+                                    {
+                                        poItem.Status = "Barang sudah diterima Unit parsial";
+                                    }
                                 }
                             }
                         }
+
+                        Deleted = dbContext.SaveChanges();
+
+                        await ReverseJournalTransaction(m.URNNo);
+                        await DeleteCreditorAccount(m.URNNo);
+
+                        if (m.IsStorage == true)
+                        {
+                            insertStorage(m, user, "OUT");
+                        }
+                        await RollbackFulfillment(m, user);
+                        transaction.Commit();
                     }
-
-                    Deleted = dbContext.SaveChanges();
-
-                    await ReverseJournalTransaction(m.URNNo);
-                    await DeleteCreditorAccount(m.URNNo);
-
-                    if (m.IsStorage == true)
+                    else
                     {
-                        insertStorage(m, user, "OUT");
+                        Message = "Tidak dapat menghapus, SPB Sudah dibuat";
                     }
-                    await RollbackFulfillment(m, user);
-                    transaction.Commit();
+                    
                 }
                 catch (Exception e)
                 {
@@ -1322,7 +1334,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                 }
             }
 
-            return Deleted;
+            return Message;
         }
 
         private async Task DeleteCreditorAccount(string urnNo)
