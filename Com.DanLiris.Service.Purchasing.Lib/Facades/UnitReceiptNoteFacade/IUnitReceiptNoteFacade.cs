@@ -15,7 +15,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
         UnitReceiptNote ReadById(int id);
         Task<int> Create(UnitReceiptNote m, string user);
         Task<int> Update(int id, UnitReceiptNote unitReceiptNote, string user);
-        Task<int> Delete(int id, string user);
+        Task<string> Delete(int id, string user);
         ReadResponse<UnitReceiptNote> ReadBySupplierUnit(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}");
         ReadResponse<UnitReceiptNoteReportViewModel> GetReport(string urnNo, string prNo, string unitId, string categoryId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order, int offset);
         MemoryStream GenerateExcel(string urnNo, string prNo, string unitId, string categoryId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int offset);
