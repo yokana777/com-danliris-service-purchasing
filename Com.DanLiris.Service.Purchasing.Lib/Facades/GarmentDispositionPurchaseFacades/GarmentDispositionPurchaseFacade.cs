@@ -446,7 +446,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                                 if (t.QTYRemains <= 0)
                                 {
                                     var EPOItems1 = this.dbContext.GarmentExternalPurchaseOrderItems.AsNoTracking().Where(a => a.Id == t.EPO_POId).FirstOrDefault();
-                                    EPOItems1.IsDispositionCreatedAll = true;
+                                    EPOItems1.IsDispositionCreatedAll = false;
                                     EntityExtension.FlagForUpdate(EPOItems1, identityService.Username, USER_AGENT);
                                     var afterUpdateModel1 = this.dbContext.GarmentExternalPurchaseOrderItems.Update(EPOItems1);
                                     //dbContext.SaveChanges();

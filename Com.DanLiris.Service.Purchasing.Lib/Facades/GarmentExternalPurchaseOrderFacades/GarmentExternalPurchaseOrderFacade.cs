@@ -1178,7 +1178,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
 
         public Tuple<List<GarmentExternalPurchaseOrder>, int, Dictionary<string, string>> ReadItemByEPONoSimply(string EPONo = null, int supplierId = 0, string currencyCode = null, string paymentType = null, string category = null, int Page = 1, int Size = 10)
         {
-            IQueryable<GarmentExternalPurchaseOrder> Query = this.dbSet.Include(s => s.Items).Where(m => m.IsPosted && m.IsClosed == false && m.IsDeleted == false && m.IsCanceled == false && m.IsDispositionPaidCreatedAll == false && m.Items.Any(t => t.IsDispositionCreatedAll == false));
+            IQueryable<GarmentExternalPurchaseOrder> Query = this.dbSet.Include(s => s.Items).Where(m => m.IsPosted && m.IsClosed == false && m.IsDeleted == false && m.IsCanceled == false && m.IsDispositionPaidCreatedAll == false && m.Items.Any(t => t.IsDispositionCreatedAll == false && t.IsDeleted == false));
 
             List<string> searchAttributes = new List<string>()
             {
