@@ -544,6 +544,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                         var EPOItems = this.dbContext.GarmentDispositionPurchaseItems.AsNoTracking().Where(a => a.Id == t.Id).FirstOrDefault();
                         EntityExtension.FlagForDelete(EPOItems, identityService.Username, USER_AGENT);
                         var afterDeletedItems = this.dbContext.GarmentDispositionPurchaseItems.Update(EPOItems);
+
+                        var EPO = this.dbContext.GarmentExternalPurchaseOrderItems.AsNoTracking().Where(a => a.GarmentEPOId == t.EPOId).ToList();
+                        foreach (var item in EPO)
+                        {
+                            item.IsDispositionCreatedAll = false;
+                            EntityExtension.FlagForUpdate(item, identityService.Username, USER_AGENT);
+                            this.dbContext.GarmentExternalPurchaseOrderItems.Update(item);
+                        }
+                        
                         dbContext.SaveChanges();
 
 
