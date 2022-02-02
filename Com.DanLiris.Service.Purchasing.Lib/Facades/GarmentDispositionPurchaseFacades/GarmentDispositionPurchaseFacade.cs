@@ -196,12 +196,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
             if (keyword != null)
                 dataModel = dataModel.Where(s => s.DispositionNo.Contains(keyword) || s.SupplierName.Contains(keyword));
 
-            var countData = dataModel.Count();
+            //var countData = dataModel.Count();
 
-            var dataList = await dataModel.ToListAsync();
+            //var dataList = await dataModel.ToListAsync();
 
 
-            var Query = dataList.AsQueryable();
+            var Query = dataModel;
 
             List<string> searchAttributes = new List<string>()
             {
@@ -226,7 +226,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
 
             var model = mapper.Map<List<GarmentDispositionPurchase>, List<DispositionPurchaseTableDto>>(Data.ToList());
 
-            var indexModel = new DispositionPurchaseIndexDto(model, page, countData);
+            var indexModel = new DispositionPurchaseIndexDto(model, page, TotalData);
             return indexModel;
         }
 
