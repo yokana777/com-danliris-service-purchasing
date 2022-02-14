@@ -43,8 +43,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
 				return Ok(new
 				{
 					apiVersion = ApiVersion,
-					data = data.Item1,
-					info = new { total = data.Item2 },
+					data = data,
+					//info = new { total = data.Item2 },
 					message = General.OK_MESSAGE,
 					statusCode = General.OK_STATUS_CODE
 				});
@@ -58,7 +58,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
 			}
 		}
 		[HttpGet("by-user")]
-		public IActionResult GetReportByUser(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, DateTime? dateFromEx, DateTime? dateToEx, int page, int size, string Order = "{}")
+		public async Task<IActionResult> GetReportByUser(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, DateTime? dateFromEx, DateTime? dateToEx, int page, int size, string Order = "{}")
 		{
 			identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 			username = identityService.Username;
@@ -69,13 +69,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
 			try
 			{
 
-				var data = facade.GetMonitoringPurchaseReport(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, dateFromEx, dateToEx, page, size, Order, offset);
+				var result = await facade.GetMonitoringPurchaseReport(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, dateFromEx, dateToEx, page, size, Order, offset);
 
 				return Ok(new
 				{
 					apiVersion = ApiVersion,
-					data = data.Item1,
-					info = new { total = data.Item2 },
+					data = result,
+					 
 					message = General.OK_MESSAGE,
 					statusCode = General.OK_STATUS_CODE
 				});
@@ -89,14 +89,14 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
 			}
 		}
 		[HttpGet("download")]
-		public IActionResult GetXls(string epono, string unit,string roNo, string article,string poSerialNumber,string username,string doNo,string ipoStatus,string supplier, string status, DateTime? dateFrom, DateTime? dateTo, DateTimeOffset? dateFromEx, DateTimeOffset? dateToEx, int page, int size, string Order = "{}")
+		public async Task<IActionResult> GetXls(string epono, string unit,string roNo, string article,string poSerialNumber,string username,string doNo,string ipoStatus,string supplier, string status, DateTime? dateFrom, DateTime? dateTo, DateTimeOffset? dateFromEx, DateTimeOffset? dateToEx, int page, int size, string Order = "{}")
 		{
 			try
 			{
 				byte[] xlsInBytes;
 
 				int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
-				var xls = facade.GenerateExcelPurchase(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, dateFromEx, dateToEx, page, size, Order, offset);
+				var xls = await facade.GenerateExcelPurchase(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, dateFromEx, dateToEx, page, size, Order, offset);
 
 				string filename = "Laporan Pembelian Garment";
 				if (dateFrom != null) filename += " " + ((DateTime)dateFrom).ToString("dd-MM-yyyy");
@@ -117,7 +117,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
 
 		}
 		[HttpGet("by-user/download")]
-		public IActionResult GetXlsByUser(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, DateTimeOffset? dateFromEx, DateTimeOffset? dateToEx, int page, int size, string Order = "{}")
+		public async Task<IActionResult> GetXlsByUser(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, DateTimeOffset? dateFromEx, DateTimeOffset? dateToEx, int page, int size, string Order = "{}")
 		{
 			try
 			{
@@ -127,7 +127,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
 				byte[] xlsInBytes;
 
 				int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
-				var xls = facade.GenerateExcelPurchase(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, dateFromEx, dateToEx, page, size, Order, offset);
+				var xls = await facade.GenerateExcelPurchase(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, dateFromEx, dateToEx, page, size, Order, offset);
 
 				string filename = "Laporan Pembelian Garment - " + username;
 				if (dateFrom != null) filename += " " + ((DateTime)dateFrom).ToString("dd-MM-yyyy");
