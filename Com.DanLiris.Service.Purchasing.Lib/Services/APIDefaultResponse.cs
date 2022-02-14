@@ -14,4 +14,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Services
         public DateTime Date { get; set; }
         public double? Rate { get; set; }
     }
+
+	public class GarmentProduct
+	{
+		public string Code { get; set; }
+		public string Const { get; set; }
+		public string Yarn { get; set; }
+		public string Width { get; set; }
+	}
 }
