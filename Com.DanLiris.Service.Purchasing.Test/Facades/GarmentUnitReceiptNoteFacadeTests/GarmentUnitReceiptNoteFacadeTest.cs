@@ -1618,14 +1618,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
         #region flow detail penerimaan 
 
-        [Fact]
-        public async void Should_Success_Get_FlowReport_Data()
-        {
-            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.GetReportFlow(DateTime.MinValue, DateTime.MaxValue, model.UnitCode, "", 1, 25, "{}", 7);
-            Assert.NotEmpty(Response.Item1);
-        }
+        //[Fact]
+        //public async void Should_Success_Get_FlowReport_Data()
+        //{
+        //    GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+        //    var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+        //    var Response = facade.GetReportFlow(DateTime.MinValue, DateTime.MaxValue, model.UnitCode, "", 1, 25, "{}", 7);
+        //    Assert.NotEmpty(Response.Item1);
+        //}
 
         [Fact]
         public async void Should_Success_Get_FlowReport_Data_Null_Parameter()
