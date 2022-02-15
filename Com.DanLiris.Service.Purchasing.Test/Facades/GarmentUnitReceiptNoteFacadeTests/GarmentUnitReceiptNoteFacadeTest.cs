@@ -2992,18 +2992,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             Assert.NotEqual(0, Response);
         }
 
-        //[Fact]
-        //public async Task Should_Error_Revise_Create_Date_Items()
-        //{
-        //    var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-        //    var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
-        //    List<long> garmentUnitReceipts = new List<long>();
-        //    garmentUnitReceipts.Add(data.Id);
-        //    data.URNNo = null;
-        //    data.CreatedUtc = DateTime.MinValue;
-        //    Exception e = Assert.Throws<Exception>(() => facade.UrnDateRevise(garmentUnitReceipts, "test", DateTime.Now));
-        //    Assert.NotNull(e.Message);
-        //}
+        [Fact]
+        public async Task Should_Error_Revise_Create_Date_Items()
+        {
+            var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestDataWithStorage();
+            List<long> garmentUnitReceipts = new List<long>();
+            garmentUnitReceipts.Add(data.Id);
+            data.URNNo = null;
+            data.CreatedUtc = DateTime.MinValue;
+            Exception e = Assert.Throws<Exception>(() => facade.UrnDateRevise(garmentUnitReceipts, "test", DateTime.Now));
+            Assert.NotNull(e.Message);
+        }
 
 
 
