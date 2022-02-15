@@ -1618,14 +1618,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
 
         #region flow detail penerimaan 
 
-        //[Fact]
-        //public async void Should_Success_Get_FlowReport_Data()
-        //{
-        //    GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-        //    var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-        //    var Response = facade.GetReportFlow(DateTime.MinValue, DateTime.MaxValue, model.UnitCode, "", 1, 25, "{}", 7);
-        //    Assert.NotEmpty(Response.Item1);
-        //}
+        [Fact]
+        public async void Should_Success_Get_FlowReport_Data()
+        {
+            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.GetReportFlow(DateTime.MinValue, DateTime.MaxValue, model.UnitCode, "", 1, 25, "{}", 7);
+            Assert.NotEmpty(Response.Item1);
+        }
 
         [Fact]
         public async void Should_Success_Get_FlowReport_Data_Null_Parameter()
@@ -1645,78 +1645,78 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitReceiptNoteFac
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
-        [Fact]
-        public async void Should_Success_Get_Generate_Excel_Flow_For_Unit_Data()
-        {
-            var serviceProvider = GetServiceProvider();
-            var dbContext = _dbContext(GetCurrentMethod());
-            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var dataUtilUrn = dataUtil(facade, GetCurrentMethod());
-            GarmentUnitDeliveryOrderFacade facadeUDO = new GarmentUnitDeliveryOrderFacade(dbContext, serviceProvider);
-            var dataUtilUDO = new GarmentUnitDeliveryOrderDataUtil(facadeUDO, dataUtilUrn);
-            GarmentUnitExpenditureNoteFacade facadeUEN = new GarmentUnitExpenditureNoteFacade(serviceProvider, dbContext);
-            var dataUtilUEN = new GarmentUnitExpenditureNoteDataUtil(facadeUEN, dataUtilUDO);
-            GarmentReceiptCorrectionFacade facadeRC = new GarmentReceiptCorrectionFacade(dbContext, serviceProvider);
-            var dataUtilRC = new GarmentReceiptCorrectionDataUtil(facadeRC, dataUtilUrn);
+        //[Fact]
+        //public async void Should_Success_Get_Generate_Excel_Flow_For_Unit_Data()
+        //{
+        //    var serviceProvider = GetServiceProvider();
+        //    var dbContext = _dbContext(GetCurrentMethod());
+        //    GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+        //    var dataUtilUrn = dataUtil(facade, GetCurrentMethod());
+        //    GarmentUnitDeliveryOrderFacade facadeUDO = new GarmentUnitDeliveryOrderFacade(dbContext, serviceProvider);
+        //    var dataUtilUDO = new GarmentUnitDeliveryOrderDataUtil(facadeUDO, dataUtilUrn);
+        //    GarmentUnitExpenditureNoteFacade facadeUEN = new GarmentUnitExpenditureNoteFacade(serviceProvider, dbContext);
+        //    var dataUtilUEN = new GarmentUnitExpenditureNoteDataUtil(facadeUEN, dataUtilUDO);
+        //    GarmentReceiptCorrectionFacade facadeRC = new GarmentReceiptCorrectionFacade(dbContext, serviceProvider);
+        //    var dataUtilRC = new GarmentReceiptCorrectionDataUtil(facadeRC, dataUtilUrn);
 
-            DateTimeOffset now = DateTimeOffset.Now;
-            long nowTicks = now.Ticks;
-            var dataUrn1 = await dataUtilUrn.GetNewData2(nowTicks);
+        //    DateTimeOffset now = DateTimeOffset.Now;
+        //    long nowTicks = now.Ticks;
+        //    var dataUrn1 = await dataUtilUrn.GetNewData2(nowTicks);
 
-            foreach (var i in dataUrn1.Items)
-            {
-                //i.UENItemId = 1;
-                i.ProductCode = "CodeTest123";
-                i.ProductName = "Name123";
-                i.ReceiptQuantity = 5;
-                i.Conversion = 1;
-            }
+        //    foreach (var i in dataUrn1.Items)
+        //    {
+        //        //i.UENItemId = 1;
+        //        i.ProductCode = "CodeTest123";
+        //        i.ProductName = "Name123";
+        //        i.ReceiptQuantity = 5;
+        //        i.Conversion = 1;
+        //    }
 
-            await facade.Create(dataUrn1);
+        //    await facade.Create(dataUrn1);
 
-            var stockreport = new GarmentUnitReceiptNoteFacade(serviceProvider, dbContext);
-            var Response = stockreport.GenerateExcelFlowForUnit(new DateTime(1970, 1, 1), DateTime.Now, dataUrn1.UnitCode, "BB", dataUrn1.Category, 7, dataUrn1.UnitName);
-            //var Response2 = stockreport.GenerateExcelStockReport("BP", null, dataUrn2.UnitName, dataUrn2.UnitCode, new DateTime(1970, 1, 1), DateTime.Now, 7);
-            Assert.IsType<System.IO.MemoryStream>(Response);
-        }
+        //    var stockreport = new GarmentUnitReceiptNoteFacade(serviceProvider, dbContext);
+        //    var Response = stockreport.GenerateExcelFlowForUnit(new DateTime(1970, 1, 1), DateTime.Now, dataUrn1.UnitCode, "BB", dataUrn1.Category, 7, dataUrn1.UnitName);
+        //    //var Response2 = stockreport.GenerateExcelStockReport("BP", null, dataUrn2.UnitName, dataUrn2.UnitCode, new DateTime(1970, 1, 1), DateTime.Now, 7);
+        //    Assert.IsType<System.IO.MemoryStream>(Response);
+        //}
 
-        [Fact]
-        public async void Should_Success_Get_FlowReport_Data_Excel()
-        {
-            //GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            //var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-            //var Response = facade.GenerateExcelLow(DateTime.MinValue, DateTime.MaxValue, model.UnitCode, "", "", 7, model.UnitName);
-            //Assert.IsType<System.IO.MemoryStream>(Response);
-            var serviceProvider = GetServiceProvider();
-            var dbContext = _dbContext(GetCurrentMethod());
-            GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
-            var dataUtilUrn = dataUtil(facade, GetCurrentMethod());
-            GarmentUnitDeliveryOrderFacade facadeUDO = new GarmentUnitDeliveryOrderFacade(dbContext, serviceProvider);
-            var dataUtilUDO = new GarmentUnitDeliveryOrderDataUtil(facadeUDO, dataUtilUrn);
-            GarmentUnitExpenditureNoteFacade facadeUEN = new GarmentUnitExpenditureNoteFacade(serviceProvider, dbContext);
-            var dataUtilUEN = new GarmentUnitExpenditureNoteDataUtil(facadeUEN, dataUtilUDO);
-            GarmentReceiptCorrectionFacade facadeRC = new GarmentReceiptCorrectionFacade(dbContext, serviceProvider);
-            var dataUtilRC = new GarmentReceiptCorrectionDataUtil(facadeRC, dataUtilUrn);
+        //[Fact]
+        //public async void Should_Success_Get_FlowReport_Data_Excel()
+        //{
+        //    //GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+        //    //var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+        //    //var Response = facade.GenerateExcelLow(DateTime.MinValue, DateTime.MaxValue, model.UnitCode, "", "", 7, model.UnitName);
+        //    //Assert.IsType<System.IO.MemoryStream>(Response);
+        //    var serviceProvider = GetServiceProvider();
+        //    var dbContext = _dbContext(GetCurrentMethod());
+        //    GarmentUnitReceiptNoteFacade facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+        //    var dataUtilUrn = dataUtil(facade, GetCurrentMethod());
+        //    GarmentUnitDeliveryOrderFacade facadeUDO = new GarmentUnitDeliveryOrderFacade(dbContext, serviceProvider);
+        //    var dataUtilUDO = new GarmentUnitDeliveryOrderDataUtil(facadeUDO, dataUtilUrn);
+        //    GarmentUnitExpenditureNoteFacade facadeUEN = new GarmentUnitExpenditureNoteFacade(serviceProvider, dbContext);
+        //    var dataUtilUEN = new GarmentUnitExpenditureNoteDataUtil(facadeUEN, dataUtilUDO);
+        //    GarmentReceiptCorrectionFacade facadeRC = new GarmentReceiptCorrectionFacade(dbContext, serviceProvider);
+        //    var dataUtilRC = new GarmentReceiptCorrectionDataUtil(facadeRC, dataUtilUrn);
 
-            DateTimeOffset now = DateTimeOffset.Now;
-            long nowTicks = now.Ticks;
-            var dataUrn1 = await dataUtilUrn.GetNewData2(nowTicks);
-            foreach (var i in dataUrn1.Items)
-            {
-                //i.UENItemId = 1;
-                i.ProductCode = "CodeTest123";
-                i.ProductName = "Name123";
-                i.ReceiptQuantity = 5;
-                i.Conversion = 1;
-            }
+        //    DateTimeOffset now = DateTimeOffset.Now;
+        //    long nowTicks = now.Ticks;
+        //    var dataUrn1 = await dataUtilUrn.GetNewData2(nowTicks);
+        //    foreach (var i in dataUrn1.Items)
+        //    {
+        //        //i.UENItemId = 1;
+        //        i.ProductCode = "CodeTest123";
+        //        i.ProductName = "Name123";
+        //        i.ReceiptQuantity = 5;
+        //        i.Conversion = 1;
+        //    }
 
-            await facade.Create(dataUrn1);
+        //    await facade.Create(dataUrn1);
 
-            var stockreport = new GarmentUnitReceiptNoteFacade(serviceProvider, dbContext);
-            var Response = stockreport.GenerateExcelLow(new DateTime(1970, 1, 1), DateTime.Now, dataUrn1.UnitCode, "BB", dataUrn1.Category, 7, dataUrn1.UnitName);
-            //var Response2 = stockreport.GenerateExcelStockReport("BP", null, dataUrn2.UnitName, dataUrn2.UnitCode, new DateTime(1970, 1, 1), DateTime.Now, 7);
-            Assert.IsType<System.IO.MemoryStream>(Response);
-        }
+        //    var stockreport = new GarmentUnitReceiptNoteFacade(serviceProvider, dbContext);
+        //    var Response = stockreport.GenerateExcelLow(new DateTime(1970, 1, 1), DateTime.Now, dataUrn1.UnitCode, "BB", dataUrn1.Category, 7, dataUrn1.UnitName);
+        //    //var Response2 = stockreport.GenerateExcelStockReport("BP", null, dataUrn2.UnitName, dataUrn2.UnitCode, new DateTime(1970, 1, 1), DateTime.Now, 7);
+        //    Assert.IsType<System.IO.MemoryStream>(Response);
+        //}
 
         [Fact]
         public async void Should_Success_Get_Report_Data_Excel_Null_parameter()
