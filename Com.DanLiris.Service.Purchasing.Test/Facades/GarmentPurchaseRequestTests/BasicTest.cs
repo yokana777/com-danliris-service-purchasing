@@ -850,7 +850,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 			await facade.Create(data,false, USERNAME);
 			var Facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
 			var Response = Facade.GetMonitoringPurchaseReport(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
-			Assert.NotNull(Response.Item1);
+			Assert.NotNull(Response);
 
 		}
 
@@ -871,7 +871,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             await facade.Create(data, false, USERNAME);
             var Facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var Response = Facade.GetMonitoringPurchaseReport(null, null, null, null, null, null, null, "BELUM", null, null, null, null, null, null, 1, 25, "{}", 7);
-            Assert.NotNull(Response.Item1);
+            Assert.NotNull(Response);
         }
 
         [Fact]
@@ -891,7 +891,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             await facade.Create(data, false, USERNAME);
             var Facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
             var Response = Facade.GetMonitoringPurchaseReport(null, null, null, null, null, null, null, "SUDAH", null, null, null, null, null, null, 1, 25, "{}", 7);
-            Assert.NotNull(Response.Item1);
+            Assert.NotNull(Response);
         }
 
         [Fact]
@@ -954,7 +954,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 		
 			var Facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
 			var Response = Facade.GetMonitoringPurchaseByUserReport(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7);
-			Assert.NotNull(Response.Item1);
+			Assert.NotNull(Response);
 
 		}
 
