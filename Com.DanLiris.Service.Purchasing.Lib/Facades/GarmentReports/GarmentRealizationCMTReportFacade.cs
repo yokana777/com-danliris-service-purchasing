@@ -2,11 +2,9 @@
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel.GarmentExpenditureGood;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel.GarmentInvoice;
 using Com.Moonlay.NetCore.Lib;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
@@ -18,7 +16,6 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 {
@@ -51,7 +48,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var Ros = expendRo.Where(x => invoicess.Contains(x.Invoice)).Select(x => x.RONo).Distinct().ToArray();
 
-
+            string[] paymentmethods = { "FREE FROM BUYER", "CMT" };
 
             List<GarmentRealizationCMTReportViewModel> realizationCMT = new List<GarmentRealizationCMTReportViewModel>();
 
@@ -64,8 +61,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                          join f in dbContext.GarmentDeliveryOrderDetails on e.DODetailId equals f.Id
                          join g in dbContext.GarmentDeliveryOrderItems on f.GarmentDOItemId equals g.Id
                          join h in dbContext.GarmentDeliveryOrders on g.GarmentDOId equals h.Id
-                         join j in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on c.RONo equals j.RONo
-                         join k in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on j.GarmentEPOId equals k.Id
+                         //join j in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on c.RONo equals j.RONo
+                         //join k in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on j.GarmentEPOId equals k.Id
                          where
                                //a.ExpenditureDate.AddHours(offset).Date >= DateFrom.Date
                                //      && a.ExpenditureDate.AddHours(offset).Date <= DateTo.Date
@@ -73,11 +70,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                a.UnitSenderCode == (string.IsNullOrWhiteSpace(unit) ? a.UnitSenderCode : unit)
                                && b.ProductName == "FABRIC"
                                && a.ExpenditureType == "PROSES"
-                               && Ros.Contains(j.RONo)
-                               && (k.PaymentMethod == "FREE FROM BUYER" || k.PaymentMethod == "CMT")
+                               && Ros.Contains(c.RONo)
+                               && paymentmethods.Contains(h.PaymentMethod)
 
                          //&& k.PaymentMethod == paymentmethod
-                         
+
                          select new GarmentRealizationCMTReportViewModel
                          {
                              UENNo = a.UENNo,
@@ -94,9 +91,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              SupplierName = h.SupplierName == null ? "-" : h.SupplierName,
                              BillNo = h.BillNo,
                              PaymentBill = h.PaymentBill,
-                             DONo = h.DONo
+                             DONo = h.DONo,
+                             NoKasBank = paymentmethods.Contains(h.PaymentMethod) ? "-" : "BY DANLIRIS"
 
-                         }).GroupBy(a => new { a.UENNo, a.RONo, a.URNNo, a.BillNo, a.PaymentBill, a.ProductRemark, a.ProductRemark2, a.SupplierName, a.DONo, a.EAmountVLS, a.EAmountIDR, a.ReceiptQuantity, a.UAmountIDR, a.UAmountVLS, a.Quantity }, (key, group) => new GarmentRealizationCMTReportViewModel
+                         }).GroupBy(a => new { a.UENNo, a.RONo, a.URNNo, a.BillNo, a.PaymentBill, a.ProductRemark, a.ProductRemark2, a.SupplierName, a.DONo, a.EAmountVLS, a.EAmountIDR, a.ReceiptQuantity, a.UAmountIDR, a.UAmountVLS, a.Quantity, a.NoKasBank }, (key, group) => new GarmentRealizationCMTReportViewModel
                          {
                              UENNo = key.UENNo,
                              ProductRemark = key.ProductRemark,
@@ -118,7 +116,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              SupplierName = key.SupplierName,
                              BillNo = key.BillNo,
                              PaymentBill = key.PaymentBill,
-                             DONo = key.DONo
+                             DONo = key.DONo,
+                             NoKasBank = key.NoKasBank
                          });
 
             var realization = (from a in Query
@@ -148,7 +147,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                    ExpenditureGoodNo = expenditure == null ? "-" : expenditure.ExpenditureGoodNo,
                                    Article = expenditure == null ? "-" : expenditure.Article,
                                    UnitQty = expenditure == null ? 0 : expenditure.TotalQuantity,
-                                   InvoiceId = vv != null ? vv.InvoiceId : 0
+                                   InvoiceId = vv != null ? vv.InvoiceId : 0,
+                                   NoKasBank = a.NoKasBank
                                });
 
             realization = realization.OrderBy(x => x.InvoiceNo).ThenBy(x => x.ExpenditureGoodNo).ThenBy(x => x.RONo).ThenBy(x => x.Article).ThenBy(x => x.UnitQty).ThenBy(x => x.UENNo).ThenBy(x => x.ProductRemark)
@@ -194,7 +194,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                               Article = i.Article,
                               UnitQty = i.UnitQty,
                               Count = i.Count,
-                              NoKasBank = cc != null ? cc.ExpenditureNoteNo : "-"
+                              NoKasBank = cc != null ? cc.ExpenditureNoteNo : i.NoKasBank
                           }).ToList();
 
             var realizationViews = result.ToArray();
