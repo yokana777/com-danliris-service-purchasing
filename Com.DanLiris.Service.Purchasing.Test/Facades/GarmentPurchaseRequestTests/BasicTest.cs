@@ -889,8 +889,29 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             GarmentCorrectionNoteQuantityFacade facade = new GarmentCorrectionNoteQuantityFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var data = await dataUtil(facade, GetCurrentMethod()).GetNewData(dataDo);
             await facade.Create(data, false, USERNAME);
-            var Facade = new GarmentPurchaseRequestFacade(ServiceProvider, _dbContext(GetCurrentMethod()));
-            var Response = Facade.GetMonitoringPurchaseReport(null, null, null, null, null, null, null, "SUDAH", null, null, null, null, null, null, 1, 25, "{}", 7);
+
+			HttpResponseMessage message = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
+
+			var HttpClientService = new Mock<IHttpClientService>();
+		 
+
+			message.Content = new StringContent("{\"apiVersion\":\"1.0\",\"statusCode\":200,\"message\":\"Ok\",\"data\":[{\"Id\":7,\"code\":\"code\",\"rate\":13700.0,\"date\":\"2018/10/20\"}],\"info\":{\"count\":1,\"page\":1,\"size\":1,\"total\":2,\"order\":{\"date\":\"desc\"},\"select\":[\"Id\",\"code\",\"rate\",\"date\"]}}");
+			string gCurrencyUri = "master/garmentProducts/fabricByCode";
+			HttpClientService
+				.Setup(x => x.SendAsync(It.IsAny<HttpMethod>(), It.IsRegex($"^{APIEndpoint.Core}{gCurrencyUri}"), It.IsAny<HttpContent>()))
+				.ReturnsAsync(message);
+			var serviceProvider = new Mock<IServiceProvider>();
+			serviceProvider
+				.Setup(x => x.GetService(typeof(IdentityService)))
+				.Returns(new IdentityService() { Token = "Token", Username = "Test" });
+
+			serviceProvider
+				.Setup(x => x.GetService(typeof(IHttpClientService)))
+				.Returns(HttpClientService.Object);
+			serviceProvider.Setup(x => x.GetService(typeof(IHttpClientService))).Returns(HttpClientService.Object);
+			var Facade = new GarmentPurchaseRequestFacade(serviceProvider.Object, _dbContext(GetCurrentMethod()));
+          
+				var Response = Facade.GetMonitoringPurchaseReport(null, null, null, null, null, null, null, "SUDAH", null, null, null, null, null, null, 1, 25, "{}", 7);
             Assert.NotNull(Response);
         }
 
