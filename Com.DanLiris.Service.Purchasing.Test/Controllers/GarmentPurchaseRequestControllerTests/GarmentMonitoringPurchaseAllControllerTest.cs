@@ -9,9 +9,11 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseRequestControllerTests
@@ -81,21 +83,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseReques
 		}
 
         [Fact]
-		public void Should_Error_Get_Report_Data()
+		public void Should_OK_Get_Report_Data()
 		{
 			var mockFacade = new Mock<IGarmentPurchaseRequestFacade>();
-			mockFacade.Setup(x => x.GetMonitoringPurchaseReport(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7))
-				.Returns(Tuple.Create(new List<MonitoringPurchaseAllUserViewModel> { ViewModel }, 25));
-
-			var mockMapper = new Mock<IMapper>();
-			mockMapper.Setup(x => x.Map<List<MonitoringPurchaseAllUserViewModel>>(It.IsAny<List<GarmentPurchaseRequestViewModel>>()))
-				.Returns(new List<MonitoringPurchaseAllUserViewModel> { ViewModel });
+			mockFacade.Setup(s => s.GetMonitoringPurchaseReport(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}",7))
+			   .ReturnsAsync(new List<MonitoringPurchaseAllUserViewModel>());
 
 			var user = new Mock<ClaimsPrincipal>();
 			var claims = new Claim[]
 			{
 				new Claim("username", "unittestusername")
 			};
+
 			user.Setup(u => u.Claims).Returns(claims);
 			GarmentMonitoringPurchaseController controller = new GarmentMonitoringPurchaseController(GetServiceProvider().Object, mockFacade.Object);
 			controller.ControllerContext = new ControllerContext()
@@ -105,27 +104,29 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseReques
 					User = user.Object
 				}
 			};
+
 			controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-			var response = controller.GetReport(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}");
-			Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+			//Act
+			IActionResult response = controller.GetReport(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}");
+
+			//Assert
+			Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
 		}
 
 		[Fact]
 		public void Should_Error_Get_Report_Xls_Data()
 		{
 			var mockFacade = new Mock<IGarmentPurchaseRequestFacade>();
-			mockFacade.Setup(x => x.GetMonitoringPurchaseReport(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7))
-				.Returns(Tuple.Create(new List<MonitoringPurchaseAllUserViewModel> { ViewModel }, 25));
+			mockFacade.Setup(x => x.GenerateExcelPurchase(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7))
+				.ReturnsAsync(new MemoryStream());
 
-			var mockMapper = new Mock<IMapper>();
-			mockMapper.Setup(x => x.Map<List<MonitoringPurchaseAllUserViewModel>>(It.IsAny<List<GarmentPurchaseRequestViewModel>>()))
-				.Returns(new List<MonitoringPurchaseAllUserViewModel> { ViewModel });
 
 			var user = new Mock<ClaimsPrincipal>();
 			var claims = new Claim[]
 			{
 				new Claim("username", "unittestusername")
 			};
+
 			user.Setup(u => u.Claims).Returns(claims);
 			GarmentMonitoringPurchaseController controller = new GarmentMonitoringPurchaseController(GetServiceProvider().Object, mockFacade.Object);
 			controller.ControllerContext = new ControllerContext()
@@ -135,26 +136,24 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseReques
 					User = user.Object
 				}
 			};
+
 			controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-			var response = controller.GetXls(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}");
-			Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+			var response = controller.GetXls(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 23, "{}");
+			Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response.Result));
 		}
 		[Fact]
-		public void Should_Error_Get_Report_By_User_Data()
+		public async Task Should_OK_Get_Report_By_User_Data()
 		{
 			var mockFacade = new Mock<IGarmentPurchaseRequestFacade>();
-			mockFacade.Setup(x => x.GetMonitoringPurchaseByUserReport(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7))
-				.Returns(Tuple.Create(new List<MonitoringPurchaseAllUserViewModel> { ViewModel }, 25));
-
-			var mockMapper = new Mock<IMapper>();
-			mockMapper.Setup(x => x.Map<List<MonitoringPurchaseAllUserViewModel>>(It.IsAny<List<GarmentPurchaseRequestViewModel>>()))
-				.Returns(new List<MonitoringPurchaseAllUserViewModel> { ViewModel });
+			mockFacade.Setup(s => s.GetMonitoringPurchaseByUserReport(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7))
+			   .ReturnsAsync(new List<MonitoringPurchaseAllUserViewModel>());
 
 			var user = new Mock<ClaimsPrincipal>();
 			var claims = new Claim[]
 			{
 				new Claim("username", "unittestusername")
 			};
+
 			user.Setup(u => u.Claims).Returns(claims);
 			GarmentMonitoringPurchaseController controller = new GarmentMonitoringPurchaseController(GetServiceProvider().Object, mockFacade.Object);
 			controller.ControllerContext = new ControllerContext()
@@ -164,27 +163,27 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseReques
 					User = user.Object
 				}
 			};
+
 			controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-			var response = controller.GetReportByUser(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}");
-			Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+			//Act
+			Task<IActionResult> response = controller.GetReportByUser(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}");
+			Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response.Result));
 		}
 
 		[Fact]
 		public void Should_Error_Get_Report_By_User_Xls_Data()
 		{
 			var mockFacade = new Mock<IGarmentPurchaseRequestFacade>();
-			mockFacade.Setup(x => x.GetMonitoringPurchaseByUserReport(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}", 7))
-				.Returns(Tuple.Create(new List<MonitoringPurchaseAllUserViewModel> { ViewModel }, 25));
+			mockFacade.Setup(x => x.GenerateExcelByUserPurchase(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}",7))
+				.ReturnsAsync(new MemoryStream());
 
-			var mockMapper = new Mock<IMapper>();
-			mockMapper.Setup(x => x.Map<List<MonitoringPurchaseAllUserViewModel>>(It.IsAny<List<GarmentPurchaseRequestViewModel>>()))
-				.Returns(new List<MonitoringPurchaseAllUserViewModel> { ViewModel });
 
 			var user = new Mock<ClaimsPrincipal>();
 			var claims = new Claim[]
 			{
 				new Claim("username", "unittestusername")
 			};
+
 			user.Setup(u => u.Claims).Returns(claims);
 			GarmentMonitoringPurchaseController controller = new GarmentMonitoringPurchaseController(GetServiceProvider().Object, mockFacade.Object);
 			controller.ControllerContext = new ControllerContext()
@@ -194,9 +193,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentPurchaseReques
 					User = user.Object
 				}
 			};
+
 			controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
-			var response = controller.GetXlsByUser(null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 25, "{}");
-			Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+			var response = controller.GetXlsByUser(null, null, null, null, null, null, null, null, null, null, null, null, null, null,1,23,"{}");
+			Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response.Result));
+			 
 		}
 	}
 }
