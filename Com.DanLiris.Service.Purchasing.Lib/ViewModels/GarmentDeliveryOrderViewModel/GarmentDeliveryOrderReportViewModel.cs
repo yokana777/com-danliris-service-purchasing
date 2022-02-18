@@ -34,6 +34,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
         public bool isCustoms { get; set; }
         public string URNNo { get; set; }
         public DateTimeOffset URNDate { get; set; }
+        public decimal urnQuantity { get; set; }
+        public string urnUom { get; set; }
         public string UnitName { get; set; }
         public string EPOcreatedBy { get; set; }
         public string INNo { get; set; }
@@ -44,6 +46,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
         public string BeacukaiNo { get; set; }
         public DateTimeOffset BeacukaiDate { get; set; }
         public DateTimeOffset BCDate { get; set; }
+        public string diffdate { get; set; }
 
     }
 }

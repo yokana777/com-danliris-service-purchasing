@@ -2122,6 +2122,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              URNDate = URN == null ? new DateTime(1970, 1, 1) : URN.ReceiptDate,
                              URNType = URN == null ? "-" : URN.URNType,
                              UnitName = URN.UnitName ?? "-",
+                             urnQuantity = URNItem == null ? 0 : URNItem.ReceiptQuantity,
+                             urnUom = URNItem == null ? "-" : URNItem.UomUnit,
                              supplierName = a.SupplierName,
                              supplierCode = a.SupplierCode,
                              shipmentNo = a.ShipmentNo,
@@ -2164,6 +2166,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              URNNo = gdo.URNNo,
                              URNDate = gdo.URNDate,
                              UnitName = gdo.UnitName,
+                             urnQuantity = gdo.urnQuantity,
+                             urnUom = gdo.urnUom,
                              supplierName = gdo.supplierName,
                              supplierCode = gdo.supplierCode,
                              shipmentNo = gdo.shipmentNo,
@@ -2193,7 +2197,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              BeacukaiDate = gdo.BeacukaiDate,
                              BillNo = gdo.BillNo,
                              PaymentBill = gdo.PaymentBill,
-                             BCDate = gdo.BCDate
+                             BCDate = gdo.BCDate,
+                             diffdate = gdo.BeacukaiDate == DateTimeOffset.MinValue ? "No BC Belum Diinput" : Math.Abs((gdo.date.ToOffset(new TimeSpan(offset, 0, 0)) - gdo.BeacukaiDate.ToOffset(new TimeSpan(offset, 0, 0))).Days).ToString()
                           });
 
             Dictionary<string, double> q = new Dictionary<string, double>();
@@ -2249,7 +2254,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             result.Columns.Add(new DataColumn() { ColumnName = "Supplier", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Jenis Supplier", DataType = typeof(String) });
             //result.Columns.Add(new DataColumn() { ColumnName = "Pengiriman", DataType = typeof(String) });
-            //result.Columns.Add(new DataColumn() { ColumnName = "Nomor BL", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor BL/AWB", DataType = typeof(String) });
             //result.Columns.Add(new DataColumn() { ColumnName = "Dikenakan", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor PO Eksternal", DataType = typeof(String) });
             //result.Columns.Add(new DataColumn() { ColumnName = "Nomor PR", DataType = typeof(String) });
@@ -2273,13 +2278,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             result.Columns.Add(new DataColumn() { ColumnName = "No BP Kecil", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor Bon Unit", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Bon Unit", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Bon Unit", DataType = typeof(Decimal) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Unit Yang Membutuhkan", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "No Nota Intern", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Term Pembayaran", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Selisih Tanggal Tiba - Tanggal Input BC", DataType = typeof(String) });
 
             if (Query.ToArray().Count() == 0)
                 // result.Rows.Add("", "", "", "", "", "", "", "", "", "", 0, 0, 0, ""); // to allow column name to be generated properly for empty data as template
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", 0, 0, "", 0, "", 0, "", "", "", "", "", "", "", "", "", "", "", "", "");
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", 0, 0, "", 0, "", 0, "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "");
             else
             {
                 int index = 0;
@@ -2295,7 +2303,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     string BcDate = item.BCDate == new DateTime(1970, 1, 1) ? "-" : item.BCDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
 
                     // result.Rows.Add(index, item.supplierCode, item.supplierName, item.no, supplierDoDate, date, item.ePONo, item.productCode, item.productName, item.productRemark, item.dealQuantity, item.dOQuantity, item.remainingQuantity, item.uomUnit);
-                    result.Rows.Add(index, item.no, supplierDoDate, date, item.supplierName, jenissupp, item.ePONo, item.roNo, item.prRefNo, item.productCode, item.productName, item.dealQuantity, item.dOQuantity, item.uomUnit, item.price, item.doCurrencyCode, item.doCurrencyRate, item.productRemark, item.createdBy, item.EPOcreatedBy, item.BeacukaiNo, BcDate, BcinputDate, item.BillNo, item.PaymentBill, item.URNNo, URNDate, item.UnitName, item.INNo, item.TermPayment);
+                    result.Rows.Add(index, item.no, supplierDoDate, date, item.supplierName, jenissupp, item.ePONo, item.roNo, item.prRefNo, item.productCode, item.productName, item.dealQuantity, item.dOQuantity, item.uomUnit, item.price, item.doCurrencyCode, item.doCurrencyRate, item.productRemark, item.createdBy, item.EPOcreatedBy, item.BeacukaiNo, BcDate, BcinputDate, item.BillNo, item.PaymentBill, item.URNNo, URNDate, item.urnQuantity, item.urnUom, item.UnitName, item.INNo, item.TermPayment, item.diffdate);
                 }
             }
 
