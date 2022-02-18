@@ -9,18 +9,20 @@ using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Com.Moonlay.Models;
 using Com.Moonlay.NetCore.Lib;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 using Microsoft.AspNetCore.JsonPatch;
+using System.IO;
+using System.Data;
+using Com.DanLiris.Service.Purchasing.Lib.Services;
+using System.Globalization;
+using Com.DanLiris.Service.Purchasing.Lib.Helpers.ReadResponse;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades
 {
@@ -136,41 +138,41 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             return Tuple.Create(Data, TotalData, OrderDictionary);
         }
 
-        public ReadResponse<dynamic> ReadDynamic(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}", string Select = "{}", string Search = "[]")
-        {
-            IQueryable<GarmentPurchaseRequest> Query = this.dbSet;
+		public ReadResponse<dynamic> ReadDynamic(int Page = 1, int Size = 25, string Order = "{}", string Keyword = null, string Filter = "{}", string Select = "{}", string Search = "[]")
+		{
+			IQueryable<GarmentPurchaseRequest> Query = this.dbSet;
 
-            List<string> SearchAttributes = JsonConvert.DeserializeObject<List<string>>(Search);
-            if (SearchAttributes.Count == 0)
-            {
-                SearchAttributes = new List<string>() { "PRType", "SCNo", "PRNo", "RONo", "BuyerCode", "BuyerName", "UnitName", "Article" };
-            }
-            Query = QueryHelper<GarmentPurchaseRequest>.ConfigureSearch(Query, SearchAttributes, Keyword, SearchWith: "StartsWith");
+			List<string> SearchAttributes = JsonConvert.DeserializeObject<List<string>>(Search);
+			if (SearchAttributes.Count == 0)
+			{
+				SearchAttributes = new List<string>() { "PRType", "SCNo", "PRNo", "RONo", "BuyerCode", "BuyerName", "UnitName", "Article" };
+			}
+			Query = QueryHelper<GarmentPurchaseRequest>.ConfigureSearch(Query, SearchAttributes, Keyword, SearchWith: "StartsWith");
 
-            Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
-            Query = QueryHelper<GarmentPurchaseRequest>.ConfigureFilter(Query, FilterDictionary);
+			Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Filter);
+			Query = QueryHelper<GarmentPurchaseRequest>.ConfigureFilter(Query, FilterDictionary);
 
-            Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
-            Query = QueryHelper<GarmentPurchaseRequest>.ConfigureOrder(Query, OrderDictionary);
+			Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
+			Query = QueryHelper<GarmentPurchaseRequest>.ConfigureOrder(Query, OrderDictionary);
 
-            Dictionary<string, string> SelectDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Select);
-            IQueryable SelectedQuery = Query;
-            if (SelectDictionary.Count > 0)
-            {
-                SelectedQuery = QueryHelper<GarmentPurchaseRequest>.ConfigureSelect(Query, SelectDictionary);
-            }
+			Dictionary<string, string> SelectDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Select);
+			IQueryable SelectedQuery = Query;
+			if (SelectDictionary.Count > 0)
+			{
+				SelectedQuery = QueryHelper<GarmentPurchaseRequest>.ConfigureSelect(Query, SelectDictionary);
+			}
 
-            int TotalData = SelectedQuery.Count();
+			int TotalData = SelectedQuery.Count();
 
-            List<dynamic> Data = SelectedQuery
-                .Skip((Page - 1) * Size)
-                .Take(Size)
-                .ToDynamicList();
+			List<dynamic> Data = SelectedQuery
+				.Skip((Page - 1) * Size)
+				.Take(Size)
+				.ToDynamicList();
 
-            return new ReadResponse<dynamic>(Data, TotalData, OrderDictionary);
-        }
+			return new ReadResponse<dynamic>(Data, TotalData, OrderDictionary);
+		}
 
-        public GarmentPurchaseRequest ReadById(int id)
+		public GarmentPurchaseRequest ReadById(int id)
         {
             var a = this.dbSet.Where(p => p.Id == id)
                 .Include(p => p.Items)
@@ -1134,25 +1136,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
         //}
 
 
-        public Tuple<List<MonitoringPurchaseAllUserViewModel>, int> GetMonitoringPurchaseReport(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, DateTime? dateFromEx, DateTime? dateToEx, int page, int size, string Order, int offset)
+        public async Task<List<MonitoringPurchaseAllUserViewModel>> GetMonitoringPurchaseReport(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, DateTime? dateFromEx, DateTime? dateToEx, int page, int size, string Order, int offset)
         {
-            var Query = GetMonitoringPurchaseByUserReportQuery(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo,dateFromEx, dateToEx, offset, page, size);
-
-            //Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
-            ////if (OrderDictionary.Count.Equals(0))
-            ////{
-            ////	Query = Query.OrderByDescending(b => b.prDate);
-            ////}
-
-            //Pageable<MonitoringPurchaseAllUserViewModel> pageable = new Pageable<MonitoringPurchaseAllUserViewModel>(Query, page - 1, size);
-            //List<MonitoringPurchaseAllUserViewModel> Data = pageable.Data.ToList<MonitoringPurchaseAllUserViewModel>();
-            //int TotalData = pageable.TotalCount;
-
-            return Tuple.Create(Query, TotalCountReport);
-        }
-        public MemoryStream GenerateExcelPurchase(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, DateTimeOffset? dateFromEx, DateTimeOffset? dateToEx, int page, int size, string Order, int offset)
+            var Query = await GetMonitoringPurchaseByUserReportQuery(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo,dateFromEx, dateToEx, offset, page, size);
+	 
+			return Query;
+		}
+        public async Task<MemoryStream> GenerateExcelPurchase(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, DateTimeOffset? dateFromEx, DateTimeOffset? dateToEx, int page, int size, string Order, int offset)
         {
-            var Query = GetMonitoringPurchaseByUserReportQuery(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, dateFromEx, dateToEx, offset, 1, int.MaxValue);
+            var Query = await GetMonitoringPurchaseByUserReportQuery(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, dateFromEx, dateToEx, offset, 1, int.MaxValue);
             DataTable result = new DataTable();
             result.Columns.Add(new DataColumn() { ColumnName = "No", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nomor Purchase Request", DataType = typeof(String) });
@@ -1180,15 +1172,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             result.Columns.Add(new DataColumn() { ColumnName = "Status", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Barang", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Keterangan Barang (PR)", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Const", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Yarn", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Width", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Composition", DataType = typeof(String) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Keterangan Barang (PR)", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Keterangan Barang (PO EKS)", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Budget", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Beli", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Satuan Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Harga Budget", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Harga Beli", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Total", DataType = typeof(Double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "MT UANG", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Total Beli", DataType = typeof(Double) });
+			result.Columns.Add(new DataColumn() { ColumnName = "Total Budget", DataType = typeof(Double) });
+			result.Columns.Add(new DataColumn() { ColumnName = "MT UANG", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kurs", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Total RP", DataType = typeof(Double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tgl Terima PO Intern", DataType = typeof(String) });
@@ -1228,7 +1225,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
 
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "", "", "", "", 0, 0, "", 0, 0, 0, "", "", 0, "", "", "", "", 0, "", "", "", "", "", "", "", 0, "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "", "","","","","", "", "", 0, 0, "", 0,0, 0, 0, "", "", 0, "", "", "", "", 0, "", "", "", "", "", "", "", 0, "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
             else
             {
                 int index = 0;
@@ -1236,8 +1233,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                 {
                     index++;
 
-                    result.Rows.Add(index, item.prNo, item.prDate, item.unitName, item.poSerialNumber, item.useInternalPO, item.ro, item.article, item.buyerCode, item.buyerName, item.shipmentDate, item.poextNo, item.poExtDate, item.deliveryDate, item.useVat, item.useIncomeTax, item.incomeTaxRate, item.paymentMethod, item.paymentType, item.paymentDueDays, item.supplierCode, item.supplierName, item.SupplierImport, item.status, item.productCode, item.productName, item.prProductRemark, item.poProductRemark, item.poDefaultQty, item.poDealQty,
-                        item.poDealUomUnit, item.prBudgetPrice, item.poPricePerDealUnit, item.TotalNominalPO, item.poCurrencyCode, item.poCurrencyRate, item.TotalNominalRp, item.ipoDate, item.doNo,
+                    result.Rows.Add(index, item.prNo, item.prDate, item.unitName, item.poSerialNumber, item.useInternalPO, item.ro, item.article, item.buyerCode, item.buyerName, item.shipmentDate, item.poextNo, item.poExtDate, item.deliveryDate, item.useVat, item.useIncomeTax, item.incomeTaxRate, item.paymentMethod, item.paymentType, item.paymentDueDays, item.supplierCode, item.supplierName, item.SupplierImport, item.status, item.productCode, item.productName,item.consts,item.yarn,item.width,item.composition, item.prProductRemark, item.poProductRemark, item.poDefaultQty, item.poDealQty,
+                        item.poDealUomUnit, item.prBudgetPrice, item.poPricePerDealUnit, item.TotalNominalPO,item.prBudgetPrice * item.poDefaultQty, item.poCurrencyCode, item.poCurrencyRate, item.TotalNominalRp, item.ipoDate, item.doNo,
                         item.doDate, item.arrivalDate, item.doQty, item.doUomUnit, item.Bon, item.BonSmall, item.bcNo, item.bcDate, item.receiptNo, item.receiptDate, item.ReceiptQty, item.receiptUomUnit,
                         item.invoiceNo, item.invoiceDate, item.vatNo, item.vatDate, item.vatValue, item.incomeTaxType, item.incomeTaxtRate, item.incomeTaxNo, item.incomeTaxDate, item.incomeTaxtValue,
                         item.internNo, item.internDate, item.InternTotal, item.maturityDate, item.correctionNoteNo, item.correctionDate, item.valueCorrection, item.correctionRemark, item.username);
@@ -1250,7 +1247,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
         #endregion
         #region monitoring purchase
         public int TotalCountReport { get; set; } = 0;
-        private List<MonitoringPurchaseAllUserViewModel> GetMonitoringPurchaseByUserReportQuery(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, DateTimeOffset? dateFromEx, DateTimeOffset? dateToEx, int offset, int page, int size)
+
+		private async Task<List<GarmentProductViewModel>> GetProducts(List<string> _code)
+		{
+
+			var listCode = string.Join(",", _code.Distinct());
+			var http = serviceProvider.GetService<IHttpClientService>();
+			 
+			List<GarmentProductViewModel> result = new List<GarmentProductViewModel>();
+			var Uri = APIEndpoint.Core + $"master/garmentProducts/fabricByCode/";
+
+			var httpContent = new StringContent(JsonConvert.SerializeObject(listCode), Encoding.UTF8, "application/json");
+
+			var httpResponse = await http.SendAsync(HttpMethod.Get, Uri, httpContent);
+			if (httpResponse.IsSuccessStatusCode)
+			{
+				var contentString = await httpResponse.Content.ReadAsStringAsync();
+				Dictionary<string, object> content = JsonConvert.DeserializeObject<Dictionary<string, object>>(contentString);
+				var dataString = content.GetValueOrDefault("data").ToString();
+				var data = JsonConvert.DeserializeObject<List<GarmentProductViewModel>>(dataString);
+				result = data;
+			}
+			return result;
+		}
+		private async Task<List<MonitoringPurchaseAllUserViewModel>> GetMonitoringPurchaseByUserReportQuery(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, DateTimeOffset? dateFromEx, DateTimeOffset? dateToEx, int offset, int page, int size)
         {
 
 
@@ -1431,173 +1451,195 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             var correctionItems = dbContext.GarmentCorrectionNoteItems.Where(w => correctionIds.Contains(w.GCorrectionId)).Select(s => new { s.GCorrectionId, s.DODetailId, s.PriceTotalAfter, s.PriceTotalBefore, s.Quantity }).ToList();
 
             int i = ((page - 1) * size) + 1;
-            foreach (var item in queryResult)
-            {
-                var purchaseRequest = purchaseRequests.FirstOrDefault(f => f.Id.Equals(item.PRId));
-                var purchaseRequestItem = purchaseRequestItems.FirstOrDefault(f => f.Id.Equals(item.PRItemId));
+			List<string> listCode = new List<string>();
+			
+			foreach (var item in queryResult)
+			{
+				var purchaseRequestItem = purchaseRequestItems.FirstOrDefault(f => f.Id.Equals(item.PRItemId));
+				listCode.Add(purchaseRequestItem.ProductCode);
+			}
+			listCode.Distinct();
+			var products = await GetProducts(listCode);
+			foreach (var item in queryResult)
+			{
 
-                var purchaseOrderInternal = purchaseOrderInternals.FirstOrDefault(f => f.Id.Equals(item.POId));
-                var purchaseOrderInternalItem = purchaseOrderInternalItems.FirstOrDefault(f => f.Id.Equals(item.POItemId));
 
-                var purchaseOrderExternal = purchaseOrderExternals.FirstOrDefault(f => f.Id.Equals(item.EPOId));
-                var purchaseOrderExternalItem = purchaseOrderExternalItems.FirstOrDefault(f => f.Id.Equals(item.EPOItemId));
+				var purchaseRequest = purchaseRequests.FirstOrDefault(f => f.Id.Equals(item.PRId));
+				var purchaseRequestItem = purchaseRequestItems.FirstOrDefault(f => f.Id.Equals(item.PRItemId));
 
-                var deliveryOrder = deliveryOrders.FirstOrDefault(f => f.Id.Equals(item.DOId));
-                //var deliveryOrderItem = deliveryOrderItems.FirstOrDefault(f => f.Id.Equals(item.DOItemId));
-                var deliveryOrderDetail = deliveryOrderDetails.FirstOrDefault(f => f.Id.Equals(item.DODetailId));
+				var purchaseOrderInternal = purchaseOrderInternals.FirstOrDefault(f => f.Id.Equals(item.POId));
+				var purchaseOrderInternalItem = purchaseOrderInternalItems.FirstOrDefault(f => f.Id.Equals(item.POItemId));
 
-                var custom = customs.FirstOrDefault(f => f.Id.Equals(item.BCId));
-                //var customItem = customItems.FirstOrDefault(f => f.Id.Equals(item.BCItemId));
+				var purchaseOrderExternal = purchaseOrderExternals.FirstOrDefault(f => f.Id.Equals(item.EPOId));
+				var purchaseOrderExternalItem = purchaseOrderExternalItems.FirstOrDefault(f => f.Id.Equals(item.EPOItemId));
 
-                var unitReceiptNote = unitReceiptNotes.FirstOrDefault(f => f.Id.Equals(item.URNId));
-                var unitReceiptNoteItem = unitReceiptNoteItems.FirstOrDefault(f => f.Id.Equals(item.URNItemId));
+				var deliveryOrder = deliveryOrders.FirstOrDefault(f => f.Id.Equals(item.DOId));
+				//var deliveryOrderItem = deliveryOrderItems.FirstOrDefault(f => f.Id.Equals(item.DOItemId));
+				var deliveryOrderDetail = deliveryOrderDetails.FirstOrDefault(f => f.Id.Equals(item.DODetailId));
 
-                var invoice = invoices.FirstOrDefault(f => f.Id.Equals(item.INVId));
-                //var invoiceItem = invoiceItems.FirstOrDefault(f => f.Id.Equals(item.INVItemId));
-                //var invoiceDetail = invoiceDetails.FirstOrDefault(f => f.Id.Equals(item.INVDetailId));
+				var custom = customs.FirstOrDefault(f => f.Id.Equals(item.BCId));
+				//var customItem = customItems.FirstOrDefault(f => f.Id.Equals(item.BCItemId));
 
-                var internNote = internNotes.FirstOrDefault(f => f.Id.Equals(item.INId));
-                //var internNoteItem = internNoteItems.FirstOrDefault(f => f.Id.Equals(item.INItemId));
-                var internNoteDetail = internNoteDetails.FirstOrDefault(f => f.Id.Equals(item.INDetailId));
+				var unitReceiptNote = unitReceiptNotes.FirstOrDefault(f => f.Id.Equals(item.URNId));
+				var unitReceiptNoteItem = unitReceiptNoteItems.FirstOrDefault(f => f.Id.Equals(item.URNItemId));
 
-                var selectedCorrections = corrections.Where(w => w.DOId.Equals(item.DOId)).ToList();
-                var selectedCorrectionIds = selectedCorrections.Select(s => s.Id).ToList();
-                var selectedCorrectionItems = correctionItems.Where(w => selectedCorrectionIds.Contains(w.GCorrectionId)).ToList();
+				var invoice = invoices.FirstOrDefault(f => f.Id.Equals(item.INVId));
+				//var invoiceItem = invoiceItems.FirstOrDefault(f => f.Id.Equals(item.INVItemId));
+				//var invoiceDetail = invoiceDetails.FirstOrDefault(f => f.Id.Equals(item.INVDetailId));
 
-                var correctionNoList = new List<string>();
-                var correctionDateList = new List<string>();
-                var correctionRemarkList = new List<string>();
-                var correctionNominalList = new List<string>();
-                int j = 1;
-                foreach (var selectedCorrection in selectedCorrections)
-                {
+				var internNote = internNotes.FirstOrDefault(f => f.Id.Equals(item.INId));
+				//var internNoteItem = internNoteItems.FirstOrDefault(f => f.Id.Equals(item.INItemId));
+				var internNoteDetail = internNoteDetails.FirstOrDefault(f => f.Id.Equals(item.INDetailId));
 
-                    var selectedCorrectionItem = selectedCorrectionItems.FirstOrDefault(f => f.GCorrectionId.Equals(selectedCorrection.Id) && f.DODetailId.Equals(item.DODetailId));
-                    if (selectedCorrectionItem != null)
-                    {
-                        correctionNoList.Add($"{j}. {selectedCorrection.CorrectionNo}");
-                        correctionRemarkList.Add($"{j}. {selectedCorrection.CorrectionType}");
-                        correctionDateList.Add($"{j}. {selectedCorrection.CorrectionDate.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture)}");
+				var selectedCorrections = corrections.Where(w => w.DOId.Equals(item.DOId)).ToList();
+				var selectedCorrectionIds = selectedCorrections.Select(s => s.Id).ToList();
+				var selectedCorrectionItems = correctionItems.Where(w => selectedCorrectionIds.Contains(w.GCorrectionId)).ToList();
 
-                        switch (selectedCorrection.CorrectionType)
-                        {
-                            case "Harga Total":
-                                correctionNominalList.Add($"{j}. {string.Format("{0:N2}", selectedCorrectionItem.PriceTotalAfter - selectedCorrectionItem.PriceTotalBefore)}");
-                                break;
-                            case "Harga Satuan":
-                                correctionNominalList.Add($"{j}. {string.Format("{0:N2}", (selectedCorrectionItem.PriceTotalAfter - selectedCorrectionItem.PriceTotalBefore) * selectedCorrectionItem.Quantity)}");
-                                break;
-                            case "Jumlah":
-                                correctionNominalList.Add($"{j}. {string.Format("{0:N2}", selectedCorrectionItem.PriceTotalAfter)}");
-                                break;
-                            default:
-                                break;
-                        }
-                        j++;
-                    }
-                }
+				var correctionNoList = new List<string>();
+				var correctionDateList = new List<string>();
+				var correctionRemarkList = new List<string>();
+				var correctionNominalList = new List<string>();
+				int j = 1;
+				foreach (var selectedCorrection in selectedCorrections)
+				{
 
-                listEPO.Add(
-                    new MonitoringPurchaseAllUserViewModel
-                    {
-                        index = i,
-                        poextNo = purchaseOrderExternal?.EPONo,
-                        poExtDate = purchaseOrderExternal == null ? "" : purchaseOrderExternal.OrderDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
-                        deliveryDate = purchaseOrderExternal == null ? "" : purchaseOrderExternal.DeliveryDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
-                        supplierCode = purchaseOrderExternal == null ? "" : purchaseOrderExternal.SupplierCode,
-                        supplierName = purchaseOrderExternal == null ? "" : purchaseOrderExternal.SupplierName,
-                        prNo = purchaseRequest.PRNo,
-                        poSerialNumber = purchaseRequestItem.PO_SerialNumber,
-                        prDate = purchaseRequest.Date.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
-                        PrDate = purchaseRequest.Date,
-                        unitName = purchaseRequest.UnitName,
-                        buyerCode = purchaseRequest.BuyerCode,
-                        buyerName = purchaseRequest.BuyerName,
-                        ro = purchaseRequest.RONo,
-                        article = purchaseRequest.Article,
-                        shipmentDate = purchaseRequest.ShipmentDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
-                        productCode = purchaseRequestItem.ProductCode,
-                        productName = purchaseRequestItem.ProductName,
-                        prProductRemark = purchaseRequestItem.ProductRemark,
-                        poProductRemark = purchaseOrderExternalItem == null ? "" : purchaseOrderExternalItem.Remark,
-                        poDefaultQty = purchaseOrderExternalItem == null ? 0 : purchaseOrderExternalItem.DefaultQuantity,
-                        poDealQty = purchaseOrderExternalItem == null ? 0 : purchaseOrderExternalItem.DealQuantity,
-                        poDealUomUnit = purchaseOrderExternalItem == null ? "" : purchaseOrderExternalItem.DealUomUnit,
-                        prBudgetPrice = purchaseRequestItem.BudgetPrice,
-                        poPricePerDealUnit = purchaseOrderExternalItem == null ? 0 : purchaseOrderExternalItem.PricePerDealUnit,
-                        totalNominalPO = purchaseOrderExternalItem == null ? "" : string.Format("{0:N2}", purchaseOrderExternalItem.DealQuantity * purchaseOrderExternalItem.PricePerDealUnit),
-                        TotalNominalPO = purchaseOrderExternalItem == null ? 0 : purchaseOrderExternalItem.DealQuantity * purchaseOrderExternalItem.PricePerDealUnit,
-                        poCurrencyCode = purchaseOrderExternal == null ? "" : purchaseOrderExternal.CurrencyCode,
-                        poCurrencyRate = purchaseOrderExternal == null ? 0 : purchaseOrderExternal.CurrencyRate,
-                        totalNominalRp = purchaseOrderExternalItem == null && purchaseOrderExternal == null ? "" : string.Format("{0:N2}", purchaseOrderExternalItem.DealQuantity * purchaseOrderExternalItem.PricePerDealUnit * purchaseOrderExternal.CurrencyRate),
-                        TotalNominalRp = purchaseOrderExternal == null && purchaseOrderExternalItem == null ? 0 : purchaseOrderExternalItem.DealQuantity * purchaseOrderExternalItem.PricePerDealUnit * purchaseOrderExternal.CurrencyRate,
-                        incomeTaxRate = purchaseOrderExternal == null ? "" : purchaseOrderExternal.IncomeTaxRate?.ToString(),
-                        paymentMethod = purchaseOrderExternal == null ? "" : purchaseOrderExternal.PaymentMethod?.ToString(),
-                        paymentType = purchaseOrderExternal == null ? "" : purchaseOrderExternal.PaymentType?.ToString(),
-                        paymentDueDays = purchaseOrderExternal == null ? 0 : purchaseOrderExternal.PaymentDueDays,
-                        ipoDate = purchaseOrderInternal == null ? "" : purchaseOrderInternal.CreatedUtc.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
-                        username = purchaseOrderInternal == null ? "" : purchaseOrderInternal.CreatedBy,
-                        useIncomeTax = purchaseOrderExternal == null ? "" : purchaseOrderExternal.IsIncomeTax ? "YA" : "TIDAK",
-                        useVat = purchaseOrderExternal == null ? "" : purchaseOrderExternal.IsUseVat ? "YA" : "TIDAK",
-                        useInternalPO = purchaseRequestItem.IsUsed ? "YA" : "TIDAK",
-                        status = purchaseOrderInternalItem == null ? "" : purchaseOrderInternalItem.Status,
-                        doNo = deliveryOrder == null ? "" : deliveryOrder.DONo,
-                        doDate = deliveryOrder == null ? "" : deliveryOrder.DODate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
-                        arrivalDate = deliveryOrder == null ? "" : deliveryOrder.ArrivalDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
-                        doQty = deliveryOrderDetail == null ? 0 : deliveryOrderDetail.DOQuantity,
-                        doUomUnit = deliveryOrderDetail == null ? "" : deliveryOrderDetail.UomUnit,
-                        remainingDOQty = deliveryOrderDetail == null ? 0 : deliveryOrderDetail.DealQuantity - deliveryOrderDetail.DOQuantity,
-                        bcNo = custom == null ? "" : custom.BeacukaiNo,
-                        bcDate = custom == null ? "" : custom.BeacukaiDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
-                        receiptNo = unitReceiptNote == null ? "" : unitReceiptNote.URNNo,
-                        receiptDate = unitReceiptNote == null ? "" : unitReceiptNote.ReceiptDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
-                        receiptQty = unitReceiptNoteItem == null ? "" : string.Format("{0:N2}", unitReceiptNoteItem.ReceiptQuantity),
-                        ReceiptQty = unitReceiptNoteItem == null ? 0 : unitReceiptNoteItem.ReceiptQuantity,
-                        receiptUomUnit = unitReceiptNoteItem == null ? "" : unitReceiptNoteItem.UomUnit,
-                        invoiceNo = invoice == null ? "" : invoice.InvoiceNo,
-                        invoiceDate = invoice == null ? "" : invoice.InvoiceDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
-                        incomeTaxDate = invoice == null ? "" : invoice.IncomeTaxDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
-                        incomeTaxNo = invoice == null ? "" : invoice.IncomeTaxNo,
-                        incomeTaxType = invoice == null ? "" : invoice.IncomeTaxName,
-                        incomeTaxtRate = invoice == null ? "" : invoice.IncomeTaxRate.ToString(),
-                        incomeTaxtValue = invoice != null && invoice.IsPayTax ? string.Format("{0:N2}", deliveryOrderDetail.DOQuantity * deliveryOrderDetail.PricePerDealUnit * invoice.IncomeTaxRate / 100) : "",
-                        vatNo = invoice == null ? "" : invoice.VatNo,
-                        vatDate = invoice == null ? "" : invoice.VatDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
-                        vatValue = invoice != null && invoice.IsPayTax ? string.Format("{0:N2}", deliveryOrderDetail.DOQuantity * deliveryOrderDetail.PricePerDealUnit * 0.1) : "",
-                        internNo = internNote == null ? "" : internNote.INNo,
-                        internDate = internNote == null ? "" : internNote.INDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
-                        internTotal = internNoteDetail == null ? "" : string.Format("{0:N2}", internNoteDetail.Quantity * internNoteDetail.PricePerDealUnit),
-                        InternTotal = internNoteDetail == null ? 0 : internNoteDetail.Quantity * internNoteDetail.PricePerDealUnit,
-                        maturityDate = internNoteDetail == null ? "" : internNoteDetail.PaymentDueDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
-                        dodetailId = deliveryOrderDetail == null ? 0 : deliveryOrderDetail.Id,
-                        correctionNoteNo = string.Join("\n", correctionNoList),
-                        correctionDate = string.Join("\n", correctionDateList),
-                        correctionRemark = string.Join("\n", correctionRemarkList),
-                        valueCorrection = string.Join("\n", correctionNominalList),
-                        Bon = deliveryOrder == null ? "" : deliveryOrder.BillNo,
-                        BonSmall= deliveryOrder == null?"": deliveryOrder.PaymentBill,
-                        SupplierImport = purchaseOrderExternal == null  ? "": purchaseOrderExternal.SupplierImport == true?"IMPORT" : "LOCAL"
-                    });
-                i++;
-            }
-            //foreach (var corrections in qry.Distinct())
-            //{
-            //    foreach (MonitoringPurchaseAllUserViewModel data in Query.ToList())
-            //    {
-            //        if (corrections.Key == data.dodetailId)
-            //        {
-            //            data.correctionNoteNo = qry[data.dodetailId];
-            //            data.correctionRemark = qryType[data.dodetailId];
-            //            data.valueCorrection = (qryQty[data.dodetailId]);
-            //            data.correctionDate = qryDate[data.dodetailId];
-            //            listData.Add(data);
-            //            break;
-            //        }
-            //    }
-            //}
+					var selectedCorrectionItem = selectedCorrectionItems.FirstOrDefault(f => f.GCorrectionId.Equals(selectedCorrection.Id) && f.DODetailId.Equals(item.DODetailId));
+					if (selectedCorrectionItem != null)
+					{
+						correctionNoList.Add($"{j}. {selectedCorrection.CorrectionNo}");
+						correctionRemarkList.Add($"{j}. {selectedCorrection.CorrectionType}");
+						correctionDateList.Add($"{j}. {selectedCorrection.CorrectionDate.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture)}");
 
-            //var op = qry;
-            return listEPO;
+						switch (selectedCorrection.CorrectionType)
+						{
+							case "Harga Total":
+								correctionNominalList.Add($"{j}. {string.Format("{0:N2}", selectedCorrectionItem.PriceTotalAfter - selectedCorrectionItem.PriceTotalBefore)}");
+								break;
+							case "Harga Satuan":
+								correctionNominalList.Add($"{j}. {string.Format("{0:N2}", (selectedCorrectionItem.PriceTotalAfter - selectedCorrectionItem.PriceTotalBefore) * selectedCorrectionItem.Quantity)}");
+								break;
+							case "Jumlah":
+								correctionNominalList.Add($"{j}. {string.Format("{0:N2}", selectedCorrectionItem.PriceTotalAfter)}");
+								break;
+							default:
+								break;
+						}
+						j++;
+					}
+				}
+
+
+				listEPO.Add(
+					new MonitoringPurchaseAllUserViewModel
+					{
+						index = i,
+						poextNo = purchaseOrderExternal?.EPONo,
+						poExtDate = purchaseOrderExternal == null ? "" : purchaseOrderExternal.OrderDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
+						deliveryDate = purchaseOrderExternal == null ? "" : purchaseOrderExternal.DeliveryDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
+						supplierCode = purchaseOrderExternal == null ? "" : purchaseOrderExternal.SupplierCode,
+						supplierName = purchaseOrderExternal == null ? "" : purchaseOrderExternal.SupplierName,
+						prNo = purchaseRequest.PRNo,
+						poSerialNumber = purchaseRequestItem.PO_SerialNumber,
+						prDate = purchaseRequest.Date.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
+						PrDate = purchaseRequest.Date,
+						unitName = purchaseRequest.UnitName,
+						buyerCode = purchaseRequest.BuyerCode,
+						buyerName = purchaseRequest.BuyerName,
+						ro = purchaseRequest.RONo,
+						article = purchaseRequest.Article,
+						shipmentDate = purchaseRequest.ShipmentDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
+						productCode = purchaseRequestItem.ProductCode,
+						productName = purchaseRequestItem.ProductName,
+						prProductRemark = purchaseRequestItem.ProductRemark,
+						poProductRemark = purchaseOrderExternalItem == null ? "" : purchaseOrderExternalItem.Remark,
+						poDefaultQty = purchaseOrderExternalItem == null ? 0 : purchaseOrderExternalItem.DefaultQuantity,
+						poDealQty = purchaseOrderExternalItem == null ? 0 : purchaseOrderExternalItem.DealQuantity,
+						poDealUomUnit = purchaseOrderExternalItem == null ? "" : purchaseOrderExternalItem.DealUomUnit,
+						prBudgetPrice = purchaseRequestItem.BudgetPrice,
+						poPricePerDealUnit = purchaseOrderExternalItem == null ? 0 : purchaseOrderExternalItem.PricePerDealUnit,
+						totalNominalPO = purchaseOrderExternalItem == null ? "" : string.Format("{0:N2}", purchaseOrderExternalItem.DealQuantity * purchaseOrderExternalItem.PricePerDealUnit),
+						TotalNominalPO = purchaseOrderExternalItem == null ? 0 : purchaseOrderExternalItem.DealQuantity * purchaseOrderExternalItem.PricePerDealUnit,
+						poCurrencyCode = purchaseOrderExternal == null ? "" : purchaseOrderExternal.CurrencyCode,
+						poCurrencyRate = purchaseOrderExternal == null ? 0 : purchaseOrderExternal.CurrencyRate,
+						totalNominalRp = purchaseOrderExternalItem == null && purchaseOrderExternal == null ? "" : string.Format("{0:N2}", purchaseOrderExternalItem.DealQuantity * purchaseOrderExternalItem.PricePerDealUnit * purchaseOrderExternal.CurrencyRate),
+						TotalNominalRp = purchaseOrderExternal == null && purchaseOrderExternalItem == null ? 0 : purchaseOrderExternalItem.DealQuantity * purchaseOrderExternalItem.PricePerDealUnit * purchaseOrderExternal.CurrencyRate,
+						incomeTaxRate = purchaseOrderExternal == null ? "" : purchaseOrderExternal.IncomeTaxRate?.ToString(),
+						paymentMethod = purchaseOrderExternal == null ? "" : purchaseOrderExternal.PaymentMethod?.ToString(),
+						paymentType = purchaseOrderExternal == null ? "" : purchaseOrderExternal.PaymentType?.ToString(),
+						paymentDueDays = purchaseOrderExternal == null ? 0 : purchaseOrderExternal.PaymentDueDays,
+						ipoDate = purchaseOrderInternal == null ? "" : purchaseOrderInternal.CreatedUtc.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
+						username = purchaseOrderInternal == null ? "" : purchaseOrderInternal.CreatedBy,
+						useIncomeTax = purchaseOrderExternal == null ? "" : purchaseOrderExternal.IsIncomeTax ? "YA" : "TIDAK",
+						useVat = purchaseOrderExternal == null ? "" : purchaseOrderExternal.IsUseVat ? "YA" : "TIDAK",
+						useInternalPO = purchaseRequestItem.IsUsed ? "YA" : "TIDAK",
+						status = purchaseOrderInternalItem == null ? "" : purchaseOrderInternalItem.Status,
+						doNo = deliveryOrder == null ? "" : deliveryOrder.DONo,
+						doDate = deliveryOrder == null ? "" : deliveryOrder.DODate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
+						arrivalDate = deliveryOrder == null ? "" : deliveryOrder.ArrivalDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
+						doQty = deliveryOrderDetail == null ? 0 : deliveryOrderDetail.DOQuantity,
+						doUomUnit = deliveryOrderDetail == null ? "" : deliveryOrderDetail.UomUnit,
+						remainingDOQty = deliveryOrderDetail == null ? 0 : deliveryOrderDetail.DealQuantity - deliveryOrderDetail.DOQuantity,
+						bcNo = custom == null ? "" : custom.BeacukaiNo,
+						bcDate = custom == null ? "" : custom.BeacukaiDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
+						receiptNo = unitReceiptNote == null ? "" : unitReceiptNote.URNNo,
+						receiptDate = unitReceiptNote == null ? "" : unitReceiptNote.ReceiptDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
+						receiptQty = unitReceiptNoteItem == null ? "" : string.Format("{0:N2}", unitReceiptNoteItem.ReceiptQuantity),
+						ReceiptQty = unitReceiptNoteItem == null ? 0 : unitReceiptNoteItem.ReceiptQuantity,
+						receiptUomUnit = unitReceiptNoteItem == null ? "" : unitReceiptNoteItem.UomUnit,
+						invoiceNo = invoice == null ? "" : invoice.InvoiceNo,
+						invoiceDate = invoice == null ? "" : invoice.InvoiceDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
+						incomeTaxDate = invoice == null ? "" : invoice.IncomeTaxDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
+						incomeTaxNo = invoice == null ? "" : invoice.IncomeTaxNo,
+						incomeTaxType = invoice == null ? "" : invoice.IncomeTaxName,
+						incomeTaxtRate = invoice == null ? "" : invoice.IncomeTaxRate.ToString(),
+						incomeTaxtValue = invoice != null && invoice.IsPayTax ? string.Format("{0:N2}", deliveryOrderDetail.DOQuantity * deliveryOrderDetail.PricePerDealUnit * invoice.IncomeTaxRate / 100) : "",
+						vatNo = invoice == null ? "" : invoice.VatNo,
+						vatDate = invoice == null ? "" : invoice.VatDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
+						vatValue = invoice != null && invoice.IsPayTax ? string.Format("{0:N2}", deliveryOrderDetail.DOQuantity * deliveryOrderDetail.PricePerDealUnit * 0.1) : "",
+						internNo = internNote == null ? "" : internNote.INNo,
+						internDate = internNote == null ? "" : internNote.INDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
+						internTotal = internNoteDetail == null ? "" : string.Format("{0:N2}", internNoteDetail.Quantity * internNoteDetail.PricePerDealUnit),
+						InternTotal = internNoteDetail == null ? 0 : internNoteDetail.Quantity * internNoteDetail.PricePerDealUnit,
+						maturityDate = internNoteDetail == null ? "" : internNoteDetail.PaymentDueDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
+						dodetailId = deliveryOrderDetail == null ? 0 : deliveryOrderDetail.Id,
+						correctionNoteNo = string.Join("\n", correctionNoList),
+						correctionDate = string.Join("\n", correctionDateList),
+						correctionRemark = string.Join("\n", correctionRemarkList),
+						valueCorrection = string.Join("\n", correctionNominalList),
+						Bon = deliveryOrder == null ? "" : deliveryOrder.BillNo,
+						BonSmall = deliveryOrder == null ? "" : deliveryOrder.PaymentBill,
+						SupplierImport = purchaseOrderExternal == null ? "" : purchaseOrderExternal.SupplierImport == true ? "IMPORT" : "LOCAL"
+						
+					});
+				i++;
+			}
+			
+			//foreach (var corrections in qry.Distinct())
+			//{
+			//    foreach (MonitoringPurchaseAllUserViewModel data in Query.ToList())
+			//    {
+			//        if (corrections.Key == data.dodetailId)
+			//        {
+			//            data.correctionNoteNo = qry[data.dodetailId];
+			//            data.correctionRemark = qryType[data.dodetailId];
+			//            data.valueCorrection = (qryQty[data.dodetailId]);
+			//            data.correctionDate = qryDate[data.dodetailId];
+			//            listData.Add(data);
+			//            break;
+			//        }
+			//    }
+			//}
+
+			//var op = qry;
+			foreach(var item in listEPO)
+			{
+				item.yarn = products.Where(s => s.Code == item.productCode).Select(s => s.Yarn).FirstOrDefault();
+				item.width = products.Where(s => s.Code == item.productCode).Select(s => s.Width).FirstOrDefault();
+				item.consts = products.Where(s => s.Code == item.productCode).Select(s => s.Const).FirstOrDefault();
+				item.composition = products.Where(s => s.Code == item.productCode).Select(s => s.Composition).FirstOrDefault();
+				item.Total = TotalCountReport;
+			}
+			return listEPO;
             //return listEPO.AsQueryable();
 
         }
@@ -1976,9 +2018,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
         }
 
 
-        public Tuple<List<MonitoringPurchaseAllUserViewModel>, int> GetMonitoringPurchaseByUserReport(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, DateTime? dateFromEx, DateTime? dateToEx, int page, int size, string Order, int offset)
+        public async Task<List<MonitoringPurchaseAllUserViewModel>> GetMonitoringPurchaseByUserReport(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, DateTime? dateFromEx, DateTime? dateToEx, int page, int size, string Order, int offset)
         {
-            var Data = GetMonitoringPurchaseByUserReportQuery(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, dateFromEx,dateToEx, offset, page, size);
+            var Data = await GetMonitoringPurchaseByUserReportQuery(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, dateFromEx,dateToEx, offset, page, size);
 
             //Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             //if (OrderDictionary.Count.Equals(0))
@@ -1990,12 +2032,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             //List<MonitoringPurchaseAllUserViewModel> Data = pageable.Data.ToList<MonitoringPurchaseAllUserViewModel>();
             //int TotalData = pageable.TotalCount;
 
-            return Tuple.Create(Data, TotalCountReport);
+            return Data;
         }
 
-        public MemoryStream GenerateExcelByUserPurchase(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, DateTimeOffset? dateFromEx, DateTimeOffset? dateToEx, int page, int size, string Order, int offset)
+        public async Task<MemoryStream> GenerateExcelByUserPurchase(string epono, string unit, string roNo, string article, string poSerialNumber, string username, string doNo, string ipoStatus, string supplier, string status, DateTime? dateFrom, DateTime? dateTo, DateTimeOffset? dateFromEx, DateTimeOffset? dateToEx, int page, int size, string Order, int offset)
         {
-            var Query = GetMonitoringPurchaseByUserReportQuery(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, dateFromEx, dateToEx, offset, 1, int.MaxValue);
+            var Query = await GetMonitoringPurchaseByUserReportQuery(epono, unit, roNo, article, poSerialNumber, username, doNo, ipoStatus, supplier, status, dateFrom, dateTo, dateFromEx, dateToEx, offset, 1, int.MaxValue);
             //Query = Query.OrderBy(b => b.PrDate);
             DataTable result = new DataTable();
 
@@ -2228,7 +2270,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
             return IPOModels;
         }
-    }
+
+	}
 
     public class SelectedId
     {
