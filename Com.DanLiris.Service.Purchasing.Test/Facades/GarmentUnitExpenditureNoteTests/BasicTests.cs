@@ -903,11 +903,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         }
 
 
-            Assert.Throws<System.InvalidOperationException>(() => facade.GetROAsalById((int)data.Id));
-            //   Assert.NotEqual(0, Response.DetailExpenditureId);
-        }
-
-
 		//#region Flow_Detail_material
 		//[Fact]
 		//public async Task Should_Success_GetReport_Flow_Detail()
