@@ -59,6 +59,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
         private IServiceProvider GetServiceProvider()
         {
+
             var httpClientService = new Mock<IHttpClientService>();
             HttpResponseMessage message = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
             message.Content = new StringContent("{\"apiVersion\":\"1.0\",\"statusCode\":200,\"message\":\"Ok\",\"data\":[{\"Id\":7,\"codeRequirement\":\"BB\",\"code\":\"BB\",\"rate\":13700.0,\"name\":\"FABRIC\",\"date\":\"2018/10/20\"}],\"info\":{\"count\":1,\"page\":1,\"size\":1,\"total\":2,\"order\":{\"date\":\"desc\"},\"select\":[\"Id\",\"code\",\"rate\",\"date\"]}}");
@@ -852,6 +853,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             Assert.NotNull(e.Message);
         }
 
+
         //fail pas PR
         //[Fact]
         //public async Task Should_Success_Update_Data_For_DeliveryReturn()
@@ -860,6 +862,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         //    var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), dbContext);
         //    var dataUtil = this.dataUtil(facade, GetCurrentMethod());
         //    var data = await dataUtil.GetTestData();
+
 
         //    var newData = dbContext.GarmentUnitExpenditureNotes
         //        .AsNoTracking()
@@ -877,6 +880,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         {
             var dbContext = _dbContext(GetCurrentMethod());
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), dbContext);
+
 
             var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
             dbContext.Entry(data).State = EntityState.Detached;
@@ -951,8 +955,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
 
 
+
         //    Assert.NotNull(results);
         //}
+
 
         //[Fact]
         //public async Task Should_Success_GetXLS_Flow_Detail_NUll_Result()
@@ -972,6 +978,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         //    Assert.NotNull(results);
         //}
 
+
         //[Fact]
         //public async Task Should_Success_GetXLS_Flow_Detail_Unit_Expend()
         //{
@@ -988,8 +995,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
 
 
+
         //    Assert.NotNull(results);
         //}
+
 
         //[Fact]
         //public async Task Should_Success_GetXLS_Flow_Detail_Unit_NUll_Result()
@@ -1020,6 +1029,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             Assert.NotNull(Response.Item1);
         }
         [Fact]
+
         public async Task Should_Success_Get_Monitoring_Out()
         {
             var dbContext = _dbContext(GetCurrentMethod());
@@ -2482,8 +2492,51 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
 
             Assert.IsType<MemoryStream>(Response);
         }
+
         #endregion
-        
-        
+        [Fact]
+        public async Task Should_Success_Get_MonitoringFlow()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facadeExpend = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            var facade = new GarmentFlowDetailMaterialReportFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facadeExpend, GetCurrentMethod()).GetTestDataMonitoringFlow();
+            var Response = facade.GetReport("BB", "", "", DateTime.Now, DateTime.Now, 7, "{}", 25, 1);
+            Assert.NotNull(Response.Item1);
+        }
+        [Fact]
+        public async Task Should_Success_Get_MonitoringFlowSMP1()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facadeExpend = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            var facade = new GarmentFlowDetailMaterialReportFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facadeExpend, GetCurrentMethod()).GetTestDataMonitoringFlow();
+            var Response = facade.GetReport("BB", "", "SMP1", DateTime.Now, DateTime.Now, 7, "{}", 25, 1);
+            Assert.NotNull(Response.Item1);
+        }
+        [Fact]
+        public async Task Should_Success_Get_ExcelMonitoringFlow()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facadeExpend = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            var facade = new GarmentFlowDetailMaterialReportFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facadeExpend, GetCurrentMethod()).GetTestDataMonitoringFlow();
+            var Response = facade.GenerateExcel("BB", "", "FABRIC", "SMP1", "SAMPLE", DateTime.Now, DateTime.Now, 7);
+            Assert.NotNull(Response);
+        }
+        [Fact]
+        public async Task Should_Success_Get_ExcelUnitMonitoringFlow()
+        {
+            var dbContext = _dbContext(GetCurrentMethod());
+            var facadeExpend = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+
+            var facade = new GarmentFlowDetailMaterialReportFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facadeExpend, GetCurrentMethod()).GetTestDataMonitoringFlow();
+            var Response = facade.GenerateExcelForUnit("BB", "", "FABRIC", "SMP1", "SAMPLE", DateTime.Now, DateTime.Now, 7);
+            Assert.NotNull(Response);
+        }
     }
 }
