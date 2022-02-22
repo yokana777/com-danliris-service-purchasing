@@ -1086,12 +1086,12 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
             Assert.NotNull(Response);
         }
 
-        [Fact]
-        public void Should_Success_GenerateExcelDO()
-        {
-            GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-            var Response = facade.GenerateExcelDO("", "", 0, "", "", DateTime.Now, DateTime.Now, 0);
-            Assert.NotNull(Response);
-        }
+        //[Fact]
+        //public void Should_Success_GenerateExcelDO()
+        //{
+        //    GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+        //    var Response = facade.GenerateExcelDO("", "", 0, "", "", DateTime.Now, DateTime.Now, 0);
+        //    Assert.NotNull(Response);
+        //}
     }
 }
