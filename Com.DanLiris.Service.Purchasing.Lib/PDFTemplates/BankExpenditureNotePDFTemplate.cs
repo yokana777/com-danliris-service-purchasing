@@ -135,7 +135,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 bodyCell.Phrase = new Phrase("Jumlah", bold_font);
                 bodyTable.AddCell(bodyCell);
 
-                
+                bodyCell.Phrase = new Phrase("Pembayaran SPB ke-", bold_font);
+                bodyTable.AddCell(bodyCell);
+
                 foreach (BankExpenditureNoteDetailModel detail in model.Details)
                 {
                     var items = detail.Items
@@ -184,6 +186,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         }
 
                         total += item.Total;
+
+                        bodyCell.Phrase = new Phrase(detail.UPOIndex.ToString(), normal_font);
+                        bodyTable.AddCell(bodyCell);
                     }
                 }
 
@@ -246,6 +251,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 bodyCell.Phrase = new Phrase("Jumlah (IDR)", bold_font);
                 bodyTable.AddCell(bodyCell);
 
+                bodyCell.Phrase = new Phrase("Pembayaran SPB ke-", bold_font);
+                bodyTable.AddCell(bodyCell);
+
                 foreach (BankExpenditureNoteDetailModel detail in model.Details)
                 {
                     var items = detail.Items
@@ -298,6 +306,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         }
 
                         total += item.Total;
+
+                        bodyCell.Phrase = new Phrase(detail.UPOIndex.ToString(), normal_font);
+                        bodyTable.AddCell(bodyCell);
                     }
                 }
 

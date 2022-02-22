@@ -154,6 +154,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
             {
                 validateService.Validate(viewModel);
 
+                foreach (var detail in viewModel.Details)
+                {
+                    detail.AmountPaid = detail.SupplierPayment;
+                }
+
                 BankExpenditureNoteModel model = mapper.Map<BankExpenditureNoteModel>(viewModel);
 
                 int result = await facade.Create(model, identityService);
@@ -214,13 +219,18 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
             identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 
-            BankExpenditureNoteModel m = mapper.Map<BankExpenditureNoteModel>(vm);
-
             IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
 
             try
             {
                 validateService.Validate(vm);
+
+                foreach (var detail in vm.Details)
+                {
+                    detail.AmountPaid = detail.SupplierPayment;
+                }
+
+                BankExpenditureNoteModel m = mapper.Map<BankExpenditureNoteModel>(vm);
 
                 int result = await facade.Update(id, m, identityService);
 
