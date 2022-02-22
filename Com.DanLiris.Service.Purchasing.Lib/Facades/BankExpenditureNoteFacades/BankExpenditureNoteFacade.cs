@@ -31,6 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<BankExpenditureNoteModel> dbSet;
         private readonly DbSet<BankExpenditureNoteDetailModel> detailDbSet;
+        private readonly DbSet<BankExpenditureNoteItemModel> itemDbSet;
         private readonly DbSet<UnitPaymentOrder> unitPaymentOrderDbSet;
         private readonly ICurrencyProvider _currencyProvider;
         private readonly IBankDocumentNumberGenerator bankDocumentNumberGenerator;
@@ -46,6 +47,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             this.bankDocumentNumberGenerator = new BankDocumentNumberGenerator(dbContext);
             dbSet = dbContext.Set<BankExpenditureNoteModel>();
             detailDbSet = dbContext.Set<BankExpenditureNoteDetailModel>();
+            itemDbSet = dbContext.Set<BankExpenditureNoteItemModel>();
             unitPaymentOrderDbSet = dbContext.Set<UnitPaymentOrder>();
             _currencyProvider = serviceProvider.GetService<ICurrencyProvider>();
             this.serviceProvider = serviceProvider;
@@ -399,19 +401,36 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
                 if (unitPaymentOrder == null)
                     unitPaymentOrder = new UnitPaymentOrder();
-                var unitSummaries = detail.Items.GroupBy(g => g.UnitCode).Select(s => new
-                {
-                    UnitCode = s.Key,
-                    //Total = s.Sum(sm => sm.Price * currency.Rate)
-                    Total = s.Sum(sm => sm.Price)
-                });
+                //var unitSummaries = detail.Items.GroupBy(g => g.UnitCode).Select(s => new
+                //{
+                //    UnitCode = s.Key,
+                //    //Total = s.Sum(sm => sm.Price * currency.Rate)
+                //    Total = s.Sum(sm => sm.Price)
+                //});
 
                 var nominal = (decimal)0;
-                foreach (var unitSummary in unitSummaries)
+                var Remaining = model.GrandTotal;
+                foreach (var unitSummary in detail.Items)
                 {
-                    var dpp = unitSummary.Total;
-                    var vatAmount = unitPaymentOrder.UseVat ? unitSummary.Total * 0.1 : 0;
-                    var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? unitSummary.Total * unitPaymentOrder.IncomeTaxRate / 100 : 0;
+                    double dpp = 0;
+                    if (Remaining >= unitSummary.Price)
+                    {
+                        if (unitSummary.PaidPrice != 0)
+                        {
+                            dpp = unitSummary.Price - unitSummary.PaidPrice;
+                        }
+                        else
+                        {
+                            dpp = unitSummary.Price;
+                        }
+                        Remaining -= dpp;
+                    }
+                    else
+                    {
+                        dpp = Remaining;
+                    }
+                    var vatAmount = unitPaymentOrder.UseVat ? dpp * 0.1 : 0;
+                    var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? dpp * unitPaymentOrder.IncomeTaxRate / 100 : 0;
 
                     var debit = dpp + vatAmount - incomeTaxAmount;
                     if (model.CurrencyCode != "IDR")
@@ -431,6 +450,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     };
 
                     items.Add(item);
+
+                    unitSummary.PaidPrice = Remaining;
+
+                    EntityExtension.FlagForUpdate(unitSummary, identityService.Username, USER_AGENT);
+                    itemDbSet.Update(unitSummary);
                 }
             }
 
