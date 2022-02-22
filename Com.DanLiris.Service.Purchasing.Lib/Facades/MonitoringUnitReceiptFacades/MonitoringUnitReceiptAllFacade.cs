@@ -44,8 +44,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacad
 						   && ((unit != null) ? (a.UnitCode == unit) : true)
 						   && ((no != null) ? (a.URNNo == no) : true)
 						   && ((doNo  != null) ? (a.DONo == doNo) : true)
-							&& ((roNo  != null) ? (b.RONo == roNo) : true)
-							&& ((refNo != null) ? (b.POSerialNumber == refNo ) : true)
+						   && ((roNo  != null) ? (b.RONo == roNo) : true)
+						   && ((refNo != null) ? (b.POSerialNumber == refNo ) : true)
 						select  new {	id= a.Id, no=a.URNNo, dateBon= a.ReceiptDate, unit=a.UnitName, supplier= a.SupplierName, shipmentType =c.ShipmentType, doNo= a.DONo,poEksternalNo=e.EPONo,poRefPR=b.POSerialNumber,design=b.DesignColor,
 										roNo = b.RONo,article=d.Article,productCode=b.ProductCode,productName=b.ProductName, qty= b.ReceiptQuantity,uom=b.UomUnit, price= b.PricePerDealUnit, remark= b.ProductRemark, user= a.CreatedBy, createdBy= e.CreatedBy, internNo=c.InternNo}
 						)

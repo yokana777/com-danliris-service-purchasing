@@ -55,7 +55,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                          && (string.IsNullOrWhiteSpace(category) ? true : (category == "BAHAN PENDUKUNG" ? (b.ProductName != "FABRIC" && b.ProductName != "INTERLINING") : b.ProductName == category))
                          && a.OrderDate.AddHours(offset).Date >= DateFrom.Date
                          && a.OrderDate.AddHours(offset).Date <= DateTo.Date
-                         group new { DealQuantity = b.DealQuantity, PricePerDealUnit = b.PricePerDealUnit, Rate = a.CurrencyRate } by new { a.SupplierName, c.UnitName, b.ProductName, a.CurrencyCode, b.DealUomUnit, a.PaymentMethod } into G
+                         group new { DealQuantity = b.DealQuantity, SmallQty = b.SmallQuantity, PricePerDealUnit = b.PricePerDealUnit, Rate = a.CurrencyRate } by new { a.SupplierName, c.UnitName, b.ProductName, a.CurrencyCode, b.DealUomUnit, b.SmallUomUnit, a.PaymentMethod } into G
                          select new TotalGarmentPurchaseBySupplierViewModel
                          {
                              SupplierName = G.Key.SupplierName,
@@ -63,8 +63,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                              CurrencyCode = G.Key.CurrencyCode,
                              PaymentMethod = G.Key.PaymentMethod,
                              UOMUnit = G.Key.DealUomUnit,
+                             SmallUom = G.Key.SmallUomUnit,
                              CategoryName = G.Key.ProductName,
                              Quantity = (Decimal)Math.Round(G.Sum(c => c.DealQuantity), 2),
+                             SmallQty = (Decimal)Math.Round(G.Sum(c => c.SmallQty), 2),
                              Amount = (Decimal)Math.Round(G.Sum(c => c.DealQuantity * c.PricePerDealUnit), 2),
                              AmountIDR = (Decimal)Math.Round(G.Sum(c => c.DealQuantity * c.PricePerDealUnit * c.Rate), 2)
                          });
@@ -90,17 +92,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
             result.Columns.Add(new DataColumn() { ColumnName = "Metode Bayar", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Jumlah", DataType = typeof(Decimal) });
             result.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Konversi", DataType = typeof(Decimal) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Satuan Kecil", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nominal(Rp)", DataType = typeof(Decimal) });
 
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", 0, "", 0); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", 0, "", 0, "", 0); // to allow column name to be generated properly for empty data as template
             else
             {
                 int index = 0;
                 foreach (var item in Query)
                 {
                     index++;
-                    result.Rows.Add(index, item.SupplierName, item.UnitName, item.CategoryName, item.PaymentMethod, item.Quantity, item.UOMUnit, (Decimal)Math.Round((item.AmountIDR), 2));
+                    result.Rows.Add(index, item.SupplierName, item.UnitName, item.CategoryName, item.PaymentMethod, item.Quantity, item.UOMUnit,item.SmallQty, item.SmallUom, (Decimal)Math.Round((item.AmountIDR), 2));
                 }
             }
 

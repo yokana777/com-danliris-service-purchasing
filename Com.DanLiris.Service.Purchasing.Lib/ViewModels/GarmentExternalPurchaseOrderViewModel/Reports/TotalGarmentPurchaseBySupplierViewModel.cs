@@ -14,7 +14,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
 		public string CategoryName { get; set; }
         public decimal Quantity { get; set; }
         public string UOMUnit { get; set; }
- 		public string CurrencyCode { get; set; }
+        public decimal SmallQty { get; set; }
+        public string SmallUom { get; set; }
+        public string CurrencyCode { get; set; }
         public decimal Amount { get; set; }
         public decimal AmountIDR { get; set; }
     }

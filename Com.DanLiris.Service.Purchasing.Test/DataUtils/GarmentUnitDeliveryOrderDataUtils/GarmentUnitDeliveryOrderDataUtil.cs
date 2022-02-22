@@ -70,7 +70,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrde
                         UomUnit = item.UomUnit,
                         ReturUomId = item.UomId,
                         ReturUomUnit = item.UomUnit,
-                        DOItemsId = (int)garmentDOItems.Id
+                        DOItemsId = (int)garmentDOItems.Id,
+						DOCurrencyRate=1
                     });
             }
 
