@@ -106,10 +106,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             {
                 #region BodyNonIdr
 
-                PdfPTable bodyTable = new PdfPTable(7);
+                PdfPTable bodyTable = new PdfPTable(8);
                 PdfPCell bodyCell = new PdfPCell();
 
-                float[] widthsBody = new float[] { 5f, 10f, 10f, 10f, 8f, 7f, 15f };
+                float[] widthsBody = new float[] { 5f, 10f, 10f, 10f, 8f, 7f, 15f, 7f };
                 bodyTable.SetWidths(widthsBody);
                 bodyTable.WidthPercentage = 100;
 
@@ -135,7 +135,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 bodyCell.Phrase = new Phrase("Jumlah", bold_font);
                 bodyTable.AddCell(bodyCell);
 
-                
+                bodyCell.Phrase = new Phrase("Pembayaran SPB ke-", bold_font);
+                bodyTable.AddCell(bodyCell);
+
                 foreach (BankExpenditureNoteDetailModel detail in model.Details)
                 {
                     var items = detail.Items
@@ -184,6 +186,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         }
 
                         total += item.Total;
+
+                        bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                        bodyCell.Phrase = new Phrase(detail.UPOIndex.ToString(), normal_font);
+                        bodyTable.AddCell(bodyCell);
                     }
                 }
 
@@ -214,10 +220,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             else
             {
                 #region BodyIdr
-                PdfPTable bodyTable = new PdfPTable(8);
+                PdfPTable bodyTable = new PdfPTable(9);
                 PdfPCell bodyCell = new PdfPCell();
 
-                float[] widthsBody = new float[] { 5f, 10f, 10f, 10f, 8f, 7f, 10f, 10f };
+                float[] widthsBody = new float[] { 5f, 10f, 10f, 10f, 8f, 7f, 10f, 10f, 7f };
                 bodyTable.SetWidths(widthsBody);
                 bodyTable.WidthPercentage = 100;
 
@@ -244,6 +250,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 bodyTable.AddCell(bodyCell);
 
                 bodyCell.Phrase = new Phrase("Jumlah (IDR)", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("Pembayaran SPB ke-", bold_font);
                 bodyTable.AddCell(bodyCell);
 
                 foreach (BankExpenditureNoteDetailModel detail in model.Details)
@@ -298,6 +307,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         }
 
                         total += item.Total;
+
+                        bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                        bodyCell.Phrase = new Phrase(detail.UPOIndex.ToString(), normal_font);
+                        bodyTable.AddCell(bodyCell);
                     }
                 }
 

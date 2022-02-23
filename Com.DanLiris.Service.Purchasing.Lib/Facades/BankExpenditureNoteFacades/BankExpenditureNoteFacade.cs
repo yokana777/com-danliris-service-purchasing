@@ -31,6 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<BankExpenditureNoteModel> dbSet;
         private readonly DbSet<BankExpenditureNoteDetailModel> detailDbSet;
+        private readonly DbSet<BankExpenditureNoteItemModel> itemDbSet;
         private readonly DbSet<UnitPaymentOrder> unitPaymentOrderDbSet;
         private readonly ICurrencyProvider _currencyProvider;
         private readonly IBankDocumentNumberGenerator bankDocumentNumberGenerator;
@@ -46,6 +47,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             this.bankDocumentNumberGenerator = new BankDocumentNumberGenerator(dbContext);
             dbSet = dbContext.Set<BankExpenditureNoteModel>();
             detailDbSet = dbContext.Set<BankExpenditureNoteDetailModel>();
+            itemDbSet = dbContext.Set<BankExpenditureNoteItemModel>();
             unitPaymentOrderDbSet = dbContext.Set<UnitPaymentOrder>();
             _currencyProvider = serviceProvider.GetService<ICurrencyProvider>();
             this.serviceProvider = serviceProvider;
@@ -150,13 +152,34 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     {
                         if (detail.Id == 0)
                         {
+                            var paidFlag = true;
+
+                            var query = dbContext.BankExpenditureNoteDetails.Where(x => x.UnitPaymentOrderNo == detail.UnitPaymentOrderNo).LastOrDefault();
+
+                            if (query == null)
+                            {
+                                if (detail.AmountPaid != detail.TotalPaid)
+                                {
+                                    paidFlag = false;
+                                }
+                            }
+                            else
+                            {
+                                if ((query.AmountPaid + detail.AmountPaid) != detail.TotalPaid)
+                                {
+                                    paidFlag = false;
+                                }
+
+                                detail.AmountPaid += query.AmountPaid;
+                            }
+
                             EntityExtension.FlagForCreate(detail, username, USER_AGENT);
                             dbContext.BankExpenditureNoteDetails.Add(detail);
 
                             PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
                             {
                                 Id = (int)detail.UnitPaymentOrderId,
-                                IsPaid = true,
+                                IsPaid = paidFlag,
                                 BankExpenditureNoteNo = model.DocumentNo,
                                 BankExpenditureNoteDate = model.Date
                             };
@@ -174,6 +197,48 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             {
                                 EntityExtension.FlagForCreate(item, username, USER_AGENT);
                             }
+                        }
+                        else
+                        {
+                            var paidFlag = true;
+
+                            var query = dbContext.BankExpenditureNoteDetails.Where(x => x.UnitPaymentOrderNo == detail.UnitPaymentOrderNo).LastOrDefault();
+
+                            if (query == null)
+                            {
+                                if (detail.AmountPaid != detail.TotalPaid)
+                                {
+                                    paidFlag = false;
+                                }
+                            }
+                            else
+                            {
+                                if ((query.AmountPaid + detail.AmountPaid) != detail.TotalPaid)
+                                {
+                                    paidFlag = false;
+                                }
+
+                                detail.AmountPaid += query.AmountPaid;
+                            }
+
+                            EntityExtension.FlagForUpdate(detail, username, USER_AGENT);
+                            dbContext.Entry(detail).Property(x => x.AmountPaid).IsModified = true;
+
+                            PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
+                            {
+                                Id = (int)detail.UnitPaymentOrderId,
+                                IsPaid = paidFlag,
+                                BankExpenditureNoteNo = model.DocumentNo,
+                                BankExpenditureNoteDate = model.Date
+                            };
+
+                            EntityExtension.FlagForUpdate(pde, username, USER_AGENT);
+                            dbContext.Entry(pde).Property(x => x.IsPaid).IsModified = true;
+                            dbContext.Entry(pde).Property(x => x.BankExpenditureNoteNo).IsModified = true;
+                            dbContext.Entry(pde).Property(x => x.BankExpenditureNoteDate).IsModified = true;
+                            dbContext.Entry(pde).Property(x => x.LastModifiedAgent).IsModified = true;
+                            dbContext.Entry(pde).Property(x => x.LastModifiedBy).IsModified = true;
+                            dbContext.Entry(pde).Property(x => x.LastModifiedUtc).IsModified = true;
                         }
                     }
 
@@ -251,12 +316,37 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
                     foreach (var detail in model.Details)
                     {
+                        var paidFlag = true;
+
+                        var query = dbContext.BankExpenditureNoteDetails.Where(x => x.UnitPaymentOrderNo == detail.UnitPaymentOrderNo).LastOrDefault();
+
+                        if (query == null)
+                        {
+                            if (detail.AmountPaid != detail.TotalPaid)
+                            {
+                                paidFlag = false;
+                            }
+
+                            detail.UPOIndex = 1;
+                        }
+                        else
+                        {
+                            if ((query.AmountPaid + detail.AmountPaid) != detail.TotalPaid)
+                            {
+                                paidFlag = false;
+                            }
+
+                            detail.AmountPaid += query.AmountPaid;
+
+                            detail.UPOIndex = query.UPOIndex + 1;
+                        }
+
                         EntityExtension.FlagForCreate(detail, username, USER_AGENT);
 
                         PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
                         {
                             Id = (int)detail.UnitPaymentOrderId,
-                            IsPaid = true,
+                            IsPaid = paidFlag,
                             BankExpenditureNoteNo = model.DocumentNo,
                             BankExpenditureNoteDate = model.Date
                         };
@@ -311,19 +401,36 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
                 if (unitPaymentOrder == null)
                     unitPaymentOrder = new UnitPaymentOrder();
-                var unitSummaries = detail.Items.GroupBy(g => g.UnitCode).Select(s => new
-                {
-                    UnitCode = s.Key,
-                    //Total = s.Sum(sm => sm.Price * currency.Rate)
-                    Total = s.Sum(sm => sm.Price)
-                });
+                //var unitSummaries = detail.Items.GroupBy(g => g.UnitCode).Select(s => new
+                //{
+                //    UnitCode = s.Key,
+                //    //Total = s.Sum(sm => sm.Price * currency.Rate)
+                //    Total = s.Sum(sm => sm.Price)
+                //});
 
                 var nominal = (decimal)0;
-                foreach (var unitSummary in unitSummaries)
+                var Remaining = model.GrandTotal;
+                foreach (var unitSummary in detail.Items)
                 {
-                    var dpp = unitSummary.Total;
-                    var vatAmount = unitPaymentOrder.UseVat ? unitSummary.Total * 0.1 : 0;
-                    var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? unitSummary.Total * unitPaymentOrder.IncomeTaxRate / 100 : 0;
+                    double dpp = 0;
+                    if (Remaining >= unitSummary.Price)
+                    {
+                        if (unitSummary.PaidPrice != 0)
+                        {
+                            dpp = unitSummary.Price - unitSummary.PaidPrice;
+                        }
+                        else
+                        {
+                            dpp = unitSummary.Price;
+                        }
+                        Remaining -= dpp;
+                    }
+                    else
+                    {
+                        dpp = Remaining;
+                    }
+                    var vatAmount = unitPaymentOrder.UseVat ? dpp * 0.1 : 0;
+                    var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? dpp * unitPaymentOrder.IncomeTaxRate / 100 : 0;
 
                     var debit = dpp + vatAmount - incomeTaxAmount;
                     if (model.CurrencyCode != "IDR")
@@ -343,6 +450,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     };
 
                     items.Add(item);
+
+                    unitSummary.PaidPrice = Remaining;
+
+                    EntityExtension.FlagForUpdate(unitSummary, identityService.Username, USER_AGENT);
+                    itemDbSet.Update(unitSummary);
                 }
             }
 
@@ -551,6 +663,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 s.PaymentMethod,
                 s.URNId,
                 s.URNNo,
+                AmountPaid = (dbContext.BankExpenditureNoteDetails.Where(x => x.UnitPaymentOrderId == s.Id).LastOrDefault() == null ? 0 : dbContext.BankExpenditureNoteDetails.Where(x => x.UnitPaymentOrderId == s.Id).LastOrDefault().AmountPaid),
                 Items = s.Items.Select(sl => new
                 {
                     UnitPaymentOrderItemId = sl.Id,

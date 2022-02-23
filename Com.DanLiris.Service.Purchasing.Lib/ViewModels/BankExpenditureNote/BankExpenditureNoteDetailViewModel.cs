@@ -24,5 +24,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote
         public string UnitPaymentOrderNo { get; set; }
         public double IncomeTax { get; set; }
         public double Vat { get; set; }
+        public double AmountPaid { get; set; }
+        public double SupplierPayment { get; set; }
     }
 }
