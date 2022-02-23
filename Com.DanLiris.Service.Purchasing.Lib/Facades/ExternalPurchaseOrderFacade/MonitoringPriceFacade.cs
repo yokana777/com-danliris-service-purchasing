@@ -57,7 +57,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                                && c.IsDeleted == false
                                && a.OrderDate.AddHours(offset).Date >= DateFrom.Date
                                && a.OrderDate.AddHours(offset).Date <= DateTo.Date                             
-                               && c.ProductName == (string.IsNullOrWhiteSpace(product) ? c.ProductName : product)
+                               && c.ProductId == (string.IsNullOrWhiteSpace(product) ? c.ProductId : product)
                        
                          select new MonitoringPriceViewModel
                          {
@@ -90,7 +90,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(Order);
             if (OrderDictionary.Count.Equals(0))
             {
-                Query = Query.OrderBy(b => b.SupplierCode).ThenBy(b => b.EPONo); 
+                Query = Query.OrderBy(b => b.EPODate); 
             }
             else
             {
@@ -132,7 +132,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
             result.Columns.Add(new DataColumn() { ColumnName = "Satuan", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Rate", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Harga Satuanh", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Harga Satuan", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "Jumlah Harga", DataType = typeof(String) });
 
             if (Query.ToArray().Count() == 0)

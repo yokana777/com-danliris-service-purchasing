@@ -30,6 +30,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewMod
         public string unit { get; set; }
         public string div{ get; set; }
         public string adm { get; set; }
+        public string term { get; set; }
         public string matauang { get; set; }
         public string kategori { get; set; }
         public double qtycorrection { get; set; }

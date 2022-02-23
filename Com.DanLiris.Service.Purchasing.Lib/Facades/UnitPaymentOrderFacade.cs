@@ -813,6 +813,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                              supplier = a.SupplierName,
                              div = a.DivisionName,
                              adm = a.CreatedBy,
+                             term = a.PaymentMethod,
                              matauang = a.CurrencyCode,
                              kategori = a.CategoryName,
                              unit = e.UnitName,
