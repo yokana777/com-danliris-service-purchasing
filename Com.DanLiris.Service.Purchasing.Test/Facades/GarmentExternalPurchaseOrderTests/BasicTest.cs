@@ -580,6 +580,20 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
+        [Fact]
+        public async Task Should_Success_Get_Report_Data_Excel_Null_Parameter()
+        {
+            GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+            TotalGarmentPurchaseFacade facadetotal = new TotalGarmentPurchaseFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+
+            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+
+            var GEPODtl = model.garmentExternalPurchaseOrder.Items.First();
+            var Response = facadetotal.GenerateExcelTotalGarmentPurchaseBySupplier(null, It.IsAny<Boolean>(), null, null, null, null, 0);
+
+            Assert.IsType<System.IO.MemoryStream>(Response);
+        }
+
         #region ToptenFacadeTest
         [Fact]
         public async Task Should_Success_Get_Report_TopTen()
