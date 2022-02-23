@@ -879,7 +879,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 SmallQuantity = garmentUnitReceiptNoteItem.SmallQuantity,
                                 SmallUomId = garmentUnitReceiptNoteItem.SmallUomId,
                                 SmallUomUnit = garmentUnitReceiptNoteItem.SmallUomUnit,
-                                RemainingQuantity = 0,
+                                RemainingQuantity = garmentUnitReceiptNoteItem.ReceiptQuantity,
                                 DetailReferenceId = garmentUnitReceiptNoteItem.DODetailId,
                                 URNItemId = garmentUnitReceiptNoteItem.Id,
                                 DOCurrencyRate = garmentUnitReceiptNoteItem.DOCurrencyRate,
