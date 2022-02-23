@@ -360,7 +360,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                         dbContext.Entry(pde).Property(x => x.LastModifiedBy).IsModified = true;
                         dbContext.Entry(pde).Property(x => x.LastModifiedUtc).IsModified = true;
 
-                        foreach (var item in detail.Items)
+                        foreach (var item in detail.Items.OrderBy(x => x.URNNo))
                         {
                             EntityExtension.FlagForCreate(item, username, USER_AGENT);
                         }
