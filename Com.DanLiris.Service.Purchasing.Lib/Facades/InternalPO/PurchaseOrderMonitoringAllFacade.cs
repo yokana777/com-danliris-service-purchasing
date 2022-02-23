@@ -678,7 +678,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                             where a.IsDeleted == false
                                 && d.IsDeleted == false
                                 && f.IsDeleted == false
-                               && ((DateFrom != new DateTime(1970, 1, 1)) ? (d.DeliveryDate.Date >= DateFrom && d.DeliveryDate.Date <= DateTo) : true)
+                               && ((DateFrom != new DateTime(1970, 1, 1)) ? (d.DeliveryDate.AddHours(offset).Date >= DateFrom && d.DeliveryDate.AddHours(offset).Date <= DateTo) : true)
                                 && a.DivisionId == (string.IsNullOrWhiteSpace(divisi) ? a.DivisionId : divisi)
 
                             select new PurchaseOrderStaffReportViewModel
@@ -689,10 +689,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                                 nopr = a.PRNo,
                                 nmbarang = b.ProductName,
                                 nmsupp = d.SupplierName,
-                                tgltarget = d.DeliveryDate,
-                                tgldatang = f.ArrivalDate,
+                                tgltarget = d.DeliveryDate.AddHours(offset),
+                                tgldatang = f.ArrivalDate.AddHours(offset),
                                 tglpoint = a.CreatedUtc,
-                                tglpoeks = d.OrderDate,
+                                tglpoeks = d.OrderDate.AddHours(offset),
                                 tgpr = a.PRDate,
 
                             };
