@@ -336,6 +336,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
             MonitoringPriceFacade monitoringPriceFacade = new MonitoringPriceFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
             ExternalPurchaseOrder modelEPO = await _dataUtilEPO(externalPurchaseOrderFacade, GetCurrentMethod()).GetTestDataMP("Unit test");
             var EPODtl = modelEPO.Items.First().Details.First();
+
             var Response = monitoringPriceFacade.GetDisplayReport(EPODtl.ProductId, null, null, 1, 50, "{}", 7);
             Assert.NotEqual(Response.Item2, -1);
         }
@@ -347,6 +348,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
             ExternalPurchaseOrderFacade externalPurchaseOrderFacade = new ExternalPurchaseOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
             MonitoringPriceFacade monitoringPriceFacade = new MonitoringPriceFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
             ExternalPurchaseOrder modelEPO = await _dataUtilEPO(externalPurchaseOrderFacade, GetCurrentMethod()).GetTestDataMP("Unit test");
+
             var Response = monitoringPriceFacade.GetDisplayReport(null, null, null, 1, 50, "{}", 7);
             Assert.NotEqual(Response.Item2, -1);
         }
@@ -359,6 +361,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
             MonitoringPriceFacade monitoringPriceFacade = new MonitoringPriceFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
             ExternalPurchaseOrder modelEPO = await _dataUtilEPO(externalPurchaseOrderFacade, GetCurrentMethod()).GetTestDataMP("Unit test");
             var EPODtl = modelEPO.Items.First().Details.First();
+
             var Response = monitoringPriceFacade.GenerateExcel(EPODtl.ProductId, null, null, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
@@ -370,6 +373,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.ExternalPurchaseOrderTest
             ExternalPurchaseOrderFacade externalPurchaseOrderFacade = new ExternalPurchaseOrderFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
             MonitoringPriceFacade monitoringPriceFacade = new MonitoringPriceFacade(GetServiceProvider(GetCurrentMethod()).Object, dbContext);
             ExternalPurchaseOrder modelEPO = await _dataUtilEPO(externalPurchaseOrderFacade, GetCurrentMethod()).GetTestDataMP("Unit test");
+
             var Response = monitoringPriceFacade.GenerateExcel(null, DateTime.MinValue, DateTime.MinValue, 7);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
