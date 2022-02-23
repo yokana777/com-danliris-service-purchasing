@@ -586,8 +586,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             TotalGarmentPurchaseFacade facadetotal = new TotalGarmentPurchaseFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
 
-            var Response = facadetotal.GenerateExcelTotalGarmentPurchaseBySupplier(null, It.IsAny<Boolean>(), null, null, null, null, 0);
-            Assert.NotNull(Response);
+            var Response = facadetotal.GenerateExcelTotalGarmentPurchaseBySupplier(null, It.IsAny<Boolean>(), null, null, DateTime.Now, DateTime.Now, 0);
+            Assert.IsType<System.IO.MemoryStream>(Response);
         }
 
         #region ToptenFacadeTest
