@@ -586,9 +586,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             GarmentExternalPurchaseOrderFacade facade = new GarmentExternalPurchaseOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             TotalGarmentPurchaseFacade facadetotal = new TotalGarmentPurchaseFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
 
-            var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-
-            var GEPODtl = model.garmentExternalPurchaseOrder.Items.First();
             var Response = facadetotal.GenerateExcelTotalGarmentPurchaseBySupplier(null, It.IsAny<Boolean>(), null, null, null, null, 0);
 
             Assert.IsType<System.IO.MemoryStream>(Response);
