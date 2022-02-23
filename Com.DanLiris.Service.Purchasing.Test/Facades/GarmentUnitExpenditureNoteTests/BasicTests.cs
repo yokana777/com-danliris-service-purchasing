@@ -520,6 +520,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             Assert.NotEqual(0, Response);
         }
 
+        [Fact]
+        public async Task Should_Success_Create_Data_Type_TransferSample()
+        {
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataTypeTransfer();
+            data.ExpenditureType = "TRANSFER SAMPLE";
+            var Response = await facade.Create(data);
+            Assert.NotEqual(0, Response);
+        }
+
         //[Fact]
         //public async Task Should_Success_Create_Data_Type_Sample_FromSample()
         //{

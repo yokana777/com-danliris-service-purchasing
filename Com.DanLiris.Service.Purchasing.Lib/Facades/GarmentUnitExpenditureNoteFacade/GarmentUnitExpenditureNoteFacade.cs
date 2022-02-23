@@ -459,16 +459,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                     }
 
-                    if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" || (garmentUnitExpenditureNote.ExpenditureType == "SAMPLE" && garmentUnitExpenditureNote.UnitSenderCode!="SMP1"))
+                    if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" || (garmentUnitExpenditureNote.ExpenditureType == "SAMPLE" && garmentUnitExpenditureNote.UnitSenderCode != "SMP1"))
                     {
                         GarmentUnitReceiptNoteFacade garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(this.serviceProvider, dbContext);
-                        GarmentUnitDeliveryOrderFacade garmentUnitDeliveryOrderFacade= new GarmentUnitDeliveryOrderFacade( dbContext,this.serviceProvider);
+                        GarmentUnitDeliveryOrderFacade garmentUnitDeliveryOrderFacade = new GarmentUnitDeliveryOrderFacade(dbContext, this.serviceProvider);
                         var oldGarmentUnitDO = dbSetGarmentUnitDeliveryOrder.AsNoTracking().First(d => d.Id == garmentUnitExpenditureNote.UnitDOId);
 
                         List<GarmentUnitReceiptNoteItem> urnItems = new List<GarmentUnitReceiptNoteItem>();
                         foreach (var item in garmentUnitExpenditureNote.Items)
                         {
-                            GarmentPurchaseRequestItem garmentPurchaseRequestItem = item.PRItemId==0? null : dbContext.GarmentPurchaseRequestItems.AsNoTracking().FirstOrDefault(a => a.Id == item.PRItemId);
+                            GarmentPurchaseRequestItem garmentPurchaseRequestItem = item.PRItemId == 0 ? null : dbContext.GarmentPurchaseRequestItems.AsNoTracking().FirstOrDefault(a => a.Id == item.PRItemId);
                             GarmentPurchaseRequest garmentPurchaseRequest = item.PRItemId == 0 ? null : dbContext.GarmentPurchaseRequests.AsNoTracking().FirstOrDefault(a => a.Id == garmentPurchaseRequestItem.GarmentPRId);
                             GarmentInternalPurchaseOrderItem garmentInternalPurchaseOrderItem = dbContext.GarmentInternalPurchaseOrderItems.AsNoTracking().FirstOrDefault(a => a.Id == item.POItemId);
                             GarmentUnitDeliveryOrderItem garmentUnitDeliveryOrderItem = dbContext.GarmentUnitDeliveryOrderItems.AsNoTracking().FirstOrDefault(a => a.Id == item.UnitDOItemId);
@@ -525,7 +525,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                             StorageName = garmentUnitExpenditureNote.StorageRequestName,
                             IsCorrection = false,
                             IsUnitDO = true,
-                            Items= urnItems
+                            Items = urnItems
                         };
                         garmentUnitReceiptNote.URNNo = await garmentUnitReceiptNoteFacade.GenerateNo(garmentUnitReceiptNote);
                         EntityExtension.FlagForCreate(garmentUnitReceiptNote, identityService.Username, USER_AGENT);
@@ -576,29 +576,29 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                             GarmentUnitDeliveryOrderItem garmentUnitDOItems = new GarmentUnitDeliveryOrderItem
                             {
-                                URNId= garmentUnitReceiptNote.Id,
-                                URNNo= garmentUnitReceiptNote.URNNo,
-                                URNItemId= urnItem.Id,
-                                DODetailId= urnItem.DODetailId,
-                                EPOItemId= urnItem.EPOItemId,
-                                POItemId= urnItem.POItemId,
-                                PRItemId= urnItem.PRItemId,
-                                POSerialNumber= urnItem.POSerialNumber,
-                                ProductId= urnItem.ProductId,
-                                ProductCode= urnItem.ProductCode,
-                                ProductName= urnItem.ProductName,
-                                ProductRemark= urnItem.ProductRemark,
-                                RONo= urnItem.RONo,
-                                Quantity=(double) urnItem.SmallQuantity,
-                                UomId= urnItem.SmallUomId,
-                                UomUnit= urnItem.SmallUomUnit,
-                                PricePerDealUnit=(double) urnItem.PricePerDealUnit,
-                                DesignColor= urnItem.DesignColor,
-                                DefaultDOQuantity= (double)urnItem.SmallQuantity,
-                                DOCurrencyRate= gUenItem.DOCurrencyRate,
-                                ReturQuantity=0,
-                                FabricType=gUenItem.FabricType,
-                                
+                                URNId = garmentUnitReceiptNote.Id,
+                                URNNo = garmentUnitReceiptNote.URNNo,
+                                URNItemId = urnItem.Id,
+                                DODetailId = urnItem.DODetailId,
+                                EPOItemId = urnItem.EPOItemId,
+                                POItemId = urnItem.POItemId,
+                                PRItemId = urnItem.PRItemId,
+                                POSerialNumber = urnItem.POSerialNumber,
+                                ProductId = urnItem.ProductId,
+                                ProductCode = urnItem.ProductCode,
+                                ProductName = urnItem.ProductName,
+                                ProductRemark = urnItem.ProductRemark,
+                                RONo = urnItem.RONo,
+                                Quantity = (double)urnItem.SmallQuantity,
+                                UomId = urnItem.SmallUomId,
+                                UomUnit = urnItem.SmallUomUnit,
+                                PricePerDealUnit = (double)urnItem.PricePerDealUnit,
+                                DesignColor = urnItem.DesignColor,
+                                DefaultDOQuantity = (double)urnItem.SmallQuantity,
+                                DOCurrencyRate = gUenItem.DOCurrencyRate,
+                                ReturQuantity = 0,
+                                FabricType = gUenItem.FabricType,
+
                             };
                             unitDOItems.Add(garmentUnitDOItems);
                             EntityExtension.FlagForCreate(garmentUnitDOItems, identityService.Username, USER_AGENT);
@@ -606,25 +606,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                         GarmentUnitDeliveryOrder garmentUnitDO = new GarmentUnitDeliveryOrder
                         {
-                            UnitDOType= garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" ? "PROSES" : "SAMPLE",
-                            UnitDODate= garmentUnitExpenditureNote.ExpenditureDate,
-                            UnitRequestId= garmentUnitExpenditureNote.UnitRequestId,
+                            UnitDOType = garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" ? "PROSES" : "SAMPLE",
+                            UnitDODate = garmentUnitExpenditureNote.ExpenditureDate,
+                            UnitRequestId = garmentUnitExpenditureNote.UnitRequestId,
                             UnitRequestCode = garmentUnitExpenditureNote.UnitRequestCode,
                             UnitRequestName = garmentUnitExpenditureNote.UnitRequestName,
-                            UnitSenderId= garmentUnitExpenditureNote.UnitRequestId,
-                            UnitSenderCode= garmentUnitExpenditureNote.UnitRequestCode,
-                            UnitSenderName= garmentUnitExpenditureNote.UnitRequestName,
-                            StorageId= garmentUnitExpenditureNote.StorageRequestId,
-                            StorageCode= garmentUnitExpenditureNote.StorageRequestCode,
-                            StorageName= garmentUnitExpenditureNote.StorageRequestName,
-                            RONo= oldGarmentUnitDO.RONo,
-                            Article=oldGarmentUnitDO.Article,
-                            IsUsed=true,
-                            Items= unitDOItems,
-                            UENFromId= garmentUnitExpenditureNote.Id,
-                            UENFromNo= garmentUnitExpenditureNote.UENNo,
-                            UnitDOFromId= oldGarmentUnitDO.Id,
-                            UnitDOFromNo=oldGarmentUnitDO.UnitDONo
+                            UnitSenderId = garmentUnitExpenditureNote.UnitRequestId,
+                            UnitSenderCode = garmentUnitExpenditureNote.UnitRequestCode,
+                            UnitSenderName = garmentUnitExpenditureNote.UnitRequestName,
+                            StorageId = garmentUnitExpenditureNote.StorageRequestId,
+                            StorageCode = garmentUnitExpenditureNote.StorageRequestCode,
+                            StorageName = garmentUnitExpenditureNote.StorageRequestName,
+                            RONo = oldGarmentUnitDO.RONo,
+                            Article = oldGarmentUnitDO.Article,
+                            IsUsed = true,
+                            Items = unitDOItems,
+                            UENFromId = garmentUnitExpenditureNote.Id,
+                            UENFromNo = garmentUnitExpenditureNote.UENNo,
+                            UnitDOFromId = oldGarmentUnitDO.Id,
+                            UnitDOFromNo = oldGarmentUnitDO.UnitDONo
                         };
 
                         garmentUnitDO.UnitDONo = await garmentUnitDeliveryOrderFacade.GenerateNo(garmentUnitDO);
@@ -635,7 +635,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         await dbContext.SaveChangesAsync();
 
                         List<GarmentUnitExpenditureNoteItem> garmentUENItems = new List<GarmentUnitExpenditureNoteItem>();
-                        foreach(var unitDOItem in garmentUnitDO.Items)
+                        foreach (var unitDOItem in garmentUnitDO.Items)
                         {
                             GarmentPurchaseRequest garmentPurchaseRequest = dbContext.GarmentPurchaseRequests.FirstOrDefault(a => a.RONo == unitDOItem.RONo);
                             //GarmentInternalPurchaseOrderItem gpoItem = dbContext.GarmentInternalPurchaseOrderItems.FirstOrDefault(a => a.Id == unitDOItem.POItemId);
@@ -646,28 +646,28 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
 
                             GarmentUnitExpenditureNoteItem uenItem = new GarmentUnitExpenditureNoteItem
                             {
-                                UnitDOItemId= unitDOItem.Id,
-                                URNItemId=unitDOItem.URNItemId,
-                                DODetailId= unitDOItem.DODetailId,
-                                EPOItemId= unitDOItem.EPOItemId,
-                                POItemId= unitDOItem.POItemId,
-                                PRItemId= unitDOItem.PRItemId,
-                                POSerialNumber= unitDOItem.POSerialNumber,
-                                ProductId= unitDOItem.ProductId,
-                                ProductCode= unitDOItem.ProductCode,
-                                ProductName= unitDOItem.ProductName,
-                                ProductRemark= unitDOItem.ProductRemark,
-                                RONo= unitDOItem.RONo,
-                                Quantity= unitDOItem.Quantity,
-                                UomId= unitDOItem.UomId,
-                                UomUnit= unitDOItem.UomUnit,
-                                PricePerDealUnit= unitDOItem.PricePerDealUnit,
-                                FabricType= unitDOItem.FabricType,
-                                BuyerId= garmentPurchaseRequest== null ? 0 : long.Parse(garmentPurchaseRequest.BuyerId),
-                                BuyerCode= garmentPurchaseRequest == null ? null : garmentPurchaseRequest.BuyerCode,
-                                DOCurrencyRate= unitDOItem.DOCurrencyRate,
-                                BasicPrice= gUenItem1.BasicPrice,
-                                Conversion= gUenItem1.Conversion
+                                UnitDOItemId = unitDOItem.Id,
+                                URNItemId = unitDOItem.URNItemId,
+                                DODetailId = unitDOItem.DODetailId,
+                                EPOItemId = unitDOItem.EPOItemId,
+                                POItemId = unitDOItem.POItemId,
+                                PRItemId = unitDOItem.PRItemId,
+                                POSerialNumber = unitDOItem.POSerialNumber,
+                                ProductId = unitDOItem.ProductId,
+                                ProductCode = unitDOItem.ProductCode,
+                                ProductName = unitDOItem.ProductName,
+                                ProductRemark = unitDOItem.ProductRemark,
+                                RONo = unitDOItem.RONo,
+                                Quantity = unitDOItem.Quantity,
+                                UomId = unitDOItem.UomId,
+                                UomUnit = unitDOItem.UomUnit,
+                                PricePerDealUnit = unitDOItem.PricePerDealUnit,
+                                FabricType = unitDOItem.FabricType,
+                                BuyerId = garmentPurchaseRequest == null ? 0 : long.Parse(garmentPurchaseRequest.BuyerId),
+                                BuyerCode = garmentPurchaseRequest == null ? null : garmentPurchaseRequest.BuyerCode,
+                                DOCurrencyRate = unitDOItem.DOCurrencyRate,
+                                BasicPrice = gUenItem1.BasicPrice,
+                                Conversion = gUenItem1.Conversion
 
                             };
                             garmentUENItems.Add(uenItem);
@@ -784,6 +784,180 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                         }
 
                         //Created = await dbContext.SaveChangesAsync();
+                    }
+                    else if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER SAMPLE")
+                    {
+                        GarmentUnitReceiptNoteFacade garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(this.serviceProvider, dbContext);
+                        GarmentUnitDeliveryOrderFacade garmentUnitDeliveryOrderFacade = new GarmentUnitDeliveryOrderFacade(dbContext, this.serviceProvider);
+                        var oldGarmentUnitDO = dbSetGarmentUnitDeliveryOrder.AsNoTracking().First(d => d.Id == garmentUnitExpenditureNote.UnitDOId);
+
+                        List<GarmentUnitReceiptNoteItem> urnItems = new List<GarmentUnitReceiptNoteItem>();
+                        foreach (var item in garmentUnitExpenditureNote.Items)
+                        {
+                            GarmentPurchaseRequestItem garmentPurchaseRequestItem = item.PRItemId == 0 ? null : dbContext.GarmentPurchaseRequestItems.AsNoTracking().FirstOrDefault(a => a.Id == item.PRItemId);
+                            GarmentPurchaseRequest garmentPurchaseRequest = item.PRItemId == 0 ? null : dbContext.GarmentPurchaseRequests.AsNoTracking().FirstOrDefault(a => a.Id == garmentPurchaseRequestItem.GarmentPRId);
+                            GarmentInternalPurchaseOrderItem garmentInternalPurchaseOrderItem = dbContext.GarmentInternalPurchaseOrderItems.AsNoTracking().FirstOrDefault(a => a.Id == item.POItemId);
+                            GarmentUnitDeliveryOrderItem garmentUnitDeliveryOrderItem = dbContext.GarmentUnitDeliveryOrderItems.AsNoTracking().FirstOrDefault(a => a.Id == item.UnitDOItemId);
+                            GarmentUnitReceiptNoteItem OldurnItem = dbContext.GarmentUnitReceiptNoteItems.AsNoTracking().FirstOrDefault(a => a.Id == item.URNItemId);
+                            //var prId = garmentPurchaseRequestItem == null ? 0 : garmentPurchaseRequestItem.GarmentPRId;
+                            GarmentUnitReceiptNoteItem urnItem = new GarmentUnitReceiptNoteItem
+                            {
+                                DODetailId = item.DODetailId,
+                                EPOItemId = item.EPOItemId,
+                                PRId = garmentPurchaseRequestItem == null ? 0 : garmentPurchaseRequestItem.GarmentPRId,
+                                PRNo = garmentPurchaseRequestItem == null ? null : garmentPurchaseRequest.PRNo,
+                                PRItemId = item.PRItemId,
+                                POId = garmentInternalPurchaseOrderItem == null ? 0 : garmentInternalPurchaseOrderItem.GPOId,
+                                POItemId = item.POItemId,
+                                POSerialNumber = item.POSerialNumber,
+                                ProductId = item.ProductId,
+                                ProductCode = item.ProductCode,
+                                ProductName = item.ProductName,
+                                ProductRemark = item.ProductRemark,
+                                RONo = item.RONo,
+                                ReceiptQuantity = (decimal)item.Quantity / item.Conversion,
+                                UomId = OldurnItem.UomId,
+                                UomUnit = OldurnItem.UomUnit,
+                                PricePerDealUnit = (decimal)item.PricePerDealUnit,
+                                DesignColor = garmentUnitDeliveryOrderItem.DesignColor,
+                                IsCorrection = false,
+                                Conversion = item.Conversion,
+                                SmallQuantity = (decimal)item.Quantity,
+                                SmallUomId = item.UomId,
+                                SmallUomUnit = item.UomUnit,
+                                ReceiptCorrection = (decimal)item.Quantity / item.Conversion,
+                                OrderQuantity = (decimal)item.Quantity,
+                                CorrectionConversion = item.Conversion,
+                                UENItemId = item.Id,
+                                DOCurrencyRate = item.DOCurrencyRate != null ? (double)item.DOCurrencyRate : 0
+                            };
+                            urnItems.Add(urnItem);
+                            EntityExtension.FlagForCreate(urnItem, identityService.Username, USER_AGENT);
+
+                        }
+
+                        GarmentUnitReceiptNote garmentUnitReceiptNote = new GarmentUnitReceiptNote
+                        {
+                            URNType = "GUDANG LAIN",
+                            UnitId = garmentUnitExpenditureNote.UnitRequestId,
+                            UnitCode = garmentUnitExpenditureNote.UnitRequestCode,
+                            UnitName = garmentUnitExpenditureNote.UnitRequestName,
+                            UENId = garmentUnitExpenditureNote.Id,
+                            UENNo = garmentUnitExpenditureNote.UENNo,
+                            ReceiptDate = garmentUnitExpenditureNote.ExpenditureDate,
+                            IsStorage = true,
+                            StorageId = garmentUnitExpenditureNote.StorageRequestId,
+                            StorageCode = garmentUnitExpenditureNote.StorageRequestCode,
+                            StorageName = garmentUnitExpenditureNote.StorageRequestName,
+                            IsCorrection = false,
+                            IsUnitDO = true,
+                            Items = urnItems
+                        };
+                        garmentUnitReceiptNote.URNNo = await garmentUnitReceiptNoteFacade.GenerateNo(garmentUnitReceiptNote);
+                        EntityExtension.FlagForCreate(garmentUnitReceiptNote, identityService.Username, USER_AGENT);
+                        dbSetGarmentUnitReceiptNote.Add(garmentUnitReceiptNote);
+
+                        await dbContext.SaveChangesAsync();
+
+                        foreach (var garmentUnitReceiptNoteItem in garmentUnitReceiptNote.Items)
+                        {
+                            GarmentDOItems garmentDOItems = new GarmentDOItems
+                            {
+                                UnitId = garmentUnitReceiptNote.UnitId,
+                                UnitCode = garmentUnitReceiptNote.UnitCode,
+                                UnitName = garmentUnitReceiptNote.UnitName,
+                                StorageCode = garmentUnitReceiptNote.StorageCode,
+                                StorageId = garmentUnitReceiptNote.StorageId,
+                                StorageName = garmentUnitReceiptNote.StorageName,
+                                POId = garmentUnitReceiptNoteItem.POId,
+                                POItemId = garmentUnitReceiptNoteItem.POItemId,
+                                POSerialNumber = garmentUnitReceiptNoteItem.POSerialNumber,
+                                ProductCode = garmentUnitReceiptNoteItem.ProductCode,
+                                ProductId = garmentUnitReceiptNoteItem.ProductId,
+                                ProductName = garmentUnitReceiptNoteItem.ProductName,
+                                DesignColor = garmentUnitReceiptNoteItem.DesignColor,
+                                SmallQuantity = garmentUnitReceiptNoteItem.SmallQuantity,
+                                SmallUomId = garmentUnitReceiptNoteItem.SmallUomId,
+                                SmallUomUnit = garmentUnitReceiptNoteItem.SmallUomUnit,
+                                RemainingQuantity = 0,
+                                DetailReferenceId = garmentUnitReceiptNoteItem.DODetailId,
+                                URNItemId = garmentUnitReceiptNoteItem.Id,
+                                DOCurrencyRate = garmentUnitReceiptNoteItem.DOCurrencyRate,
+                                EPOItemId = garmentUnitReceiptNoteItem.EPOItemId,
+                                PRItemId = garmentUnitReceiptNoteItem.PRItemId,
+                                RO = garmentUnitReceiptNoteItem.RONo,
+
+                            };
+                            garmentDOItems.DOItemNo = await garmentUnitReceiptNoteFacade.GenerateNoDOItems(garmentUnitReceiptNote);
+
+                            EntityExtension.FlagForCreate(garmentDOItems, identityService.Username, USER_AGENT);
+                            dbSetGarmentDOItems.Add(garmentDOItems);
+                            await dbContext.SaveChangesAsync();
+
+                            #region Inventory
+
+                            var garmentInventoryDocumentTransferOutStorage = GenerateGarmentInventoryDocument(garmentUnitExpenditureNote, "OUT");
+                            dbSetGarmentInventoryDocument.Add(garmentInventoryDocumentTransferOutStorage);
+
+                            var garmentInventoryDocumentTransferInStorageRequest = GenerateGarmentInventoryDocument(garmentUnitExpenditureNote, "IN");
+                            garmentInventoryDocumentTransferInStorageRequest.StorageId = garmentUnitExpenditureNote.StorageRequestId;
+                            garmentInventoryDocumentTransferInStorageRequest.StorageCode = garmentUnitExpenditureNote.StorageRequestCode;
+                            garmentInventoryDocumentTransferInStorageRequest.StorageName = garmentUnitExpenditureNote.StorageRequestName;
+                            garmentInventoryDocumentTransferInStorageRequest.ReferenceNo = garmentUnitExpenditureNote.UENNo;
+                            dbSetGarmentInventoryDocument.Add(garmentInventoryDocumentTransferInStorageRequest);
+
+
+                            foreach (var garmentUnitExpenditureNoteItem in garmentUnitExpenditureNote.Items)
+                            {
+                                var garmentInventorySummaryExisting = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == garmentUnitExpenditureNoteItem.ProductId && s.StorageId == garmentUnitExpenditureNote.StorageId && s.UomId == garmentUnitExpenditureNoteItem.UomId);
+
+                                var garmentInventoryMovement = GenerateGarmentInventoryMovement(garmentUnitExpenditureNote, garmentUnitExpenditureNoteItem, garmentInventorySummaryExisting, "OUT");
+                                garmentInventoryMovement.Date = garmentUnitExpenditureNote.ExpenditureDate;
+                                garmentInventoryMovement.ReferenceNo = garmentUnitExpenditureNote.UENNo;
+                                dbSetGarmentInventoryMovement.Add(garmentInventoryMovement);
+
+                                if (garmentInventorySummaryExisting == null)
+                                {
+                                    var garmentInventorySummary = GenerateGarmentInventorySummary(garmentUnitExpenditureNote, garmentUnitExpenditureNoteItem, garmentInventoryMovement);
+                                    dbSetGarmentInventorySummary.Add(garmentInventorySummary);
+                                }
+                                else
+                                {
+                                    EntityExtension.FlagForUpdate(garmentInventorySummaryExisting, identityService.Username, USER_AGENT);
+                                    garmentInventorySummaryExisting.Quantity = garmentInventoryMovement.After;
+                                }
+
+                                var garmentInventorySummaryExistingRequest = dbSetGarmentInventorySummary.SingleOrDefault(s => s.ProductId == garmentUnitExpenditureNoteItem.ProductId && s.StorageId == garmentUnitExpenditureNote.StorageRequestId && s.UomId == garmentUnitExpenditureNoteItem.UomId);
+
+                                var garmentInventoryMovementRequestIn = GenerateGarmentInventoryMovement(garmentUnitExpenditureNote, garmentUnitExpenditureNoteItem, garmentInventorySummaryExistingRequest, "IN");
+                                garmentInventoryMovementRequestIn.StorageId = garmentUnitExpenditureNote.StorageRequestId;
+                                garmentInventoryMovementRequestIn.StorageCode = garmentUnitExpenditureNote.StorageRequestCode;
+                                garmentInventoryMovementRequestIn.StorageName = garmentUnitExpenditureNote.StorageRequestName;
+                                garmentInventoryMovementRequestIn.After = garmentInventoryMovementRequestIn.Before + (decimal)garmentUnitExpenditureNoteItem.Quantity;
+                                garmentInventoryMovementRequestIn.ReferenceNo = garmentUnitExpenditureNote.UENNo;
+                                garmentInventoryMovementRequestIn.Date = garmentUnitExpenditureNote.ExpenditureDate;
+                                dbSetGarmentInventoryMovement.Add(garmentInventoryMovementRequestIn);
+
+
+                                if (garmentInventorySummaryExistingRequest == null)
+                                {
+                                    var garmentInventorySummaryRequest = GenerateGarmentInventorySummary(garmentUnitExpenditureNote, garmentUnitExpenditureNoteItem, garmentInventoryMovementRequestIn);
+                                    garmentInventorySummaryRequest.StorageId = garmentUnitExpenditureNote.StorageRequestId;
+                                    garmentInventorySummaryRequest.StorageCode = garmentUnitExpenditureNote.StorageRequestCode;
+                                    garmentInventorySummaryRequest.StorageName = garmentUnitExpenditureNote.StorageRequestName;
+                                    dbSetGarmentInventorySummary.Add(garmentInventorySummaryRequest);
+                                }
+                                else
+                                {
+                                    EntityExtension.FlagForUpdate(garmentInventorySummaryExistingRequest, identityService.Username, USER_AGENT);
+                                    garmentInventorySummaryExistingRequest.Quantity = garmentInventoryMovementRequestIn.After;
+                                }
+                            }
+
+                            #endregion Inventory
+
+                            Created = await dbContext.SaveChangesAsync();
+                        }
                     }
 
                     transaction.Commit();
@@ -1393,7 +1567,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             if (garmentUnitExpenditureNote.ExpenditureType == "PROSES" || garmentUnitExpenditureNote.ExpenditureType == "SAMPLE" || garmentUnitExpenditureNote.ExpenditureType == "SISA" || garmentUnitExpenditureNote.ExpenditureType == "SUBCON")// || garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL")
             {
                 no = string.Concat("BUK", garmentUnitExpenditureNote.UnitRequestCode, Year, Month, Day);
-            }else if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" || garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL")
+            }else if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" || garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL" || garmentUnitExpenditureNote.ExpenditureType == "TRANSFER SAMPLE")
             {
                 no = string.Concat("BUK", garmentUnitExpenditureNote.UnitSenderCode, Year, Month, Day);
 
