@@ -360,7 +360,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                         dbContext.Entry(pde).Property(x => x.LastModifiedBy).IsModified = true;
                         dbContext.Entry(pde).Property(x => x.LastModifiedUtc).IsModified = true;
 
-                        foreach (var item in detail.Items)
+                        foreach (var item in detail.Items.OrderBy(x => x.URNNo))
                         {
                             EntityExtension.FlagForCreate(item, username, USER_AGENT);
                         }
@@ -412,49 +412,72 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 var Remaining = model.GrandTotal;
                 foreach (var unitSummary in detail.Items)
                 {
-                    double dpp = 0;
-                    if (Remaining >= unitSummary.Price)
+                    if (unitSummary.Price == unitSummary.PaidPrice)
                     {
-                        if (unitSummary.PaidPrice != 0)
-                        {
-                            dpp = unitSummary.Price - unitSummary.PaidPrice;
-                        }
-                        else
-                        {
-                            dpp = unitSummary.Price;
-                        }
-                        Remaining -= dpp;
+                        continue;
                     }
                     else
                     {
-                        dpp = Remaining;
-                    }
-                    var vatAmount = unitPaymentOrder.UseVat ? dpp * 0.1 : 0;
-                    var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? dpp * unitPaymentOrder.IncomeTaxRate / 100 : 0;
-
-                    var debit = dpp + vatAmount - incomeTaxAmount;
-                    if (model.CurrencyCode != "IDR")
-                    {
-                        debit = (dpp + vatAmount - incomeTaxAmount) * model.CurrencyRate;
-                    }
-                    nominal = decimal.Add(nominal, Convert.ToDecimal(debit));
-
-                    var item = new JournalTransactionItem()
-                    {
-                        COA = new COA()
+                        double dpp = 0;
+                        if (Remaining >= unitSummary.Price)
                         {
-                            Code = COAGenerator.GetDebtCOA(model.SupplierImport, detail.DivisionName, unitSummary.UnitCode)
-                        },
-                        Debit = Convert.ToDecimal(debit),
-                        Remark = detail.UnitPaymentOrderNo + " / " + detail.InvoiceNo
-                    };
+                            if (unitSummary.PaidPrice != 0)
+                            {
+                                dpp = unitSummary.Price - unitSummary.PaidPrice;
+                            }
+                            else
+                            {
+                                dpp = unitSummary.Price;
+                            }
 
-                    items.Add(item);
+                            var unitReceiptNotes = itemDbSet.Where(bank => bank.URNNo == unitSummary.URNNo).ToList();
 
-                    unitSummary.PaidPrice = Remaining;
+                            foreach (var urnno in unitReceiptNotes)
+                            {
+                                urnno.PaidPrice = unitSummary.Price;
 
-                    EntityExtension.FlagForUpdate(unitSummary, identityService.Username, USER_AGENT);
-                    itemDbSet.Update(unitSummary);
+                                EntityExtension.FlagForUpdate(unitSummary, identityService.Username, USER_AGENT);
+                                itemDbSet.Update(unitSummary);
+                            }
+
+                            Remaining -= dpp;
+                        }
+                        else
+                        {
+                            dpp = Remaining;
+
+                            var unitReceiptNotes = itemDbSet.Where(bank => bank.URNNo == unitSummary.URNNo).ToList();
+
+                            foreach (var urnno in unitReceiptNotes)
+                            {
+                                urnno.PaidPrice = Remaining;
+
+                                EntityExtension.FlagForUpdate(unitSummary, identityService.Username, USER_AGENT);
+                                itemDbSet.Update(unitSummary);
+                            }
+                        }
+                        var vatAmount = unitPaymentOrder.UseVat ? dpp * 0.1 : 0;
+                        var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? dpp * unitPaymentOrder.IncomeTaxRate / 100 : 0;
+
+                        var debit = dpp + vatAmount - incomeTaxAmount;
+                        if (model.CurrencyCode != "IDR")
+                        {
+                            debit = (dpp + vatAmount - incomeTaxAmount) * model.CurrencyRate;
+                        }
+                        nominal = decimal.Add(nominal, Convert.ToDecimal(debit));
+
+                        var item = new JournalTransactionItem()
+                        {
+                            COA = new COA()
+                            {
+                                Code = COAGenerator.GetDebtCOA(model.SupplierImport, detail.DivisionName, unitSummary.UnitCode)
+                            },
+                            Debit = Convert.ToDecimal(debit),
+                            Remark = detail.UnitPaymentOrderNo + " / " + detail.InvoiceNo
+                        };
+
+                        items.Add(item);
+                    }
                 }
             }
 
