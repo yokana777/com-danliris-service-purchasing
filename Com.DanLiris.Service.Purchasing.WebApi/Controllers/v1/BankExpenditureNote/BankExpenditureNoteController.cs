@@ -154,11 +154,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
             {
                 validateService.Validate(viewModel);
 
-                foreach (var detail in viewModel.Details)
-                {
-                    detail.AmountPaid = detail.SupplierPayment;
-                }
-
                 BankExpenditureNoteModel model = mapper.Map<BankExpenditureNoteModel>(viewModel);
 
                 int result = await facade.Create(model, identityService);
@@ -224,11 +219,6 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
             try
             {
                 validateService.Validate(vm);
-
-                foreach (var detail in vm.Details)
-                {
-                    detail.AmountPaid = detail.SupplierPayment;
-                }
 
                 BankExpenditureNoteModel m = mapper.Map<BankExpenditureNoteModel>(vm);
 
