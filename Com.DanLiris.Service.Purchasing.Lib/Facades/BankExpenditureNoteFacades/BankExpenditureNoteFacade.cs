@@ -951,7 +951,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     Date = model.Date,
                     Id = (int)model.Id,
                     InvoiceNo = item.InvoiceNo,
-                    Mutation = model.CurrencyCode != "IDR" ? item.TotalPaid * model.CurrencyRate : item.TotalPaid,
+                    Mutation = model.CurrencyCode != "IDR" ? model.GrandTotal * model.CurrencyRate : model.GrandTotal,
                     SupplierCode = model.SupplierCode,
                     SupplierName = model.SupplierName,
                     MemoNo = item.UnitPaymentOrderNo
