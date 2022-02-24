@@ -173,19 +173,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         bodyTable.AddCell(bodyCell);
 
                         bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
-                        bodyCell.Phrase = new Phrase(string.Format("{0:n4}", item.Total), normal_font);
+                        bodyCell.Phrase = new Phrase(string.Format("{0:n4}", detail.SupplierPayment), normal_font);
                         bodyTable.AddCell(bodyCell);
 
                         if (units.ContainsKey(item.UnitCode))
                         {
-                            units[item.UnitCode] += item.Total;
+                            units[item.UnitCode] += detail.SupplierPayment;
                         }
                         else
                         {
-                            units.Add(item.UnitCode, item.Total);
+                            units.Add(item.UnitCode, detail.SupplierPayment);
                         }
 
-                        total += item.Total;
+                        total += detail.SupplierPayment;
 
                         bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
                         bodyCell.Phrase = new Phrase(detail.UPOIndex.ToString(), normal_font);
@@ -290,20 +290,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         bodyTable.AddCell(bodyCell);
 
                         bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
-                        bodyCell.Phrase = new Phrase(string.Format("{0:n4}", item.Total), normal_font);
+                        bodyCell.Phrase = new Phrase(string.Format("{0:n4}", detail.SupplierPayment), normal_font);
                         bodyTable.AddCell(bodyCell);
 
                         bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
-                        bodyCell.Phrase = new Phrase(string.Format("{0:n4}", (item.Total * model.CurrencyRate)), normal_font);
+                        bodyCell.Phrase = new Phrase(string.Format("{0:n4}", (detail.SupplierPayment * model.CurrencyRate)), normal_font);
                         bodyTable.AddCell(bodyCell);
 
                         if (units.ContainsKey(item.UnitCode))
                         {
-                            units[item.UnitCode] += (item.Total * model.CurrencyRate);
+                            units[item.UnitCode] += (detail.SupplierPayment * model.CurrencyRate);
                         }
                         else
                         {
-                            units.Add(item.UnitCode, (item.Total * model.CurrencyRate));
+                            units.Add(item.UnitCode, (detail.SupplierPayment * model.CurrencyRate));
                         }
 
                         total += item.Total;
