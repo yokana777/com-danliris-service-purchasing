@@ -212,21 +212,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                                 {
                                     paidFlag = false;
                                 }
-
-                                detail.UPOIndex = 1;
                             }
                             else
                             {
-                                if ((query.Sum(x => x.SupplierPayment) + detail.SupplierPayment) != detail.TotalPaid)
+                                var previousAmountPaid = query.SkipLast(1);
+
+                                if ((previousAmountPaid.Sum(x => x.SupplierPayment) + detail.SupplierPayment) != detail.TotalPaid)
                                 {
                                     paidFlag = false;
                                 }
-
-                                detail.UPOIndex = query.Last().UPOIndex + 1;
                             }
 
                             EntityExtension.FlagForUpdate(detail, username, USER_AGENT);
-                            dbContext.Entry(detail).Property(x => x.AmountPaid).IsModified = true;
+                            dbContext.Entry(detail).Property(x => x.SupplierPayment).IsModified = true;
 
                             PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
                             {
@@ -408,13 +406,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     UnitCode = s.Key.UnitCode,
                     URNNo = s.Key.URNNo,
                     //Total = s.Sum(sm => sm.Price * currency.Rate)
-                    Total = s.Sum(sm => sm.Price)
+                    //Total = s.Sum(sm => sm.Price)
                 });
 
                 if (unitSummaries.Count() > 1)
                 {
                     var nominal = (decimal)0;
-                    var Remaining = model.GrandTotal;
+                    var Remaining = detail.SupplierPayment;
                     foreach (var unitSummary in detail.Items)
                     {
                         if (unitSummary.Price == unitSummary.PaidPrice)
@@ -435,7 +433,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                                     dpp = unitSummary.Price;
                                 }
 
-                                var unitReceiptNotes = itemDbSet.Where(bank => bank.URNNo == unitSummary.URNNo).ToList();
+                                var unitReceiptNotes = itemDbSet.Where(bank => bank.URNNo == unitSummary.URNNo && bank.Price == unitSummary.Price).ToList();
 
                                 foreach (var urnno in unitReceiptNotes)
                                 {
@@ -451,7 +449,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             {
                                 dpp = Remaining;
 
-                                var unitReceiptNotes = itemDbSet.Where(bank => bank.URNNo == unitSummary.URNNo).ToList();
+                                var unitReceiptNotes = itemDbSet.Where(bank => bank.URNNo == unitSummary.URNNo && bank.Price == unitSummary.Price).ToList();
 
                                 foreach (var urnno in unitReceiptNotes)
                                 {
@@ -490,9 +488,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     var nominal = (decimal)0;
                     foreach (var unitSummary in unitSummaries)
                     {
-                        var dpp = unitSummary.Total;
-                        var vatAmount = unitPaymentOrder.UseVat ? unitSummary.Total * 0.1 : 0;
-                        var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? unitSummary.Total * unitPaymentOrder.IncomeTaxRate / 100 : 0;
+                        var dpp = detail.SupplierPayment;
+                        var vatAmount = unitPaymentOrder.UseVat ? dpp * 0.1 : 0;
+                        var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? dpp * unitPaymentOrder.IncomeTaxRate / 100 : 0;
 
                         var debit = dpp + vatAmount - incomeTaxAmount;
                         if (model.CurrencyCode != "IDR")
@@ -722,7 +720,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 s.URNId,
                 s.URNNo,
                 AmountPaid = (detailDbSet.Where(x => x.UnitPaymentOrderId == s.Id).ToList().Count == 0 ? 0 : detailDbSet.Where(x => x.UnitPaymentOrderId == s.Id).Sum(x => x.SupplierPayment)),
-                IsPosted = (detailDbSet.Where(x => x.UnitPaymentOrderId == s.Id).ToList().Count == 0 ? true : dbSet.Where(p => p.Id == (detailDbSet.Where(x => x.UnitPaymentOrderId == s.Id).FirstOrDefault().BankExpenditureNoteId)).FirstOrDefault().IsPosted),
+                IsPosted = (detailDbSet.Where(x => x.UnitPaymentOrderId == s.Id).ToList().Count == 0 ? true : dbSet.Where(p => p.Id == (detailDbSet.Where(x => x.UnitPaymentOrderId == s.Id).LastOrDefault().BankExpenditureNoteId)).LastOrDefault().IsPosted),
                 Items = s.Items.Select(sl => new
                 {
                     UnitPaymentOrderItemId = sl.Id,
@@ -987,7 +985,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     Date = model.Date,
                     Id = (int)model.Id,
                     InvoiceNo = item.InvoiceNo,
-                    Mutation = model.CurrencyCode != "IDR" ? model.GrandTotal * model.CurrencyRate : model.GrandTotal,
+                    Mutation = model.CurrencyCode != "IDR" ? item.SupplierPayment * model.CurrencyRate : item.SupplierPayment,
                     SupplierCode = model.SupplierCode,
                     SupplierName = model.SupplierName,
                     MemoNo = item.UnitPaymentOrderNo
