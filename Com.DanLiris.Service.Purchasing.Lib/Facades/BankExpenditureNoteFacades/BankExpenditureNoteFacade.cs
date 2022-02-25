@@ -447,6 +447,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             }
                             else
                             {
+                                if (Remaining == 0)
+                                {
+                                    continue;
+                                }
+
                                 dpp = Remaining;
 
                                 var unitReceiptNotes = itemDbSet.Where(bank => bank.URNNo == unitSummary.URNNo && bank.Price == unitSummary.Price).ToList();

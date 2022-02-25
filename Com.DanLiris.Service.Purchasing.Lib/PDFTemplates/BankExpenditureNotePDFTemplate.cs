@@ -140,6 +140,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                 foreach (BankExpenditureNoteDetailModel detail in model.Details)
                 {
+                    double remaining = detail.SupplierPayment;
+
                     var items = detail.Items
                         .GroupBy(m => new { m.UnitCode, m.UnitName })
                         .Select(s => new
@@ -150,6 +152,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         });
                     foreach (var item in items)
                     {
+                        if (remaining <= 0)
+                        {
+                            continue;
+                        }
+
                         bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
                         bodyCell.VerticalAlignment = Element.ALIGN_TOP;
                         bodyCell.Phrase = new Phrase((index++).ToString(), normal_font);
@@ -173,19 +180,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         bodyTable.AddCell(bodyCell);
 
                         bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
-                        bodyCell.Phrase = new Phrase(string.Format("{0:n4}", detail.SupplierPayment), normal_font);
+                        bodyCell.Phrase = new Phrase(string.Format("{0:n4}", item.Total), normal_font);
                         bodyTable.AddCell(bodyCell);
 
                         if (units.ContainsKey(item.UnitCode))
                         {
-                            units[item.UnitCode] += detail.SupplierPayment;
+                            units[item.UnitCode] += item.Total;
                         }
                         else
                         {
-                            units.Add(item.UnitCode, detail.SupplierPayment);
+                            units.Add(item.UnitCode, item.Total);
                         }
 
-                        total += detail.SupplierPayment;
+                        total += item.Total;
+                        remaining -= item.Total;
 
                         bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
                         bodyCell.Phrase = new Phrase(detail.UPOIndex.ToString(), normal_font);
@@ -257,6 +265,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                 foreach (BankExpenditureNoteDetailModel detail in model.Details)
                 {
+                    double remaining = detail.SupplierPayment;
+
                     var items = detail.Items
                         .GroupBy(m => new { m.UnitCode, m.UnitName })
                         .Select(s => new
@@ -267,6 +277,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         });
                     foreach (var item in items)
                     {
+                        if (remaining <= 0)
+                        {
+                            continue;
+                        }
+
                         bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
                         bodyCell.VerticalAlignment = Element.ALIGN_TOP;
                         bodyCell.Phrase = new Phrase((index++).ToString(), normal_font);
@@ -290,23 +305,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         bodyTable.AddCell(bodyCell);
 
                         bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
-                        bodyCell.Phrase = new Phrase(string.Format("{0:n4}", detail.SupplierPayment), normal_font);
+                        bodyCell.Phrase = new Phrase(string.Format("{0:n4}", item.Total), normal_font);
                         bodyTable.AddCell(bodyCell);
 
                         bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
-                        bodyCell.Phrase = new Phrase(string.Format("{0:n4}", (detail.SupplierPayment * model.CurrencyRate)), normal_font);
+                        bodyCell.Phrase = new Phrase(string.Format("{0:n4}", (item.Total * model.CurrencyRate)), normal_font);
                         bodyTable.AddCell(bodyCell);
 
                         if (units.ContainsKey(item.UnitCode))
                         {
-                            units[item.UnitCode] += (detail.SupplierPayment * model.CurrencyRate);
+                            units[item.UnitCode] += (item.Total * model.CurrencyRate);
                         }
                         else
                         {
-                            units.Add(item.UnitCode, (detail.SupplierPayment * model.CurrencyRate));
+                            units.Add(item.UnitCode, (item.Total * model.CurrencyRate));
                         }
 
                         total += item.Total;
+                        remaining -= item.Total;
 
                         bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
                         bodyCell.Phrase = new Phrase(detail.UPOIndex.ToString(), normal_font);

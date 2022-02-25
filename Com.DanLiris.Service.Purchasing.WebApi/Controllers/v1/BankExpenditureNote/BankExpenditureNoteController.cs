@@ -128,7 +128,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
 
                     return new FileStreamResult(stream, "application/pdf")
                     {
-                        FileDownloadName = $"PPH Bank Expenditure Note {model.DocumentNo}.pdf"
+                        FileDownloadName = $"Bank Expenditure Note {model.DocumentNo}.pdf"
                     };
                 }
             }
