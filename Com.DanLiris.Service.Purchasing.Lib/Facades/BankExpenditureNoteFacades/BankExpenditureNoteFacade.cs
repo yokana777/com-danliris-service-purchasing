@@ -464,13 +464,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                                     itemDbSet.Update(unitSummary);
                                 }
                             }
-                            var vatAmount = unitPaymentOrder.UseVat ? dpp * 0.1 : 0;
-                            var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? dpp * unitPaymentOrder.IncomeTaxRate / 100 : 0;
+                            //var vatAmount = unitPaymentOrder.UseVat ? dpp * 0.1 : 0;
+                            //var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? dpp * unitPaymentOrder.IncomeTaxRate / 100 : 0;
 
-                            var debit = dpp + vatAmount - incomeTaxAmount;
+                            //var debit = dpp + vatAmount - incomeTaxAmount;
+                            var debit = dpp;
                             if (model.CurrencyCode != "IDR")
                             {
-                                debit = (dpp + vatAmount - incomeTaxAmount) * model.CurrencyRate;
+                                //debit = (dpp + vatAmount - incomeTaxAmount) * model.CurrencyRate
+                                debit = (dpp) * model.CurrencyRate;
                             }
                             nominal = decimal.Add(nominal, Convert.ToDecimal(debit));
 
@@ -494,13 +496,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     foreach (var unitSummary in unitSummaries)
                     {
                         var dpp = detail.SupplierPayment;
-                        var vatAmount = unitPaymentOrder.UseVat ? dpp * 0.1 : 0;
-                        var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? dpp * unitPaymentOrder.IncomeTaxRate / 100 : 0;
+                        //var vatAmount = unitPaymentOrder.UseVat ? dpp * 0.1 : 0;
+                        //var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? dpp * unitPaymentOrder.IncomeTaxRate / 100 : 0;
 
-                        var debit = dpp + vatAmount - incomeTaxAmount;
+                        //var debit = dpp + vatAmount - incomeTaxAmount;
+                        var debit = dpp;
                         if (model.CurrencyCode != "IDR")
                         {
-                            debit = (dpp + vatAmount - incomeTaxAmount) * model.CurrencyRate;
+                            //debit = (dpp + vatAmount - incomeTaxAmount) * model.CurrencyRate
+                            debit = (dpp) * model.CurrencyRate;
                         }
                         nominal = decimal.Add(nominal, Convert.ToDecimal(debit));
 
