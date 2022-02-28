@@ -4,6 +4,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.BankExpenditureNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
@@ -19,5 +20,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
         ReadResponse<object> GetReport(int Size, int Page, string DocumentNo, string UnitPaymentOrderNo, string InvoiceNo, string SupplierCode, string DivisionCode, string PaymentMethod, DateTimeOffset? DateFrom, DateTimeOffset? DateTo, int Offset);
         List<ExpenditureInfo> GetByPeriod(int month, int year, int timeoffset);
         Task<string> Posting(List<long> ids);
+        MemoryStream GeneratePdfTemplate(BankExpenditureNoteModel model, int clientTimeZoneOffset);
     }
 }
