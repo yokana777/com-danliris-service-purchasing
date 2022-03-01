@@ -23,5 +23,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel
         public double Mutation { get; set; }
 
         public string MemoNo { get; set; }
+
+        public string UnitReceiptNoteNo { get; set; }
     }
 }

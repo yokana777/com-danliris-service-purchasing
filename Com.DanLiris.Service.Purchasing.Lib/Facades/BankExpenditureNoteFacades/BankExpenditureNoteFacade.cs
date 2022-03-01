@@ -22,6 +22,10 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 {
@@ -31,6 +35,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<BankExpenditureNoteModel> dbSet;
         private readonly DbSet<BankExpenditureNoteDetailModel> detailDbSet;
+        private readonly DbSet<BankExpenditureNoteItemModel> itemDbSet;
         private readonly DbSet<UnitPaymentOrder> unitPaymentOrderDbSet;
         private readonly ICurrencyProvider _currencyProvider;
         private readonly IBankDocumentNumberGenerator bankDocumentNumberGenerator;
@@ -46,6 +51,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             this.bankDocumentNumberGenerator = new BankDocumentNumberGenerator(dbContext);
             dbSet = dbContext.Set<BankExpenditureNoteModel>();
             detailDbSet = dbContext.Set<BankExpenditureNoteDetailModel>();
+            itemDbSet = dbContext.Set<BankExpenditureNoteItemModel>();
             unitPaymentOrderDbSet = dbContext.Set<UnitPaymentOrder>();
             _currencyProvider = serviceProvider.GetService<ICurrencyProvider>();
             this.serviceProvider = serviceProvider;
@@ -150,13 +156,36 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     {
                         if (detail.Id == 0)
                         {
+                            var paidFlag = true;
+
+                            var query = dbContext.BankExpenditureNoteDetails.Where(x => x.UnitPaymentOrderNo == detail.UnitPaymentOrderNo).ToList();
+
+                            if (query.Count == 0)
+                            {
+                                if (detail.SupplierPayment != detail.TotalPaid)
+                                {
+                                    paidFlag = false;
+                                }
+
+                                detail.UPOIndex = 1;
+                            }
+                            else
+                            {
+                                if ((query.Sum(x => x.SupplierPayment) + detail.SupplierPayment) != detail.TotalPaid)
+                                {
+                                    paidFlag = false;
+                                }
+
+                                detail.UPOIndex = query.Last().UPOIndex + 1;
+                            }
+
                             EntityExtension.FlagForCreate(detail, username, USER_AGENT);
                             dbContext.BankExpenditureNoteDetails.Add(detail);
 
                             PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
                             {
                                 Id = (int)detail.UnitPaymentOrderId,
-                                IsPaid = true,
+                                IsPaid = paidFlag,
                                 BankExpenditureNoteNo = model.DocumentNo,
                                 BankExpenditureNoteDate = model.Date
                             };
@@ -174,6 +203,48 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             {
                                 EntityExtension.FlagForCreate(item, username, USER_AGENT);
                             }
+                        }
+                        else
+                        {
+                            var paidFlag = true;
+
+                            var query = dbContext.BankExpenditureNoteDetails.Where(x => x.UnitPaymentOrderNo == detail.UnitPaymentOrderNo).ToList();
+
+                            if (query.Count == 0)
+                            {
+                                if (detail.SupplierPayment != detail.TotalPaid)
+                                {
+                                    paidFlag = false;
+                                }
+                            }
+                            else
+                            {
+                                var previousAmountPaid = query.SkipLast(1);
+
+                                if ((previousAmountPaid.Sum(x => x.SupplierPayment) + detail.SupplierPayment) != detail.TotalPaid)
+                                {
+                                    paidFlag = false;
+                                }
+                            }
+
+                            EntityExtension.FlagForUpdate(detail, username, USER_AGENT);
+                            dbContext.Entry(detail).Property(x => x.SupplierPayment).IsModified = true;
+
+                            PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
+                            {
+                                Id = (int)detail.UnitPaymentOrderId,
+                                IsPaid = paidFlag,
+                                BankExpenditureNoteNo = model.DocumentNo,
+                                BankExpenditureNoteDate = model.Date
+                            };
+
+                            EntityExtension.FlagForUpdate(pde, username, USER_AGENT);
+                            dbContext.Entry(pde).Property(x => x.IsPaid).IsModified = true;
+                            dbContext.Entry(pde).Property(x => x.BankExpenditureNoteNo).IsModified = true;
+                            dbContext.Entry(pde).Property(x => x.BankExpenditureNoteDate).IsModified = true;
+                            dbContext.Entry(pde).Property(x => x.LastModifiedAgent).IsModified = true;
+                            dbContext.Entry(pde).Property(x => x.LastModifiedBy).IsModified = true;
+                            dbContext.Entry(pde).Property(x => x.LastModifiedUtc).IsModified = true;
                         }
                     }
 
@@ -251,12 +322,35 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
                     foreach (var detail in model.Details)
                     {
+                        var paidFlag = true;
+
+                        var query = dbContext.BankExpenditureNoteDetails.Where(x => x.UnitPaymentOrderNo == detail.UnitPaymentOrderNo).ToList();
+
+                        if (query.Count == 0)
+                        {
+                            if (detail.SupplierPayment != detail.TotalPaid)
+                            {
+                                paidFlag = false;
+                            }
+
+                            detail.UPOIndex = 1;
+                        }
+                        else
+                        {
+                            if ((query.Sum(x => x.SupplierPayment) + detail.SupplierPayment) != detail.TotalPaid)
+                            {
+                                paidFlag = false;
+                            }
+
+                            detail.UPOIndex = query.Last().UPOIndex + 1;
+                        }
+
                         EntityExtension.FlagForCreate(detail, username, USER_AGENT);
 
                         PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
                         {
                             Id = (int)detail.UnitPaymentOrderId,
-                            IsPaid = true,
+                            IsPaid = paidFlag,
                             BankExpenditureNoteNo = model.DocumentNo,
                             BankExpenditureNoteDate = model.Date
                         };
@@ -270,7 +364,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                         dbContext.Entry(pde).Property(x => x.LastModifiedBy).IsModified = true;
                         dbContext.Entry(pde).Property(x => x.LastModifiedUtc).IsModified = true;
 
-                        foreach (var item in detail.Items)
+                        foreach (var item in detail.Items.OrderBy(x => x.URNNo))
                         {
                             EntityExtension.FlagForCreate(item, username, USER_AGENT);
                         }
@@ -311,38 +405,105 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
                 if (unitPaymentOrder == null)
                     unitPaymentOrder = new UnitPaymentOrder();
-                var unitSummaries = detail.Items.GroupBy(g => g.UnitCode).Select(s => new
+                var unitSummaries = detail.Items.GroupBy(g => new { g.URNNo, g.UnitCode }).Select(s => new
                 {
-                    UnitCode = s.Key,
+                    UnitCode = s.Key.UnitCode,
+                    URNNo = s.Key.URNNo,
                     //Total = s.Sum(sm => sm.Price * currency.Rate)
-                    Total = s.Sum(sm => sm.Price)
+                    //Total = s.Sum(sm => sm.Price)
                 });
 
-                var nominal = (decimal)0;
-                foreach (var unitSummary in unitSummaries)
+                if (unitSummaries.Count() > 1)
                 {
-                    var dpp = unitSummary.Total;
-                    var vatAmount = unitPaymentOrder.UseVat ? unitSummary.Total * 0.1 : 0;
-                    var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? unitSummary.Total * unitPaymentOrder.IncomeTaxRate / 100 : 0;
-
-                    var debit = dpp + vatAmount - incomeTaxAmount;
-                    if (model.CurrencyCode != "IDR")
+                    var nominal = (decimal)0;
+                    var Remaining = detail.SupplierPayment;
+                    foreach (var unitSummary in detail.Items)
                     {
-                        debit = (dpp + vatAmount - incomeTaxAmount) * model.CurrencyRate;
-                    }
-                    nominal = decimal.Add(nominal, Convert.ToDecimal(debit));
-
-                    var item = new JournalTransactionItem()
-                    {
-                        COA = new COA()
+                        var paidPrice = itemDbSet.Where(bank => bank.URNNo == unitSummary.URNNo && bank.Price == unitSummary.Price).Sum(x => x.PaidPrice);
+                        if (unitSummary.Price <= paidPrice)
                         {
-                            Code = COAGenerator.GetDebtCOA(model.SupplierImport, detail.DivisionName, unitSummary.UnitCode)
-                        },
-                        Debit = Convert.ToDecimal(debit),
-                        Remark = detail.UnitPaymentOrderNo + " / " + detail.InvoiceNo
-                    };
+                            continue;
+                        }
+                        else
+                        {
+                            var vatAmount = unitPaymentOrder.UseVat ? unitSummary.Price * 0.1 : 0;
+                            var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? unitSummary.Price * unitPaymentOrder.IncomeTaxRate / 100 : 0;
+                            var dpp = unitSummary.Price + vatAmount - incomeTaxAmount;
 
-                    items.Add(item);
+                            if (Remaining >= dpp)
+                            {
+                                if (paidPrice != 0)
+                                {
+                                    dpp -= paidPrice;
+                                }
+                            }
+                            else
+                            {
+                                if (Remaining <= 0)
+                                {
+                                    continue;
+                                }
+
+                                dpp = Remaining;
+                            }
+                            //var vatAmount = unitPaymentOrder.UseVat ? dpp * 0.1 : 0;
+                            //var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? dpp * unitPaymentOrder.IncomeTaxRate / 100 : 0;
+
+                            //var debit = dpp + vatAmount - incomeTaxAmount;
+                            Remaining -= dpp;
+
+                            var debit = dpp;
+                            if (model.CurrencyCode != "IDR")
+                            {
+                                //debit = (dpp + vatAmount - incomeTaxAmount) * model.CurrencyRate
+                                debit = (dpp) * model.CurrencyRate;
+                            }
+                            nominal = decimal.Add(nominal, Convert.ToDecimal(debit));
+
+                            var item = new JournalTransactionItem()
+                            {
+                                COA = new COA()
+                                {
+                                    Code = COAGenerator.GetDebtCOA(model.SupplierImport, detail.DivisionName, unitSummary.UnitCode)
+                                },
+                                Debit = Convert.ToDecimal(debit),
+                                Remark = detail.UnitPaymentOrderNo + " / " + detail.InvoiceNo
+                            };
+
+                            items.Add(item);
+                        }
+                    }
+                }
+                else
+                {
+                    var nominal = (decimal)0;
+                    foreach (var unitSummary in unitSummaries)
+                    {
+                        var dpp = detail.SupplierPayment;
+                        //var vatAmount = unitPaymentOrder.UseVat ? dpp * 0.1 : 0;
+                        //var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? dpp * unitPaymentOrder.IncomeTaxRate / 100 : 0;
+
+                        //var debit = dpp + vatAmount - incomeTaxAmount;
+                        var debit = dpp;
+                        if (model.CurrencyCode != "IDR")
+                        {
+                            //debit = (dpp + vatAmount - incomeTaxAmount) * model.CurrencyRate;
+                            debit = (dpp) * model.CurrencyRate;
+                        }
+                        nominal = decimal.Add(nominal, Convert.ToDecimal(debit));
+
+                        var item = new JournalTransactionItem()
+                        {
+                            COA = new COA()
+                            {
+                                Code = COAGenerator.GetDebtCOA(model.SupplierImport, detail.DivisionName, unitSummary.UnitCode)
+                            },
+                            Debit = Convert.ToDecimal(debit),
+                            Remark = detail.UnitPaymentOrderNo + " / " + detail.InvoiceNo
+                        };
+
+                        items.Add(item);
+                    }
                 }
             }
 
@@ -551,6 +712,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 s.PaymentMethod,
                 s.URNId,
                 s.URNNo,
+                AmountPaid = (detailDbSet.Where(x => x.UnitPaymentOrderId == s.Id).ToList().Count == 0 ? 0 : detailDbSet.Where(x => x.UnitPaymentOrderId == s.Id).Sum(x => x.SupplierPayment)),
+                IsPosted = (detailDbSet.Where(x => x.UnitPaymentOrderId == s.Id).ToList().Count == 0 ? true : dbSet.Where(p => p.Id == (detailDbSet.Where(x => x.UnitPaymentOrderId == s.Id).LastOrDefault().BankExpenditureNoteId)).LastOrDefault().IsPosted),
                 Items = s.Items.Select(sl => new
                 {
                     UnitPaymentOrderItemId = sl.Id,
@@ -815,7 +978,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     Date = model.Date,
                     Id = (int)model.Id,
                     InvoiceNo = item.InvoiceNo,
-                    Mutation = model.CurrencyCode != "IDR" ? item.TotalPaid * model.CurrencyRate : item.TotalPaid,
+                    Mutation = model.CurrencyCode != "IDR" ? item.SupplierPayment * model.CurrencyRate : item.SupplierPayment,
                     SupplierCode = model.SupplierCode,
                     SupplierName = model.SupplierName,
                     MemoNo = item.UnitPaymentOrderNo
@@ -823,6 +986,147 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 postedData.Add(viewModel);
             }
 
+
+            var httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
+            var response = httpClient.PostAsync($"{APIEndpoint.Finance}{CREDITOR_ACCOUNT_URI}", new StringContent(JsonConvert.SerializeObject(postedData).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
+            response.EnsureSuccessStatusCode();
+        }
+
+        private async Task CreateCreditorAccountv2(BankExpenditureNoteModel model, IdentityService identityService)
+        {
+            var upoNos = model.Details.Select(detail => detail.UnitPaymentOrderNo).ToList();
+            var unitPaymentOrders = dbContext.UnitPaymentOrders.Where(unitPaymentOrder => upoNos.Contains(unitPaymentOrder.UPONo)).ToList();
+            var currency = await GetBICurrency(model.CurrencyCode, model.Date);
+
+            if (currency == null)
+            {
+                currency = new GarmentCurrency() { Rate = model.CurrencyRate };
+            }
+
+            List<CreditorAccountViewModel> postedData = new List<CreditorAccountViewModel>();
+            foreach (var detail in model.Details)
+            {
+                var unitPaymentOrder = unitPaymentOrders.FirstOrDefault(element => element.UPONo == detail.UnitPaymentOrderNo);
+
+                if (unitPaymentOrder == null)
+                    unitPaymentOrder = new UnitPaymentOrder();
+                var unitSummaries = detail.Items.GroupBy(g => new { g.URNNo, g.UnitCode }).Select(s => new
+                {
+                    UnitCode = s.Key.UnitCode,
+                    URNNo = s.Key.URNNo
+                });
+
+                if (unitSummaries.Count() > 1)
+                {
+                    var Remaining = detail.SupplierPayment;
+                    foreach (var unitSummary in detail.Items)
+                    {
+                        var paidPrice = itemDbSet.Where(bank => bank.URNNo == unitSummary.URNNo && bank.Price == unitSummary.Price).Sum(x => x.PaidPrice);
+                        if (unitSummary.Price <= paidPrice)
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            var vatAmount = unitPaymentOrder.UseVat ? unitSummary.Price * 0.1 : 0;
+                            var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? unitSummary.Price * unitPaymentOrder.IncomeTaxRate / 100 : 0;
+                            var dpp = unitSummary.Price + vatAmount - incomeTaxAmount;
+
+                            if (Remaining >= dpp)
+                            {
+                                if (paidPrice != 0)
+                                {
+                                    dpp -= paidPrice;
+                                }
+
+                                var unitReceiptNotes = itemDbSet.Where(bank => bank.URNNo == unitSummary.URNNo && bank.Price == unitSummary.Price && bank.BankExpenditureNoteDetailId == unitSummary.BankExpenditureNoteDetailId).ToList();
+
+                                foreach (var urnno in unitReceiptNotes)
+                                {
+                                    urnno.PaidPrice = dpp;
+
+                                    EntityExtension.FlagForUpdate(unitSummary, identityService.Username, USER_AGENT);
+                                    itemDbSet.Update(unitSummary);
+                                }
+                            }
+                            else
+                            {
+                                if (Remaining <= 0)
+                                {
+                                    continue;
+                                }
+
+                                dpp = Remaining;
+
+                                var unitReceiptNotes = itemDbSet.Where(bank => bank.URNNo == unitSummary.URNNo && bank.Price == unitSummary.Price && bank.BankExpenditureNoteDetailId == unitSummary.BankExpenditureNoteDetailId).ToList();
+
+                                foreach (var urnno in unitReceiptNotes)
+                                {
+                                    urnno.PaidPrice = Remaining;
+
+                                    EntityExtension.FlagForUpdate(unitSummary, identityService.Username, USER_AGENT);
+                                    itemDbSet.Update(unitSummary);
+                                }
+                            }
+
+                            Remaining -= dpp;
+
+                            var mutation = dpp;
+                            if (model.CurrencyCode != "IDR")
+                            {
+                                mutation = (dpp) * model.CurrencyRate;
+                            }
+
+                            CreditorAccountViewModel viewModel = new CreditorAccountViewModel()
+                            {
+                                Code = model.DocumentNo,
+                                Date = model.Date,
+                                Id = (int)model.Id,
+                                InvoiceNo = detail.InvoiceNo,
+                                Mutation = mutation,
+                                SupplierCode = model.SupplierCode,
+                                SupplierName = model.SupplierName,
+                                MemoNo = detail.UnitPaymentOrderNo,
+                                UnitReceiptNoteNo = unitSummary.URNNo
+                            };
+
+                            postedData.Add(viewModel);
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var unitSummary in unitSummaries)
+                    {
+                        var dpp = detail.SupplierPayment;
+                        //var vatAmount = unitPaymentOrder.UseVat ? dpp * 0.1 : 0;
+                        //var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? dpp * unitPaymentOrder.IncomeTaxRate / 100 : 0;
+
+                        //var mutation = dpp + vatAmount - incomeTaxAmount;
+                        var mutation = dpp;
+                        if (model.CurrencyCode != "IDR")
+                        {
+                            //mutation = (dpp + vatAmount - incomeTaxAmount) * model.CurrencyRate;
+                            mutation = (dpp) * model.CurrencyRate;
+                        }
+
+                        CreditorAccountViewModel viewModel = new CreditorAccountViewModel()
+                        {
+                            Code = model.DocumentNo,
+                            Date = model.Date,
+                            Id = (int)model.Id,
+                            InvoiceNo = detail.InvoiceNo,
+                            Mutation = mutation,
+                            SupplierCode = model.SupplierCode,
+                            SupplierName = model.SupplierName,
+                            MemoNo = detail.UnitPaymentOrderNo,
+                            UnitReceiptNoteNo = unitSummary.URNNo
+                        };
+
+                        postedData.Add(viewModel);
+                    }
+                }
+            }
 
             var httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
             var response = httpClient.PostAsync($"{APIEndpoint.Finance}{CREDITOR_ACCOUNT_URI}", new StringContent(JsonConvert.SerializeObject(postedData).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
@@ -920,13 +1224,689 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     model.IsPosted = true;
                     await CreateJournalTransaction(model, identityService);
                     await CreateDailyBankTransaction(model, identityService);
-                    CreateCreditorAccount(model, identityService);
+                    //CreateCreditorAccount(model, identityService);
+                    await CreateCreditorAccountv2(model, identityService);
                     EntityExtension.FlagForUpdate(model, identityService.Username, USER_AGENT);
                     await dbContext.SaveChangesAsync();
                 }
             }
 
             return result;
+        }
+
+        public MemoryStream GeneratePdfTemplate(BankExpenditureNoteModel model, int clientTimeZoneOffset)
+        {
+            const int MARGIN = 15;
+
+            Font header_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 18);
+            Font normal_font = FontFactory.GetFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
+            Font bold_font = FontFactory.GetFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
+
+            Document document = new Document(PageSize.A4, MARGIN, MARGIN, MARGIN, MARGIN);
+            MemoryStream stream = new MemoryStream();
+            PdfWriter writer = PdfWriter.GetInstance(document, stream);
+            document.Open();
+
+            Dictionary<string, double> units = new Dictionary<string, double>();
+            model.Details = model.Details.OrderBy(o => o.SupplierName).ToList();
+
+            #region Header
+
+            PdfPTable headerTable = new PdfPTable(2);
+            headerTable.SetWidths(new float[] { 10f, 10f });
+            headerTable.WidthPercentage = 100;
+            PdfPTable headerTable1 = new PdfPTable(1);
+            PdfPTable headerTable2 = new PdfPTable(2);
+            headerTable2.SetWidths(new float[] { 15f, 40f });
+            headerTable2.WidthPercentage = 100;
+
+            PdfPCell cellHeader1 = new PdfPCell() { Border = Rectangle.NO_BORDER };
+            PdfPCell cellHeader2 = new PdfPCell() { Border = Rectangle.NO_BORDER };
+            PdfPCell cellHeaderBody = new PdfPCell() { Border = Rectangle.NO_BORDER };
+
+            PdfPCell cellHeaderCS2 = new PdfPCell() { Border = Rectangle.NO_BORDER, Colspan = 2 };
+
+
+            cellHeaderCS2.Phrase = new Phrase("BUKTI PENGELUARAN BANK", bold_font);
+            cellHeaderCS2.HorizontalAlignment = Element.ALIGN_CENTER;
+            headerTable.AddCell(cellHeaderCS2);
+
+            cellHeaderBody.Phrase = new Phrase("PT. DANLIRIS", normal_font);
+            headerTable1.AddCell(cellHeaderBody);
+            cellHeaderBody.Phrase = new Phrase("Kel. Banaran, Kec. Grogol", normal_font);
+            headerTable1.AddCell(cellHeaderBody);
+            cellHeaderBody.Phrase = new Phrase("Sukoharjo - 57100", normal_font);
+            headerTable1.AddCell(cellHeaderBody);
+
+            cellHeader1.AddElement(headerTable1);
+            headerTable.AddCell(cellHeader1);
+
+            cellHeaderCS2.Phrase = new Phrase("", bold_font);
+            headerTable2.AddCell(cellHeaderCS2);
+
+            cellHeaderBody.Phrase = new Phrase("Tanggal", normal_font);
+            headerTable2.AddCell(cellHeaderBody);
+            cellHeaderBody.Phrase = new Phrase(": " + model.Date.AddHours(clientTimeZoneOffset).ToString("dd MMMM yyyy"), normal_font);
+            headerTable2.AddCell(cellHeaderBody);
+
+            cellHeaderBody.Phrase = new Phrase("NO", normal_font);
+            headerTable2.AddCell(cellHeaderBody);
+            cellHeaderBody.Phrase = new Phrase(": " + model.DocumentNo, normal_font);
+            headerTable2.AddCell(cellHeaderBody);
+
+            List<string> supplier = model.Details.Select(m => m.SupplierName).Distinct().ToList();
+            cellHeaderBody.Phrase = new Phrase("Dibayarkan ke", normal_font);
+            headerTable2.AddCell(cellHeaderBody);
+            cellHeaderBody.Phrase = new Phrase(": " + (supplier.Count > 0 ? supplier[0] : "-"), normal_font);
+            headerTable2.AddCell(cellHeaderBody);
+
+            for (int i = 1; i < supplier.Count; i++)
+            {
+                cellHeaderBody.Phrase = new Phrase("", normal_font);
+                headerTable2.AddCell(cellHeaderBody);
+                cellHeaderBody.Phrase = new Phrase(": " + supplier[i], normal_font);
+                headerTable2.AddCell(cellHeaderBody);
+            }
+
+            cellHeaderBody.Phrase = new Phrase("Bank", normal_font);
+            headerTable2.AddCell(cellHeaderBody);
+            cellHeaderBody.Phrase = new Phrase(": " + model.BankAccountName + " - A/C : " + model.BankAccountNumber, normal_font);
+            headerTable2.AddCell(cellHeaderBody);
+
+            cellHeader2.AddElement(headerTable2);
+            headerTable.AddCell(cellHeader2);
+
+            cellHeaderCS2.Phrase = new Phrase("", normal_font);
+            headerTable.AddCell(cellHeaderCS2);
+
+            document.Add(headerTable);
+
+            #endregion Header
+
+            var upoNos = model.Details.Select(detail => detail.UnitPaymentOrderNo).ToList();
+            var unitPaymentOrders = dbContext.UnitPaymentOrders.Where(unitPaymentOrder => upoNos.Contains(unitPaymentOrder.UPONo)).ToList();
+            var currency = GetBICurrency(model.CurrencyCode, model.Date).Result;
+
+            if (currency == null)
+            {
+                currency = new GarmentCurrency() { Rate = model.CurrencyRate };
+            }
+
+            int index = 1;
+            double total = 0;
+            if (model.BankCurrencyCode != "IDR" || model.CurrencyCode == "IDR")
+            {
+                #region BodyNonIdr
+
+                PdfPTable bodyTable = new PdfPTable(8);
+                PdfPCell bodyCell = new PdfPCell();
+
+                float[] widthsBody = new float[] { 5f, 10f, 10f, 10f, 8f, 7f, 15f, 7f };
+                bodyTable.SetWidths(widthsBody);
+                bodyTable.WidthPercentage = 100;
+
+                bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                bodyCell.Phrase = new Phrase("No.", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("No. SPB", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("Kategori Barang", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("Divisi", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("Unit", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("Mata Uang", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("Jumlah", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("Pembayaran SPB ke-", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                foreach (BankExpenditureNoteDetailModel detail in model.Details)
+                {
+                    var unitPaymentOrder = unitPaymentOrders.FirstOrDefault(element => element.UPONo == detail.UnitPaymentOrderNo);
+
+                    if (unitPaymentOrder == null)
+                        unitPaymentOrder = new UnitPaymentOrder();
+
+                    double remaining = detail.SupplierPayment;
+                    double previousPayment = detail.AmountPaid;
+
+                    var unitSummaries = detail.Items.GroupBy(g => new { g.URNNo, g.UnitCode }).Select(s => new
+                    {
+                        UnitCode = s.Key.UnitCode,
+                        URNNo = s.Key.URNNo
+                    });
+
+                    //var items = detail.Items
+                    //    .GroupBy(m => new { m.UnitCode, m.UnitName })
+                    //    .Select(s => new
+                    //    {
+                    //        s.First().UnitCode,
+                    //        s.First().UnitName,
+                    //        s.First().Price,
+                    //        Total = s.Sum(d => detail.Vat == 0 ? d.Price : d.Price * 1.1)
+                    //    });
+                    if (unitSummaries.Count() > 1)
+                    {
+                        foreach (var item in detail.Items)
+                        {
+                            var vatAmount = unitPaymentOrder.UseVat ? item.Price * 0.1 : 0;
+                            var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? item.Price * unitPaymentOrder.IncomeTaxRate / 100 : 0;
+                            var dpp = item.Price + vatAmount - incomeTaxAmount;
+
+                            if ((remaining <= 0) || (previousPayment >= dpp))
+                            {
+                                previousPayment -= dpp;
+
+                                continue;
+                            }
+
+                            bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                            bodyCell.VerticalAlignment = Element.ALIGN_TOP;
+                            bodyCell.Phrase = new Phrase((index++).ToString(), normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            bodyCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                            bodyCell.Phrase = new Phrase(detail.UnitPaymentOrderNo, normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            bodyCell.Phrase = new Phrase(detail.CategoryName, normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            bodyCell.Phrase = new Phrase(detail.DivisionName, normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                            bodyCell.Phrase = new Phrase(item.UnitCode, normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            bodyCell.Phrase = new Phrase(detail.Currency, normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            if (remaining >= dpp)
+                            {
+                                bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                                bodyCell.Phrase = new Phrase(string.Format("{0:n4}", dpp), normal_font);
+                                bodyTable.AddCell(bodyCell);
+
+                                if (units.ContainsKey(item.UnitCode))
+                                {
+                                    units[item.UnitCode] += dpp;
+                                }
+                                else
+                                {
+                                    units.Add(item.UnitCode, dpp);
+                                }
+
+                                total += dpp;
+                                remaining -= dpp;
+
+                            }
+                            else
+                            {
+                                bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                                bodyCell.Phrase = new Phrase(string.Format("{0:n4}", remaining), normal_font);
+                                bodyTable.AddCell(bodyCell);
+
+                                if (units.ContainsKey(item.UnitCode))
+                                {
+                                    units[item.UnitCode] += remaining;
+                                }
+                                else
+                                {
+                                    units.Add(item.UnitCode, remaining);
+                                }
+
+                                total += remaining;
+                                remaining -= remaining;
+                            }
+
+                            bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                            bodyCell.Phrase = new Phrase(detail.UPOIndex.ToString(), normal_font);
+                            bodyTable.AddCell(bodyCell);
+                        }
+                    }
+                    else
+                    {
+                        foreach (var unitSummary in unitSummaries)
+                        {
+                            bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                            bodyCell.VerticalAlignment = Element.ALIGN_TOP;
+                            bodyCell.Phrase = new Phrase((index++).ToString(), normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            bodyCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                            bodyCell.Phrase = new Phrase(detail.UnitPaymentOrderNo, normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            bodyCell.Phrase = new Phrase(detail.CategoryName, normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            bodyCell.Phrase = new Phrase(detail.DivisionName, normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                            bodyCell.Phrase = new Phrase(unitSummary.UnitCode, normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            bodyCell.Phrase = new Phrase(detail.Currency, normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                            bodyCell.Phrase = new Phrase(string.Format("{0:n4}", remaining), normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            if (units.ContainsKey(unitSummary.UnitCode))
+                            {
+                                units[unitSummary.UnitCode] += remaining;
+                            }
+                            else
+                            {
+                                units.Add(unitSummary.UnitCode, remaining);
+                            }
+
+                            total += remaining;
+
+                            bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                            bodyCell.Phrase = new Phrase(detail.UPOIndex.ToString(), normal_font);
+                            bodyTable.AddCell(bodyCell);
+                        }
+                    }
+                    
+                }
+
+                bodyCell.Colspan = 4;
+                bodyCell.Border = Rectangle.NO_BORDER;
+                bodyCell.Phrase = new Phrase("", normal_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Colspan = 1;
+                bodyCell.Border = Rectangle.BOX;
+                bodyCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                bodyCell.Phrase = new Phrase("Total", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Colspan = 1;
+                bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                bodyCell.Phrase = new Phrase(model.BankCurrencyCode, bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                bodyCell.Phrase = new Phrase(string.Format("{0:n4}", total), bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                document.Add(bodyTable);
+
+                #endregion BodyNonIdr
+            }
+            else
+            {
+                #region BodyIdr
+                PdfPTable bodyTable = new PdfPTable(9);
+                PdfPCell bodyCell = new PdfPCell();
+
+                float[] widthsBody = new float[] { 5f, 10f, 10f, 10f, 8f, 7f, 10f, 10f, 7f };
+                bodyTable.SetWidths(widthsBody);
+                bodyTable.WidthPercentage = 100;
+
+                bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                bodyCell.Phrase = new Phrase("No.", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("No. SPB", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("Kategori Barang", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("Divisi", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("Unit", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("Mata Uang", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("Jumlah", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("Jumlah (IDR)", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Phrase = new Phrase("Pembayaran SPB ke-", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                foreach (BankExpenditureNoteDetailModel detail in model.Details)
+                {
+                    var unitPaymentOrder = unitPaymentOrders.FirstOrDefault(element => element.UPONo == detail.UnitPaymentOrderNo);
+
+                    if (unitPaymentOrder == null)
+                        unitPaymentOrder = new UnitPaymentOrder();
+
+                    double remaining = detail.SupplierPayment;
+                    double previousPayment = detail.AmountPaid;
+
+                    var unitSummaries = detail.Items.GroupBy(g => new { g.URNNo, g.UnitCode }).Select(s => new
+                    {
+                        UnitCode = s.Key.UnitCode,
+                        URNNo = s.Key.URNNo
+                    });
+
+                    //var items = detail.Items
+                    //    .GroupBy(m => new { m.UnitCode, m.UnitName })
+                    //    .Select(s => new
+                    //    {
+                    //        s.First().UnitCode,
+                    //        s.First().UnitName,
+                    //        s.First().Price,
+                    //        Total = s.Sum(d => detail.Vat == 0 ? d.Price : d.Price * 1.1)
+                    //    });
+                    if (unitSummaries.Count() > 1)
+                    {
+                        foreach (var item in detail.Items)
+                        {
+                            var vatAmount = unitPaymentOrder.UseVat ? item.Price * 0.1 : 0;
+                            var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? item.Price * unitPaymentOrder.IncomeTaxRate / 100 : 0;
+                            var dpp = item.Price + vatAmount - incomeTaxAmount;
+
+                            if ((remaining <= 0) || (previousPayment >= dpp))
+                            {
+                                previousPayment -= dpp;
+
+                                continue;
+                            }
+
+                            bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                            bodyCell.VerticalAlignment = Element.ALIGN_TOP;
+                            bodyCell.Phrase = new Phrase((index++).ToString(), normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            bodyCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                            bodyCell.Phrase = new Phrase(detail.UnitPaymentOrderNo, normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            bodyCell.Phrase = new Phrase(detail.CategoryName, normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            bodyCell.Phrase = new Phrase(detail.DivisionName, normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                            bodyCell.Phrase = new Phrase(item.UnitCode, normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            bodyCell.Phrase = new Phrase(detail.Currency, normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                            bodyCell.Phrase = new Phrase(string.Format("{0:n4}", remaining), normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            if (remaining >= dpp)
+                            {
+                                bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                                bodyCell.Phrase = new Phrase(string.Format("{0:n4}", dpp), normal_font);
+                                bodyTable.AddCell(bodyCell);
+
+                                if (units.ContainsKey(item.UnitCode))
+                                {
+                                    units[item.UnitCode] += dpp;
+                                }
+                                else
+                                {
+                                    units.Add(item.UnitCode, dpp);
+                                }
+
+                                total += dpp;
+                                remaining -= dpp;
+
+                            }
+                            else
+                            {
+                                bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                                bodyCell.Phrase = new Phrase(string.Format("{0:n4}", remaining), normal_font);
+                                bodyTable.AddCell(bodyCell);
+
+                                if (units.ContainsKey(item.UnitCode))
+                                {
+                                    units[item.UnitCode] += remaining;
+                                }
+                                else
+                                {
+                                    units.Add(item.UnitCode, remaining);
+                                }
+
+                                total += remaining;
+                                remaining -= remaining;
+                            }
+
+                            bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                            bodyCell.Phrase = new Phrase(detail.UPOIndex.ToString(), normal_font);
+                            bodyTable.AddCell(bodyCell);
+                        }
+                    }
+                    else
+                    {
+                        foreach (var unitSummary in unitSummaries)
+                        {
+                            bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                            bodyCell.VerticalAlignment = Element.ALIGN_TOP;
+                            bodyCell.Phrase = new Phrase((index++).ToString(), normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            bodyCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                            bodyCell.Phrase = new Phrase(detail.UnitPaymentOrderNo, normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            bodyCell.Phrase = new Phrase(detail.CategoryName, normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            bodyCell.Phrase = new Phrase(detail.DivisionName, normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                            bodyCell.Phrase = new Phrase(unitSummary.UnitCode, normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            bodyCell.Phrase = new Phrase(detail.Currency, normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                            bodyCell.Phrase = new Phrase(string.Format("{0:n4}", remaining), normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                            bodyCell.Phrase = new Phrase(string.Format("{0:n4}", (remaining * model.CurrencyRate)), normal_font);
+                            bodyTable.AddCell(bodyCell);
+
+                            if (units.ContainsKey(unitSummary.UnitCode))
+                            {
+                                units[unitSummary.UnitCode] += (remaining * model.CurrencyRate);
+                            }
+                            else
+                            {
+                                units.Add(unitSummary.UnitCode, (remaining * model.CurrencyRate));
+                            }
+
+                            total += remaining;
+
+                            bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                            bodyCell.Phrase = new Phrase(detail.UPOIndex.ToString(), normal_font);
+                            bodyTable.AddCell(bodyCell);
+                        }
+                    }
+                }
+
+                bodyCell.Colspan = 4;
+                bodyCell.Border = Rectangle.NO_BORDER;
+                bodyCell.Phrase = new Phrase("", normal_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Colspan = 1;
+                bodyCell.Border = Rectangle.BOX;
+                bodyCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                bodyCell.Phrase = new Phrase("Total", bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.Colspan = 1;
+                bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                bodyCell.Phrase = new Phrase(model.BankCurrencyCode, bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                bodyCell.Phrase = new Phrase(string.Format("{0:n4}", total), bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                bodyCell.Phrase = new Phrase(string.Format("{0:n4}", total * model.CurrencyRate), bold_font);
+                bodyTable.AddCell(bodyCell);
+
+                document.Add(bodyTable);
+
+                #endregion BodyIdr
+            }
+
+
+
+            #region BodyFooter
+
+            PdfPTable bodyFooterTable = new PdfPTable(6);
+            bodyFooterTable.SetWidths(new float[] { 3f, 6f, 2f, 6f, 10f, 10f });
+            bodyFooterTable.WidthPercentage = 100;
+
+            PdfPCell bodyFooterCell = new PdfPCell() { Border = Rectangle.NO_BORDER };
+
+            bodyFooterCell.Colspan = 1;
+            bodyFooterCell.Phrase = new Phrase("");
+            bodyFooterTable.AddCell(bodyFooterCell);
+
+            bodyFooterCell.Colspan = 1;
+            bodyFooterCell.HorizontalAlignment = Element.ALIGN_LEFT;
+            bodyFooterCell.Phrase = new Phrase("Rincian per bagian:", normal_font);
+            bodyFooterTable.AddCell(bodyFooterCell);
+
+            bodyFooterCell.Colspan = 4;
+            bodyFooterCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            bodyFooterCell.Phrase = new Phrase("");
+            bodyFooterTable.AddCell(bodyFooterCell);
+            total = model.CurrencyId > 0 ? total * model.CurrencyRate : total;
+            foreach (var unit in units)
+            {
+                bodyFooterCell.Colspan = 1;
+                bodyFooterCell.Phrase = new Phrase("");
+                bodyFooterTable.AddCell(bodyFooterCell);
+
+                bodyFooterCell.Phrase = new Phrase(unit.Key, normal_font);
+                bodyFooterTable.AddCell(bodyFooterCell);
+
+                bodyFooterCell.Phrase = new Phrase(model.BankCurrencyCode, normal_font);
+                bodyFooterTable.AddCell(bodyFooterCell);
+
+                bodyFooterCell.Phrase = new Phrase(string.Format("{0:n4}", unit.Value), normal_font);
+                bodyFooterTable.AddCell(bodyFooterCell);
+
+                bodyFooterCell.Colspan = 2;
+                bodyFooterCell.Phrase = new Phrase("");
+                bodyFooterTable.AddCell(bodyFooterCell);
+            }
+
+            bodyFooterCell.Colspan = 1;
+            bodyFooterCell.HorizontalAlignment = Element.ALIGN_LEFT;
+            bodyFooterCell.Phrase = new Phrase("");
+            bodyFooterTable.AddCell(bodyFooterCell);
+
+            bodyFooterCell.Phrase = new Phrase("Terbilang", normal_font);
+            bodyFooterTable.AddCell(bodyFooterCell);
+
+            bodyFooterCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+            bodyFooterCell.Phrase = new Phrase(": " + model.BankCurrencyCode, normal_font);
+            bodyFooterTable.AddCell(bodyFooterCell);
+
+            bodyFooterCell.Colspan = 3;
+            bodyFooterCell.HorizontalAlignment = Element.ALIGN_LEFT;
+            bodyFooterCell.Phrase = new Phrase(NumberToTextIDN.terbilang(total), normal_font);
+            bodyFooterTable.AddCell(bodyFooterCell);
+
+
+            document.Add(bodyFooterTable);
+            document.Add(new Paragraph("\n"));
+
+            #endregion BodyFooter
+
+            #region Footer
+
+            PdfPTable footerTable = new PdfPTable(2);
+            PdfPCell cellFooter = new PdfPCell() { Border = Rectangle.NO_BORDER };
+
+            float[] widthsFooter = new float[] { 10f, 5f };
+            footerTable.SetWidths(widthsFooter);
+            footerTable.WidthPercentage = 100;
+
+            cellFooter.Phrase = new Phrase("Dikeluarkan dengan cek/BG No. : " + model.BGCheckNumber, normal_font);
+            footerTable.AddCell(cellFooter);
+
+            cellFooter.Phrase = new Phrase("", normal_font);
+            footerTable.AddCell(cellFooter);
+
+            PdfPTable signatureTable = new PdfPTable(3);
+            PdfPCell signatureCell = new PdfPCell() { HorizontalAlignment = Element.ALIGN_CENTER };
+            signatureCell.Phrase = new Phrase("Bag. Keuangan", normal_font);
+            signatureTable.AddCell(signatureCell);
+
+            signatureCell.Colspan = 2;
+            signatureCell.HorizontalAlignment = Element.ALIGN_CENTER;
+            signatureCell.Phrase = new Phrase("Direksi", normal_font);
+            signatureTable.AddCell(signatureCell);
+
+            signatureTable.AddCell(new PdfPCell()
+            {
+                Phrase = new Phrase("---------------------------", normal_font),
+                FixedHeight = 40,
+                VerticalAlignment = Element.ALIGN_BOTTOM,
+                HorizontalAlignment = Element.ALIGN_CENTER
+            });
+            signatureTable.AddCell(new PdfPCell()
+            {
+                Phrase = new Phrase("---------------------------", normal_font),
+                FixedHeight = 40,
+                Border = Rectangle.NO_BORDER,
+                VerticalAlignment = Element.ALIGN_BOTTOM,
+                HorizontalAlignment = Element.ALIGN_CENTER
+            });
+            signatureTable.AddCell(new PdfPCell()
+            {
+                Phrase = new Phrase("---------------------------", normal_font),
+                FixedHeight = 40,
+                Border = Rectangle.NO_BORDER,
+                VerticalAlignment = Element.ALIGN_BOTTOM,
+                HorizontalAlignment = Element.ALIGN_CENTER
+            });
+
+            footerTable.AddCell(new PdfPCell(signatureTable));
+
+            cellFooter.Phrase = new Phrase("", normal_font);
+            footerTable.AddCell(cellFooter);
+            document.Add(footerTable);
+
+            #endregion Footer
+
+            document.Close();
+
+            byte[] byteInfo = stream.ToArray();
+            stream.Write(byteInfo, 0, byteInfo.Length);
+            stream.Position = 0;
+
+            return stream;
         }
     }
 

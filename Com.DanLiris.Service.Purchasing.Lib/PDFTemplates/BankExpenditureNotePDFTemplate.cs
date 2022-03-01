@@ -106,10 +106,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             {
                 #region BodyNonIdr
 
-                PdfPTable bodyTable = new PdfPTable(7);
+                PdfPTable bodyTable = new PdfPTable(8);
                 PdfPCell bodyCell = new PdfPCell();
 
-                float[] widthsBody = new float[] { 5f, 10f, 10f, 10f, 8f, 7f, 15f };
+                float[] widthsBody = new float[] { 5f, 10f, 10f, 10f, 8f, 7f, 15f, 7f };
                 bodyTable.SetWidths(widthsBody);
                 bodyTable.WidthPercentage = 100;
 
@@ -135,19 +135,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 bodyCell.Phrase = new Phrase("Jumlah", bold_font);
                 bodyTable.AddCell(bodyCell);
 
-                
+                bodyCell.Phrase = new Phrase("Pembayaran SPB ke-", bold_font);
+                bodyTable.AddCell(bodyCell);
+
                 foreach (BankExpenditureNoteDetailModel detail in model.Details)
                 {
+                    double remaining = detail.SupplierPayment;
+                    double previousPayment = detail.AmountPaid;
+
                     var items = detail.Items
                         .GroupBy(m => new { m.UnitCode, m.UnitName })
                         .Select(s => new
                         {
                             s.First().UnitCode,
                             s.First().UnitName,
+                            s.First().Price,
                             Total = s.Sum(d => detail.Vat == 0 ? d.Price : d.Price * 1.1)
                         });
                     foreach (var item in items)
                     {
+                        if ((remaining <= 0) || (previousPayment == item.Price))
+                        {
+                            previousPayment -= item.Price;
+
+                            continue;
+                        }
+
                         bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
                         bodyCell.VerticalAlignment = Element.ALIGN_TOP;
                         bodyCell.Phrase = new Phrase((index++).ToString(), normal_font);
@@ -171,19 +184,24 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         bodyTable.AddCell(bodyCell);
 
                         bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
-                        bodyCell.Phrase = new Phrase(string.Format("{0:n4}", item.Total), normal_font);
+                        bodyCell.Phrase = new Phrase(string.Format("{0:n4}", remaining), normal_font);
                         bodyTable.AddCell(bodyCell);
 
                         if (units.ContainsKey(item.UnitCode))
                         {
-                            units[item.UnitCode] += item.Total;
+                            units[item.UnitCode] += remaining;
                         }
                         else
                         {
-                            units.Add(item.UnitCode, item.Total);
+                            units.Add(item.UnitCode, remaining);
                         }
 
-                        total += item.Total;
+                        total += remaining;
+                        remaining -= item.Total;
+
+                        bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                        bodyCell.Phrase = new Phrase(detail.UPOIndex.ToString(), normal_font);
+                        bodyTable.AddCell(bodyCell);
                     }
                 }
 
@@ -214,10 +232,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             else
             {
                 #region BodyIdr
-                PdfPTable bodyTable = new PdfPTable(8);
+                PdfPTable bodyTable = new PdfPTable(9);
                 PdfPCell bodyCell = new PdfPCell();
 
-                float[] widthsBody = new float[] { 5f, 10f, 10f, 10f, 8f, 7f, 10f, 10f };
+                float[] widthsBody = new float[] { 5f, 10f, 10f, 10f, 8f, 7f, 10f, 10f, 7f };
                 bodyTable.SetWidths(widthsBody);
                 bodyTable.WidthPercentage = 100;
 
@@ -246,18 +264,32 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 bodyCell.Phrase = new Phrase("Jumlah (IDR)", bold_font);
                 bodyTable.AddCell(bodyCell);
 
+                bodyCell.Phrase = new Phrase("Pembayaran SPB ke-", bold_font);
+                bodyTable.AddCell(bodyCell);
+
                 foreach (BankExpenditureNoteDetailModel detail in model.Details)
                 {
+                    double remaining = detail.SupplierPayment;
+                    double previousPayment = detail.AmountPaid;
+
                     var items = detail.Items
                         .GroupBy(m => new { m.UnitCode, m.UnitName })
                         .Select(s => new
                         {
                             s.First().UnitCode,
                             s.First().UnitName,
+                            s.First().Price,
                             Total = s.Sum(d => detail.Vat == 0 ? d.Price : d.Price * 1.1)
                         });
                     foreach (var item in items)
                     {
+                        if ((remaining <= 0) || (previousPayment == item.Price))
+                        {
+                            previousPayment -= item.Price;
+
+                            continue;
+                        }
+
                         bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
                         bodyCell.VerticalAlignment = Element.ALIGN_TOP;
                         bodyCell.Phrase = new Phrase((index++).ToString(), normal_font);
@@ -281,23 +313,28 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                         bodyTable.AddCell(bodyCell);
 
                         bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
-                        bodyCell.Phrase = new Phrase(string.Format("{0:n4}", item.Total), normal_font);
+                        bodyCell.Phrase = new Phrase(string.Format("{0:n4}", remaining), normal_font);
                         bodyTable.AddCell(bodyCell);
 
                         bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
-                        bodyCell.Phrase = new Phrase(string.Format("{0:n4}", (item.Total * model.CurrencyRate)), normal_font);
+                        bodyCell.Phrase = new Phrase(string.Format("{0:n4}", (remaining * model.CurrencyRate)), normal_font);
                         bodyTable.AddCell(bodyCell);
 
                         if (units.ContainsKey(item.UnitCode))
                         {
-                            units[item.UnitCode] += (item.Total * model.CurrencyRate);
+                            units[item.UnitCode] += (remaining * model.CurrencyRate);
                         }
                         else
                         {
-                            units.Add(item.UnitCode, (item.Total * model.CurrencyRate));
+                            units.Add(item.UnitCode, (remaining * model.CurrencyRate));
                         }
 
-                        total += item.Total;
+                        total += remaining;
+                        remaining -= item.Total;
+
+                        bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                        bodyCell.Phrase = new Phrase(detail.UPOIndex.ToString(), normal_font);
+                        bodyTable.AddCell(bodyCell);
                     }
                 }
 

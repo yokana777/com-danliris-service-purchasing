@@ -33,6 +33,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.BankExpenditureNoteModel
         public string UnitPaymentOrderNo { get; set; }
         public double IncomeTax { get; set; }
         public double Vat { get; set; }
+        public double AmountPaid { get; set; }
+        public int UPOIndex { get; set; }
+        public double SupplierPayment { get; set; }
         public virtual long BankExpenditureNoteId { get; set; }
         [ForeignKey("BankExpenditureNoteId")]
         public virtual BankExpenditureNoteModel BankExpenditureNote { get; set; }

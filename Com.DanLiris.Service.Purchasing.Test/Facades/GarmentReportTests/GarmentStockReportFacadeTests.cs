@@ -3,9 +3,9 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitDeliveryOrderFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFacades;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.MonitoringUnitReceiptFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentDeliveryOrderDataUtils;
@@ -14,23 +14,25 @@ using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentInternalPurchaseOrde
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentPurchaseRequestDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitDeliveryOrderDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitReceiptNoteDataUtils;
+using Com.DanLiris.Service.Purchasing.Test.DataUtils.NewIntegrationDataUtils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Com.DanLiris.Service.Purchasing.Test.Facades.MonitoringUnitReceiptTests
+namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentReportTests
 {
-	public class BasicTest
-	{
-		private const string ENTITY = "GarmentUnitReceiptNoteReport";
+	public class GarmentStockReportFacadeTests
+	{ 
+        private const string ENTITY = "GarmentStockReport";
 
 		private const string USERNAME = "Unit Test";
 		private IServiceProvider ServiceProvider { get; set; }
@@ -59,12 +61,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.MonitoringUnitReceiptTest
 		private Mock<IServiceProvider> GetServiceProvider()
 		{
 			HttpResponseMessage message = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
-			message.Content = new StringContent("{\"apiVersion\":\"1.0\",\"statusCode\":200,\"message\":\"Ok\",\"data\":[{\"Id\":7,\"codeRequirement\":\"BB\",\"code\":\"BB\",\"rate\":13700.0,\"name\":\"FABRIC\",\"date\":\"2018/10/20\"}],\"info\":{\"count\":1,\"page\":1,\"size\":1,\"total\":2,\"order\":{\"date\":\"desc\"},\"select\":[\"Id\",\"code\",\"rate\",\"date\"]}}");
+			message.Content = new StringContent("{\"apiVersion\":\"1.0\",\"statusCode\":200,\"message\":\"Ok\",\"data\":[{\"Id\":7,\"Composition\":\"compos\",\"Width\":\"11\",\"Const\":\"aa\",\"Yarn\":\"yarn\",\"codeRequirement\":\"BB\",\"code\":\"BB\",\"rate\":13700.0,\"Name\":\"FABRIC\",\"date\":\"2018/10/20\"}],\"info\":{\"count\":1,\"page\":1,\"size\":1,\"total\":2,\"order\":{\"date\":\"desc\"},\"select\":[\"Id\",\"code\",\"rate\",\"date\"]}}");
 			var HttpClientService = new Mock<IHttpClientService>();
 			HttpClientService
 				.Setup(x => x.GetAsync(It.IsAny<string>()))
 				.ReturnsAsync(message);
 
+			HttpClientService
+			  .Setup(x => x.SendAsync(It.IsAny<HttpMethod>(), It.Is<string>(s => s.Contains("master/garmentProducts/byCode")), It.IsAny<HttpContent>()))
+			  .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(new GarmentProductDataUtil().GetMultipleResultFormatterOkString()) });
 
 			var serviceProvider = new Mock<IServiceProvider>();
 			serviceProvider
@@ -104,29 +109,30 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.MonitoringUnitReceiptTest
 
 			return new GarmentUnitDeliveryOrderDataUtil(garmentUnitDeliveryOrderFacade, garmentUnitReceiptNoteDataUtil);
 		}
+		 
+		[Fact]
+		public async Task Should_Success_GENERATEEXCENotSample()
+		{
+			var dbContext = _dbContext(GetCurrentMethod());
+			var facadeGarmentstockReport = new GarmentStockReportFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var data = await garmentUnitReceiptNoteDataUtil(facade, GetCurrentMethod()).GetTestDataMonitoringFlow();
+			var Response = facadeGarmentstockReport.GenerateExcelStockReport("BB","FABRIC","SAMPLE","SMP1",  DateTime.Now.AddDays(-1), DateTime.Now.AddDays(4),7);
+
+			Assert.NotNull(Response);
+
+		}
 
 		[Fact]
 		public async Task Should_Success_Get_Monitoring()
 		{
 			var dbContext = _dbContext(GetCurrentMethod());
-			var facadeExpend = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-
-			var facade = new MonitoringUnitReceiptAllFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-			var data = await garmentUnitReceiptNoteDataUtil(facadeExpend, GetCurrentMethod()).GetTestDataMonitoringFlow();
-			var Response = facade.GetReport(null, "POSerialNumber", "RONo", "DONo", "SMP1","SupplierCode", DateTime.Now.AddDays(-1), DateTime.Now.AddDays(1), 1, 25,"", 7);
+			var facadeGarmentstockReport= new GarmentStockReportFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			var facade = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
+			 var data = await garmentUnitReceiptNoteDataUtil(facade, GetCurrentMethod()).GetTestDataMonitoringFlow();
+			var Response = facadeGarmentstockReport.GetStockReport(7,"SMP1", "BB", 1, 25, "{}", DateTime.Now.AddDays(-1), DateTime.Now.AddDays(4));
 			Assert.NotNull(Response.Item1);
 		}
-		[Fact]
-		public async Task Should_Success_Get_Excel()
-		{
-			var dbContext = _dbContext(GetCurrentMethod());
-			var facadeExpend = new GarmentUnitReceiptNoteFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-
-			var facade = new MonitoringUnitReceiptAllFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
-			var data = await garmentUnitReceiptNoteDataUtil(facadeExpend, GetCurrentMethod()).GetTestDataMonitoringFlow();
-			var Response = facade.GenerateExcel(null, "POSerialNumber", "RONo", "DONo", "SMP1", "SupplierCode", DateTime.Now.AddDays(-1), DateTime.Now.AddDays(1), 1, 25, "", 7);
-			Assert.NotNull(Response);
-		}
-
+		 
 	}
 }

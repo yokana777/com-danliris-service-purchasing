@@ -123,12 +123,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
                 {
                     int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
-                    BankExpenditureNotePDFTemplate PdfTemplate = new BankExpenditureNotePDFTemplate();
-                    MemoryStream stream = PdfTemplate.GeneratePdfTemplate(model, clientTimeZoneOffset);
+                    //BankExpenditureNotePDFTemplate PdfTemplate = new BankExpenditureNotePDFTemplate();
+                    //MemoryStream stream = PdfTemplate.GeneratePdfTemplate(model, clientTimeZoneOffset);
+                    MemoryStream stream = facade.GeneratePdfTemplate(model, clientTimeZoneOffset);
 
                     return new FileStreamResult(stream, "application/pdf")
                     {
-                        FileDownloadName = $"PPH Bank Expenditure Note {model.DocumentNo}.pdf"
+                        FileDownloadName = $"Bank Expenditure Note {model.DocumentNo}.pdf"
                     };
                 }
             }
@@ -214,13 +215,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
             identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
             identityService.Token = Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
 
-            BankExpenditureNoteModel m = mapper.Map<BankExpenditureNoteModel>(vm);
-
             IValidateService validateService = (IValidateService)serviceProvider.GetService(typeof(IValidateService));
 
             try
             {
                 validateService.Validate(vm);
+
+                BankExpenditureNoteModel m = mapper.Map<BankExpenditureNoteModel>(vm);
 
                 int result = await facade.Update(id, m, identityService);
 

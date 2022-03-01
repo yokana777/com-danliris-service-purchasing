@@ -669,9 +669,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             ExcelPackage package = new ExcelPackage();
             var sheet = package.Workbook.Worksheets.Add("Data");
 
-            var col = (char)('A' + result.Columns.Count);
-            string tglawal = new DateTimeOffset(datefrom.Value).ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-            string tglakhir = new DateTimeOffset(dateto.Value).ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+
+			DateTime DateFrom = datefrom == null ? new DateTime(1970, 1, 1) : (DateTime)datefrom;
+			DateTime DateTo = dateto == null ? DateTime.Now : (DateTime)dateto;
+
+			var col = (char)('A' + result.Columns.Count);
+            string tglawal = new DateTimeOffset(DateFrom).ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+            string tglakhir = new DateTimeOffset(DateTo).ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
             sheet.Cells[$"A1:{col}1"].Value = string.Format("LAPORAN STOCK GUDANG {0}", categoryname);
             sheet.Cells[$"A1:{col}1"].Merge = true;
             sheet.Cells[$"A1:{col}1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
