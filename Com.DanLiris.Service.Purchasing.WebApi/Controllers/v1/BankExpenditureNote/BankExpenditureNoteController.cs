@@ -123,8 +123,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.BankExpenditureN
                 {
                     int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
 
-                    BankExpenditureNotePDFTemplate PdfTemplate = new BankExpenditureNotePDFTemplate();
-                    MemoryStream stream = PdfTemplate.GeneratePdfTemplate(model, clientTimeZoneOffset);
+                    //BankExpenditureNotePDFTemplate PdfTemplate = new BankExpenditureNotePDFTemplate();
+                    //MemoryStream stream = PdfTemplate.GeneratePdfTemplate(model, clientTimeZoneOffset);
+                    MemoryStream stream = facade.GeneratePdfTemplate(model, clientTimeZoneOffset);
 
                     return new FileStreamResult(stream, "application/pdf")
                     {
