@@ -187,13 +187,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                                 Id = (int)detail.UnitPaymentOrderId,
                                 IsPaid = paidFlag,
                                 BankExpenditureNoteNo = model.DocumentNo,
-                                BankExpenditureNoteDate = model.Date
+                                BankExpenditureNoteDate = model.Date,
+                                AmountPaid = detail.AmountPaid,
+                                SupplierPayment = detail.SupplierPayment
                             };
 
                             EntityExtension.FlagForUpdate(pde, username, USER_AGENT);
                             //dbContext.Attach(pde);
                             dbContext.Entry(pde).Property(x => x.IsPaid).IsModified = true;
                             dbContext.Entry(pde).Property(x => x.BankExpenditureNoteNo).IsModified = true;
+                            dbContext.Entry(pde).Property(x => x.AmountPaid).IsModified = true;
+                            dbContext.Entry(pde).Property(x => x.SupplierPayment).IsModified = true;
                             dbContext.Entry(pde).Property(x => x.BankExpenditureNoteDate).IsModified = true;
                             dbContext.Entry(pde).Property(x => x.LastModifiedAgent).IsModified = true;
                             dbContext.Entry(pde).Property(x => x.LastModifiedBy).IsModified = true;
@@ -269,7 +273,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                                 Id = (int)detail.UnitPaymentOrderId,
                                 IsPaid = false,
                                 BankExpenditureNoteNo = null,
-                                BankExpenditureNoteDate = null
+                                BankExpenditureNoteDate = null,
+                                SupplierPayment = 0,
+                                AmountPaid = 0
                             };
 
                             EntityExtension.FlagForUpdate(pde, username, USER_AGENT);
@@ -277,6 +283,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             dbContext.Entry(pde).Property(x => x.IsPaid).IsModified = true;
                             dbContext.Entry(pde).Property(x => x.BankExpenditureNoteNo).IsModified = true;
                             dbContext.Entry(pde).Property(x => x.BankExpenditureNoteDate).IsModified = true;
+                            dbContext.Entry(pde).Property(x => x.AmountPaid).IsModified = true;
+                            dbContext.Entry(pde).Property(x => x.SupplierPayment).IsModified = true;
                             dbContext.Entry(pde).Property(x => x.LastModifiedAgent).IsModified = true;
                             dbContext.Entry(pde).Property(x => x.LastModifiedBy).IsModified = true;
                             dbContext.Entry(pde).Property(x => x.LastModifiedUtc).IsModified = true;
@@ -352,7 +360,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             Id = (int)detail.UnitPaymentOrderId,
                             IsPaid = paidFlag,
                             BankExpenditureNoteNo = model.DocumentNo,
-                            BankExpenditureNoteDate = model.Date
+                            BankExpenditureNoteDate = model.Date,
+                            AmountPaid = detail.AmountPaid,
+                            SupplierPayment = detail.SupplierPayment
                         };
 
                         EntityExtension.FlagForUpdate(pde, username, USER_AGENT);
