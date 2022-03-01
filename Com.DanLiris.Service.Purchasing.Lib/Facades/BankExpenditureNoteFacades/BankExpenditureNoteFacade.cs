@@ -401,18 +401,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
         {
             var upoNos = model.Details.Select(detail => detail.UnitPaymentOrderNo).ToList();
             var unitPaymentOrders = dbContext.UnitPaymentOrders.Where(unitPaymentOrder => upoNos.Contains(unitPaymentOrder.UPONo)).ToList();
-            var currency = await GetBICurrency(model.CurrencyCode, model.Date);
+            double currencyRate = 0;
+            double totalPayment = 0;
+            //var currency = await GetBICurrency(model.CurrencyCode, model.Date);
 
-            if (currency == null)
-            {
-                currency = new GarmentCurrency() { Rate = model.CurrencyRate };
-            }
+            //if (currency == null)
+            //{
+            //    currency = new GarmentCurrency() { Rate = model.CurrencyRate };
+            //}
 
             var items = new List<JournalTransactionItem>();
             foreach (var detail in model.Details)
             {
                 var unitPaymentOrder = unitPaymentOrders.FirstOrDefault(element => element.UPONo == detail.UnitPaymentOrderNo);
-
+                currencyRate = unitPaymentOrder.CurrencyRate;
                 if (unitPaymentOrder == null)
                     unitPaymentOrder = new UnitPaymentOrder();
                 var unitSummaries = detail.Items.GroupBy(g => new { g.URNNo, g.UnitCode }).Select(s => new
@@ -466,7 +468,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             if (model.CurrencyCode != "IDR")
                             {
                                 //debit = (dpp + vatAmount - incomeTaxAmount) * model.CurrencyRate
-                                debit = (dpp) * model.CurrencyRate;
+                                debit = (dpp) * currencyRate;
                             }
                             nominal = decimal.Add(nominal, Convert.ToDecimal(debit));
 
@@ -481,6 +483,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             };
 
                             items.Add(item);
+                            totalPayment += dpp;
                         }
                     }
                 }
@@ -498,7 +501,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                         if (model.CurrencyCode != "IDR")
                         {
                             //debit = (dpp + vatAmount - incomeTaxAmount) * model.CurrencyRate;
-                            debit = (dpp) * model.CurrencyRate;
+                            debit = (dpp) * currencyRate;
                         }
                         nominal = decimal.Add(nominal, Convert.ToDecimal(debit));
 
@@ -513,6 +516,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                         };
 
                         items.Add(item);
+                        totalPayment += dpp;
                     }
                 }
             }
@@ -523,17 +527,65 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             //    Debit = s.Sum(sm => Math.Round(sm.Debit.GetValueOrDefault(), 4))
             //}).ToList();
 
-            var bankJournalItem = new JournalTransactionItem()
-            {
-                COA = new COA()
-                {
-                    Code = model.BankAccountCOA
-                },
-                //Credit = items.Sum(s => Math.Round(s.Debit.GetValueOrDefault(), 4))
-                Credit = items.Sum(s => s.Debit.GetValueOrDefault())
-            };
-            items.Add(bankJournalItem);
+            var credit = totalPayment * model.CurrencyRate;
 
+            if (Convert.ToDecimal(credit) != items.Sum(s => s.Debit.GetValueOrDefault()))
+            {
+                if (Convert.ToDecimal(credit) > items.Sum(s => s.Debit.GetValueOrDefault()))
+                {
+                    var differenceRate = (decimal)credit - items.Sum(s => s.Debit.GetValueOrDefault());
+
+                    var differentJournalItem = new JournalTransactionItem()
+                    {
+                        COA = new COA()
+                        {
+                            Code = "7131.00.0.00",
+                        },
+                        Debit = differenceRate,
+                        Remark = "Pelunasan Hutang"
+                    };
+                    items.Add(differentJournalItem);
+                }
+                else
+                {
+                    var differenceRate = items.Sum(s => s.Debit.GetValueOrDefault()) - (decimal)credit;
+
+                    var differentJournalItem = new JournalTransactionItem()
+                    {
+                        COA = new COA()
+                        {
+                            Code = "7131.00.0.00",
+                        },
+                        Credit = differenceRate,
+                        Remark = "Pelunasan Hutang"
+                    };
+                    items.Add(differentJournalItem);
+                }
+                
+                var bankJournalItem = new JournalTransactionItem()
+                {
+                    COA = new COA()
+                    {
+                        Code = model.BankAccountCOA
+                    },
+                    Credit = (decimal)credit
+                };
+                items.Add(bankJournalItem);
+            }
+            else
+            {
+                var bankJournalItem = new JournalTransactionItem()
+                {
+                    COA = new COA()
+                    {
+                        Code = model.BankAccountCOA
+                    },
+                    //Credit = items.Sum(s => Math.Round(s.Debit.GetValueOrDefault(), 4))
+                    Credit = items.Sum(s => s.Debit.GetValueOrDefault())
+                };
+                items.Add(bankJournalItem);
+            }
+            
             var modelToPost = new JournalTransaction()
             {
                 Date = model.Date,
