@@ -187,13 +187,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                                 Id = (int)detail.UnitPaymentOrderId,
                                 IsPaid = paidFlag,
                                 BankExpenditureNoteNo = model.DocumentNo,
-                                BankExpenditureNoteDate = model.Date
+                                BankExpenditureNoteDate = model.Date,
+                                AmountPaid = detail.AmountPaid,
+                                SupplierPayment = detail.SupplierPayment
                             };
 
                             EntityExtension.FlagForUpdate(pde, username, USER_AGENT);
                             //dbContext.Attach(pde);
                             dbContext.Entry(pde).Property(x => x.IsPaid).IsModified = true;
                             dbContext.Entry(pde).Property(x => x.BankExpenditureNoteNo).IsModified = true;
+                            dbContext.Entry(pde).Property(x => x.AmountPaid).IsModified = true;
+                            dbContext.Entry(pde).Property(x => x.SupplierPayment).IsModified = true;
                             dbContext.Entry(pde).Property(x => x.BankExpenditureNoteDate).IsModified = true;
                             dbContext.Entry(pde).Property(x => x.LastModifiedAgent).IsModified = true;
                             dbContext.Entry(pde).Property(x => x.LastModifiedBy).IsModified = true;
@@ -269,7 +273,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                                 Id = (int)detail.UnitPaymentOrderId,
                                 IsPaid = false,
                                 BankExpenditureNoteNo = null,
-                                BankExpenditureNoteDate = null
+                                BankExpenditureNoteDate = null,
+                                SupplierPayment = 0,
+                                AmountPaid = 0
                             };
 
                             EntityExtension.FlagForUpdate(pde, username, USER_AGENT);
@@ -277,6 +283,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             dbContext.Entry(pde).Property(x => x.IsPaid).IsModified = true;
                             dbContext.Entry(pde).Property(x => x.BankExpenditureNoteNo).IsModified = true;
                             dbContext.Entry(pde).Property(x => x.BankExpenditureNoteDate).IsModified = true;
+                            dbContext.Entry(pde).Property(x => x.AmountPaid).IsModified = true;
+                            dbContext.Entry(pde).Property(x => x.SupplierPayment).IsModified = true;
                             dbContext.Entry(pde).Property(x => x.LastModifiedAgent).IsModified = true;
                             dbContext.Entry(pde).Property(x => x.LastModifiedBy).IsModified = true;
                             dbContext.Entry(pde).Property(x => x.LastModifiedUtc).IsModified = true;
@@ -352,7 +360,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             Id = (int)detail.UnitPaymentOrderId,
                             IsPaid = paidFlag,
                             BankExpenditureNoteNo = model.DocumentNo,
-                            BankExpenditureNoteDate = model.Date
+                            BankExpenditureNoteDate = model.Date,
+                            AmountPaid = detail.AmountPaid,
+                            SupplierPayment = detail.SupplierPayment
                         };
 
                         EntityExtension.FlagForUpdate(pde, username, USER_AGENT);
@@ -775,6 +785,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                          DivisionCode = b.DivisionCode,
                          TotalDPP = b.TotalPaid - b.Vat,
                          TotalPPN = b.Vat,
+                         DifferenceNominal = (b.TotalPaid - b.Vat) - (b.AmountPaid + b.SupplierPayment)
                      });
 
             //if (DateFrom == null || DateTo == null)
@@ -855,7 +866,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             Query = Query.Where(entity => entity.Date.AddHours(Offset) >= DateFrom.GetValueOrDefault() && entity.Date.AddHours(Offset) <= DateTo.GetValueOrDefault().AddDays(1).AddSeconds(-1));
             // override duplicate 
             Query = Query.GroupBy(
-                key => new { key.Id, key.BankName, key.CategoryName, key.Currency, key.Date, key.DivisionCode, key.DivisionName, key.DocumentNo, key.DPP, key.InvoiceNumber, key.PaymentMethod, key.SupplierCode, key.SupplierName, key.TotalDPP, key.TotalPaid, key.TotalPPN, key.VAT, key.UnitPaymentOrderNo },
+                key => new { key.Id, key.BankName, key.CategoryName, key.Currency, key.Date, key.DivisionCode, key.DivisionName, key.DocumentNo, key.DPP, key.InvoiceNumber, key.PaymentMethod, key.SupplierCode, key.SupplierName, key.TotalDPP, key.TotalPaid, key.TotalPPN, key.VAT, key.UnitPaymentOrderNo, key.DifferenceNominal },
                 value => value,
                 (key, value) => new BankExpenditureNoteReportViewModel
                 {
@@ -876,7 +887,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     InvoiceNumber = key.InvoiceNumber,
                     DivisionCode = key.DivisionCode,
                     TotalDPP = key.TotalDPP,
-                    TotalPPN = key.TotalPPN
+                    TotalPPN = key.TotalPPN,
+                    DifferenceNominal = key.DifferenceNominal
                 }
                 );
             if (!string.IsNullOrWhiteSpace(DocumentNo))
