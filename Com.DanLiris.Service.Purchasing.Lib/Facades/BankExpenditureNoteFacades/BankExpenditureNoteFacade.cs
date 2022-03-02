@@ -182,6 +182,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             EntityExtension.FlagForCreate(detail, username, USER_AGENT);
                             dbContext.BankExpenditureNoteDetails.Add(detail);
 
+                            var pdeExisting = dbContext.PurchasingDocumentExpeditions.FirstOrDefault(entity => entity.BankExpenditureNoteNo == model.DocumentNo && entity.UnitPaymentOrderNo == detail.UnitPaymentOrderNo);
+                            if (pdeExisting != null)
+                            {
+                                //pdeExisting.BankExpenditureNoteNo = model.DocumentNo
+                                //PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
+                                //{
+                                //    Id = (int)pdeExisting.Id,
+                                //    IsPaid = paidFlag,
+                                //    BankExpenditureNoteNo = model.DocumentNo,
+                                //    BankExpenditureNoteDate = model.Date,
+                                //    AmountPaid = detail.AmountPaid,
+                                //    SupplierPayment = detail.SupplierPayment
+                                //};
+                            }
+
                             PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
                             {
                                 Id = (int)detail.UnitPaymentOrderId,
