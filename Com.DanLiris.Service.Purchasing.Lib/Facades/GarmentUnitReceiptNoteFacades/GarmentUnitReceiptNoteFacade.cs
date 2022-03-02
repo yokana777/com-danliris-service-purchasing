@@ -2197,21 +2197,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
                                     join b in dbContext.GarmentUnitReceiptNoteItems on a.URNItemId equals b.Id
                                     join c in dbContext.GarmentUnitReceiptNotes on b.URNId equals c.Id
                                     where ids.Contains(c.Id)
-                                    && c.URNType == "PEMBELIAN"
                                     select a).Distinct().ToList();
 
                     var listdata2 = (from a in dbContext.GarmentDOItems
                                      join b in dbContext.GarmentUnitReceiptNoteItems on a.URNItemId equals b.Id
                                      join c in dbContext.GarmentUnitReceiptNotes on b.URNId equals c.Id
                                      where ids.Contains(c.Id)
-                                     && c.URNType == "PEMBELIAN"
                                      select b).Distinct().ToList();
 
                     var listdata3 = (from a in dbContext.GarmentDOItems
                                      join b in dbContext.GarmentUnitReceiptNoteItems on a.URNItemId equals b.Id
                                      join c in dbContext.GarmentUnitReceiptNotes on b.URNId equals c.Id
                                      where ids.Contains(c.Id)
-                                     && c.URNType == "PEMBELIAN"
                                      select c).Distinct().ToList();
 
                     listdata.ForEach(c =>
