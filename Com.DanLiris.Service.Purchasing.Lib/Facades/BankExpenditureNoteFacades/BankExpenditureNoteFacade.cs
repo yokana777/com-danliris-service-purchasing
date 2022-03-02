@@ -523,7 +523,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
         {
             var upoNos = model.Details.Select(detail => detail.UnitPaymentOrderNo).ToList();
             var unitPaymentOrders = dbContext.UnitPaymentOrders.Where(unitPaymentOrder => upoNos.Contains(unitPaymentOrder.UPONo)).ToList();
-            double currencyRate = 0;
+            var currency = await _currencyProvider.GetCurrencyByCurrencyCodeDate(model.CurrencyCode, model.Date);
+            if (currency == null)
+            {
+                currency = new Currency() { Rate = model.CurrencyRate };
+            }
             double totalPayment = 0;
             //var currency = await GetBICurrency(model.CurrencyCode, model.Date);
 
@@ -536,7 +540,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             foreach (var detail in model.Details)
             {
                 var unitPaymentOrder = unitPaymentOrders.FirstOrDefault(element => element.UPONo == detail.UnitPaymentOrderNo);
-                currencyRate = unitPaymentOrder.CurrencyRate;
+                var currencyRate = currency.Rate;
                 if (unitPaymentOrder == null)
                     unitPaymentOrder = new UnitPaymentOrder();
                 var unitSummaries = detail.Items.GroupBy(g => new { g.URNNo, g.UnitCode }).Select(s => new
@@ -590,7 +594,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             if (model.CurrencyCode != "IDR")
                             {
                                 //debit = (dpp + vatAmount - incomeTaxAmount) * model.CurrencyRate
-                                debit = (dpp) * currencyRate;
+                                debit = (dpp) * currencyRate.GetValueOrDefault();
                             }
                             nominal = decimal.Add(nominal, Convert.ToDecimal(debit));
 
@@ -623,7 +627,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                         if (model.CurrencyCode != "IDR")
                         {
                             //debit = (dpp + vatAmount - incomeTaxAmount) * model.CurrencyRate;
-                            debit = (dpp) * currencyRate;
+                            debit = (dpp) * currencyRate.GetValueOrDefault();
                         }
                         nominal = decimal.Add(nominal, Convert.ToDecimal(debit));
 
@@ -1588,11 +1592,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? item.Price * unitPaymentOrder.IncomeTaxRate / 100 : 0;
                             var dpp = item.Price + vatAmount - incomeTaxAmount;
 
-                            if ((remaining <= 0) || (previousPayment >= dpp))
+                            if (remaining <= 0)
                             {
-                                previousPayment -= dpp;
-
                                 continue;
+                            }
+
+                            if (previousPayment != 0)
+                            {
+                                if (previousPayment >= dpp)
+                                {
+                                    previousPayment -= dpp;
+
+                                    continue;
+                                }
+                                else
+                                {
+                                    dpp -= previousPayment;
+                                }
                             }
 
                             bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1804,11 +1820,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? item.Price * unitPaymentOrder.IncomeTaxRate / 100 : 0;
                             var dpp = item.Price + vatAmount - incomeTaxAmount;
 
-                            if ((remaining <= 0) || (previousPayment >= dpp))
+                            if (remaining <= 0)
                             {
-                                previousPayment -= dpp;
-
                                 continue;
+                            }
+
+                            if (previousPayment != 0)
+                            {
+                                if (previousPayment >= dpp)
+                                {
+                                    previousPayment -= dpp;
+
+                                    continue;
+                                }
+                                else
+                                {
+                                    dpp -= previousPayment;
+                                }
                             }
 
                             bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
