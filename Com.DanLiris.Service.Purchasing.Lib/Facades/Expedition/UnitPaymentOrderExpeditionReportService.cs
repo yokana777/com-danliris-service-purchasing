@@ -196,8 +196,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 data = listData;
             }
 
-            var headers = new string[] { "No. SPB", "Tgl SPB", "Tgl Jatuh Tempo", "Nomor Invoice", "Supplier", "Term Pembayaran", "Kurs", "Jumlah", "Jumlah1", "Jumlah2", "Jumlah3", "Tempo", "Kategori", "Unit", "Divisi", "Posisi", "Tgl Pembelian Kirim", "Admin", "Verifikasi", "Verifikasi1", "Verifikasi2", "Kasir", "Kasir1" };
-            var subHeaders = new string[] { "DPP", "PPn", "PPh", "Total", "Tgl Terima", "Tgl Cek", "Tgl Kirim", "Tgl Terima", "No Kuitansi" };
+            var headers = new string[] { "No. SPB", "Tgl SPB", "Tgl Jatuh Tempo", "Nomor Invoice", "Supplier", "Term Pembayaran", "Kurs", "Jumlah", "Jumlah1", "Jumlah2", "Jumlah3", "Tempo", "Kategori", "Unit", "Divisi", "Posisi", "Tgl Pembelian Kirim", "Admin", "Verifikasi", "Verifikasi1", "Verifikasi2", "Kasir", "Kasir1", "Kasir2", "Sisa yang Belum Dibayar" };
+            var subHeaders = new string[] { "DPP", "PPn", "PPh", "Total", "Tgl Terima", "Tgl Cek", "Tgl Kirim", "Tgl Terima", "No Kuitansi", "Nominal Pembayaran" };
 
             DataTable dataTable = new DataTable();
 
@@ -229,7 +229,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                     GetFormattedDate(d.VerifyDate),
                     GetFormattedDate(d.SendDate),
                     GetFormattedDate(d.CashierDivisionDate),
-                    d.BankExpenditureNoteNo ?? "-");
+                    d.BankExpenditureNoteNo ?? "-",
+                    d.PaymentNominal.ToString("#,##0.#0"),
+                    d.PaymentDifference.ToString("#,##0.#0"));
                     cells++;
             }
 
