@@ -28,7 +28,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
         }
 
         [HttpGet]
-        public IActionResult GetReport(string urnNo, string prNo, string unitId, string categoryId, string supplierId, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order = "{}")
+        public IActionResult GetReport(string urnNo, string prNo, string unitId, string categoryId, string supplierId, string divisionId, DateTime? dateFrom, DateTime? dateTo, int page, int size, string Order = "{}")
         {
             int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
             string accept = Request.Headers["Accept"];
@@ -36,7 +36,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
             try
             {
 
-                var data = facade.GetReport(urnNo, prNo, unitId, categoryId, supplierId, dateFrom, dateTo, page, size, Order, offset);
+                var data = facade.GetReport(urnNo, prNo, unitId, categoryId, supplierId, divisionId, dateFrom, dateTo, page, size, Order, offset);
 
                 return Ok(new
                 {
@@ -57,7 +57,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
         }
 
         [HttpGet("download")]
-        public IActionResult GetXls(string urnNo, string prNo, string unitId, string categoryId, string supplierId, DateTime? dateFrom, DateTime? dateTo)
+        public IActionResult GetXls(string urnNo, string prNo, string unitId, string categoryId, string supplierId, string divisionId, DateTime? dateFrom, DateTime? dateTo)
         {
 
             try
@@ -67,7 +67,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.UnitReceiptNoteC
                 DateTime DateFrom = dateFrom == null ? new DateTime(1970, 1, 1) : Convert.ToDateTime(dateFrom);
                 DateTime DateTo = dateTo == null ? DateTime.Now : Convert.ToDateTime(dateTo);
 
-                var xls = facade.GenerateExcel(urnNo, prNo, unitId, categoryId, supplierId, dateFrom, dateTo, offset);
+                var xls = facade.GenerateExcel(urnNo, prNo, unitId, categoryId, supplierId, divisionId, dateFrom, dateTo, offset);
 
                 string filename = String.Format("Bon Terima Unit - {0}.xlsx", DateTime.UtcNow.ToString("ddMMyyyy"));
 

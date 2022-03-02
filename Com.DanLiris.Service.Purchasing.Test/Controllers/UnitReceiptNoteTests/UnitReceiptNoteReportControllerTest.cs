@@ -75,13 +75,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
         {
             var mockFacade = new Mock<IUnitReceiptNoteFacade>();
 
-            mockFacade.Setup(x => x.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
+            mockFacade.Setup(x => x.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
                 .Returns(new ReadResponse<UnitReceiptNoteReportViewModel>(new List<UnitReceiptNoteReportViewModel>() { new UnitReceiptNoteReportViewModel() }, 1, new Dictionary<string, string>()));
 
             var mockMapper = new Mock<IMapper>();
 
             UnitReceiptNoteReportController controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
-            var response = controller.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>(), "{}");
+            var response = controller.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>(), "{}");
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
 
@@ -91,14 +91,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
             //Setup
             var mockFacade = new Mock<IUnitReceiptNoteFacade>();
 
-            mockFacade.Setup(x => x.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
+            mockFacade.Setup(x => x.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
                 .Throws(new Exception());
 
             var mockMapper = new Mock<IMapper>();
 
             //Act
             UnitReceiptNoteReportController controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
-            var response = controller.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>(), "{}");
+            var response = controller.GetReport(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>(), "{}");
 
             //Assert
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
@@ -109,13 +109,13 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
         {
             var mockFacade = new Mock<IUnitReceiptNoteFacade>();
 
-            mockFacade.Setup(x => x.GenerateExcel(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>()))
+            mockFacade.Setup(x => x.GenerateExcel(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>()))
                 .Returns(new MemoryStream());
 
             var mockMapper = new Mock<IMapper>();
 
             UnitReceiptNoteReportController controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
-            var response = controller.GetXls(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>());
+            var response = controller.GetXls(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>());
             Assert.NotNull(response.GetType().GetProperty("FileDownloadName"));
         }
 
@@ -125,14 +125,14 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitReceiptNoteTests
             //Setup
             var mockFacade = new Mock<IUnitReceiptNoteFacade>();
 
-            mockFacade.Setup(x => x.GenerateExcel(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>()))
+            mockFacade.Setup(x => x.GenerateExcel(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int>()))
                 .Throws(new Exception());
 
             var mockMapper = new Mock<IMapper>();
 
             //Act
             UnitReceiptNoteReportController controller = GetController(mockFacade, GetServiceProvider(), mockMapper);
-            var response = controller.GetXls(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>());
+            var response = controller.GetXls(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>());
             
             //Assert
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
