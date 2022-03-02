@@ -381,6 +381,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                                 oldItem.PriceUomId = newItem.PriceUomId;
                                 oldItem.PriceUomUnit = newItem.PriceUomUnit;
                                 oldItem.PriceConversion = newItem.PriceConversion;
+								oldItem.UomId = newItem.UomId;
+								oldItem.UomUnit = newItem.UomUnit;
                             }
                         }
 
