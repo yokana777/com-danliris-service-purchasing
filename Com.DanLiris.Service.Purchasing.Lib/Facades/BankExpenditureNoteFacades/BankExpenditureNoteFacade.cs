@@ -958,12 +958,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                          BankName = string.Concat(a.BankAccountName, " - ", a.BankName, " - ", a.BankAccountNumber, " - ", a.BankCurrencyCode),
                          DPP = b.TotalPaid - b.Vat,
                          VAT = b.Vat,
-                         TotalPaid = (b.AmountPaid + b.SupplierPayment),
+                         TotalPaid = b.SupplierPayment,
                          InvoiceNumber = b.InvoiceNo,
                          DivisionCode = b.DivisionCode,
                          TotalDPP = b.TotalPaid - b.Vat,
                          TotalPPN = b.Vat,
-                         DifferenceNominal = (b.TotalPaid - b.Vat) - (b.AmountPaid + b.SupplierPayment)
+                         DifferenceNominal = (b.TotalPaid) - (b.AmountPaid + b.SupplierPayment)
                      });
 
             //if (DateFrom == null || DateTo == null)
