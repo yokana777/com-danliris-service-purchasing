@@ -683,21 +683,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     };
                     items.Add(differentJournalItem);
                 }
-                else
-                {
-                    var differenceRate = items.Sum(s => s.Debit.GetValueOrDefault()) - (decimal)credit;
-
-                    var differentJournalItem = new JournalTransactionItem()
-                    {
-                        COA = new COA()
-                        {
-                            Code = "7131.00.0.00",
-                        },
-                        Credit = differenceRate,
-                        Remark = "Pelunasan Hutang"
-                    };
-                    items.Add(differentJournalItem);
-                }
                 
                 var bankJournalItem = new JournalTransactionItem()
                 {
