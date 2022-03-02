@@ -121,8 +121,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                         VerifiedBy = expeditionDocument.VerificationDivisionBy != null ? expeditionDocument.VerificationDivisionBy : "-",
                         CreatedBy = expeditionDocument.CreatedBy != null ? expeditionDocument.CreatedBy : "-",
                         PaymentMethod = expeditionDocument.PaymentMethod != null ? expeditionDocument.PaymentMethod : "-",
-                        PaymentNominal = expeditionDocument.AmountPaid + expeditionDocument.SupplierPayment,
-                        PaymentDifference = (expeditionDocument.TotalPaid - expeditionDocument.Vat + expeditionDocument.IncomeTax) - (expeditionDocument.AmountPaid + expeditionDocument.SupplierPayment)
+                        PaymentNominal = expeditionDocument.SupplierPayment,
+                        PaymentDifference = (expeditionDocument.TotalPaid - expeditionDocument.IncomeTax) - (expeditionDocument.AmountPaid + expeditionDocument.SupplierPayment)
                     }
                 );//.Where(document => status == 0 ? document.Position.Equals(FormatPosition(status)): document.Position.Equals(FormatPosition(status)));
 
