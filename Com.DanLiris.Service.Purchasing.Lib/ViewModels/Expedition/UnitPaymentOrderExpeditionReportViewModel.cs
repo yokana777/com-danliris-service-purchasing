@@ -34,6 +34,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.Expedition
         public string CreatedBy { get; set; }
         public string PaymentDueDays { get; set; }
         public string PaymentMethod { get; set; }
+        public double PaymentNominal { get; set; }
+        public double PaymentDifference { get; set; }
     }
 
     public class UnitPaymentOrderExpeditionReportWrapper
