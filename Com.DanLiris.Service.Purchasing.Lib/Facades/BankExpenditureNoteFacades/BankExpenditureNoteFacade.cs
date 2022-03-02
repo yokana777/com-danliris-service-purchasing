@@ -446,7 +446,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                                 IncomeTaxRate = pdeSPB.IncomeTaxRate,
                                 InvoiceNo = pdeSPB.InvoiceNo,
                                 IsDeleted = pdeSPB.IsDeleted,
-                                IsPaid = paidFlag,
+                                IsPaid = true,
                                 IsPaidPPH = pdeSPB.IsPaidPPH,
                                 Items = pdeSPB.Items,
                                 NotVerifiedReason = pdeSPB.NotVerifiedReason,
@@ -523,7 +523,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
         {
             var upoNos = model.Details.Select(detail => detail.UnitPaymentOrderNo).ToList();
             var unitPaymentOrders = dbContext.UnitPaymentOrders.Where(unitPaymentOrder => upoNos.Contains(unitPaymentOrder.UPONo)).ToList();
-            double currencyRate = 0;
+            var currency = await _currencyProvider.GetCurrencyByCurrencyCodeDate(model.CurrencyCode, model.Date);
+            if (currency == null)
+            {
+                currency = new Currency() { Rate = model.CurrencyRate };
+            }
             double totalPayment = 0;
             //var currency = await GetBICurrency(model.CurrencyCode, model.Date);
 
@@ -536,7 +540,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             foreach (var detail in model.Details)
             {
                 var unitPaymentOrder = unitPaymentOrders.FirstOrDefault(element => element.UPONo == detail.UnitPaymentOrderNo);
-                currencyRate = unitPaymentOrder.CurrencyRate;
+                var currencyRate = currency.Rate;
                 if (unitPaymentOrder == null)
                     unitPaymentOrder = new UnitPaymentOrder();
                 var unitSummaries = detail.Items.GroupBy(g => new { g.URNNo, g.UnitCode }).Select(s => new
@@ -590,7 +594,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             if (model.CurrencyCode != "IDR")
                             {
                                 //debit = (dpp + vatAmount - incomeTaxAmount) * model.CurrencyRate
-                                debit = (dpp) * currencyRate;
+                                debit = (dpp) * currencyRate.GetValueOrDefault();
                             }
                             nominal = decimal.Add(nominal, Convert.ToDecimal(debit));
 
@@ -623,7 +627,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                         if (model.CurrencyCode != "IDR")
                         {
                             //debit = (dpp + vatAmount - incomeTaxAmount) * model.CurrencyRate;
-                            debit = (dpp) * currencyRate;
+                            debit = (dpp) * currencyRate.GetValueOrDefault();
                         }
                         nominal = decimal.Add(nominal, Convert.ToDecimal(debit));
 
@@ -1519,6 +1523,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
             int index = 1;
             double total = 0;
+            bool sameCurrency = true;
             if (model.BankCurrencyCode != "IDR" || model.CurrencyCode == "IDR")
             {
                 #region BodyNonIdr
@@ -1588,11 +1593,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? item.Price * unitPaymentOrder.IncomeTaxRate / 100 : 0;
                             var dpp = item.Price + vatAmount - incomeTaxAmount;
 
-                            if ((remaining <= 0) || (previousPayment >= dpp))
+                            if (remaining <= 0)
                             {
-                                previousPayment -= dpp;
-
                                 continue;
+                            }
+
+                            if (previousPayment > 0)
+                            {
+                                if (previousPayment >= dpp)
+                                {
+                                    previousPayment -= dpp;
+
+                                    continue;
+                                }
+                                else
+                                {
+                                    dpp -= previousPayment;
+
+                                    previousPayment -= dpp;
+                                }
                             }
 
                             bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1735,6 +1754,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             }
             else
             {
+                sameCurrency = false;
                 #region BodyIdr
                 PdfPTable bodyTable = new PdfPTable(9);
                 PdfPCell bodyCell = new PdfPCell();
@@ -1804,11 +1824,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             var incomeTaxAmount = unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxBy.ToUpper() == "SUPPLIER" ? item.Price * unitPaymentOrder.IncomeTaxRate / 100 : 0;
                             var dpp = item.Price + vatAmount - incomeTaxAmount;
 
-                            if ((remaining <= 0) || (previousPayment >= dpp))
+                            if (remaining <= 0)
                             {
-                                previousPayment -= dpp;
-
                                 continue;
+                            }
+
+                            if (previousPayment > 0)
+                            {
+                                if (previousPayment >= dpp)
+                                {
+                                    previousPayment -= dpp;
+
+                                    continue;
+                                }
+                                else
+                                {
+                                    dpp -= previousPayment;
+
+                                    previousPayment -= dpp;
+                                }
                             }
 
                             bodyCell.HorizontalAlignment = Element.ALIGN_CENTER;
@@ -1833,23 +1867,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             bodyCell.Phrase = new Phrase(detail.Currency, normal_font);
                             bodyTable.AddCell(bodyCell);
 
-                            bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
-                            bodyCell.Phrase = new Phrase(string.Format("{0:n4}", remaining), normal_font);
-                            bodyTable.AddCell(bodyCell);
-
                             if (remaining >= dpp)
                             {
                                 bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
                                 bodyCell.Phrase = new Phrase(string.Format("{0:n4}", dpp), normal_font);
                                 bodyTable.AddCell(bodyCell);
 
+                                bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                                bodyCell.Phrase = new Phrase(string.Format("{0:n4}", dpp * model.CurrencyRate), normal_font);
+                                bodyTable.AddCell(bodyCell);
+
                                 if (units.ContainsKey(item.UnitCode))
                                 {
-                                    units[item.UnitCode] += dpp;
+                                    units[item.UnitCode] += dpp * model.CurrencyRate;
                                 }
                                 else
                                 {
-                                    units.Add(item.UnitCode, dpp);
+                                    units.Add(item.UnitCode, dpp * model.CurrencyRate);
                                 }
 
                                 total += dpp;
@@ -1862,13 +1896,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                                 bodyCell.Phrase = new Phrase(string.Format("{0:n4}", remaining), normal_font);
                                 bodyTable.AddCell(bodyCell);
 
+                                bodyCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                                bodyCell.Phrase = new Phrase(string.Format("{0:n4}", remaining * model.CurrencyRate), normal_font);
+                                bodyTable.AddCell(bodyCell);
+
                                 if (units.ContainsKey(item.UnitCode))
                                 {
-                                    units[item.UnitCode] += remaining;
+                                    units[item.UnitCode] += remaining * model.CurrencyRate;
                                 }
                                 else
                                 {
-                                    units.Add(item.UnitCode, remaining);
+                                    units.Add(item.UnitCode, remaining * model.CurrencyRate);
                                 }
 
                                 total += remaining;
@@ -1984,7 +2022,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             bodyFooterCell.HorizontalAlignment = Element.ALIGN_RIGHT;
             bodyFooterCell.Phrase = new Phrase("");
             bodyFooterTable.AddCell(bodyFooterCell);
-            total = model.CurrencyId > 0 ? total * model.CurrencyRate : total;
+            total = model.CurrencyId > 0 && sameCurrency == false ? total * model.CurrencyRate : total;
             foreach (var unit in units)
             {
                 bodyFooterCell.Colspan = 1;
