@@ -678,6 +678,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                         {
                             Code = "7131.00.0.00",
                         },
+                        Debit = differenceRate,
+                        Remark = "Pelunasan Hutang"
+                    };
+                    items.Add(differentJournalItem);
+                }
+                else
+                {
+                    var differenceRate = items.Sum(s => s.Debit.GetValueOrDefault()) - (decimal)credit;
+
+                    var differentJournalItem = new JournalTransactionItem()
+                    {
+                        COA = new COA()
+                        {
+                            Code = "7131.00.0.00",
+                        },
                         Credit = differenceRate,
                         Remark = "Pelunasan Hutang"
                     };
