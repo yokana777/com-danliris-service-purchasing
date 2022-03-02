@@ -417,7 +417,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             var dbContext = _dbContext(GetCurrentMethod());
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
             var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
-            var response = facade.GetReport(dataUtil.URNNo, "", dataUtil.UnitId, "", dataUtil.SupplierId, null, null, 1, 25, "{}", 1);
+            var response = facade.GetReport(dataUtil.URNNo, "", dataUtil.UnitId,"", dataUtil.SupplierId,"", null, null, 1, 25, "{}", 1);
             Assert.NotEmpty(response.Data);
         }
 
@@ -427,7 +427,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.UnitReceiptNoteTests
             var dbContext = _dbContext(GetCurrentMethod());
             UnitReceiptNoteFacade facade = new UnitReceiptNoteFacade(_ServiceProvider(GetCurrentMethod()).Object, dbContext);
             var dataUtil = await _dataUtil(facade, dbContext, GetCurrentMethod()).GetTestData(USERNAME);
-            var response = facade.GenerateExcel(dataUtil.URNNo, "", dataUtil.UnitId, "", dataUtil.SupplierId, null, null, 1);
+            var response = facade.GenerateExcel(dataUtil.URNNo, "", dataUtil.UnitId, "", dataUtil.SupplierId,"", null, null, 1);
             Assert.NotNull(response);
         }
 

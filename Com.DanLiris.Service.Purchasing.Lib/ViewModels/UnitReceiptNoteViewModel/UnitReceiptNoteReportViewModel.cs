@@ -21,5 +21,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitReceiptNoteViewMode
         public string receiptUom { get; set; }
         public double quantity { get; set; }
         public long epoDetailId { get; set; }
+
+        public double pricePerDealUnit { get; set; }
+        public double totalPrice  { get; set; }
     }
 }
