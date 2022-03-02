@@ -182,26 +182,40 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             EntityExtension.FlagForCreate(detail, username, USER_AGENT);
                             dbContext.BankExpenditureNoteDetails.Add(detail);
 
-                            PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
+                            var pdeExisting = dbContext.PurchasingDocumentExpeditions.FirstOrDefault(entity => entity.BankExpenditureNoteNo == model.DocumentNo && entity.UnitPaymentOrderNo == detail.UnitPaymentOrderNo);
+                            if (pdeExisting != null)
                             {
-                                Id = (int)detail.UnitPaymentOrderId,
-                                IsPaid = paidFlag,
-                                BankExpenditureNoteNo = model.DocumentNo,
-                                BankExpenditureNoteDate = model.Date,
-                                AmountPaid = detail.AmountPaid,
-                                SupplierPayment = detail.SupplierPayment
-                            };
+                                pdeExisting.IsPaid = paidFlag;
+                                pdeExisting.BankExpenditureNoteNo = model.DocumentNo;
+                                pdeExisting.BankExpenditureNoteDate = model.Date;
+                                pdeExisting.AmountPaid = detail.AmountPaid;
+                                pdeExisting.SupplierPayment = detail.SupplierPayment;
 
-                            EntityExtension.FlagForUpdate(pde, username, USER_AGENT);
+                                EntityExtension.FlagForUpdate(pdeExisting, username, USER_AGENT);
+
+                                dbContext.PurchasingDocumentExpeditions.Update(pdeExisting);
+                            }
+
+                            //PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
+                            //{
+                            //    Id = (int)detail.UnitPaymentOrderId,
+                            //    IsPaid = paidFlag,
+                            //    BankExpenditureNoteNo = model.DocumentNo,
+                            //    BankExpenditureNoteDate = model.Date,
+                            //    AmountPaid = detail.AmountPaid,
+                            //    SupplierPayment = detail.SupplierPayment
+                            //};
+
+                            //EntityExtension.FlagForUpdate(pde, username, USER_AGENT);
                             //dbContext.Attach(pde);
-                            dbContext.Entry(pde).Property(x => x.IsPaid).IsModified = true;
-                            dbContext.Entry(pde).Property(x => x.BankExpenditureNoteNo).IsModified = true;
-                            dbContext.Entry(pde).Property(x => x.AmountPaid).IsModified = true;
-                            dbContext.Entry(pde).Property(x => x.SupplierPayment).IsModified = true;
-                            dbContext.Entry(pde).Property(x => x.BankExpenditureNoteDate).IsModified = true;
-                            dbContext.Entry(pde).Property(x => x.LastModifiedAgent).IsModified = true;
-                            dbContext.Entry(pde).Property(x => x.LastModifiedBy).IsModified = true;
-                            dbContext.Entry(pde).Property(x => x.LastModifiedUtc).IsModified = true;
+                            //dbContext.Entry(pde).Property(x => x.IsPaid).IsModified = true;
+                            //dbContext.Entry(pde).Property(x => x.BankExpenditureNoteNo).IsModified = true;
+                            //dbContext.Entry(pde).Property(x => x.AmountPaid).IsModified = true;
+                            //dbContext.Entry(pde).Property(x => x.SupplierPayment).IsModified = true;
+                            //dbContext.Entry(pde).Property(x => x.BankExpenditureNoteDate).IsModified = true;
+                            //dbContext.Entry(pde).Property(x => x.LastModifiedAgent).IsModified = true;
+                            //dbContext.Entry(pde).Property(x => x.LastModifiedBy).IsModified = true;
+                            //dbContext.Entry(pde).Property(x => x.LastModifiedUtc).IsModified = true;
 
                             foreach (var item in detail.Items)
                             {
@@ -234,21 +248,35 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             EntityExtension.FlagForUpdate(detail, username, USER_AGENT);
                             dbContext.Entry(detail).Property(x => x.SupplierPayment).IsModified = true;
 
-                            PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
+                            var pdeExisting = dbContext.PurchasingDocumentExpeditions.FirstOrDefault(entity => entity.BankExpenditureNoteNo == model.DocumentNo && entity.UnitPaymentOrderNo == detail.UnitPaymentOrderNo);
+                            if (pdeExisting != null)
                             {
-                                Id = (int)detail.UnitPaymentOrderId,
-                                IsPaid = paidFlag,
-                                BankExpenditureNoteNo = model.DocumentNo,
-                                BankExpenditureNoteDate = model.Date
-                            };
+                                pdeExisting.IsPaid = paidFlag;
+                                pdeExisting.BankExpenditureNoteNo = model.DocumentNo;
+                                pdeExisting.BankExpenditureNoteDate = model.Date;
+                                pdeExisting.AmountPaid = detail.AmountPaid;
+                                pdeExisting.SupplierPayment = detail.SupplierPayment;
 
-                            EntityExtension.FlagForUpdate(pde, username, USER_AGENT);
-                            dbContext.Entry(pde).Property(x => x.IsPaid).IsModified = true;
-                            dbContext.Entry(pde).Property(x => x.BankExpenditureNoteNo).IsModified = true;
-                            dbContext.Entry(pde).Property(x => x.BankExpenditureNoteDate).IsModified = true;
-                            dbContext.Entry(pde).Property(x => x.LastModifiedAgent).IsModified = true;
-                            dbContext.Entry(pde).Property(x => x.LastModifiedBy).IsModified = true;
-                            dbContext.Entry(pde).Property(x => x.LastModifiedUtc).IsModified = true;
+                                EntityExtension.FlagForUpdate(pdeExisting, username, USER_AGENT);
+
+                                dbContext.PurchasingDocumentExpeditions.Update(pdeExisting);
+                            }
+
+                            //    PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
+                            //    {
+                            //        Id = (int)detail.UnitPaymentOrderId,
+                            //        IsPaid = paidFlag,
+                            //        BankExpenditureNoteNo = model.DocumentNo,
+                            //        BankExpenditureNoteDate = model.Date
+                            //    };
+
+                            //    EntityExtension.FlagForUpdate(pde, username, USER_AGENT);
+                            //    dbContext.Entry(pde).Property(x => x.IsPaid).IsModified = true;
+                            //    dbContext.Entry(pde).Property(x => x.BankExpenditureNoteNo).IsModified = true;
+                            //    dbContext.Entry(pde).Property(x => x.BankExpenditureNoteDate).IsModified = true;
+                            //    dbContext.Entry(pde).Property(x => x.LastModifiedAgent).IsModified = true;
+                            //    dbContext.Entry(pde).Property(x => x.LastModifiedBy).IsModified = true;
+                            //    dbContext.Entry(pde).Property(x => x.LastModifiedUtc).IsModified = true;
                         }
                     }
 
@@ -268,26 +296,40 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
                             dbContext.BankExpenditureNoteDetails.Update(detail);
 
-                            PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
+                            var pdeExisting = dbContext.PurchasingDocumentExpeditions.FirstOrDefault(entity => entity.BankExpenditureNoteNo == model.DocumentNo && entity.UnitPaymentOrderNo == detail.UnitPaymentOrderNo);
+                            if (pdeExisting != null)
                             {
-                                Id = (int)detail.UnitPaymentOrderId,
-                                IsPaid = false,
-                                BankExpenditureNoteNo = null,
-                                BankExpenditureNoteDate = null,
-                                SupplierPayment = 0,
-                                AmountPaid = 0
-                            };
+                                pdeExisting.IsPaid = false;
+                                pdeExisting.BankExpenditureNoteNo = null;
+                                pdeExisting.BankExpenditureNoteDate = null;
+                                pdeExisting.AmountPaid = 0;
+                                pdeExisting.SupplierPayment = 0;
 
-                            EntityExtension.FlagForUpdate(pde, username, USER_AGENT);
-                            //dbContext.Attach(pde);
-                            dbContext.Entry(pde).Property(x => x.IsPaid).IsModified = true;
-                            dbContext.Entry(pde).Property(x => x.BankExpenditureNoteNo).IsModified = true;
-                            dbContext.Entry(pde).Property(x => x.BankExpenditureNoteDate).IsModified = true;
-                            dbContext.Entry(pde).Property(x => x.AmountPaid).IsModified = true;
-                            dbContext.Entry(pde).Property(x => x.SupplierPayment).IsModified = true;
-                            dbContext.Entry(pde).Property(x => x.LastModifiedAgent).IsModified = true;
-                            dbContext.Entry(pde).Property(x => x.LastModifiedBy).IsModified = true;
-                            dbContext.Entry(pde).Property(x => x.LastModifiedUtc).IsModified = true;
+                                EntityExtension.FlagForUpdate(pdeExisting, username, USER_AGENT);
+
+                                dbContext.PurchasingDocumentExpeditions.Update(pdeExisting);
+                            }
+
+                            //PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
+                            //{
+                            //    Id = (int)detail.UnitPaymentOrderId,
+                            //    IsPaid = false,
+                            //    BankExpenditureNoteNo = null,
+                            //    BankExpenditureNoteDate = null,
+                            //    SupplierPayment = 0,
+                            //    AmountPaid = 0
+                            //};
+
+                            //EntityExtension.FlagForUpdate(pde, username, USER_AGENT);
+                            ////dbContext.Attach(pde);
+                            //dbContext.Entry(pde).Property(x => x.IsPaid).IsModified = true;
+                            //dbContext.Entry(pde).Property(x => x.BankExpenditureNoteNo).IsModified = true;
+                            //dbContext.Entry(pde).Property(x => x.BankExpenditureNoteDate).IsModified = true;
+                            //dbContext.Entry(pde).Property(x => x.AmountPaid).IsModified = true;
+                            //dbContext.Entry(pde).Property(x => x.SupplierPayment).IsModified = true;
+                            //dbContext.Entry(pde).Property(x => x.LastModifiedAgent).IsModified = true;
+                            //dbContext.Entry(pde).Property(x => x.LastModifiedBy).IsModified = true;
+                            //dbContext.Entry(pde).Property(x => x.LastModifiedUtc).IsModified = true;
                         }
                     }
 
@@ -355,24 +397,104 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
                         EntityExtension.FlagForCreate(detail, username, USER_AGENT);
 
-                        PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
+                        var pdeSPB = dbContext.PurchasingDocumentExpeditions.FirstOrDefault(entity => entity.UnitPaymentOrderNo == detail.UnitPaymentOrderNo);
+                        
+                        if (pdeSPB != null && string.IsNullOrWhiteSpace(pdeSPB.BankExpenditureNoteNo))
                         {
-                            Id = (int)detail.UnitPaymentOrderId,
-                            IsPaid = paidFlag,
-                            BankExpenditureNoteNo = model.DocumentNo,
-                            BankExpenditureNoteDate = model.Date,
-                            AmountPaid = detail.AmountPaid,
-                            SupplierPayment = detail.SupplierPayment
-                        };
+                            // update pde
+                            pdeSPB.IsPaid = paidFlag;
+                            pdeSPB.BankExpenditureNoteNo = model.DocumentNo;
+                            pdeSPB.BankExpenditureNoteDate = model.Date;
+                            pdeSPB.AmountPaid = detail.AmountPaid;
+                            pdeSPB.SupplierPayment = detail.SupplierPayment;
 
-                        EntityExtension.FlagForUpdate(pde, username, USER_AGENT);
-                        dbContext.Attach(pde);
-                        dbContext.Entry(pde).Property(x => x.IsPaid).IsModified = true;
-                        dbContext.Entry(pde).Property(x => x.BankExpenditureNoteNo).IsModified = true;
-                        dbContext.Entry(pde).Property(x => x.BankExpenditureNoteDate).IsModified = true;
-                        dbContext.Entry(pde).Property(x => x.LastModifiedAgent).IsModified = true;
-                        dbContext.Entry(pde).Property(x => x.LastModifiedBy).IsModified = true;
-                        dbContext.Entry(pde).Property(x => x.LastModifiedUtc).IsModified = true;
+                            EntityExtension.FlagForUpdate(pdeSPB, username, USER_AGENT);
+
+                            dbContext.PurchasingDocumentExpeditions.Update(pdeSPB);
+                        }
+                        else
+                        {
+                            // copy pdeSPB -> seusaikan dengan pembayaran bank baru
+
+                            PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
+                            {
+                                AccountingDivisionBy = pdeSPB.AccountingDivisionBy,
+                                AccountingDivisionDate = pdeSPB.AccountingDivisionDate,
+                                Active = pdeSPB.Active,
+                                AmountPaid = detail.AmountPaid,
+                                CreatedAgent = pdeSPB.CreatedAgent,
+                                SendToAccountingDivisionBy = pdeSPB.SendToAccountingDivisionBy,
+                                SendToAccountingDivisionDate = pdeSPB.SendToAccountingDivisionDate,
+                                BankExpenditureNoteDate = model.Date,
+                                BankExpenditureNoteNo = model.DocumentNo,
+                                BankExpenditureNotePPHDate = pdeSPB.BankExpenditureNotePPHDate,
+                                BankExpenditureNotePPHNo = pdeSPB.BankExpenditureNotePPHNo,
+                                CashierDivisionBy = pdeSPB.CashierDivisionBy,
+                                CashierDivisionDate = pdeSPB.CashierDivisionDate,
+                                CategoryCode = pdeSPB.CategoryCode,
+                                CategoryName = pdeSPB.CategoryName,
+                                CreatedBy = pdeSPB.CreatedBy,
+                                CreatedUtc = model.CreatedUtc,
+                                Currency = pdeSPB.Currency,
+                                DivisionCode = pdeSPB.DivisionCode,
+                                DivisionName = pdeSPB.DivisionName,
+                                DueDate = pdeSPB.DueDate,
+                                IncomeTax = pdeSPB.IncomeTax,
+                                IncomeTaxBy = pdeSPB.IncomeTaxBy,
+                                IncomeTaxId = pdeSPB.IncomeTaxId,
+                                IncomeTaxName = pdeSPB.IncomeTaxName,
+                                IncomeTaxRate = pdeSPB.IncomeTaxRate,
+                                InvoiceNo = pdeSPB.InvoiceNo,
+                                IsDeleted = pdeSPB.IsDeleted,
+                                IsPaid = paidFlag,
+                                IsPaidPPH = pdeSPB.IsPaidPPH,
+                                Items = pdeSPB.Items,
+                                NotVerifiedReason = pdeSPB.NotVerifiedReason,
+                                PaymentMethod = pdeSPB.PaymentMethod,
+                                Position = pdeSPB.Position,
+                                SendToCashierDivisionBy = pdeSPB.SendToCashierDivisionBy,
+                                SendToCashierDivisionDate = pdeSPB.SendToCashierDivisionDate,
+                                SendToPurchasingDivisionBy = pdeSPB.SendToPurchasingDivisionBy,
+                                SendToPurchasingDivisionDate = pdeSPB.SendToPurchasingDivisionDate,
+                                SendToVerificationDivisionBy = pdeSPB.SendToVerificationDivisionBy,
+                                SendToVerificationDivisionDate = pdeSPB.SendToVerificationDivisionDate,
+                                SupplierCode = pdeSPB.SupplierCode,
+                                SupplierName = pdeSPB.SupplierName,
+                                SupplierPayment = detail.SupplierPayment,
+                                TotalPaid = pdeSPB.TotalPaid,
+                                UnitPaymentOrderNo = pdeSPB.UnitPaymentOrderNo,
+                                UPODate = pdeSPB.UPODate,
+                                URNId = pdeSPB.URNId,
+                                URNNo = pdeSPB.URNNo,
+                                Vat = pdeSPB.Vat,
+                                VerificationDivisionBy = pdeSPB.VerificationDivisionBy,
+                                VerificationDivisionDate = pdeSPB.VerificationDivisionDate,
+                                VerifyDate = pdeSPB.VerifyDate
+                            };
+
+                            EntityExtension.FlagForCreate(pde, username, USER_AGENT);
+
+                            dbContext.PurchasingDocumentExpeditions.Add(pde);
+                        }
+
+                        //PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
+                        //{
+                        //    Id = (int)pdeId,
+                        //    IsPaid = paidFlag,
+                        //    BankExpenditureNoteNo = model.DocumentNo,
+                        //    BankExpenditureNoteDate = model.Date,
+                        //    AmountPaid = detail.AmountPaid,
+                        //    SupplierPayment = detail.SupplierPayment
+                        //};
+
+                        //EntityExtension.FlagForUpdate(pde, username, USER_AGENT);
+                        //dbContext.Attach(pde);
+                        //dbContext.Entry(pde).Property(x => x.IsPaid).IsModified = true;
+                        //dbContext.Entry(pde).Property(x => x.BankExpenditureNoteNo).IsModified = true;
+                        //dbContext.Entry(pde).Property(x => x.BankExpenditureNoteDate).IsModified = true;
+                        //dbContext.Entry(pde).Property(x => x.LastModifiedAgent).IsModified = true;
+                        //dbContext.Entry(pde).Property(x => x.LastModifiedBy).IsModified = true;
+                        //dbContext.Entry(pde).Property(x => x.LastModifiedUtc).IsModified = true;
 
                         foreach (var item in detail.Items.OrderBy(x => x.URNNo))
                         {
@@ -556,7 +678,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                         {
                             Code = "7131.00.0.00",
                         },
-                        Credit = differenceRate,
+                        Debit = differenceRate,
                         Remark = "Pelunasan Hutang"
                     };
                     items.Add(differentJournalItem);
@@ -832,7 +954,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                          BankName = string.Concat(a.BankAccountName, " - ", a.BankName, " - ", a.BankAccountNumber, " - ", a.BankCurrencyCode),
                          DPP = b.TotalPaid - b.Vat,
                          VAT = b.Vat,
-                         TotalPaid = b.TotalPaid, 
+                         TotalPaid = (b.AmountPaid + b.SupplierPayment),
                          InvoiceNumber = b.InvoiceNo,
                          DivisionCode = b.DivisionCode,
                          TotalDPP = b.TotalPaid - b.Vat,
@@ -941,8 +1063,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     TotalDPP = key.TotalDPP,
                     TotalPPN = key.TotalPPN,
                     DifferenceNominal = key.DifferenceNominal
-                }
-                );
+                });
             if (!string.IsNullOrWhiteSpace(DocumentNo))
                 Query = Query.Where(entity => entity.DocumentNo == DocumentNo);
 
@@ -1585,7 +1706,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             bodyTable.AddCell(bodyCell);
                         }
                     }
-                    
+
                 }
 
                 bodyCell.Colspan = 4;
