@@ -416,6 +416,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                         {
                             // copy pdeSPB -> seusaikan dengan pembayaran bank baru
 
+                            pdeSPB.IsPaid = true;
+
+                            EntityExtension.FlagForUpdate(pdeSPB, username, USER_AGENT);
+
+                            dbContext.PurchasingDocumentExpeditions.Update(pdeSPB);
+
                             PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
                             {
                                 AccountingDivisionBy = pdeSPB.AccountingDivisionBy,
@@ -446,7 +452,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                                 IncomeTaxRate = pdeSPB.IncomeTaxRate,
                                 InvoiceNo = pdeSPB.InvoiceNo,
                                 IsDeleted = pdeSPB.IsDeleted,
-                                IsPaid = true,
+                                IsPaid = paidFlag,
                                 IsPaidPPH = pdeSPB.IsPaidPPH,
                                 Items = pdeSPB.Items,
                                 NotVerifiedReason = pdeSPB.NotVerifiedReason,
@@ -475,6 +481,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                             EntityExtension.FlagForCreate(pde, username, USER_AGENT);
 
                             dbContext.PurchasingDocumentExpeditions.Add(pde);
+
+
                         }
 
                         //PurchasingDocumentExpedition pde = new PurchasingDocumentExpedition
@@ -696,7 +704,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                     {
                         Code = model.BankAccountCOA
                     },
-                    Credit = (decimal)credit
+                    Credit = (decimal)credit,
+                    Remark = "Bayar Hutang " + model.SupplierName
                 };
                 items.Add(bankJournalItem);
             }
