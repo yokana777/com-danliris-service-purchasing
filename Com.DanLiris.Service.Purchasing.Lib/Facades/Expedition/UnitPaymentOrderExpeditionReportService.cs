@@ -263,7 +263,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
             sheet.Cells["S5"].Value = headers[18];
             sheet.Cells["S5:U5"].Merge = true;
             sheet.Cells["V5"].Value = headers[21];
-            sheet.Cells["V5:W5"].Merge = true;
+            sheet.Cells["V5:X5"].Merge = true;
 
             foreach (var i in Enumerable.Range(0, 6))
             {
@@ -316,14 +316,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 sheet.Cells[$"{col}5:{col}6"].Merge = true;
             }
 
-            foreach (var i in Enumerable.Range(0, 5))
+            foreach (var i in Enumerable.Range(0, 6))
             {
                 var col = (char)('S' + i);
                 sheet.Cells[$"{col}6"].Value = subHeaders[i + 4];
             }
-            sheet.Cells["A5:W6"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            sheet.Cells["A5:W6"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            sheet.Cells["A5:W6"].Style.Font.Bold = true;
+
+            sheet.Cells["Y5"].Value = "Sisa yang Belum Dibayar";
+            sheet.Cells["Y5:Y6"].Merge = true;
+
+            sheet.Cells["A5:Y6"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells["A5:Y6"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            sheet.Cells["A5:Y6"].Style.Font.Bold = true;
             sheet.Cells[$"H7:K{cells}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
 
             foreach (var headerDateType in headersDateType)
@@ -331,7 +335,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Expedition
                 sheet.Column(headerDateType + 1).Style.Numberformat.Format = "dd MMMM yyyy";
             }
 
-            var widths = new int[] { 20, 20, 20, 50, 30, 20, 10, 20, 20, 20, 20, 20, 30, 30, 20, 40, 20, 20, 20, 20, 20, 20, 20 };
+            var widths = new int[] { 20, 20, 20, 50, 30, 20, 10, 20, 20, 20, 20, 20, 30, 30, 20, 40, 20, 20, 20, 20, 20, 20, 20, 20, 20 };
             foreach (var i in Enumerable.Range(0, widths.Length))
             {
                 sheet.Column(i + 1).Width = widths[i];
