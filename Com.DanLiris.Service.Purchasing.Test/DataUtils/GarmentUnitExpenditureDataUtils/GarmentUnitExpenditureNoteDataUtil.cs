@@ -503,125 +503,125 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentUnitExpenditureD
             return data;
         }
 
-        public async Task<GarmentUnitExpenditureNote> GetNewDataMonitoringFlow(GarmentUnitDeliveryOrder garmentunitdeliveryorder = null)
-        {
-            long nowTicks = DateTimeOffset.Now.Ticks;
+		public async Task<GarmentUnitExpenditureNote> GetNewDataMonitoringFlow(GarmentUnitDeliveryOrder garmentunitdeliveryorder = null)
+		{
+			long nowTicks = DateTimeOffset.Now.Ticks;
 
-            var garmentUnitDeliveryOrder = garmentunitdeliveryorder ?? await Task.Run(() => garmentUnitDeliveryOrderDataUtil.GetTestDataMultipleItem());
+			var garmentUnitDeliveryOrder = garmentunitdeliveryorder ?? await Task.Run(() => garmentUnitDeliveryOrderDataUtil.GetTestDataMultipleItem());
 
-            var garmentUnitExpenditureNote = new GarmentUnitExpenditureNote
-            {
-                UnitSenderId = garmentUnitDeliveryOrder.UnitSenderId,
-                UnitSenderCode = "SMP1",
-                UnitSenderName = garmentUnitDeliveryOrder.UnitSenderName,
+			var garmentUnitExpenditureNote = new GarmentUnitExpenditureNote
+			{
+				UnitSenderId = garmentUnitDeliveryOrder.UnitSenderId,
+				UnitSenderCode = "SMP1",
+				UnitSenderName = garmentUnitDeliveryOrder.UnitSenderName,
 
-                UnitRequestId = garmentUnitDeliveryOrder.UnitRequestId,
-                UnitRequestCode = garmentUnitDeliveryOrder.UnitRequestCode,
-                UnitRequestName = garmentUnitDeliveryOrder.UnitRequestName,
+				UnitRequestId = garmentUnitDeliveryOrder.UnitRequestId,
+				UnitRequestCode = garmentUnitDeliveryOrder.UnitRequestCode,
+				UnitRequestName = garmentUnitDeliveryOrder.UnitRequestName,
 
-                UnitDOId = garmentUnitDeliveryOrder.Id,
-                UnitDONo = garmentUnitDeliveryOrder.UnitDONo,
+				UnitDOId = garmentUnitDeliveryOrder.Id,
+				UnitDONo = garmentUnitDeliveryOrder.UnitDONo,
 
-                StorageId = garmentUnitDeliveryOrder.StorageId,
-                StorageCode = garmentUnitDeliveryOrder.StorageCode,
-                StorageName = garmentUnitDeliveryOrder.StorageName,
+				StorageId = garmentUnitDeliveryOrder.StorageId,
+				StorageCode = garmentUnitDeliveryOrder.StorageCode,
+				StorageName = garmentUnitDeliveryOrder.StorageName,
 
-                StorageRequestId = garmentUnitDeliveryOrder.StorageRequestId,
-                StorageRequestCode = garmentUnitDeliveryOrder.StorageRequestCode,
-                StorageRequestName = garmentUnitDeliveryOrder.StorageRequestName,
+				StorageRequestId = garmentUnitDeliveryOrder.StorageRequestId,
+				StorageRequestCode = garmentUnitDeliveryOrder.StorageRequestCode,
+				StorageRequestName = garmentUnitDeliveryOrder.StorageRequestName,
 
-                ExpenditureType = "PROSES",
-                ExpenditureTo = "PROSES",
-                UENNo = "UENNO12345",
+				ExpenditureType = "PROSES",
+				ExpenditureTo = "PROSES",
+				UENNo = "UENNO12345",
 
-                ExpenditureDate = DateTimeOffset.Now,
+				ExpenditureDate = DateTimeOffset.Now,
 
-                IsPreparing = false,
+				IsPreparing = false,
 
-                Items = new List<GarmentUnitExpenditureNoteItem>()
-            };
+				Items = new List<GarmentUnitExpenditureNoteItem>()
+			};
 
-            foreach (var item in garmentUnitDeliveryOrder.Items)
-            {
-                var garmentUnitExpenditureNoteItem = new GarmentUnitExpenditureNoteItem
-                {
-                    IsSave = true,
-                    DODetailId = item.DODetailId,
+			foreach (var item in garmentUnitDeliveryOrder.Items)
+			{
+				var garmentUnitExpenditureNoteItem = new GarmentUnitExpenditureNoteItem
+				{
+					IsSave = true,
+					DODetailId = item.DODetailId,
 
-                    EPOItemId = item.EPOItemId,
+					EPOItemId = item.EPOItemId,
 
-                    URNItemId = item.URNItemId,
-                    UnitDOItemId = item.Id,
-                    PRItemId = item.PRItemId,
+					URNItemId = item.URNItemId,
+					UnitDOItemId = item.Id,
+					PRItemId = item.PRItemId,
 
-                    FabricType = item.FabricType,
-                    POItemId = item.POItemId,
-                    POSerialNumber = item.POSerialNumber,
+					FabricType = item.FabricType,
+					POItemId = item.POItemId,
+					POSerialNumber = item.POSerialNumber,
 
-                    ProductId = item.ProductId,
-                    ProductCode = item.ProductCode,
-                    ProductName = "FABRIC",
-                    ProductRemark = item.ProductRemark,
-                    Quantity = 5,
+					ProductId = item.ProductId,
+					ProductCode = item.ProductCode,
+					ProductName = "FABRIC",
+					ProductRemark = item.ProductRemark,
+					Quantity = 5,
 
-                    RONo = item.RONo,
+					RONo = item.RONo,
 
-                    UomId = item.UomId,
-                    UomUnit = item.UomUnit,
+					UomId = item.UomId,
+					UomUnit = item.UomUnit,
 
-                    PricePerDealUnit = item.PricePerDealUnit,
-                    DOCurrencyRate = item.DOCurrencyRate,
-                    Conversion = 1,
-                    ReturQuantity = 1,
-                };
-                new GarmentUnitExpenditureNoteItem
-                {
-                    Id = 0,
-                    IsSave = true,
-                    DODetailId = item.DODetailId,
+					PricePerDealUnit = item.PricePerDealUnit,
+					DOCurrencyRate = item.DOCurrencyRate,
+					Conversion = 1,
+					ReturQuantity = 1,
+				};
+				new GarmentUnitExpenditureNoteItem
+				{
+					Id = 0,
+					IsSave = true,
+					DODetailId = item.DODetailId,
 
-                    EPOItemId = item.EPOItemId,
+					EPOItemId = item.EPOItemId,
 
-                    URNItemId = item.URNItemId,
-                    UnitDOItemId = item.Id,
-                    PRItemId = item.PRItemId,
+					URNItemId = item.URNItemId,
+					UnitDOItemId = item.Id,
+					PRItemId = item.PRItemId,
 
-                    FabricType = item.FabricType,
-                    POItemId = item.POItemId,
-                    POSerialNumber = item.POSerialNumber,
+					FabricType = item.FabricType,
+					POItemId = item.POItemId,
+					POSerialNumber = item.POSerialNumber,
 
-                    ProductId = item.ProductId,
-                    ProductCode = item.ProductCode,
-                    ProductName = "FABRIC",
-                    ProductRemark = item.ProductRemark,
-                    Quantity = item.Quantity,
+					ProductId = item.ProductId,
+					ProductCode = item.ProductCode,
+					ProductName = "FABRIC",
+					ProductRemark = item.ProductRemark,
+					Quantity = item.Quantity,
 
-                    RONo = item.RONo,
+					RONo = item.RONo,
 
-                    UomId = item.UomId,
-                    UomUnit = item.UomUnit,
+					UomId = item.UomId,
+					UomUnit = item.UomUnit,
 
-                    PricePerDealUnit = item.PricePerDealUnit,
-                    DOCurrencyRate = item.DOCurrencyRate,
-                    Conversion = 1,
-                    ReturQuantity = 1,
+					PricePerDealUnit = item.PricePerDealUnit,
+					DOCurrencyRate = item.DOCurrencyRate,
+					Conversion = 1,
+					ReturQuantity = 1,
 
 
-                };
+				};
 
-                garmentUnitExpenditureNote.Items.Add(garmentUnitExpenditureNoteItem);
+				garmentUnitExpenditureNote.Items.Add(garmentUnitExpenditureNoteItem);
 
-            }
+			}
 
-            return garmentUnitExpenditureNote;
-        }
-        public async Task<GarmentUnitExpenditureNote> GetTestDataMonitoringFlow()
-        {
-            var data = await GetNewDataMonitoringFlow();
-            await facade.Create(data);
-            return data;
-        }
-        public async Task<GarmentUnitExpenditureNote> GetTestData()
+			return garmentUnitExpenditureNote;
+		}
+		public async Task<GarmentUnitExpenditureNote> GetTestDataMonitoringFlow()
+		{
+			var data = await GetNewDataMonitoringFlow();
+			await facade.Create(data);
+			return data;
+		}
+		public async Task<GarmentUnitExpenditureNote> GetTestData()
         {
             var data = await GetNewData();
             await facade.Create(data);
