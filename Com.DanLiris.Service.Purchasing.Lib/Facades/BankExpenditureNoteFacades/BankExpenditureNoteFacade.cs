@@ -397,7 +397,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
                         EntityExtension.FlagForCreate(detail, username, USER_AGENT);
 
-                        var pdeSPB = dbContext.PurchasingDocumentExpeditions.FirstOrDefault(entity => entity.UnitPaymentOrderNo == detail.UnitPaymentOrderNo);
+                        var pdeSPB = dbContext.PurchasingDocumentExpeditions.LastOrDefault(entity => entity.UnitPaymentOrderNo == detail.UnitPaymentOrderNo);
                         
                         if (pdeSPB != null && string.IsNullOrWhiteSpace(pdeSPB.BankExpenditureNoteNo))
                         {
@@ -912,7 +912,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 s.PaymentMethod,
                 s.URNId,
                 s.URNNo,
-                AmountPaid = (detailDbSet.Where(x => x.UnitPaymentOrderId == s.Id).ToList().Count == 0 ? 0 : detailDbSet.Where(x => x.UnitPaymentOrderId == s.Id).Sum(x => x.SupplierPayment)),
+                AmountPaid = (detailDbSet.Where(x => x.UnitPaymentOrderNo == s.UnitPaymentOrderNo).ToList().Count == 0 ? 0 : detailDbSet.Where(x => x.UnitPaymentOrderNo == s.UnitPaymentOrderNo).Sum(x => x.SupplierPayment)),
                 IsPosted = dbSet.Where(p => p.DocumentNo == s.BankExpenditureNoteNo).LastOrDefault() != null ? dbSet.Where(p => p.DocumentNo == s.BankExpenditureNoteNo).LastOrDefault().IsPosted : true,
                 Items = s.Items.Select(sl => new
                 {
