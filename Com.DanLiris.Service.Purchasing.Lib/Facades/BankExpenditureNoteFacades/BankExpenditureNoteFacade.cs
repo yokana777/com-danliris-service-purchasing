@@ -654,10 +654,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
             //}).ToList();
 
             var credit = totalPayment * model.CurrencyRate;
+            var creditRound = Math.Round(Convert.ToDecimal(credit), 2);
+            var debitRound = Math.Round(items.Sum(s => s.Debit.GetValueOrDefault()), 2);
 
-            if (Convert.ToDecimal(credit) != items.Sum(s => s.Debit.GetValueOrDefault()))
+            if (creditRound != debitRound)
             {
-                if (Convert.ToDecimal(credit) > items.Sum(s => s.Debit.GetValueOrDefault()))
+                if (creditRound > debitRound)
                 {
                     var differenceRate = (decimal)credit - items.Sum(s => s.Debit.GetValueOrDefault());
 
@@ -682,7 +684,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                         {
                             Code = "7131.00.0.00",
                         },
-                        Debit = differenceRate,
+                        Credit = differenceRate,
                         Remark = "Pelunasan Hutang"
                     };
                     items.Add(differentJournalItem);
@@ -707,7 +709,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                         Code = model.BankAccountCOA
                     },
                     //Credit = items.Sum(s => Math.Round(s.Debit.GetValueOrDefault(), 4))
-                    Credit = items.Sum(s => s.Debit.GetValueOrDefault())
+                    Credit = items.Sum(s => s.Debit.GetValueOrDefault()),
+                    Remark = "Bayar Hutang " + model.SupplierName
                 };
                 items.Add(bankJournalItem);
             }
