@@ -397,7 +397,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
 
                         EntityExtension.FlagForCreate(detail, username, USER_AGENT);
 
-                        var pdeSPB = dbContext.PurchasingDocumentExpeditions.LastOrDefault(entity => entity.UnitPaymentOrderNo == detail.UnitPaymentOrderNo);
+                        var pdeSPB = dbContext.PurchasingDocumentExpeditions.Include(item => item.Items).LastOrDefault(entity => entity.UnitPaymentOrderNo == detail.UnitPaymentOrderNo);
                         
                         if (pdeSPB != null && string.IsNullOrWhiteSpace(pdeSPB.BankExpenditureNoteNo))
                         {
@@ -454,7 +454,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                                 IsDeleted = pdeSPB.IsDeleted,
                                 IsPaid = paidFlag,
                                 IsPaidPPH = pdeSPB.IsPaidPPH,
-                                Items = pdeSPB.Items,
                                 NotVerifiedReason = pdeSPB.NotVerifiedReason,
                                 PaymentMethod = pdeSPB.PaymentMethod,
                                 Position = pdeSPB.Position,
@@ -477,6 +476,42 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                                 VerificationDivisionDate = pdeSPB.VerificationDivisionDate,
                                 VerifyDate = pdeSPB.VerifyDate
                             };
+
+                            List<PurchasingDocumentExpeditionItem> pdeItems = new List<PurchasingDocumentExpeditionItem>();
+
+                            foreach (var item in pdeSPB.Items)
+                            {
+                                PurchasingDocumentExpeditionItem expeditionItem = new PurchasingDocumentExpeditionItem
+                                {
+                                    Active = item.Active,
+                                    CreatedAgent = item.CreatedAgent,
+                                    CreatedBy = item.CreatedBy,
+                                    CreatedUtc = item.CreatedUtc,
+                                    DeletedAgent = item.DeletedAgent,
+                                    DeletedBy = item.DeletedBy,
+                                    DeletedUtc = item.DeletedUtc,
+                                    IsDeleted = item.IsDeleted,
+                                    LastModifiedAgent = item.LastModifiedAgent,
+                                    LastModifiedBy = item.LastModifiedBy,
+                                    LastModifiedUtc = item.LastModifiedUtc,
+                                    Price = item.Price,
+                                    ProductCode = item.ProductCode,
+                                    ProductId = item.ProductId,
+                                    ProductName = item.ProductName,
+                                    PurchasingDocumentExpedition = pde,
+                                    Quantity = item.Quantity,
+                                    UnitCode = item.UnitCode,
+                                    UnitId = item.UnitId,
+                                    UnitName = item.UnitName,
+                                    Uom = item.Uom,
+                                    URNId = item.URNId,
+                                    URNNo = item.URNNo
+                                };
+
+                                pdeItems.Add(expeditionItem);
+                            }
+
+                            pde.Items = pdeItems;
 
                             EntityExtension.FlagForCreate(pde, username, USER_AGENT);
 
