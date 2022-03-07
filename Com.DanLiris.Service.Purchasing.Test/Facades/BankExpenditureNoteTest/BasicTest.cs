@@ -156,6 +156,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
         }
 
         [Fact]
+        public async Task Should_Success_Posting_Data_Debit_Greater_Than_Credit()
+        {
+            var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
+            BankExpenditureNoteFacade facade = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object, GetServiceProviderMock().Object);
+            BankExpenditureNoteModel model = await _dataUtil(facade, GetCurrentMethod()).GetTestData2();
+            var Response = facade.Posting(new List<long>() { model.Id });
+            Assert.NotNull(Response);
+        }
+
+        [Fact]
         public async Task Should_Success_Create_Data()
         {
             var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
