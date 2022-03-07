@@ -422,5 +422,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
             var Response = facade.GeneratePdfTemplate(model, 0);
             Assert.NotNull(Response);
         }
+
+        [Fact]
+        public async Task Should_Success_Get_PDF_IDR_NONIDR_By_Id()
+        {
+            var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
+            BankExpenditureNoteFacade facade = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object, GetServiceProviderMock().Object);
+            BankExpenditureNoteModel model = await _dataUtil(facade, GetCurrentMethod()).GetTestDataIDRNONIDR();
+            var Response = facade.GeneratePdfTemplate(model, 0);
+            Assert.NotNull(Response);
+        }
     }
 }

@@ -225,6 +225,42 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteData
             return TestData;
         }
 
+        public async Task<BankExpenditureNoteModel> GetNewDataIDRNONIDR()
+        {
+            PurchasingDocumentExpedition purchasingDocumentExpedition1 = await Task.Run(() => this.pdaDataUtil.GetCashierTestData());
+            PurchasingDocumentExpedition purchasingDocumentExpedition2 = await Task.Run(() => this.pdaDataUtil.GetCashierTestData());
+
+            List<BankExpenditureNoteDetailModel> Details = new List<BankExpenditureNoteDetailModel>()
+            {
+                await GetNewDetailSpinningData(),
+                await GetNewDetailWeavingData(),
+                await GetNewDetailFinishingPrintingData(),
+                await GetNewDetailGarmentData()
+            };
+
+            BankExpenditureNoteModel TestData = new BankExpenditureNoteModel()
+            {
+                BankAccountNumber = "100020003000",
+                BankAccountCOA = "BankAccountCOA",
+                BankAccountName = "BankAccountName",
+                BankCode = "BankCode",
+                BankId = 1,
+                BankName = "BankName",
+                BankCurrencyCode = "IDR",
+                BankCurrencyId = 1,
+                BankCurrencyRate = "1",
+                GrandTotal = 120,
+                BGCheckNumber = "BGNo",
+                SupplierImport = false,
+                CurrencyRate = 1,
+                CurrencyId = 1,
+                CurrencyCode = "Code",
+                Details = Details,
+            };
+
+            return TestData;
+        }
+
         public async Task<BankExpenditureNoteModel> GetNewDataVatZero()
         {
             PurchasingDocumentExpedition purchasingDocumentExpedition1 = await Task.Run(() => this.pdaDataUtil.GetCashierTestData());
@@ -337,6 +373,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteData
                 Username = "Unit Test"
             };
             BankExpenditureNoteModel model = await GetNewData();
+            await Facade.Create(model, identityService);
+            return await Facade.ReadById((int)model.Id);
+        }
+
+        public async Task<BankExpenditureNoteModel> GetTestDataIDRNONIDR()
+        {
+            IdentityService identityService = new IdentityService()
+            {
+                Token = "Token",
+                Username = "Unit Test"
+            };
+            BankExpenditureNoteModel model = await GetNewDataIDRNONIDR();
             await Facade.Create(model, identityService);
             return await Facade.ReadById((int)model.Id);
         }
