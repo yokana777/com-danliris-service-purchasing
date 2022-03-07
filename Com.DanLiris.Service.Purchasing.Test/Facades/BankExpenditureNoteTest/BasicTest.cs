@@ -6,6 +6,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 using Com.DanLiris.Service.Purchasing.Lib.Models.BankExpenditureNoteModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.Expedition;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
+using Com.DanLiris.Service.Purchasing.Lib.Utilities.Currencies;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteDataUtils;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.ExpeditionDataUtil;
@@ -79,6 +80,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
             serviceProvider
                 .Setup(x => x.GetService(typeof(IHttpClientService)))
                 .Returns(new HttpClientTestService());
+
+            serviceProvider
+                .Setup(x => x.GetService(typeof(ICurrencyProvider)))
+                .Returns(new CurrencyProviderTestService());
 
             return serviceProvider;
         }
@@ -196,6 +201,25 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
                 Username = "Unit Test"
             };
             var Response = await facade.Create(model, identityService);
+            Assert.NotEqual(0, Response);
+        }
+
+        [Fact]
+        public async Task Should_Success_Create_Data_And_Error_With_AmountPaid_and_Expedition()
+        {
+            var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
+            numberGeneratorMock.Setup(s => s.GenerateDocumentNumber(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync("test-code");
+            BankExpenditureNoteFacade facade = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object, GetServiceProviderMock().Object);
+            BankExpenditureNoteModel model = await _dataUtil(facade, GetCurrentMethod()).GetNewData();
+            IdentityService identityService = new IdentityService()
+            {
+                Token = "Token",
+
+                Username = "Unit Test"
+            };
+            var Response = await facade.Create(model, identityService);
+            var exception = await Assert.ThrowsAsync<Exception>(() => facade.Create(model, identityService));
+            Assert.NotNull(exception.Message);
             Assert.NotEqual(0, Response);
         }
 
@@ -387,6 +411,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
             Assert.True(string.IsNullOrWhiteSpace(expenditureInfo.BankName));
             Assert.True(string.IsNullOrWhiteSpace(expenditureInfo.BGCheckNumber));
             Assert.True(string.IsNullOrWhiteSpace(expenditureInfo.DocumentNo));
+        }
+
+        [Fact]
+        public async Task Should_Success_Get_PDF_By_Id()
+        {
+            var numberGeneratorMock = new Mock<IBankDocumentNumberGenerator>();
+            BankExpenditureNoteFacade facade = new BankExpenditureNoteFacade(_dbContext(GetCurrentMethod()), numberGeneratorMock.Object, GetServiceProviderMock().Object);
+            BankExpenditureNoteModel model = await _dataUtil(facade, GetCurrentMethod()).GetTestData();
+            var Response = facade.GeneratePdfTemplate(model, 0);
+            Assert.NotNull(Response);
         }
     }
 }

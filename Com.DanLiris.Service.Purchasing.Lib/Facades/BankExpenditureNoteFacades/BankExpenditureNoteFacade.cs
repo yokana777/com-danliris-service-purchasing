@@ -1203,30 +1203,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
         //    response.EnsureSuccessStatusCode();
         //}
 
-        private void CreateCreditorAccount(BankExpenditureNoteModel model, IdentityService identityService)
-        {
-            List<CreditorAccountViewModel> postedData = new List<CreditorAccountViewModel>();
-            foreach (var item in model.Details)
-            {
-                CreditorAccountViewModel viewModel = new CreditorAccountViewModel()
-                {
-                    Code = model.DocumentNo,
-                    Date = model.Date,
-                    Id = (int)model.Id,
-                    InvoiceNo = item.InvoiceNo,
-                    Mutation = model.CurrencyCode != "IDR" ? item.SupplierPayment * model.CurrencyRate : item.SupplierPayment,
-                    SupplierCode = model.SupplierCode,
-                    SupplierName = model.SupplierName,
-                    MemoNo = item.UnitPaymentOrderNo
-                };
-                postedData.Add(viewModel);
-            }
+        //private void CreateCreditorAccount(BankExpenditureNoteModel model, IdentityService identityService)
+        //{
+        //    List<CreditorAccountViewModel> postedData = new List<CreditorAccountViewModel>();
+        //    foreach (var item in model.Details)
+        //    {
+        //        CreditorAccountViewModel viewModel = new CreditorAccountViewModel()
+        //        {
+        //            Code = model.DocumentNo,
+        //            Date = model.Date,
+        //            Id = (int)model.Id,
+        //            InvoiceNo = item.InvoiceNo,
+        //            Mutation = model.CurrencyCode != "IDR" ? item.SupplierPayment * model.CurrencyRate : item.SupplierPayment,
+        //            SupplierCode = model.SupplierCode,
+        //            SupplierName = model.SupplierName,
+        //            MemoNo = item.UnitPaymentOrderNo
+        //        };
+        //        postedData.Add(viewModel);
+        //    }
 
 
-            var httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
-            var response = httpClient.PostAsync($"{APIEndpoint.Finance}{CREDITOR_ACCOUNT_URI}", new StringContent(JsonConvert.SerializeObject(postedData).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
-            response.EnsureSuccessStatusCode();
-        }
+        //    var httpClient = (IHttpClientService)this.serviceProvider.GetService(typeof(IHttpClientService));
+        //    var response = httpClient.PostAsync($"{APIEndpoint.Finance}{CREDITOR_ACCOUNT_URI}", new StringContent(JsonConvert.SerializeObject(postedData).ToString(), Encoding.UTF8, General.JsonMediaType)).Result;
+        //    response.EnsureSuccessStatusCode();
+        //}
 
         private async Task CreateCreditorAccountv2(BankExpenditureNoteModel model, IdentityService identityService)
         {

@@ -521,27 +521,27 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.BankExpenditureNoteCo
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
         }
 
-        //[Fact]
-        //public async Task Should_Success_Get_PDF_By_Id()
-        //{
-        //    var mockFacade = new Mock<IBankExpenditureNoteFacade>();
-        //    mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
-        //        .ReturnsAsync(this.Model);
+        [Fact]
+        public async Task Should_Success_Get_PDF_By_Id()
+        {
+            var mockFacade = new Mock<IBankExpenditureNoteFacade>();
+            mockFacade.Setup(x => x.ReadById(It.IsAny<int>()))
+                .ReturnsAsync(this.Model);
 
-        //    var mockMapper = new Mock<IMapper>();
+            var mockMapper = new Mock<IMapper>();
 
-        //    BankExpenditureNoteController controller = new BankExpenditureNoteController(GetServiceProvider().Object, mockFacade.Object, mockMapper.Object);
-        //    controller.ControllerContext = new ControllerContext()
-        //    {
-        //        HttpContext = new DefaultHttpContext()
-        //    };
+            BankExpenditureNoteController controller = new BankExpenditureNoteController(GetServiceProvider().Object, mockFacade.Object, mockMapper.Object);
+            controller.ControllerContext = new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext()
+            };
 
-        //    controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
-        //    controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
 
-        //    var response = await controller.GetById(It.IsAny<int>());
-        //    Assert.NotNull(response.GetType().GetProperty("FileStream"));
-        //}
+            var response = await controller.GetById(It.IsAny<int>());
+            Assert.NotNull(response);
+        }
 
         //[Fact]
         //public async Task Should_Success_Get_PDF_IDR_NONIDR_By_Id()
