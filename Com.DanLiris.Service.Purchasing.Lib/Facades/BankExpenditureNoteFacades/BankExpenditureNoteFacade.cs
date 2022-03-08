@@ -764,6 +764,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.BankExpenditureNoteFacades
                 Date = model.Date,
                 Description = "Bukti Pengeluaran Bank",
                 ReferenceNo = model.DocumentNo,
+                Remark = "",
                 Items = items
             };
 
