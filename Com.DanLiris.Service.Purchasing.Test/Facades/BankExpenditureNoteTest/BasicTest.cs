@@ -353,7 +353,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.BankExpenditureNoteTest
                 SupplierName = "",
                 TotalPaid = 0,
                 UnitPaymentOrderNo = "",
-                VAT = 0
+                VAT = 0,
+                DifferenceNominal = 0
             };
 
             Assert.NotNull(reportViewModel);
