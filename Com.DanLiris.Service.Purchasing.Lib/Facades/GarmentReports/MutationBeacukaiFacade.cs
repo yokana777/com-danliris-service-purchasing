@@ -578,7 +578,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             var leftoverreceipt = GetReportLeftOverReceipt(DateFrom, DateTo, "FABRIC");
             var leftoverexpenditure = GetReportLeftOver(DateFrom, DateTo, "FABRIC");
 
-            var leftoverexpenditurefiltered = (from a in leftoverexpenditure
+            var leftoverexpenditurefiltered = (from a in leftoverexpenditure.AsQueryable()
                                     join b in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.PONo equals b.PO_SerialNumber
                                    join c in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on b.GarmentEPOId equals c.Id
                                    where b.IsDeleted == false && c.IsDeleted == false
@@ -611,7 +611,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
                                    });
 
-            var leftoverreceiptfiltered = (from a in leftoverreceipt
+            var leftoverreceiptfiltered = (from a in leftoverreceipt.AsQueryable()
                                            join b in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.POSerialNumber equals b.PO_SerialNumber
                                     join c in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on b.GarmentEPOId equals c.Id
                                     where b.IsDeleted == false && c.IsDeleted == false
@@ -642,6 +642,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
                                     });
 
+            //var SFiltered = Receipt.Union(Expenditure).Union(ReceiptCorrection).AsEnumerable();
             var SFiltered = Receipt.Union(Expenditure).Union(ReceiptCorrection).Union(leftoverexpenditurefiltered).Union(leftoverreceiptfiltered).AsEnumerable();
             var SaldoFilterd = SFiltered.GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBBCentralViewModelTemp
             {
