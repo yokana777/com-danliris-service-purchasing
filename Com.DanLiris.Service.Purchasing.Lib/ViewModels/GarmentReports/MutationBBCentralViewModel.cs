@@ -21,6 +21,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
 
     public class MutationBBCentralViewModelTemp
     {
+        public string PONo { get; set; }
         public string ItemCode { get; set; }
         public string ItemName { get; set; }
         public string SupplierType { get; set; }

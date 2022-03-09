@@ -83,12 +83,72 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             }
         }
 
+        private List<GarmentLeftoverWarehouseReportExpenditureViewModel> GetReportLeftOver(DateTime dateFrom, DateTime dateTo, string receiptType)
+        {
+            IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+            //var garmentSupplierUri = APIEndpoint.Core + $"master/garment-categories";
+            //string queryUri = "?dateFrom=" + dateFrom + "&dateTo=" + dateTo + "&page=1 &size=" + int.MaxValue + "&receiptType=" + receiptType;
+            //string uri = garmentSupplierUri + queryUri;
+            var response = httpClient.GetAsync($"{APIEndpoint.Inventory}/garment/leftover-warehouse-expenditures/report-expenditures?dateFrom={dateFrom}&dateTo={dateTo}&page=1&size={int.MaxValue}&receiptType={receiptType}").Result;
+            if (response.IsSuccessStatusCode)
+            {
+                var content = response.Content.ReadAsStringAsync().Result;
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+                List<GarmentLeftoverWarehouseReportExpenditureViewModel> viewModel = JsonConvert.DeserializeObject<List<GarmentLeftoverWarehouseReportExpenditureViewModel>>(result.GetValueOrDefault("data").ToString()); ;
+                return viewModel;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private List<GarmentLeftoverWarehouseStockMonitoringViewModel> GetReportLeftOverStock(DateTime dateFrom, DateTime dateTo, string unit)
+        {
+            IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+            //var garmentSupplierUri = APIEndpoint.Core + $"master/garment-categories";
+            //string queryUri = "?dateFrom=" + dateFrom + "&dateTo=" + dateTo + "&page=1 &size=" + int.MaxValue + "&receiptType=" + receiptType;
+            //string uri = garmentSupplierUri + queryUri;
+            var response = httpClient.GetAsync($"{APIEndpoint.Inventory}/garment/leftover-warehouse-stocks/report/fabric?dateFrom={dateFrom}&dateTo={dateTo}&page=1&size={int.MaxValue}&unit={unit}").Result;
+            if (response.IsSuccessStatusCode)
+            {
+                var content = response.Content.ReadAsStringAsync().Result;
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+                List<GarmentLeftoverWarehouseStockMonitoringViewModel> viewModel = JsonConvert.DeserializeObject<List<GarmentLeftoverWarehouseStockMonitoringViewModel>>(result.GetValueOrDefault("data").ToString()); ;
+                return viewModel;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private List<ReceiptMonitoringViewModel> GetReportLeftOverReceipt(DateTime dateFrom, DateTime dateTo, string receiptType)
+        {
+            IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
+            //var garmentSupplierUri = APIEndpoint.Core + $"master/garment-categories";
+            //string queryUri = "?dateFrom=" + dateFrom + "&dateTo=" + dateTo + "&page=1 &size=" + int.MaxValue + "&receiptType=" + receiptType;
+            //string uri = garmentSupplierUri + queryUri;
+            var response = httpClient.GetAsync($"{APIEndpoint.Inventory}/garment/leftover-warehouse-receipts/monitoring?dateFrom={dateFrom}&dateTo={dateTo}&page=1&size={int.MaxValue}&type={receiptType}").Result;
+            if (response.IsSuccessStatusCode)
+            {
+                var content = response.Content.ReadAsStringAsync().Result;
+                Dictionary<string, object> result = JsonConvert.DeserializeObject<Dictionary<string, object>>(content);
+                List<ReceiptMonitoringViewModel> viewModel = JsonConvert.DeserializeObject<List<ReceiptMonitoringViewModel>>(result.GetValueOrDefault("data").ToString()); ;
+                return viewModel;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public List<MutationBBCentralViewModel> GetCentralItemBBReport(DateTime? datefrom, DateTime? dateto, int offset)
         {
             DateTime DateFrom = datefrom == null ? new DateTime(1970, 1, 1) : (DateTime)datefrom;
             DateTime DateTo = dateto == null ? DateTime.Now : (DateTime)dateto;
 
-            var pengeluaran = new[] { "PROSES", "SAMPLE", "EXTERNAL" };
+            var pengeluaran = new[] { "PROSES", "SAMPLE", "EXTERNAL"  };
             var pemasukan = new[] { "PROSES", "PEMBELIAN" };
 
             var categories = GetProductCodes(1, int.MaxValue, "{}", "{}");
@@ -312,9 +372,67 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
                                             });
 
+            //var leftoverbalance = GetReportLeftOverStock(new DateTime(2022, 1, 1), new DateTime(2022, 1, 1),"");
+            var leftoverbalance = GetReportLeftOverStock(DateFrom, DateTo, "");
+            var leftoverBalanceRemove = leftoverbalance.Where(x => x.ProductCode != "").AsQueryable();
+            //var totalQtyBefore = leftoverBalanceRemove.Sum(x => x.BeginingbalanceQty);
+            var EPO = (from a in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters()
+                       join b in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on a.GarmentEPOId equals b.Id
+                       select new
+                       {
+                           PO_SerialNumber = a.PO_SerialNumber,
+                           SupplierType = b.SupplierImport
+
+
+                       }).GroupBy(x => new { x.PO_SerialNumber }).Select(d => new
+                       {
+                           PO_SerialNumber = d.Key.PO_SerialNumber,
+                           SupplierType = d.FirstOrDefault().SupplierType
+
+                       });
+                
+
+            var leftoverbalanceQuery = (from a in leftoverBalanceRemove
+                                        join b in EPO on a.PONo equals b.PO_SerialNumber
+                                        //join b in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.PONo equals b.PO_SerialNumber
+
+                                        //join c in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on b.GarmentEPOId equals c.Id
+
+                                        //where  b.IsDeleted == false
+                                        select new MutationBBCentralViewModelTemp
+                                        {
+                                           PONo = a.PONo,
+                                           AdjustmentQty = 0,
+                                           BeginQty = (double)a.BeginingbalanceQty,
+                                           ExpenditureQty = 0,
+                                           ItemCode = a.ProductCode,
+                                           ItemName = a.ProductName,
+                                           LastQty = 0,
+                                           OpnameQty = 0,
+                                           ReceiptQty = 0,
+                                           SupplierType = b.SupplierType ==false? "LOKAL" : "IMPORT",
+                                           //SupplierType =  "IMPORT",
+                                           UnitQtyName = a.UomUnit
+                                       }).GroupBy(x => new { x.PONo, x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBBCentralViewModelTemp
+                                       {
+                                           AdjustmentQty = Math.Round(group.Sum(x => x.AdjustmentQty), 2),
+                                           BeginQty = Math.Round(group.Sum(x => x.BeginQty), 2),
+                                           ExpenditureQty = Math.Round(group.Sum(x => x.ExpenditureQty), 2),
+                                           ItemCode = key.ItemCode,
+                                           ItemName = key.ItemName,
+                                           LastQty = Math.Round(group.Sum(x => x.LastQty), 2),
+                                           OpnameQty = Math.Round(group.Sum(x => x.OpnameQty), 2),
+                                           ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
+                                           SupplierType = key.SupplierType,
+                                           UnitQtyName = key.UnitQtyName
+
+                                       });
+
+            //var totalQty = leftoverbalanceQuery.Sum(x => x.BeginQty);
+
 
             #endregion
-            var SAwal = BalanceStock.Union(ReceiptBalance).Union(ExpenditureBalance).Union(ReceiptCorrectionBalance).AsEnumerable();
+            var SAwal = BalanceStock.Union(ReceiptBalance).Union(ExpenditureBalance).Union(ReceiptCorrectionBalance).Union(leftoverbalanceQuery).AsEnumerable();
             var SaldoAwal = SAwal.GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBBCentralViewModelTemp
             {
                 AdjustmentQty = group.Sum(x => x.AdjustmentQty),
@@ -457,7 +575,75 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
                                      });
 
-            var SFiltered = Receipt.Union(Expenditure).Union(ReceiptCorrection).AsEnumerable();
+            var leftoverreceipt = GetReportLeftOverReceipt(DateFrom, DateTo, "FABRIC");
+            var leftoverexpenditure = GetReportLeftOver(DateFrom, DateTo, "FABRIC");
+
+            var leftoverexpenditurefiltered = (from a in leftoverexpenditure.AsQueryable()
+                                    join b in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.PONo equals b.PO_SerialNumber
+                                   join c in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on b.GarmentEPOId equals c.Id
+                                   where b.IsDeleted == false && c.IsDeleted == false
+                                   && a.ExpenditureDestination == "JUAL LOKAL"
+                                   
+                                   select new MutationBBCentralViewModelTemp
+                                   {
+                                       AdjustmentQty = 0,
+                                       BeginQty = 0,
+                                       ExpenditureQty = a.Quantity,
+                                       ItemCode = a.Product.Code,
+                                       ItemName = a.Product.Name,
+                                       LastQty = 0,
+                                       OpnameQty = 0,
+                                       ReceiptQty = 0,
+                                       SupplierType = c.SupplierImport == false ? "LOKAL" : "IMPORT",
+                                       UnitQtyName = a.Uom.Unit
+                                   }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBBCentralViewModelTemp
+                                   {
+                                       AdjustmentQty = Math.Round(group.Sum(x => x.AdjustmentQty), 2),
+                                       BeginQty = Math.Round(group.Sum(x => x.BeginQty), 2),
+                                       ExpenditureQty = Math.Round(group.Sum(x => x.ExpenditureQty), 2),
+                                       ItemCode = key.ItemCode,
+                                       ItemName = key.ItemName,
+                                       LastQty = Math.Round(group.Sum(x => x.LastQty), 2),
+                                       OpnameQty = Math.Round(group.Sum(x => x.OpnameQty), 2),
+                                       ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
+                                       SupplierType = key.SupplierType,
+                                       UnitQtyName = key.UnitQtyName
+
+                                   });
+
+            var leftoverreceiptfiltered = (from a in leftoverreceipt.AsQueryable()
+                                           join b in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.POSerialNumber equals b.PO_SerialNumber
+                                    join c in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on b.GarmentEPOId equals c.Id
+                                    where b.IsDeleted == false && c.IsDeleted == false
+                                    select new MutationBBCentralViewModelTemp
+                                    {
+                                        AdjustmentQty = 0,
+                                        BeginQty = 0,
+                                        ExpenditureQty = 0,
+                                        ItemCode = a.Product.Code,
+                                        ItemName = a.Product.Name,
+                                        LastQty = 0,
+                                        OpnameQty = 0,
+                                        ReceiptQty = a.Quantity,
+                                        SupplierType = c.SupplierImport == false ? "LOKAL" : "IMPORT",
+                                        UnitQtyName = a.Uom.Unit
+                                    }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBBCentralViewModelTemp
+                                    {
+                                        AdjustmentQty = Math.Round(group.Sum(x => x.AdjustmentQty), 2),
+                                        BeginQty = Math.Round(group.Sum(x => x.BeginQty), 2),
+                                        ExpenditureQty = Math.Round(group.Sum(x => x.ExpenditureQty), 2),
+                                        ItemCode = key.ItemCode,
+                                        ItemName = key.ItemName,
+                                        LastQty = Math.Round(group.Sum(x => x.LastQty), 2),
+                                        OpnameQty = Math.Round(group.Sum(x => x.OpnameQty), 2),
+                                        ReceiptQty = Math.Round(group.Sum(x => x.ReceiptQty), 2),
+                                        SupplierType = key.SupplierType,
+                                        UnitQtyName = key.UnitQtyName
+
+                                    });
+
+            //var SFiltered = Receipt.Union(Expenditure).Union(ReceiptCorrection).AsEnumerable();
+            var SFiltered = Receipt.Union(Expenditure).Union(ReceiptCorrection).Union(leftoverexpenditurefiltered).Union(leftoverreceiptfiltered).AsEnumerable();
             var SaldoFilterd = SFiltered.GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBBCentralViewModelTemp
             {
                 AdjustmentQty = group.Sum(x => x.AdjustmentQty),
