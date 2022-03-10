@@ -359,7 +359,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 model.DivisionName.ToUpper().Equals("SPINNING") ||
                 model.DivisionName.ToUpper().Equals("DYEING & PRINTING") ||
                 model.DivisionName.ToUpper().Equals("UTILITY") ||
-                model.DivisionName.ToUpper().Equals("WEAVING"))
+                model.DivisionName.ToUpper().Equals("WEAVING") ||
+                model.DivisionName.ToUpper().Equals("TRADING"))
             {
                 TG = "T-";
             }
