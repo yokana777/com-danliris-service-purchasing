@@ -1567,7 +1567,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
             if (garmentUnitExpenditureNote.ExpenditureType == "PROSES" || garmentUnitExpenditureNote.ExpenditureType == "SAMPLE" || garmentUnitExpenditureNote.ExpenditureType == "SISA" || garmentUnitExpenditureNote.ExpenditureType == "SUBCON")// || garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL")
             {
                 no = string.Concat("BUK", garmentUnitExpenditureNote.UnitRequestCode, Year, Month, Day);
-            }else if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" || garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL" || garmentUnitExpenditureNote.ExpenditureType == "TRANSFER SAMPLE")
+            }else if (garmentUnitExpenditureNote.ExpenditureType == "TRANSFER" || garmentUnitExpenditureNote.ExpenditureType == "EXTERNAL" || garmentUnitExpenditureNote.ExpenditureType == "TRANSFER SAMPLE" || garmentUnitExpenditureNote.ExpenditureType == "LAIN-LAIN")
             {
                 no = string.Concat("BUK", garmentUnitExpenditureNote.UnitSenderCode, Year, Month, Day);
 

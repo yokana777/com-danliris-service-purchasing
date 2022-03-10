@@ -37,6 +37,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrde
         public string UENFromNo { get; set; }
         public long UnitDOFromId { get; set; }
         public string UnitDOFromNo { get; set; }
+        public string OtherDescription { get; set; }
 
 
         public List<GarmentUnitDeliveryOrderItemViewModel> Items { get; set; }
@@ -80,6 +81,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentUnitDeliveryOrde
             if (Storage == null)
             {
                 yield return new ValidationResult("Gudang yang mengirim harus diisi", new List<string> { "Storage" });
+            }
+
+            if (UnitDOType == "LAIN-LAIN" && string.IsNullOrWhiteSpace(OtherDescription))
+            {
+                yield return new ValidationResult("Keterangan Lain-lain harus diisi", new List<string> { "OtherDescription" });
             }
 
             if (UnitDOType != "RETUR" && UnitDOType != "MARKETING" && string.IsNullOrWhiteSpace(RONo) )
