@@ -534,6 +534,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             Assert.NotEqual(0, Response);
         }
 
+
+        [Fact]
+        public async Task Should_Success_Create_Data_LAINLAIN()
+        {
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorage();
+            data.ExpenditureType = "LAIN-LAIN";
+            var Response = await facade.Create(data);
+            Assert.NotEqual(0, Response);
+        }
         //[Fact]
         //public async Task Should_Success_Create_Data_Type_Sample_FromSample()
         //{
