@@ -23,5 +23,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.BankExpenditureNote
         public double TotalDPP { get; internal set; }
         public double TotalPPN { get; internal set; }
         public long Id { get; internal set; }
+        public double DifferenceNominal { get; set; }
     }
 }

@@ -34,10 +34,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteData
                     ProductId = item.ProductId,
                     ProductName = item.ProductName,
                     Quantity = item.Quantity,
-                    UnitCode = item.UnitCode,
+                    UnitCode = "UnitCode",
                     UnitId = item.UnitId,
-                    UnitName = item.UnitName,
-                    Uom = item.Uom
+                    UnitName = item.UnitName
                 };
 
                 Items.Add(Item);
@@ -77,10 +76,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteData
                     ProductId = item.ProductId,
                     ProductName = item.ProductName,
                     Quantity = item.Quantity,
-                    UnitCode = item.UnitCode,
+                    UnitCode = "UnitCode",
                     UnitId = item.UnitId,
-                    UnitName = item.UnitName,
-                    Uom = item.Uom
+                    UnitName = item.UnitName
                 };
 
                 Items.Add(Item);
@@ -119,14 +117,31 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteData
                     ProductId = item.ProductId,
                     ProductName = item.ProductName,
                     Quantity = item.Quantity,
-                    UnitCode = item.UnitCode,
+                    UnitCode = "UnitCode1",
                     UnitId = item.UnitId,
                     UnitName = item.UnitName,
-                    Uom = item.Uom
+                    Uom = item.Uom,
+                    URNNo = "URNNo1"
                 };
 
                 Items.Add(Item);
             }
+
+            BankExpenditureNoteItemModel Item1 = new BankExpenditureNoteItemModel
+            {
+                Price = 1,
+                ProductCode = "ProductCode",
+                ProductId = "ProductID",
+                ProductName = "ProductName",
+                Quantity = 1,
+                UnitCode = "UnitCode2",
+                UnitId = "UnitId",
+                UnitName = "UnitName",
+                Uom = "Uom",
+                URNNo = "URNNo1"
+            };
+
+            Items.Add(Item1);
 
             return new BankExpenditureNoteDetailModel()
             {
@@ -143,7 +158,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteData
                 TotalPaid = purchasingDocumentExpedition.TotalPaid,
                 UPODate = purchasingDocumentExpedition.UPODate,
                 Vat = purchasingDocumentExpedition.Vat,
-                Items = Items
+                Items = Items,
+                AmountPaid = 1,
+                SupplierPayment = 20000
             };
         }
 
@@ -169,6 +186,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteData
 
                 Items.Add(Item);
             }
+
+            BankExpenditureNoteItemModel Item1 = new BankExpenditureNoteItemModel
+            {
+                Price = 1,
+                ProductCode = "ProductCode",
+                ProductId = "ProductID",
+                ProductName = "ProductName",
+                Quantity = 1,
+                UnitCode = "UnitCode2",
+                UnitId = "UnitId",
+                UnitName = "UnitName",
+                Uom = "Uom",
+                URNNo = "URNNo1"
+            };
+
+            Items.Add(Item1);
 
             return new BankExpenditureNoteDetailModel()
             {
@@ -211,6 +244,78 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteData
                 BankId = 1,
                 BankName = "BankName",
                 BankCurrencyCode = "CurrencyCode",
+                BankCurrencyId = 1,
+                BankCurrencyRate = "1",
+                GrandTotal = 120,
+                BGCheckNumber = "BGNo",
+                SupplierImport = false,
+                CurrencyRate = 1,
+                CurrencyId = 1,
+                CurrencyCode = "Code",
+                Details = Details,
+            };
+
+            return TestData;
+        }
+
+        public async Task<BankExpenditureNoteModel> GetNewData2()
+        {
+            PurchasingDocumentExpedition purchasingDocumentExpedition1 = await Task.Run(() => this.pdaDataUtil.GetCashierTestData());
+            PurchasingDocumentExpedition purchasingDocumentExpedition2 = await Task.Run(() => this.pdaDataUtil.GetCashierTestData());
+
+            List<BankExpenditureNoteDetailModel> Details = new List<BankExpenditureNoteDetailModel>()
+            {
+                await GetNewDetailSpinningData(),
+                await GetNewDetailWeavingData(),
+                await GetNewDetailFinishingPrintingData(),
+                await GetNewDetailGarmentData()
+            };
+
+            BankExpenditureNoteModel TestData = new BankExpenditureNoteModel()
+            {
+                BankAccountNumber = "100020003000",
+                BankAccountCOA = "BankAccountCOA",
+                BankAccountName = "BankAccountName",
+                BankCode = "BankCode",
+                BankId = 1,
+                BankName = "BankName",
+                BankCurrencyCode = "IDR",
+                BankCurrencyId = 1,
+                BankCurrencyRate = "1",
+                GrandTotal = 12000,
+                BGCheckNumber = "BGNo",
+                SupplierImport = false,
+                CurrencyRate = 5,
+                CurrencyId = 1,
+                CurrencyCode = "Code",
+                Details = Details,
+            };
+
+            return TestData;
+        }
+
+        public async Task<BankExpenditureNoteModel> GetNewDataIDRNONIDR()
+        {
+            PurchasingDocumentExpedition purchasingDocumentExpedition1 = await Task.Run(() => this.pdaDataUtil.GetCashierTestData());
+            PurchasingDocumentExpedition purchasingDocumentExpedition2 = await Task.Run(() => this.pdaDataUtil.GetCashierTestData());
+
+            List<BankExpenditureNoteDetailModel> Details = new List<BankExpenditureNoteDetailModel>()
+            {
+                await GetNewDetailSpinningData(),
+                await GetNewDetailWeavingData(),
+                await GetNewDetailFinishingPrintingData(),
+                await GetNewDetailGarmentData()
+            };
+
+            BankExpenditureNoteModel TestData = new BankExpenditureNoteModel()
+            {
+                BankAccountNumber = "100020003000",
+                BankAccountCOA = "BankAccountCOA",
+                BankAccountName = "BankAccountName",
+                BankCode = "BankCode",
+                BankId = 1,
+                BankName = "BankName",
+                BankCurrencyCode = "IDR",
                 BankCurrencyId = 1,
                 BankCurrencyRate = "1",
                 GrandTotal = 120,
@@ -337,6 +442,30 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.BankExpenditureNoteData
                 Username = "Unit Test"
             };
             BankExpenditureNoteModel model = await GetNewData();
+            await Facade.Create(model, identityService);
+            return await Facade.ReadById((int)model.Id);
+        }
+
+        public async Task<BankExpenditureNoteModel> GetTestData2()
+        {
+            IdentityService identityService = new IdentityService()
+            {
+                Token = "Token",
+                Username = "Unit Test"
+            };
+            BankExpenditureNoteModel model = await GetNewData2();
+            await Facade.Create(model, identityService);
+            return await Facade.ReadById((int)model.Id);
+        }
+
+        public async Task<BankExpenditureNoteModel> GetTestDataIDRNONIDR()
+        {
+            IdentityService identityService = new IdentityService()
+            {
+                Token = "Token",
+                Username = "Unit Test"
+            };
+            BankExpenditureNoteModel model = await GetNewDataIDRNONIDR();
             await Facade.Create(model, identityService);
             return await Facade.ReadById((int)model.Id);
         }

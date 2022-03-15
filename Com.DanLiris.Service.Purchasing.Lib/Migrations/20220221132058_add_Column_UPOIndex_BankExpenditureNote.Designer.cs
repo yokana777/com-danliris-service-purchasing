@@ -13,9 +13,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220221132058_add_Column_UPOIndex_BankExpenditureNote")]
+    partial class add_Column_UPOIndex_BankExpenditureNote
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -205,8 +206,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<string>("SupplierName")
                         .HasMaxLength(255);
 
-                    b.Property<double>("SupplierPayment");
-
                     b.Property<double>("TotalPaid");
 
                     b.Property<string>("UId")
@@ -270,8 +269,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                         .HasMaxLength(255);
 
                     b.Property<DateTime>("LastModifiedUtc");
-
-                    b.Property<double>("PaidPrice");
 
                     b.Property<double>("Price");
 
@@ -883,8 +880,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("Active");
 
-                    b.Property<double>("AmountPaid");
-
                     b.Property<DateTimeOffset?>("BankExpenditureNoteDate");
 
                     b.Property<string>("BankExpenditureNoteNo")
@@ -996,8 +991,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<string>("SupplierName")
                         .HasMaxLength(255);
-
-                    b.Property<double>("SupplierPayment");
 
                     b.Property<double>("TotalPaid");
 

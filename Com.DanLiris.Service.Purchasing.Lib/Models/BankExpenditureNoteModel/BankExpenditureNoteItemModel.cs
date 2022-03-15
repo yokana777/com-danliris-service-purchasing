@@ -26,6 +26,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.BankExpenditureNoteModel
         public long URNId { get; set; }
         [MaxLength(255)]
         public string URNNo { get; set; }
+        public double PaidPrice { get; set; }
         public virtual long BankExpenditureNoteDetailId { get; set; }
         [ForeignKey("BankExpenditureNoteDetailId")]
         public virtual BankExpenditureNoteDetailModel BankExpenditureNoteDetail { get; set; }

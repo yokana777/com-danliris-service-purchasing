@@ -45,6 +45,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
         private readonly PurchasingDbContext dbContext;
         private readonly DbSet<GarmentUnitReceiptNote> dbSet;
         private readonly DbSet<GarmentDeliveryOrderDetail> dbSetGarmentDeliveryOrderDetail;
+        private readonly DbSet<GarmentExternalPurchaseOrder> dbSetGarmentExternalPurchaseOrder;
         private readonly DbSet<GarmentExternalPurchaseOrderItem> dbSetGarmentExternalPurchaseOrderItems;
         private readonly DbSet<GarmentInternalPurchaseOrderItem> dbSetGarmentInternalPurchaseOrderItems;
         private readonly DbSet<GarmentInventoryDocument> dbSetGarmentInventoryDocument;
@@ -66,6 +67,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             this.dbContext = dbContext;
             dbSet = dbContext.Set<GarmentUnitReceiptNote>();
             dbSetGarmentDeliveryOrderDetail = dbContext.Set<GarmentDeliveryOrderDetail>();
+            dbSetGarmentExternalPurchaseOrder = dbContext.Set<GarmentExternalPurchaseOrder>();
             dbSetGarmentExternalPurchaseOrderItems = dbContext.Set<GarmentExternalPurchaseOrderItem>();
             dbSetGarmentInternalPurchaseOrderItems = dbContext.Set<GarmentInternalPurchaseOrderItem>();
             dbSetGarmentInventoryDocument = dbContext.Set<GarmentInventoryDocument>();
@@ -182,8 +184,20 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
 
             viewModel.IsInvoice = dbContext.GarmentDeliveryOrders.Where(gdo => gdo.Id == viewModel.DOId).Select(gdo => gdo.IsInvoice).FirstOrDefault();
 
+            var dataDo = dbsetGarmentDeliveryOrder.Where(gdo => gdo.Id == viewModel.DOId).Include(x => x.Items).FirstOrDefault();
+            long epoId = 0;
+            if(dataDo != null)
+            {
+                epoId = dataDo.Items.Select(x => x.EPOId).FirstOrDefault();
+            }
+
             foreach (var item in viewModel.Items)
             {
+                if (epoId > 0)
+                {
+                    item.PaymentType = dbSetGarmentExternalPurchaseOrder.Where(x => x.Id == epoId).FirstOrDefault().PaymentType;
+                    item.PaymentMethod = dbSetGarmentExternalPurchaseOrder.Where(x => x.Id == epoId).FirstOrDefault().PaymentMethod;
+                }
                 item.Buyer = new BuyerViewModel
                 {
                     Name = dbContext.GarmentPurchaseRequests.Where(m => m.Id == item.PRId).Select(m => m.BuyerName).FirstOrDefault()
@@ -1600,81 +1614,159 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             //        Status = new[] { "" };
             //        break;
             //}
-            var productname = (category == "SUBKON" ? "SUBKON" : "");
-            category = (category == "SUBKON" ? "BB" : category);
-
-            var categories = GetProductCodes(1, int.MaxValue, "{}", "{}");
-
-            var categories1 = category == "BB" ? categories.Where(x => x.CodeRequirement == "BB").Select(x => x.Name).ToArray() : category == "BP" ? categories.Where(x => x.CodeRequirement == "BP").Select(x => x.Name).ToArray() : categories.Where(x => x.CodeRequirement == "BE").Select(x => x.Name).ToArray();
-
+          
 
             List<FlowDetailPenerimaanViewModels> Data = new List<FlowDetailPenerimaanViewModels>();
+			if (unit == "SMP1")
+			{
+				var productname = (category == null || category == "undefined" ? "" : category);
+				category = (category == null || category == "undefined"  ? "": category);
 
-            var Query = (from a in dbContext.GarmentUnitReceiptNotes
-                         join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
-                         join e in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals e.Id
-                         join f in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on e.GarmentEPOId equals f.Id
-                         join c in dbContext.GarmentInternalPurchaseOrders on e.POId equals c.Id into PO
-                         from cc in PO.DefaultIfEmpty()
-                         join g in dbContext.GarmentUnitExpenditureNotes on a.UENId equals g.Id into uen
-                         from gg in uen.DefaultIfEmpty()
-                         where a.IsDeleted == false
-                            && b.IsDeleted == false
-                            && categories1.Contains(b.ProductName)
-                            && a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
-                            && a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
-                            && a.UnitCode == (string.IsNullOrWhiteSpace(unit) ? a.UnitCode : unit)
-                         select new FlowDetailPenerimaanViewModels
-                         {
-                             kdbarang = b.ProductCode,
-                             nmbarang = b.ProductName,
-                             nopo = b.POSerialNumber,
-                             keterangan = b.ProductRemark,
-                             noro = b.RONo,
-                             artikel = e.Article,
-                             kdbuyer = cc != null ? cc.BuyerCode : "-",
-                             nobukti = a.URNNo,
-                             tanggal = a.CreatedUtc,
-                             jumlahbeli = a.URNType == "PEMBELIAN" ? decimal.ToDouble(b.ReceiptQuantity) : a.URNType == "PROSES" ? decimal.ToDouble(b.ReceiptQuantity) : decimal.ToDouble(b.ReceiptQuantity),
-                             satuanbeli = a.URNType == "PEMBELIAN" ? e.DealUomUnit : a.URNType == "PROSES" ? b.UomUnit : b.UomUnit,
-                             jumlahterima = Math.Round(decimal.ToDouble(b.ReceiptQuantity) * decimal.ToDouble(b.Conversion), 2),
-                             satuanterima = b.SmallUomUnit,
-                             jumlah = ((decimal.ToDouble(b.PricePerDealUnit) / (b.Conversion == 0 ? 1 : decimal.ToDouble(b.Conversion))) * b.DOCurrencyRate) * (decimal.ToDouble(b.ReceiptQuantity) * decimal.ToDouble(b.Conversion)),
-                             asal = a.URNType == "PROSES" ? a.URNType : a.URNType == "PEMBELIAN" ? "Pembelian Eksternal" : gg.UnitSenderName,
-                             Jenis = a.URNType,
-                             tipepembayaran = f.PaymentMethod == "FREE FROM BUYER" || f.PaymentMethod == "CMT" || f.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL"
+				var categories = GetProductCodes(1, int.MaxValue, "{}", "{}");
 
-                         });
+				var categories1 = category == "BB" ? categories.Where(x => x.CodeRequirement == "BB").Select(x => x.Name).ToArray() : category == "BP" ? categories.Where(x => x.CodeRequirement == "BP").Select(x => x.Name).ToArray(): category == "" || category == "undefined" ? categories.Select(x => x.Name).ToArray() : categories.Where(x => x.CodeRequirement == "BE").Select(x => x.Name).ToArray();
 
-            var index = 1;
-            foreach (var item in Query)
-            {
+				var Query = (from a in dbContext.GarmentUnitReceiptNotes
+							 join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+							 join e in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals e.Id
+							 join f in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on e.GarmentEPOId equals f.Id
+							 join c in dbContext.GarmentInternalPurchaseOrders on e.POId equals c.Id into PO
+							 from cc in PO.DefaultIfEmpty()
+							 join g in dbContext.GarmentUnitExpenditureNotes on a.UENId equals g.Id into uen
+							 from gg in uen.DefaultIfEmpty()
+							 where a.IsDeleted == false
+								&& b.IsDeleted == false
+								&& categories1.Contains(b.ProductName)
+								&& a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
+								&& a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+								&& a.UnitCode == "SMP1"
+							 select new FlowDetailPenerimaanViewModels
+							 {
+								 kdbarang = b.ProductCode,
+								 nmbarang = b.ProductName,
+								 nopo = b.POSerialNumber,
+								 keterangan = b.ProductRemark,
+								 noro = b.RONo,
+								 artikel = e.Article,
+								 kdbuyer = cc != null ? cc.BuyerCode : "-",
+								 nobukti = a.URNNo,
+								 tanggal = a.CreatedUtc,
+								 jumlahbeli = a.URNType == "PEMBELIAN" ? decimal.ToDouble(b.ReceiptQuantity) : a.URNType == "PROSES" ? decimal.ToDouble(b.ReceiptQuantity) : decimal.ToDouble(b.ReceiptQuantity),
+								 satuanbeli = a.URNType == "PEMBELIAN" ? e.DealUomUnit : a.URNType == "PROSES" ? b.UomUnit : b.UomUnit,
+								 jumlahterima = Math.Round(decimal.ToDouble(b.ReceiptQuantity) * decimal.ToDouble(b.Conversion), 2),
+								 satuanterima = b.SmallUomUnit,
+								 jumlah = ((decimal.ToDouble(b.PricePerDealUnit) / (b.Conversion == 0 ? 1 : decimal.ToDouble(b.Conversion))) * b.DOCurrencyRate) * (decimal.ToDouble(b.ReceiptQuantity) * decimal.ToDouble(b.Conversion)),
+								 asal = a.URNType == "PROSES" ? a.URNType : a.URNType == "PEMBELIAN" ? "Pembelian Eksternal" : gg.UnitSenderName,
+								 Jenis = a.URNType,
+								 tipepembayaran = f.PaymentMethod == "FREE FROM BUYER" || f.PaymentMethod == "CMT" || f.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL"
 
-                Data.Add(
-                       new FlowDetailPenerimaanViewModels
-                       {
-                           no = index++,
-                           kdbarang = item.kdbarang,
-                           nmbarang = item.nmbarang,
-                           nopo = item.nopo,
-                           keterangan = item.keterangan,
-                           noro = item.noro,
-                           artikel = item.artikel,
-                           kdbuyer = item.kdbuyer,
-                           asal = item.asal,
-                           Jenis = item.Jenis,
-                           nobukti = item.nobukti,
-                           tanggal = item.tanggal,
-                           jumlahbeli = item.jumlahbeli,
-                           satuanbeli = item.satuanbeli,
-                           jumlahterima = (double)item.jumlahterima,
-                           satuanterima = item.satuanterima,
-                           jumlah = item.jumlah,
-                           tipepembayaran = item.tipepembayaran
+							 });
 
-                       });
+				var index = 1;
+				foreach (var item in Query)
+				{
 
-            }
+					Data.Add(
+						   new FlowDetailPenerimaanViewModels
+						   {
+							   no = index++,
+							   kdbarang = item.kdbarang,
+							   nmbarang = item.nmbarang,
+							   nopo = item.nopo,
+							   keterangan = item.keterangan,
+							   noro = item.noro,
+							   artikel = item.artikel,
+							   kdbuyer = item.kdbuyer,
+							   asal = item.asal,
+							   Jenis = item.Jenis,
+							   nobukti = item.nobukti,
+							   tanggal = item.tanggal,
+							   jumlahbeli = item.jumlahbeli,
+							   satuanbeli = item.satuanbeli,
+							   jumlahterima = (double)item.jumlahterima,
+							   satuanterima = item.satuanterima,
+							   jumlah = item.jumlah,
+							   tipepembayaran = item.tipepembayaran
+
+						   });
+
+				}
+			}
+			else
+			{
+				var productname = (category == "SUBKON" ? "SUBKON" : "");
+				category = (category == "SUBKON" ? "BB" : category);
+
+				var categories = GetProductCodes(1, int.MaxValue, "{}", "{}");
+
+				var categories1 = category == "BB" ? categories.Where(x => x.CodeRequirement == "BB").Select(x => x.Name).ToArray() : category == "BP" ? categories.Where(x => x.CodeRequirement == "BP").Select(x => x.Name).ToArray() : categories.Where(x => x.CodeRequirement == "BE").Select(x => x.Name).ToArray();
+
+				var Query = (from a in dbContext.GarmentUnitReceiptNotes
+							 join b in dbContext.GarmentUnitReceiptNoteItems on a.Id equals b.URNId
+							 join e in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on b.EPOItemId equals e.Id
+							 join f in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on e.GarmentEPOId equals f.Id
+							 join c in dbContext.GarmentInternalPurchaseOrders on e.POId equals c.Id into PO
+							 from cc in PO.DefaultIfEmpty()
+							 join g in dbContext.GarmentUnitExpenditureNotes on a.UENId equals g.Id into uen
+							 from gg in uen.DefaultIfEmpty()
+							 where a.IsDeleted == false
+								&& b.IsDeleted == false
+								&& categories1.Contains(b.ProductName)
+								&& a.CreatedUtc.AddHours(offset).Date >= DateFrom.Date
+								&& a.CreatedUtc.AddHours(offset).Date <= DateTo.Date
+								&& a.UnitCode == (string.IsNullOrWhiteSpace(unit) ? a.UnitCode : unit)
+							 select new FlowDetailPenerimaanViewModels
+							 {
+								 kdbarang = b.ProductCode,
+								 nmbarang = b.ProductName,
+								 nopo = b.POSerialNumber,
+								 keterangan = b.ProductRemark,
+								 noro = b.RONo,
+								 artikel = e.Article,
+								 kdbuyer = cc != null ? cc.BuyerCode : "-",
+								 nobukti = a.URNNo,
+								 tanggal = a.CreatedUtc,
+								 jumlahbeli = a.URNType == "PEMBELIAN" ? decimal.ToDouble(b.ReceiptQuantity) : a.URNType == "PROSES" ? decimal.ToDouble(b.ReceiptQuantity) : decimal.ToDouble(b.ReceiptQuantity),
+								 satuanbeli = a.URNType == "PEMBELIAN" ? e.DealUomUnit : a.URNType == "PROSES" ? b.UomUnit : b.UomUnit,
+								 jumlahterima = Math.Round(decimal.ToDouble(b.ReceiptQuantity) * decimal.ToDouble(b.Conversion), 2),
+								 satuanterima = b.SmallUomUnit,
+								 jumlah = ((decimal.ToDouble(b.PricePerDealUnit) / (b.Conversion == 0 ? 1 : decimal.ToDouble(b.Conversion))) * b.DOCurrencyRate) * (decimal.ToDouble(b.ReceiptQuantity) * decimal.ToDouble(b.Conversion)),
+								 asal = a.URNType == "PROSES" ? a.URNType : a.URNType == "PEMBELIAN" ? "Pembelian Eksternal" : gg.UnitSenderName,
+								 Jenis = a.URNType,
+								 tipepembayaran = f.PaymentMethod == "FREE FROM BUYER" || f.PaymentMethod == "CMT" || f.PaymentMethod == "CMT / IMPORT" ? "BY" : "BL"
+
+							 });
+
+				var index = 1;
+				foreach (var item in Query)
+				{
+
+					Data.Add(
+						   new FlowDetailPenerimaanViewModels
+						   {
+							   no = index++,
+							   kdbarang = item.kdbarang,
+							   nmbarang = item.nmbarang,
+							   nopo = item.nopo,
+							   keterangan = item.keterangan,
+							   noro = item.noro,
+							   artikel = item.artikel,
+							   kdbuyer = item.kdbuyer,
+							   asal = item.asal,
+							   Jenis = item.Jenis,
+							   nobukti = item.nobukti,
+							   tanggal = item.tanggal,
+							   jumlahbeli = item.jumlahbeli,
+							   satuanbeli = item.satuanbeli,
+							   jumlahterima = (double)item.jumlahterima,
+							   satuanterima = item.satuanterima,
+							   jumlah = item.jumlah,
+							   tipepembayaran = item.tipepembayaran
+
+						   });
+
+				}
+			}
 
             return Data.AsQueryable();
         }
@@ -1755,7 +1847,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             var col = (char)('A' + result.Columns.Count);
             string tglawal = DateFrom.ToString("dd MMM yyyy", new CultureInfo("id-ID"));
             string tglakhir = DateTo.ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-            sheet.Cells[$"A1:{col}1"].Value = string.Format("LAPORAN FLOW PENERIMAAN {0}", categoryname);
+            sheet.Cells[$"A1:{col}1"].Value = string.Format("LAPORAN FLOW PENERIMAAN {0}", categoryname ==null || categoryname =="undefined" ? "":categoryname);
             sheet.Cells[$"A1:{col}1"].Merge = true;
             sheet.Cells[$"A1:{col}1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
             sheet.Cells[$"A1:{col}1"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
@@ -1850,7 +1942,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitReceiptNoteFaca
             var col = (char)('A' + result.Columns.Count);
             string tglawal = DateFrom.ToString("dd MMM yyyy", new CultureInfo("id-ID"));
             string tglakhir = DateTo.ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-            sheet.Cells[$"A1:{col}1"].Value = string.Format("LAPORAN REKAP PENERIMAAN {0}", categoryname);
+            sheet.Cells[$"A1:{col}1"].Value = string.Format("LAPORAN REKAP PENERIMAAN SAMPLE{0}", categoryname);
             sheet.Cells[$"A1:{col}1"].Merge = true;
             sheet.Cells[$"A1:{col}1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
             sheet.Cells[$"A1:{col}1"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;

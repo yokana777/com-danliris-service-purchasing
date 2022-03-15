@@ -877,6 +877,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             result.Columns.Add(new DataColumn() { ColumnName = "Unit", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Div", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "ADM", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Term Pembayaran", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "MtUang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kat", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "QtyKoreksi", DataType = typeof(Double) });
@@ -884,7 +885,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             result.Columns.Add(new DataColumn() { ColumnName = "TotalKoreksi", DataType = typeof(Double) });
 
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", 0, 0, 0, 0, 0, 0, "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, 0, 0); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", 0, 0, 0, 0, 0, 0, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, 0, 0); // to allow column name to be generated properly for empty data as template
             else
             {
                 int index = 0;
@@ -897,7 +898,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                     string tglinv = item.tglinv == null ? "-" : item.tglinv.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
                     string jt = item.jt == null ? "-" : item.jt.GetValueOrDefault().ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd-MM-yyyy", new CultureInfo("id-ID"));
                     result.Rows.Add(index, tglspb, item.nospb, item.namabrg, item.satuan, item.jumlah, item.hrgsat, item.jumlahhrg, item.ppn, item.total, item.pph, tglpr, item.nopr, tglbon
-                       , item.nobon, tglinv, item.noinv, jt, item.kodesupplier, item.supplier, item.unit, item.div, item.adm, item.matauang, item.kategori, item.qtycorrection, item.pricecorrection, item.totalpricecorrection);
+                       , item.nobon, tglinv, item.noinv, jt, item.kodesupplier, item.supplier, item.unit, item.div, item.adm, item.term, item.matauang, item.kategori, item.qtycorrection, item.pricecorrection, item.totalpricecorrection);
                 }
             }
 

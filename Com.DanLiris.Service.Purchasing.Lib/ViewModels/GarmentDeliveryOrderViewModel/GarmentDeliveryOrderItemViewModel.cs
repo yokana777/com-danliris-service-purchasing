@@ -13,6 +13,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
 		public double incomeTaxRate { get; set; }
 		public bool useVat { get; set; }
         public bool useIncomeTax { get; set; }
+        public int ePOId { get; set; }
     }
 
     public class PurchaseOrderExternal
