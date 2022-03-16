@@ -59,6 +59,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
                         Name="tax",
                         Rate=1
                     },
+                    Vat = new VatViewModel
+                    {
+                        Id = 1,
+                        Rate = 1
+                    },
                     Supplier = new SupplierViewModel
                     {
                         Import = true,
