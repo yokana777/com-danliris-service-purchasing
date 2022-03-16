@@ -47,6 +47,7 @@ using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentBeacukaiFacade;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentBeacukaiDataUtils;
 using Com.DanLiris.Service.Purchasing.Lib.Services.GarmentDebtBalance;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrderModel;
+using Newtonsoft.Json;
 
 namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNoteTests
 {
@@ -360,6 +361,29 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
         }
 
         [Fact]
+        public async Task Should_Success_ReadLoader_Data()
+        {
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            //var filter1 = JsonConvert.SerializeObject(new {
+            //    Key= "IsReceived",
+            //    Condition= 2,
+            //    Value= false
+            //});
+            //var filter2= JsonConvert.SerializeObject(new {
+            //    Key= "ExpenditureType",
+            //    Condition= 2,
+            //    Value= "SISA"
+            //});
+            var filter = "[{\"Key\":\"IsReceived\",\"Condition\":2,\"Value\":false},{\"Key\":\"ExpenditureType\",\"Condition\":2,\"Value\":\"PROSES\"}]";
+            //filter.Add(filter1);
+            //filter.Add(filter2);
+
+            var Response = facade.ReadLoader(1,25,"{}",null, filter, Lib.Helpers.ConditionType.ENUM_INT);
+            Assert.NotEmpty(Response.Data);
+        }
+
+        [Fact]
         public async Task Should_Success_Get_Data_By_Id()
         {
             var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
@@ -534,6 +558,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitExpenditureNot
             Assert.NotEqual(0, Response);
         }
 
+
+        [Fact]
+        public async Task Should_Success_Create_Data_LAINLAIN()
+        {
+            var facade = new GarmentUnitExpenditureNoteFacade(GetServiceProvider(), _dbContext(GetCurrentMethod()));
+            var data = await dataUtil(facade, GetCurrentMethod()).GetNewDataWithStorage();
+            data.ExpenditureType = "LAIN-LAIN";
+            var Response = await facade.Create(data);
+            Assert.NotEqual(0, Response);
+        }
         //[Fact]
         //public async Task Should_Success_Create_Data_Type_Sample_FromSample()
         //{

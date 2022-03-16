@@ -280,15 +280,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
         //    Assert.NotNull(errorNullItems.Message);
         //}
 
-       /* [Fact]
-        public async Task Should_Success_Get_All_Data()
-        {
-            var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
-            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+        /* [Fact]
+         public async Task Should_Success_Get_All_Data()
+         {
+             var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+             var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
 
-            var Response = facade.Read();
-            Assert.NotEmpty(Response.Data);
-        }*/
+             var Response = facade.Read();
+             Assert.NotEmpty(Response.Data);
+         }*/
 
         /*[Fact]
         public async Task Should_Success_Get_Data_By_Id()
@@ -405,6 +405,89 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentUnitDeliveryOrderT
         //    var Response = facade.ReadItemById((int)data.Items.Take(1).Select(x => x.Id).Single());
         //    Assert.NotNull(Response);
         //}
+        /*[Fact]
+        public async Task Should_Success_Get_Feature_NoBc()
+        {
+            var facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), GetServiceProvider().Object);
+            var data = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+            */
+        [Fact]
+        public async Task Should_Success_Validate_Data()
+        {
+            GarmentUnitDeliveryOrderViewModel viewModel = new GarmentUnitDeliveryOrderViewModel {
+                UnitRequest = new Lib.ViewModels.NewIntegrationViewModel.UnitViewModel
+                {
+                    Id = "1"
+                },
+                UnitSender = new Lib.ViewModels.NewIntegrationViewModel.UnitViewModel
+                {
+                    Id = "1"
+                },
+                UnitDOType = "TRANSFER" };
+            Assert.True(viewModel.Validate(null).Count() > 0);
+
+            GarmentUnitDeliveryOrderViewModel viewModelNullItems = new GarmentUnitDeliveryOrderViewModel
+            {
+                RONo = "RONo"
+            };
+            Assert.True(viewModelNullItems.Validate(null).Count() > 0);
+
+            GarmentUnitDeliveryOrderViewModel viewModelWithItems = new GarmentUnitDeliveryOrderViewModel
+            {
+                RONo = "RONo",
+                Items = new List<GarmentUnitDeliveryOrderItemViewModel>
+                {
+                    new GarmentUnitDeliveryOrderItemViewModel
+                    {
+                        IsSave = true,
+                        Quantity = 0
+                    }
+                }
+            };
+            Assert.True(viewModelWithItems.Validate(null).Count() > 0);
+
+            GarmentUnitDeliveryOrderViewModel viewModelLL = new GarmentUnitDeliveryOrderViewModel
+            {
+                UnitRequest = new Lib.ViewModels.NewIntegrationViewModel.UnitViewModel
+                {
+                    Id = "1"
+                },
+                UnitSender = new Lib.ViewModels.NewIntegrationViewModel.UnitViewModel
+                {
+                    Id = "1"
+                },
+                UnitDOType = "LAIN-LAIN"
+            };
+            Assert.True(viewModelLL.Validate(null).Count() > 0);
+        }
+        
+        //[Fact]
+        //public async Task Should_Success_Get_Data_For_GarmentUnitExpenditureNote()
+        //{
+        //    var mapper = new Mock<IMapper>();
+        //    mapper.Setup(m => m.Map<List<GarmentUnitDeliveryOrderViewModel>>(It.IsAny<List<GarmentUnitDeliveryOrder>>()))
+        //        .Returns(new List<GarmentUnitDeliveryOrderViewModel>
+        //        {
+        //            new GarmentUnitDeliveryOrderViewModel
+        //            {
+        //                Items = new List<GarmentUnitDeliveryOrderItemViewModel>
+        //                {
+        //                    new GarmentUnitDeliveryOrderItemViewModel()
+        //                }
+        //            }
+        //        });
+
+        //    var serviceProvider = GetServiceProvider();
+        //    serviceProvider
+        //        .Setup(x => x.GetService(typeof(IMapper)))
+        //        .Returns(mapper.Object);
+
+        //    GarmentUnitDeliveryOrderFacade facade = new GarmentUnitDeliveryOrderFacade(_dbContext(GetCurrentMethod()), serviceProvider.Object);
+        //    var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
+        //    var Response = facade.ReadForUnitExpenditureNote();
+        //    Assert.NotEmpty(Response.Data);
+        //}
+
         //[Fact]
         //public async Task Should_Success_Get_Feature_NoBc()
         //{

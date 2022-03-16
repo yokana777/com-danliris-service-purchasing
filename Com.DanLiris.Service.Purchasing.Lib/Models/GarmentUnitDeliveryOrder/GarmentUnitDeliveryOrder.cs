@@ -60,6 +60,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentUnitDeliveryOrderMod
         [MaxLength(255)]
         public string UnitDOFromNo { get; set; }
 
+        [MaxLength(4000)]
+        public string OtherDescription { get; set; }
+
         public virtual List<GarmentUnitDeliveryOrderItem> Items { get; set; }
     }
 }
