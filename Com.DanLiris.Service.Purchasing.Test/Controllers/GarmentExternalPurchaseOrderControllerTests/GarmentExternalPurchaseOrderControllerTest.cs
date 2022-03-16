@@ -139,6 +139,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
                         Rate = 1,
                         Symbol = "tst"
                     },
+                    Vat = new VatViewModel
+                    {
+                        Id = 1,
+                        Rate = 1
+                    },
                     Items = new List<GarmentExternalPurchaseOrderItemViewModel>
                     {
                         new GarmentExternalPurchaseOrderItemViewModel
