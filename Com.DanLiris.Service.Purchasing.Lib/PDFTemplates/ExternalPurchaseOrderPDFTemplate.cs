@@ -190,7 +190,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             tableContent.AddCell(cellRightMerge);
 
             cellRight.Colspan = 4;
-            cellRight.Phrase = new Phrase("PPN 10%", bold_font);
+            cellRight.Phrase = new Phrase("PPN " + $"{viewModel.vatTax.rate}"+ "%", bold_font);
             tableContent.AddCell(cellRight);
 
             cellLeftMerge.Phrase = new Phrase($"{viewModel.currency.code}", smaller_font);
@@ -200,7 +200,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             double ppnNominal = 0;
             if (viewModel.useVat)
             {
-                ppnNominal = total * 10 / 100;
+                ppnNominal = total * (Convert.ToDouble(viewModel.vatTax.rate) / 100);
                 ppn = $"{ppnNominal.ToString("N", new CultureInfo("id-ID"))}";
             }
             cellRightMerge.Phrase = new Phrase(ppn, smaller_font);

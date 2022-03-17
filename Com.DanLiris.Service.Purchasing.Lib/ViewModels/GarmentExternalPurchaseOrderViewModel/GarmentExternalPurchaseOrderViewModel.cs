@@ -25,6 +25,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
         public IncomeTaxViewModel IncomeTax { get; set; }
 
         public bool IsUseVat { get; set; }
+        public VatViewModel Vat { get; set; }
         public string Category { get; set; }
         public string Remark { get; set; }
         public bool IsPosted { get; set; }
@@ -65,10 +66,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
                 yield return new ValidationResult("Currency is required", new List<string> { "Currency" });
             }
 
+            if (this.IsUseVat == true && this.Vat.Id == 0)
+            {
+                yield return new ValidationResult("Vat is required", new List<string> { "Vat" });
+            }
+
             if (this.DeliveryDate.Equals(DateTimeOffset.MinValue) || this.DeliveryDate == null)
             {
                 yield return new ValidationResult("DeliveryDate is required", new List<string> { "DeliveryDate" });
             }
+
             else if (this.OrderDate != null && this.OrderDate > this.DeliveryDate)
             {
                 yield return new ValidationResult("OrderDate is greater than delivery date", new List<string> { "DeliveryDate" });
@@ -162,6 +169,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentExternalPurchase
                         itemErrorCount++;
                         itemError += "SmallUom: 'Data Satuan Kecil tidak benar', ";
                     }
+
                     if (item.IsOverBudget && !((PaymentMethod == "CMT" || PaymentMethod == "FREE FROM BUYER") && (PaymentType == "FREE" || PaymentType == "EX MASTER FREE")))
                     {
                         if (string.IsNullOrWhiteSpace(item.OverBudgetRemark))
