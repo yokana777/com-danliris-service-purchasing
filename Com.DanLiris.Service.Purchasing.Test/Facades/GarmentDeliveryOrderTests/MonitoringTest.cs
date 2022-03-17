@@ -606,7 +606,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentDeliveryOrderTests
         {
             GarmentDeliveryOrderFacade facade = new GarmentDeliveryOrderFacade(GetServiceProvider().Object, _dbContext(GetCurrentMethod()));
             var model = await dataUtil(facade, GetCurrentMethod()).GetTestData();
-            var Response = facade.GenerateExcelDO("", "", 0, null, null, null, null, 7);
+            var Response = facade.GenerateExcelDO("99999", null, 0, null, null, null, null, 0);
             Assert.IsType<System.IO.MemoryStream>(Response);
         }
         // Buku Harian Pembelian
