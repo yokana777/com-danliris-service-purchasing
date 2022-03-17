@@ -13,9 +13,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220316071225_Add_Coloumn_VatId_Vat_Rate_External_Purchase_Order")]
+    partial class Add_Coloumn_VatId_Vat_Rate_External_Purchase_Order
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2484,12 +2485,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<long?>("UENId");
 
                     b.Property<string>("UId")
-                        .HasMaxLength(255);
-
-                    b.Property<string>("VatId")
-                        .HasMaxLength(255);
-
-                    b.Property<string>("VatRate")
                         .HasMaxLength(255);
 
                     b.Property<string>("Washing")
