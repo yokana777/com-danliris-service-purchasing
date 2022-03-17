@@ -428,6 +428,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentExternalPurchaseOr
             {
                 Category = "FABRIC",
                 Supplier = new SupplierViewModel(),
+                IsUseVat = true,
                 Items = new List<GarmentExternalPurchaseOrderItemViewModel>
                 {
                     new GarmentExternalPurchaseOrderItemViewModel(),
