@@ -660,6 +660,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrd
                     IncomeTaxId = s.IncomeTaxId,
                     IncomeTaxName = s.IncomeTaxName,
                     IncomeTaxRate = s.IncomeTaxRate,
+                    VatId = s.VatId,
+                    VatRate = s.VatRate,
                     IsUseVat = s.IsUseVat,
                     IsIncomeTax = s.IsIncomeTax,
                     IsClosed = s.IsClosed,
