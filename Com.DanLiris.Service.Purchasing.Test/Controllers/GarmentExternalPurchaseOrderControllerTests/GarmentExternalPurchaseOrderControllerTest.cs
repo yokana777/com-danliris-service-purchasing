@@ -317,9 +317,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
 
             var controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
 
-            var ViewModel1 = this.ViewModel;
-            ViewModel1.IsUseVat = true;
-            var response = await controller.Post(ViewModel1);
+            var ViewModel = this.ViewModel;
+            ViewModel.IsUseVat = true;
+            var response = await controller.Post(ViewModel);
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
 
@@ -365,7 +365,6 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
             var IPOmockFacade = new Mock<IGarmentInternalPurchaseOrderFacade>();
 
             GarmentExternalPurchaseOrderController controller = new GarmentExternalPurchaseOrderController(GetServiceProvider().Object, mockMapper.Object, mockFacade.Object, IPOmockFacade.Object);
-
 
             var response = await controller.Post(this.ViewModel);
             Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
