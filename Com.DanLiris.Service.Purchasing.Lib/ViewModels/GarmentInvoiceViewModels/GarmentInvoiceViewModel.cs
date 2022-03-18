@@ -26,7 +26,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
 		public long incomeTaxId { get; set; }
 		public string incomeTaxName { get; set; }
 		public double incomeTaxRate { get; set; }
-		public bool hasInternNote { get; set; }
+        public long vatId { get; set; }
+        public double vatRate { get; set; }
+        public bool hasInternNote { get; set; }
         public DateTimeOffset? vatDate { get; set; }
         public double totalAmount { get; set; }
         public string poSerialNumber { get; set; }
@@ -73,6 +75,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInvoiceViewModel
 				{
 					yield return new ValidationResult("Date is required", new List<string> { "vatDate" });
 				}
+                if (vatId == 0 || vatRate == 0)
+                {
+                    yield return new ValidationResult("Vat is required", new List<string> { "vat" });
+                }
 			}
 			if (useIncomeTax == true)
 			{
