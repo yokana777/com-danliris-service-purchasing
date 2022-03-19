@@ -137,7 +137,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
 
                 decimal totalPPH;
 
-                totalPPH = item.PricePerDealUnitAfter * item.Quantity / 10;
+                var convertdouble = Convert.ToDecimal(model.VatRate);
+
+                totalPPH = item.PricePerDealUnitAfter * item.Quantity * (convertdouble/100);
 
                 totalAmountPPH += totalPPH;
 
