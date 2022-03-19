@@ -31,6 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
         {
             get
             {
+               
                 List<UnitPaymentOrderItemViewModel> items = new List<UnitPaymentOrderItemViewModel>();
 
                 List<UnitPaymentOrderDetailViewModel> details = new List<UnitPaymentOrderDetailViewModel>();
@@ -70,6 +71,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
                     items = items,
                     isPosted = false,
                     position = 100,
+                    vatTax = new VatTaxViewModel { 
+                        _id= "1",
+                        rate = "11"
+                    }
                 };
             }
         }
@@ -114,6 +119,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
                     IncomeTaxNo = "IncomeTaxNo",
                     IncomeTaxDate = new DateTimeOffset(),
 
+                    VatId = "VatId",
+                    VatRate = 11,
                     UseVat = false,
                     VatNo = null,
                     VatDate = new DateTimeOffset(),
@@ -532,6 +539,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentOrderContr
             var ViewModelSupp = this.ViewModel;
             ViewModelSupp.incomeTaxBy = "Supplier";
             ViewModelSupp.useIncomeTax = true;
+            //ViewModelSupp.vatTax.rate = "11";
+            
 
             var mockMapper = new Mock<IMapper>();
             mockMapper.Setup(x => x.Map<UnitPaymentOrderViewModel>(It.IsAny<UnitPaymentOrder>()))

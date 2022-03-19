@@ -73,6 +73,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.UnitPaymentOrderModel
         [MaxLength(255)]
         public string IncomeTaxBy { get; set; }
 
+        public string VatId { get; set; }
+        public double VatRate { get; set; }
         public bool UseVat { get; set; }
         [MaxLength(255)]
         public string VatNo { get; set; }
