@@ -13,9 +13,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220318023811_add_coloumn_vat_unit_payment_order")]
+    partial class add_coloumn_vat_unit_payment_order
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1671,12 +1672,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<bool>("UseIncomeTax");
 
                     b.Property<bool>("UseVat");
-
-                    b.Property<string>("VatId")
-                        .HasMaxLength(255);
-
-                    b.Property<string>("VatRate")
-                        .HasMaxLength(255);
 
                     b.HasKey("Id");
 

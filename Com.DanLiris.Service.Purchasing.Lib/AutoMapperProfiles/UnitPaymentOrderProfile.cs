@@ -42,6 +42,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.incomeTax.name, opt => opt.MapFrom(s => s.IncomeTaxName))
                 .ForPath(d => d.incomeTax.rate, opt => opt.MapFrom(s => s.IncomeTaxRate))
 
+                /*VatTax*/
+
+                .ForPath(d => d.vatTax._id, opt => opt.MapFrom(s => s.VatId))
+                .ForPath(d => d.vatTax.rate, opt => opt.MapFrom(s => s.VatRate))
+
+
                 .ReverseMap();
 
             CreateMap<UnitPaymentOrderItem, UnitPaymentOrderItemViewModel>()

@@ -31,6 +31,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewMod
         public DateTimeOffset? incomeTaxDate { get; set; }
         public string incomeTaxBy { get; set; }
 
+        public VatTaxViewModel vatTax { get; set; }
+
         public bool useVat { get; set; }
         public string vatNo { get; set; }
         public DateTimeOffset? vatDate { get; set; }
