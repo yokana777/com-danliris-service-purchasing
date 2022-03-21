@@ -13,9 +13,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220318013310_add-vat-correction-note")]
+    partial class addvatcorrectionnote
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1892,11 +1893,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool?>("UseVat");
 
-                    b.Property<int?>("VatId")
-                        .HasMaxLength(255);
-
-                    b.Property<double?>("VatRate");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ArrivalDate", "CustomsId", "DOCurrencyId", "DODate", "IncomeTaxId", "SupplierId");
@@ -2352,10 +2348,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<DateTime>("LastModifiedUtc");
 
                     b.Property<double>("VATAmount");
-
-                    b.Property<string>("VatId");
-
-                    b.Property<string>("VatRate");
 
                     b.Property<double>("VerifiedAmount");
 
@@ -3476,11 +3468,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTimeOffset>("VatDate");
 
-                    b.Property<long>("VatId");
-
                     b.Property<string>("VatNo");
-
-                    b.Property<double>("VatRate");
 
                     b.HasKey("Id");
 
@@ -6366,12 +6354,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTimeOffset>("VatDate");
 
-                    b.Property<string>("VatId");
-
                     b.Property<string>("VatNo")
                         .HasMaxLength(255);
-
-                    b.Property<double>("VatRate");
 
                     b.HasKey("Id");
 

@@ -31,6 +31,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentCorrectionNoteVi
         public string NKPN { get; set; }
         public string NKPH { get; set; }
 
+        public VatViewModel Vat { get; set; }
+
         public List<GarmentCorrectionNoteItemViewModel> Items { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -38,7 +40,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentCorrectionNoteVi
             if (string.IsNullOrWhiteSpace(CorrectionType) || (CorrectionType.ToUpper() != "HARGA SATUAN" && CorrectionType.ToUpper() != "HARGA TOTAL" && CorrectionType.ToUpper() != "JUMLAH" && CorrectionType.ToUpper() != "RETUR") )
             {
                 yield return new ValidationResult("Jenis Koreksi harus berupa 'Harga Satuan' atau 'Harga Total'", new List<string> { "CorrectionType" });
-            } 
+            }
+
+            if (this.UseVat == true && this.Vat.Id == 0)
+            {
+                yield return new ValidationResult("Vat is required", new List<string> { "Vat" });
+            }
 
             if (string.IsNullOrWhiteSpace(DONo))
             {

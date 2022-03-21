@@ -53,6 +53,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                     dataModel.Position = Enums.PurchasingGarmentExpeditionPosition.Purchasing;
                     dataModel.GarmentDispositionPurchaseItems.ForEach(s=> {
                         EntityExtension.FlagForCreate(s, identityService.Username, USER_AGENT);
+
+                        //var DispoDetail = this.dbContext.GarmentDispositionPurchaseDetailss.Where(a => a.GarmentDispositionPurchaseItemId == dataModel.Id).FirstOrDefault();
+                        //var EPOItems1 = this.dbContext.GarmentExternalPurchaseOrderItems.Where(a => a.Id == DispoDetail.EPO_POId).FirstOrDefault();
+                        //var EPO = this.dbContext.GarmentExternalPurchaseOrders.Where(a => a.Id == EPOItems1.GarmentEPOId).FirstOrDefault();
+
+                        //s.VatId = EPO.VatId;
+                        //s.VatRate = EPO.VatRate;
                         s.IsDispositionCreated = true;
                         s.GarmentDispositionPurchaseDetails.ForEach(t =>
                         {

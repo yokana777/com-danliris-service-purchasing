@@ -42,5 +42,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDispositionPurch
         public DateTime DeletedUtc { get; set; }
         public string DeletedBy { get; set; }
         public string DeletedAgent { get; set; }
+        public string VatId { get; set; }
+        public string VatRate { get; set; }
     }
 }
