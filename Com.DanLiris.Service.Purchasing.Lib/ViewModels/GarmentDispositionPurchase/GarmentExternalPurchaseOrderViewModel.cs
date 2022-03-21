@@ -21,6 +21,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDispositionPurch
         public int PaymentDueDays { get; set; }
         public CurrencyViewModel Currency { get; set; }
 
+        public VatViewModel Vat { get; set; }
         public bool IsIncomeTax { get; set; }
         public IncomeTaxViewModel IncomeTax { get; set; }
 

@@ -80,7 +80,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 }
             }
 
-            double ppn = (dpp * 0.1);
+            double ppn = 0;
             string pph = "";
             double pphRate = 0;
 
@@ -89,6 +89,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 if (!item.IsUseVat)
                 {
                     ppn = 0;
+                }
+                else
+                {
+                    var vatRatDouble = Convert.ToDouble(item.VatRate);
+                    ppn = (dpp * vatRatDouble);
                 }
                 if (item.IsUseIncomeTax)
                 {
