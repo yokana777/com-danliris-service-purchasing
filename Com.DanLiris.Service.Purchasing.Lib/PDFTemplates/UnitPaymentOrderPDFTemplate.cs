@@ -273,7 +273,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             }
             else
             {
-                cellLeftNoBorder.Phrase = new Phrase(string.Concat("PPn 10 %"), normal_font);
+                cellLeftNoBorder.Phrase = new Phrase(string.Concat("PPn %"), normal_font);
                 tableVat.AddCell(cellLeftNoBorder);
             }
 
