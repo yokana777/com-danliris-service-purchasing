@@ -25,7 +25,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInvoiceModel
 		public long IncomeTaxId { get; set; }
 		public string IncomeTaxName { get; set; }
 		public double IncomeTaxRate { get; set; }
-		public DateTimeOffset VatDate { get; set; }
+        public long VatId { get; set; }
+        public double VatRate { get; set; }
+        public DateTimeOffset VatDate { get; set; }
         public bool HasInternNote { get; set; }
 		public double TotalAmount { get; set; }
 		public string NPN { get; set; }

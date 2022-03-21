@@ -13,9 +13,10 @@ using System;
 namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 {
     [DbContext(typeof(PurchasingDbContext))]
-    partial class PurchasingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220317115018_enchance_vat_garment_invoice")]
+    partial class enchance_vat_garment_invoice
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1672,12 +1673,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("UseVat");
 
-                    b.Property<string>("VatId")
-                        .HasMaxLength(255);
-
-                    b.Property<string>("VatRate")
-                        .HasMaxLength(255);
-
                     b.HasKey("Id");
 
                     b.HasIndex("CorrectionNo")
@@ -2352,10 +2347,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<DateTime>("LastModifiedUtc");
 
                     b.Property<double>("VATAmount");
-
-                    b.Property<string>("VatId");
-
-                    b.Property<string>("VatRate");
 
                     b.Property<double>("VerifiedAmount");
 
@@ -6366,12 +6357,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTimeOffset>("VatDate");
 
-                    b.Property<string>("VatId");
-
                     b.Property<string>("VatNo")
                         .HasMaxLength(255);
-
-                    b.Property<double>("VatRate");
 
                     b.HasKey("Id");
 
