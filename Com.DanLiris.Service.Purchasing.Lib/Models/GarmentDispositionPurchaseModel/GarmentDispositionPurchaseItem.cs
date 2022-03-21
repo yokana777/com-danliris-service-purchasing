@@ -11,6 +11,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentDispositionPurchaseM
         public string EPONo { get; set; }
         public int EPOId { get; set; }
         public bool IsVAT { get; set; }
+
+        public string VatId { get; set; }
+        public string VatRate { get; set; }
+
         public double VATAmount { get; set; }
         public bool IsIncomeTax { get; set; }
         public double IncomeTaxAmount { get; set; }
