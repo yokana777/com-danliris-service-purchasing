@@ -205,7 +205,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
                     if (item.garmentInvoice.useVat == true && item.garmentInvoice.isPayVat == true)
                     {
-                        ppn = 0.1 * (totalPriceTotal + (double)totalcorrection);
+                        ppn = (item.garmentInvoice.vatRate / 100) * (totalPriceTotal + (double)totalcorrection);
                     }
                     else if (item.garmentInvoice.isPayVat == false)
                     {
