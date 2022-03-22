@@ -731,6 +731,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.ExternalPurchaseOrderFacad
                         name = s.IncomeTaxName,
                         rate = s.IncomeTaxRate,
                     },
+                    vatTax = new VatTaxViewModel
+                    {
+                        _id = s.VatId,
+                        rate = s.VatRate,
+                    },
                     items = s.Items.Join(dbContext.InternalPurchaseOrders,
                                           i => i.POId,
                                           j => j.Id,

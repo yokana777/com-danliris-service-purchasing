@@ -14,6 +14,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionVi
         public bool UseVat { get; set; }
         public bool UseIncomeTax { get; set; }
         public IncomeTaxViewModel IncomeTax { get; set; }
+        public VatTaxViewModel vatTax { get; set; }
 
         public virtual List<PurchasingDispositionDetailViewModel> Details { get; set; }
 
