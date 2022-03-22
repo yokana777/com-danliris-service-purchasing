@@ -18,6 +18,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.PurchasingDispositionVi
         public string paymentMethod { get; set; }
         public string paymentDueDays { get; set; }
         public bool useVat { get; set; }
+        public VatTaxViewModel vatTax { get; set; }
         public IncomeTaxViewModel incomeTax { get; set; }
         public bool useIncomeTax { get; set; }
         public bool isPosted { get; set; }
