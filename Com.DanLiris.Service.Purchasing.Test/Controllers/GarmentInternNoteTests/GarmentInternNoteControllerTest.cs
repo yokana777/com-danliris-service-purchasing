@@ -654,6 +654,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
                                 invoiceDate =  DateTimeOffset.Now,
                                 useVat  =  true,
                                 useIncomeTax = true,
+                                vatRate = 11,
                                 totalAmount=2000,
                                 isPayTax = true,
                             },
