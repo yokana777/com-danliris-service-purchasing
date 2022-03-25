@@ -697,6 +697,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 IncomeTaxDate = s.IncomeTaxDate,
                 IncomeTaxBy = s.IncomeTaxBy,
                 UseVat = s.UseVat,
+                VatId = s.VatId,
+                VatRate = s.VatRate,
                 VatNo = s.VatNo,
                 VatDate = s.VatDate,
                 Remark = s.Remark,
