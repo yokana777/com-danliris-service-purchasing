@@ -41,6 +41,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentExternalPurchaseOrde
         public string IncomeTaxRate { get; set; }
 
         public bool IsUseVat { get; set; }
+
+        [MaxLength(255)]
+        public string VatId { get; set; }
+        [MaxLength(255)]
+        public string VatRate { get; set; }
         [MaxLength(1024)]
         public string Category { get; set; }
         [MaxLength(4000)]

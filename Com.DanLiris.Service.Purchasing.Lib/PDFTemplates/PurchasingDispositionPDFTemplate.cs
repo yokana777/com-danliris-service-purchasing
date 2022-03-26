@@ -75,15 +75,21 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 }
             }
 
-            double ppn = (dpp * 0.1);
+            double ppn = 0;
             string pph = "";
             double pphRate = 0;
+            double ppnRate = 0;
 
             foreach (var item in viewModel.Items)
             {
                 if (!item.UseVat)
                 {
                     ppn = 0;
+                }
+                else
+                {
+                    ppnRate = (Convert.ToDouble(item.vatTax.rate) / 100);
+                    ppn = (dpp * (Convert.ToDouble(item.vatTax.rate) / 100));
                 }
                 if (item.UseIncomeTax)
                 {
@@ -320,7 +326,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
 
             double total = 0;
             double totalPurchase = 0;
-
+            double ppnpurchase = 0;
             foreach (PurchasingDispositionItemViewModel item in viewModel.Items)
             {
                 for (int indexItem = 0; indexItem < item.Details.Count; indexItem++)
@@ -380,6 +386,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     total += detail.PaidPrice;
 
                     totalPurchase += (detail.PricePerDealUnit * detail.DealQuantity);
+
                 }
             }
 
@@ -474,8 +481,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             cellLeftNoBorder.Phrase = new Phrase(viewModel.Remark, normal_font);
             tableNote.AddCell(cellLeftNoBorder);
 
-            var ppnPurchase = viewModel.VatValue > 0 ? (totalPurchase * 10 / 100) : 0;
-
+            var ppnPurchase = viewModel.VatValue > 0 ? (totalPurchase * ppnRate) : 0;
 
             cellLeftNoBorder.Phrase = new Phrase("Total Pembelian", normal_font);
             tableNote.AddCell(cellLeftNoBorder);

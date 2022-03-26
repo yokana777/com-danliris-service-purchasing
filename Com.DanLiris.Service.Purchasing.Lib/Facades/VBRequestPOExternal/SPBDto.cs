@@ -61,6 +61,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             Division = new DivisionDto(element.DivisionCode, element.DivisionId, element.DivisionName);
 
             UseVat = element.UseVat;
+            VatTax = new VatTaxDto(element.VatId, element.VatRate);
             UseIncomeTax = element.UseIncomeTax;
             IncomeTax = new IncomeTaxDto(element.IncomeTaxId, element.IncomeTaxName, element.IncomeTaxRate);
             IncomeTaxBy = element.IncomeTaxBy;
@@ -172,6 +173,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
         public SupplierDto Supplier { get; private set; }
         public DivisionDto Division { get; private set; }
         public bool UseVat { get; private set; }
+        public VatTaxDto VatTax { get; private set; }
         public bool UseIncomeTax { get; private set; }
         public IncomeTaxDto IncomeTax { get; private set; }
         public string IncomeTaxBy { get; private set; }

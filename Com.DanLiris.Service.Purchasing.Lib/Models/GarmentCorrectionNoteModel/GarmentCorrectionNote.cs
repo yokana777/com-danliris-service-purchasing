@@ -42,6 +42,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentCorrectionNoteModel
         public string NKPN { get; set; }
         public string NKPH { get; set; }
 
+        [MaxLength(255)]
+        public string VatId { get; set; }
+        [MaxLength(255)]
+        public string VatRate { get; set; }
+
         public virtual ICollection<GarmentCorrectionNoteItem> Items { get; set; }
     }
 }

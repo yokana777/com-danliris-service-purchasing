@@ -158,7 +158,8 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.ExternalPurchase
                     s.useVat,
                     s.unit,
                     s.isPosted,
-                    s.items
+                    s.items,
+                    s.vatTax
                 }).ToList()
             );
 

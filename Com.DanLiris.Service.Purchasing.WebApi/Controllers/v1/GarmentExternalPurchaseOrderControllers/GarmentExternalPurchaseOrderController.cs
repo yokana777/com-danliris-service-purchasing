@@ -384,6 +384,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentExternalP
                         s.IncomeTax,
                         s.IsIncomeTax,
                         s.IsUseVat,
+                        s.Vat,
                         s.Category,
                         s.Remark,
                         s.IsPosted,

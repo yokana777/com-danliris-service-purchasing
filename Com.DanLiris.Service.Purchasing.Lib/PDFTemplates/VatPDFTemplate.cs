@@ -147,17 +147,18 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     cellRight.Phrase = new Phrase(Math.Round(detail.pricePerDealUnit * detail.doQuantity, 2).ToString("N2"), normal_font);
                     tableContent.AddCell(cellRight);
 
-                    cellRight.Phrase = new Phrase((10).ToString(), normal_font);
+                    cellRight.Phrase = new Phrase((viewModel.vatRate).ToString(), normal_font);
 					tableContent.AddCell(cellRight);
 
-					cellRight.Phrase = new Phrase( Math.Round(10 *  detail.pricePerDealUnit * detail.doQuantity / 100,2).ToString("N2"), normal_font);
+					cellRight.Phrase = new Phrase( Math.Round(viewModel.vatRate * detail.pricePerDealUnit * detail.doQuantity / 100 , 2).ToString("N2"), normal_font);
 					tableContent.AddCell(cellRight);
-					totalPPN += ((0.1) * detail.pricePerDealUnit * detail.doQuantity);
+
+					totalPPN += ((viewModel.vatRate/100) * detail.pricePerDealUnit * detail.doQuantity);
 					var garmentDeliveryOrder = DOfacade.ReadById((int)item.deliveryOrder.Id);
 					double rate = 1;
-					if(garmentDeliveryOrder !=null)
+					if(garmentDeliveryOrder != null)
 					{ rate = (double)garmentDeliveryOrder.DOCurrencyRate; }
-					totalPPNIDR += (0.1 * detail.pricePerDealUnit * detail.doQuantity  * rate);/**dikali rate DO*/
+					totalPPNIDR += ((viewModel.vatRate / 100) * detail.pricePerDealUnit * detail.doQuantity * rate);/**dikali rate DO*/
 				}
 
 			}
