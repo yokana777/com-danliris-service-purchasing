@@ -41,10 +41,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.currency._id, opt => opt.MapFrom(s => s.CurrencyId))
                 .ForPath(d => d.currency.code, opt => opt.MapFrom(s => s.CurrencyCode))
                 .ForPath(d => d.currency.rate, opt => opt.MapFrom(s => s.CurrencyRate))
-                /* Vat */
+                /* IncomTax */
                 .ForPath(d => d.incomeTax._id, opt => opt.MapFrom(s => s.IncomeTaxId))
                 .ForPath(d => d.incomeTax.name, opt => opt.MapFrom(s => s.IncomeTaxName))
                 .ForPath(d => d.incomeTax.rate, opt => opt.MapFrom(s => s.IncomeTaxRate))
+
+                /*VatTax*/
+                .ForPath(d => d.vatTax._id, opt => opt.MapFrom(s => s.VatId))
+                .ForPath(d => d.vatTax.rate, opt => opt.MapFrom(s => s.VatRate))
 
                 .ForPath(d => d.no, opt => opt.MapFrom(s => s.EPONo))
                 .ForMember(d => d.items, opt => opt.MapFrom(s => s.Items))

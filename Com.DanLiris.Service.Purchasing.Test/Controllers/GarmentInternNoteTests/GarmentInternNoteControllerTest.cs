@@ -593,7 +593,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
             };
 
             controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
-            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "0";
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "7";
 
             var response = controller.Get(It.IsAny<int>());
             Assert.Null(response.GetType().GetProperty("FileStream"));
@@ -654,8 +654,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
                                 invoiceDate =  DateTimeOffset.Now,
                                 useVat  =  true,
                                 useIncomeTax = true,
+                                vatRate = 11,
                                 totalAmount=2000,
                                 isPayTax = true,
+                                isPayVat = false,
                             },
 
                             details= new List<GarmentInternNoteDetailViewModel>
@@ -777,6 +779,68 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
         //}
 
         [Fact]
+        public void Should_Return_OK_Stream_GetInternNotePDF()
+        {
+            //Setup
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentInternNoteViewModel>())).Verifiable();
+
+            var mockFacade = new Mock<IGarmentInternNoteFacade>();
+            mockFacade
+                .Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(Model);
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper
+                .Setup(x => x.Map<GarmentInternNoteViewModel>(It.IsAny<GarmentInternNote>()))
+                .Returns(ViewModelPDF);
+
+            mockMapper
+                .Setup(x => x.Map<GarmentDeliveryOrderViewModel>(It.IsAny<GarmentDeliveryOrder>()))
+                .Returns(new GarmentDeliveryOrderViewModel
+                {
+                    Id = 1,
+                    doNo = "Dono",
+                    doDate = DateTimeOffset.Now,
+                    paymentMethod = "PaymentMethod",
+                    paymentType = "PaymentType",
+                    docurrency = new CurrencyViewModel
+                    {
+                        Id = It.IsAny<int>(),
+                        Code = "IDR",
+                        Rate = 1,
+                    }
+                });
+
+            mockMapper
+                .Setup(x => x.Map<GarmentInvoiceViewModel>(It.IsAny<GarmentInvoice>()))
+                .Returns(new GarmentInvoiceViewModel { Id = 1, useIncomeTax = true, useVat = true, incomeTaxId = It.IsAny<int>(), incomeTaxRate = 2, isPayTax = true });
+
+            var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+            IPOmockFacade
+                .Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(new GarmentDeliveryOrder { Id = 1, DOCurrencyRate = 1 });
+
+            var INVmockFacade = new Mock<IGarmentInvoice>();
+            INVmockFacade
+                .Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(new GarmentInvoice());
+
+            var mockGarmentCorrectionNoteFacade = new Mock<IGarmentCorrectionNoteQuantityFacade>();
+            mockGarmentCorrectionNoteFacade.Setup(x => x.ReadByDOId(It.IsAny<int>()))
+                .Returns(new List<GarmentCorrectionNote>());
+
+            //Act
+            GarmentInternNoteController controller = GetController(mockFacade, IPOmockFacade, validateMock, mockMapper, INVmockFacade, mockGarmentCorrectionNoteFacade);
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "7";
+            //Assert
+            var response = controller.GetInternNotePDF(It.IsAny<int>());
+            Assert.NotNull(response.GetType().GetProperty("FileStream"));
+            //Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
         public void Should_Return_OK_GetInternNotePDF()
         {
             //Setup
@@ -830,10 +894,74 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentInternNoteTest
 
             //Act
             GarmentInternNoteController controller = GetController(mockFacade, IPOmockFacade, validateMock, mockMapper, INVmockFacade, mockGarmentCorrectionNoteFacade);
-           
+            
             //Assert
             var response = controller.GetInternNotePDF(It.IsAny<int>());
+            //Assert.NotNull(response.GetType().GetProperty("FileStream"));
             Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public void Should_Return_OK_PayVatTrue_GetInternNotePDF()
+        {
+            //Setup
+            var validateMock = new Mock<IValidateService>();
+            validateMock.Setup(s => s.Validate(It.IsAny<GarmentInternNoteViewModel>())).Verifiable();
+
+            var mockFacade = new Mock<IGarmentInternNoteFacade>();
+            mockFacade
+                .Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(Model);
+
+            var mockMapper = new Mock<IMapper>();
+            mockMapper
+                .Setup(x => x.Map<GarmentInternNoteViewModel>(It.IsAny<GarmentInternNote>()))
+                .Returns(ViewModelPDF);
+
+            mockMapper
+                .Setup(x => x.Map<GarmentDeliveryOrderViewModel>(It.IsAny<GarmentDeliveryOrder>()))
+                .Returns(new GarmentDeliveryOrderViewModel
+                {
+                    Id = 1,
+                    doNo = "Dono",
+                    doDate = DateTimeOffset.Now,
+                    paymentMethod = "PaymentMethod",
+                    paymentType = "PaymentType",
+                    docurrency = new CurrencyViewModel
+                    {
+                        Id = It.IsAny<int>(),
+                        Code = "IDR",
+                        Rate = 1,
+                    }
+                });
+
+            mockMapper
+                .Setup(x => x.Map<GarmentInvoiceViewModel>(It.IsAny<GarmentInvoice>()))
+                .Returns(new GarmentInvoiceViewModel { Id = 1, useIncomeTax = true, useVat = true, isPayVat = true, incomeTaxId = It.IsAny<int>(), incomeTaxRate = 2, isPayTax = true });
+
+            var IPOmockFacade = new Mock<IGarmentDeliveryOrderFacade>();
+            IPOmockFacade
+                .Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(new GarmentDeliveryOrder { Id = 1, DOCurrencyRate = 1 });
+
+            var INVmockFacade = new Mock<IGarmentInvoice>();
+            INVmockFacade
+                .Setup(x => x.ReadById(It.IsAny<int>()))
+                .Returns(new GarmentInvoice());
+
+            var mockGarmentCorrectionNoteFacade = new Mock<IGarmentCorrectionNoteQuantityFacade>();
+            mockGarmentCorrectionNoteFacade.Setup(x => x.ReadByDOId(It.IsAny<int>()))
+                .Returns(new List<GarmentCorrectionNote>());
+
+            //Act
+            GarmentInternNoteController controller = GetController(mockFacade, IPOmockFacade, validateMock, mockMapper, INVmockFacade, mockGarmentCorrectionNoteFacade);
+            controller.ControllerContext.HttpContext.Request.Headers["Authorization"] = "Bearer unittesttoken";
+            controller.ControllerContext.HttpContext.Request.Headers["Accept"] = "application/pdf";
+            controller.ControllerContext.HttpContext.Request.Headers["x-timezone-offset"] = "7";
+            //Assert
+            var response = controller.GetInternNotePDF(It.IsAny<int>());
+            Assert.NotNull(response.GetType().GetProperty("FileStream"));
+            //Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
         }
 
         [Fact]

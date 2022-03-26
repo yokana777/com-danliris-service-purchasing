@@ -137,13 +137,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
                 tableContent.AddCell(cellLeft);
 
                 decimal totalPPN;
+                var convertdouble = Convert.ToDecimal(model.VatRate);
+
                 if ((model.CorrectionType ?? "").ToUpper() == "HARGA TOTAL")
                 {
-                    totalPPN = (item.PriceTotalAfter - item.PriceTotalBefore) / 10;
+                    totalPPN = (item.PriceTotalAfter - item.PriceTotalBefore) * (convertdouble / 100);
                 }
                 else
                 {
-                    totalPPN = (item.PricePerDealUnitAfter - item.PricePerDealUnitBefore) * item.Quantity / 10;
+                    totalPPN = (item.PricePerDealUnitAfter - item.PricePerDealUnitBefore) * item.Quantity * (convertdouble / 100);
                 }
                 totalAmountPPN += totalPPN;
 

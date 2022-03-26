@@ -36,6 +36,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
         public bool isPayVAT { get; set; }
         public bool isPayIncomeTax { get; set; }
 
+        public VatViewModel vat { get; set; }
         public IncomeTaxViewModel incomeTax { get; set; }
 
         public string paymentType { get; set; }

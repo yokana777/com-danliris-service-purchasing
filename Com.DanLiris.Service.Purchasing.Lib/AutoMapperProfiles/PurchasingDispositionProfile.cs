@@ -31,6 +31,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.IncomeTax._id, opt => opt.MapFrom(s => s.IncomeTaxId))
                 .ForPath(d => d.IncomeTax.name, opt => opt.MapFrom(s => s.IncomeTaxName))
                 .ForPath(d => d.IncomeTax.rate, opt => opt.MapFrom(s => s.IncomeTaxRate))
+
+                .ForPath(d => d.vatTax._id, opt => opt.MapFrom(s => s.VatId))
+                .ForPath(d => d.vatTax.rate, opt => opt.MapFrom(s => s.VatRate))
+
                 .ReverseMap();
 
             CreateMap<PurchasingDispositionDetail, PurchasingDispositionDetailViewModel>()

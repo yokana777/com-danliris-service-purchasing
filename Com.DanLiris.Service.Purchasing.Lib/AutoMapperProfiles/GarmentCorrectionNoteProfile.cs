@@ -20,6 +20,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.IncomeTax.Name, opt => opt.MapFrom(s => s.IncomeTaxName))
                 .ForPath(d => d.IncomeTax.Rate, opt => opt.MapFrom(s => s.IncomeTaxRate))
 
+                .ForPath(d => d.Vat.Id, opt => opt.MapFrom(s => s.VatId))
+                .ForPath(d => d.Vat.Rate, opt => opt.MapFrom(s => s.VatRate))
+
                 .ReverseMap();
 
             CreateMap<GarmentCorrectionNoteItem, GarmentCorrectionNoteItemViewModel>()

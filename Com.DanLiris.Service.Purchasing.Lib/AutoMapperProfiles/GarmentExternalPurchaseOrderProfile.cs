@@ -38,9 +38,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.IncomeTax.Rate, opt => opt.MapFrom(s => s.IncomeTaxRate))
                 .ForPath(d => d.IncomeTax.Name, opt => opt.MapFrom(s => s.IncomeTaxName))
 
+                .ForPath(d => d.Vat.Id, opt => opt.MapFrom(s => s.VatId))
+                .ForPath(d => d.Vat.Rate, opt => opt.MapFrom(s => s.VatRate))
+
                 .ForPath(d => d.Currency.Id, opt => opt.MapFrom(s => s.CurrencyId))
                 .ForPath(d => d.Currency.Rate, opt => opt.MapFrom(s => s.CurrencyRate))
                 .ForPath(d => d.Currency.Code, opt => opt.MapFrom(s => s.CurrencyCode))
+
                 .ReverseMap();
             #region GarmentDisposition
             CreateMap<GarmentExternalPurchaseOrderItem, ViewModels.GarmentDispositionPurchase.GarmentExternalPurchaseOrderItemViewModel>()
@@ -57,6 +61,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.SmallUom.Id, opt => opt.MapFrom(s => s.SmallUomId))
                 .ForPath(d => d.SmallUom.Unit, opt => opt.MapFrom(s => s.SmallUomUnit))
 
+                
                 .ReverseMap();
 
             CreateMap<GarmentExternalPurchaseOrder,ViewModels.GarmentDispositionPurchase.GarmentExternalPurchaseOrderViewModel>()
@@ -68,6 +73,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.AutoMapperProfiles
                 .ForPath(d => d.IncomeTax.Id, opt => opt.MapFrom(s => s.IncomeTaxId))
                 .ForPath(d => d.IncomeTax.Rate, opt => opt.MapFrom(s => s.IncomeTaxRate))
                 .ForPath(d => d.IncomeTax.Name, opt => opt.MapFrom(s => s.IncomeTaxName))
+
+                .ForPath(d => d.Vat.Id, opt => opt.MapFrom(s => s.VatId))
+                .ForPath(d => d.Vat.Rate, opt => opt.MapFrom(s => s.VatRate))
 
                 .ForPath(d => d.Currency.Id, opt => opt.MapFrom(s => s.CurrencyId))
                 .ForPath(d => d.Currency.Rate, opt => opt.MapFrom(s => s.CurrencyRate))

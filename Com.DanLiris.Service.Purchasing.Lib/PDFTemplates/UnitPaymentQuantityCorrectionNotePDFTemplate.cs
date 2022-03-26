@@ -205,7 +205,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                     total += (item.priceTotalAfter * -1);
 
                 }
-                totalPPn = (0.1 * total);
+                totalPPn = ( (Convert.ToDouble(viewModelSpb.vatTax.rate) / 100) * total);
                 double pph = double.Parse(viewModelSpb.incomeTax.rate);
                 totalPPh = (pph * total) / 100;
 
@@ -259,10 +259,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 }
                 cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
                 tableTotal.AddCell(cellIdentityTotalContentLeft);
-                cellIdentityTotalContentLeft.Phrase = new Phrase("PPn 10%", normal_font);
-                tableTotal.AddCell(cellIdentityTotalContentLeft);
+                //cellIdentityTotalContentLeft.Phrase = new Phrase($"PPn {viewModelSpb.vatTax.rate} %", normal_font);
+                //tableTotal.AddCell(cellIdentityTotalContentLeft);
                 if (viewModel.useVat == false)
                 {
+                    cellIdentityTotalContentLeft.Phrase = new Phrase($"PPn %", normal_font);
+                    tableTotal.AddCell(cellIdentityTotalContentLeft);
                     cellIdentityTotalContentLeft.Phrase = new Phrase(" ");
                     tableTotal.AddCell(cellIdentityTotalContentLeft);
                     cellIdentityTotalContentRight.Phrase = new Phrase("-");
@@ -271,6 +273,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
                 }
                 else
                 {
+                    cellIdentityTotalContentLeft.Phrase = new Phrase($"PPn {viewModelSpb.vatTax.rate} %", normal_font);
+                    tableTotal.AddCell(cellIdentityTotalContentLeft);
                     cellIdentityTotalContentLeft.Phrase = new Phrase($"{currencyCodePPn}", normal_font);
                     tableTotal.AddCell(cellIdentityTotalContentLeft);
                     cellIdentityTotalContentRight.Phrase = new Phrase(totalPPn.ToString("N", CultureInfo.InvariantCulture), normal_font);

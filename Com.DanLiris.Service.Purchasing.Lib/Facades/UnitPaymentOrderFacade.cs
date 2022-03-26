@@ -698,6 +698,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 IncomeTaxDate = s.IncomeTaxDate,
                 IncomeTaxBy = s.IncomeTaxBy,
                 UseVat = s.UseVat,
+                VatId = s.VatId,
+                VatRate = s.VatRate,
                 VatNo = s.VatNo,
                 VatDate = s.VatDate,
                 Remark = s.Remark,
@@ -1267,7 +1269,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                         }
                     }
 
-                    var totalVAT = 0.1 * grandTotal;
+                    var totalVAT = model.VatRate * grandTotal;
                     journalCreditItems.Add(new JournalTransactionItem()
                     {
                         COA = new COA()
