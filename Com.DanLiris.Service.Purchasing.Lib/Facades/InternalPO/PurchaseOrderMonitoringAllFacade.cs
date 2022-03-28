@@ -356,7 +356,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                 var deliveryOrderDetails = dbContext.DeliveryOrderDetails.Where(w => deliveryOrderDetailIds.Contains(w.Id)).Select(s => new { s.Id, s.DOQuantity, s.UomUnit }).ToList();
 
                 var unitPaymentOrderIds = queryResult.Select(s => s.UPOId).Distinct().ToList();
-                var unitPaymentOrders = dbContext.UnitPaymentOrders.Where(w => unitPaymentOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.InvoiceDate, s.InvoiceNo, s.Date, s.UPONo, s.DueDate, s.UseVat, s.VatDate, s.VatNo, s.UseIncomeTax, s.IncomeTaxNo, s.IncomeTaxDate, s.IncomeTaxRate, }).ToList();
+                var unitPaymentOrders = dbContext.UnitPaymentOrders.Where(w => unitPaymentOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.InvoiceDate, s.InvoiceNo, s.Date, s.UPONo, s.DueDate, s.UseVat, s.VatDate, s.VatNo, s.UseIncomeTax, s.IncomeTaxNo, s.IncomeTaxDate, s.IncomeTaxRate, s.VatRate }).ToList();
                 //var unitPaymentOrderItemIds = queryResult.Select(s => s.UPOItemId).Distinct().ToList();
                 //var unitPaymentOrderItems = dbContext.UnitPaymentOrderItems.Where(w => unitPaymentOrderItemIds.Contains(w.Id)).Select(s => new { s.Id }).ToList();
                 var unitPaymentOrderDetailIds = queryResult.Select(s => s.UPODetailId).Distinct().ToList();
@@ -485,7 +485,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                                             dueDate = unitPaymentOrder == null ? date.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : unitPaymentOrder.DueDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
                                             vatDate = unitPaymentOrder != null ? unitPaymentOrder.UseVat ? unitPaymentOrder.VatDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : date.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture) : date.ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
                                             vatNo = unitPaymentOrder == null ? "-" : unitPaymentOrder.VatNo,
-                                            vatValue = unitPaymentOrderDetail != null && unitPaymentOrder != null ? unitPaymentOrder.UseVat ? string.Format("{0:N2}", 0.1 * unitPaymentOrderDetail.PriceTotal) : "" : "",
+                                            vatValue = unitPaymentOrderDetail != null && unitPaymentOrder != null ? unitPaymentOrder.UseVat ? string.Format("{0:N2}", (unitPaymentOrder.VatRate / 100) * unitPaymentOrderDetail.PriceTotal) : "" : "",
                                             incomeTaxDate = unitPaymentOrder != null ? unitPaymentOrder.UseIncomeTax ? unitPaymentOrder.IncomeTaxDate : null : null,
                                             incomeTaxNo = unitPaymentOrder == null ? null : unitPaymentOrder.IncomeTaxNo,
                                             incomeTaxValue = unitPaymentOrderDetail != null && unitPaymentOrder != null ? unitPaymentOrder.UseIncomeTax ? (unitPaymentOrder.IncomeTaxRate * unitPaymentOrderDetail.PriceTotal / 100) : 0 : 0,

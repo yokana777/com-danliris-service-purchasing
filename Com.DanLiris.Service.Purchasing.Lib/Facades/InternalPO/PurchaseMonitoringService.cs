@@ -192,7 +192,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
             var deliveryOrderDetails = _dbContext.DeliveryOrderDetails.Where(w => deliveryOrderDetailIds.Contains(w.Id)).Select(s => new { s.Id, s.DOQuantity, s.UomUnit }).ToList();
 
             var unitPaymentOrderIds = queryresult.Select(s => s.UPOId).Distinct().ToList();
-            var unitPaymentOrders = _dbContext.UnitPaymentOrders.Where(w => unitPaymentOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.InvoiceDate, s.InvoiceNo, s.Date, s.UPONo, s.DueDate, s.UseVat, s.VatDate, s.VatNo, s.UseIncomeTax, s.IncomeTaxNo, s.IncomeTaxDate, s.IncomeTaxRate, }).ToList();
+            var unitPaymentOrders = _dbContext.UnitPaymentOrders.Where(w => unitPaymentOrderIds.Contains(w.Id)).Select(s => new { s.Id, s.InvoiceDate, s.InvoiceNo, s.Date, s.UPONo, s.DueDate, s.UseVat, s.VatDate, s.VatNo, s.UseIncomeTax, s.IncomeTaxNo, s.IncomeTaxDate, s.IncomeTaxRate, s.VatRate }).ToList();
             var unitPaymentOrderItemIds = queryresult.Select(s => s.UPOItemId).Distinct().ToList();
             var unitPaymentOrderItems = _dbContext.UnitPaymentOrderItems.Where(w => unitPaymentOrderItemIds.Contains(w.Id)).Select(s => new { s.Id }).ToList();
             var unitPaymentOrderDetailIds = queryresult.Select(s => s.UPODetailId).Distinct().ToList();
@@ -290,7 +290,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.InternalPO
                     UnitPaymentOrderTotalPrice = unitPaymentOrderDetail != null ? unitPaymentOrderDetail.PriceTotal : 0,
                     UnitPaymentOrderVATDate = unitPaymentOrder != null && unitPaymentOrder.UseVat && unitPaymentOrder.VatDate.Date != DateTime.MinValue ? unitPaymentOrder.VatDate.Date : (DateTime?)null,
                     UnitPaymentOrderVATNo = unitPaymentOrder != null && unitPaymentOrder.UseVat ? unitPaymentOrder.VatNo : "",
-                    UnitPaymentOrderVAT = unitPaymentOrder != null && unitPaymentOrder.UseVat ? 0.1 * unitPaymentOrderDetail.PriceTotal : 0,
+                    UnitPaymentOrderVAT = unitPaymentOrder != null && unitPaymentOrder.UseVat ? (unitPaymentOrder.VatRate / 100) * unitPaymentOrderDetail.PriceTotal : 0,
                     UnitPaymentOrderIncomeTaxDate = unitPaymentOrder != null && unitPaymentOrder.UseIncomeTax && unitPaymentOrder.IncomeTaxDate.Value.Date != DateTime.MinValue ? unitPaymentOrder.IncomeTaxDate.Value.Date : (DateTime?)null,
                     UnitPaymentOrderIncomeTaxNo = unitPaymentOrder != null && unitPaymentOrder.UseIncomeTax ? unitPaymentOrder.IncomeTaxNo : "",
                     UnitPaymentOrderIncomeTax = unitPaymentOrder != null && unitPaymentOrder.UseIncomeTax ? unitPaymentOrder.IncomeTaxRate * unitPaymentOrderDetail.PriceTotal : 0

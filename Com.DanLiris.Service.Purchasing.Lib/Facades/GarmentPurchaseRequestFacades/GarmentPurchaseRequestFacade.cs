@@ -1435,7 +1435,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             var unitReceiptNoteItems = dbContext.GarmentUnitReceiptNoteItems.Where(w => unitReceiptNoteItemIds.Contains(w.Id)).Select(s => new { s.Id, s.ReceiptQuantity, s.UomUnit }).ToList();
 
             var invoiceIds = queryResult.Select(s => s.INVId).Distinct().ToList();
-            var invoices = dbContext.GarmentInvoices.Where(w => invoiceIds.Contains(w.Id)).Select(s => new { s.Id, s.InvoiceNo, s.InvoiceDate, s.IncomeTaxDate, s.IncomeTaxNo, s.IncomeTaxName, s.IncomeTaxRate, s.IsPayTax, s.VatDate, s.VatNo }).ToList();
+            var invoices = dbContext.GarmentInvoices.Where(w => invoiceIds.Contains(w.Id)).Select(s => new { s.Id, s.InvoiceNo, s.InvoiceDate, s.IncomeTaxDate, s.IncomeTaxNo, s.IncomeTaxName, s.IncomeTaxRate, s.IsPayTax, s.VatDate, s.VatNo, s.VatRate }).ToList();
             //var invoiceItemIds = queryResult.Select(s => s.INVItemId).Distinct().ToList();
             //var invoiceItems = dbContext.GarmentInvoiceItems.Where(w => invoiceItemIds.Contains(w.Id)).Select(s => new { s.Id}).ToList();
             //var invoiceDetailIds = queryResult.Select(s => s.INVDetailId).Distinct().ToList();
@@ -1597,7 +1597,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 						incomeTaxtValue = invoice != null && invoice.IsPayTax ? string.Format("{0:N2}", deliveryOrderDetail.DOQuantity * deliveryOrderDetail.PricePerDealUnit * invoice.IncomeTaxRate / 100) : "",
 						vatNo = invoice == null ? "" : invoice.VatNo,
 						vatDate = invoice == null ? "" : invoice.VatDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
-						vatValue = invoice != null && invoice.IsPayTax ? string.Format("{0:N2}", deliveryOrderDetail.DOQuantity * deliveryOrderDetail.PricePerDealUnit * 0.1) : "",
+						vatValue = invoice != null && invoice.IsPayTax ? string.Format("{0:N2}", deliveryOrderDetail.DOQuantity * deliveryOrderDetail.PricePerDealUnit * (invoice.VatRate / 100)) : "",
 						internNo = internNote == null ? "" : internNote.INNo,
 						internDate = internNote == null ? "" : internNote.INDate.AddHours(offset).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture),
 						internTotal = internNoteDetail == null ? "" : string.Format("{0:N2}", internNoteDetail.Quantity * internNoteDetail.PricePerDealUnit),
