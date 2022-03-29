@@ -51,6 +51,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public double ExpendKon1BPrice { get; set; }
         public decimal EndingBalanceQty { get; set; }
         public double EndingBalancePrice { get; set; }
+
+
+        public double ExpendSubconPrice { get; set; }
+        public double ExpendOtherPrice { get; set; }
+        public double ExpendTransferPrice { get; set; }
+        public double ExpendSubconQty { get; set; }
+        public double ExpendOtherQty { get; set; }
+        public double ExpendTransferQty { get; set; }
     }
 
     public class AccountingStockTempViewModel
@@ -99,5 +107,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public double ExpendKon1BPrice { get; set; }
         public decimal EndingBalanceQty { get; set; }
         public double EndingBalancePrice { get; set; }
+
+
+        public double ExpendSubconPrice { get; set; }
+        public double ExpendOtherPrice { get; set; }
+        public double ExpendTransferPrice { get; set; }
+        public double ExpendSubconQty { get; set; }
+        public double ExpendOtherQty { get; set; }
+        public double ExpendTransferQty { get; set; }
     }
 }
