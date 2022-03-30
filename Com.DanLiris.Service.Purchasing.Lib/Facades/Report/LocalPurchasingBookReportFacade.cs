@@ -122,6 +122,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             // EPO Info
                             urnEPODetail.ExternalPurchaseOrderItem.PONo,
                             urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.UseVat,
+                            urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.VatRate,
                             urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IncomeTaxRate,
                             urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.UseIncomeTax,
                             urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IncomeTaxBy,
@@ -225,7 +226,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                     dpp = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity);
 
                 if (item.UseVat)
-                    ppn = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity * 0.1);
+                    ppn = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity * ( Convert.ToDouble(item.VatRate) / 100));
 
                 if (item.UseIncomeTax)
                     incomeTax = (decimal)(item.EPOPricePerDealUnit * item.ReceiptQuantity) * incomeTaxRate / 100;
@@ -344,6 +345,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
                             // EPO Info
                             urnEPODetail.ExternalPurchaseOrderItem.PONo,
                             urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.UseVat,
+                            urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.VatRate,
                             urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IncomeTaxRate,
                             urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.UseIncomeTax,
                             urnEPODetail.ExternalPurchaseOrderItem.ExternalPurchaseOrder.IncomeTaxBy,
@@ -478,7 +480,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.Report
 
 
                 if (item.UseVat)
-                    ppn = (decimal)(dpp * (decimal)0.1);
+                    ppn = (decimal)(dpp * (Convert.ToDecimal(item.VatRate) / 100));
 
                 if (item.UseIncomeTax && item.IncomeTaxBy == "Supplier")
                     incomeTax = (decimal)(dpp * (incomeTaxRate / 100));
