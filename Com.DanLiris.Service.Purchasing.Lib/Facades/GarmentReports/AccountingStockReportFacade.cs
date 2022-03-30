@@ -136,6 +136,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                     ExpendKon1BPrice = 0,
                                     EndingBalanceQty = 0,
                                     EndingBalancePrice = 0,
+                                    ExpendOtherPrice=0,
+                                    ExpendOtherQty=0,
+                                    ExpendSubconPrice=0,
+                                    ExpendSubconQty=0,
+                                    ExpendTransferPrice=0,
+                                    ExpendTransferQty=0
                                 }).GroupBy(x => new { x.ProductCode, x.RO, x.Buyer, x.PlanPo, x.NoArticle, x.BeginningBalanceUom }, (key, group) => new AccountingStockTempViewModel
                                 {
                                     ProductCode = key.ProductCode,
@@ -183,6 +189,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                     ExpendKon1BPrice = group.Sum(x => x.ExpendKon1BPrice),
                                     EndingBalanceQty = group.Sum(x => x.EndingBalanceQty),
                                     EndingBalancePrice = group.Sum(x => x.EndingBalancePrice),
+                                    ExpendOtherPrice = group.Sum(x => x.ExpendOtherPrice),
+                                    ExpendOtherQty = group.Sum(x => x.ExpendOtherQty),
+                                    ExpendSubconPrice = group.Sum(x => x.ExpendSubconPrice),
+                                    ExpendSubconQty = group.Sum(x => x.ExpendSubconQty),
+                                    ExpendTransferPrice = group.Sum(x => x.ExpendTransferPrice),
+                                    ExpendTransferQty = group.Sum(x => x.ExpendTransferQty)
                                 });
             //var BalanceStock = (from a in dbContext.BalanceStocks
             //                    join b in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on (long)a.EPOItemId equals b.Id
@@ -304,6 +316,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 ExpendKon1BPrice = 0,
                                 EndingBalanceQty = 0,
                                 EndingBalancePrice = 0,
+                                ExpendOtherPrice = 0,
+                                ExpendOtherQty = 0,
+                                ExpendSubconPrice = 0,
+                                ExpendSubconQty = 0,
+                                ExpendTransferPrice = 0,
+                                ExpendTransferQty = 0
                             }).GroupBy(x => new { x.ProductCode, /*x.ProductName,*/ x.BeginningBalanceUom, x.Buyer, x.NoArticle, x.PlanPo, x.RO }, (key, group) => new AccountingStockTempViewModel
                             {
                                 ProductCode = key.ProductCode,
@@ -351,6 +369,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 ExpendKon1BPrice = group.Sum(x => x.ExpendKon1BPrice),
                                 EndingBalanceQty = group.Sum(x => x.EndingBalanceQty),
                                 EndingBalancePrice = group.Sum(x => x.EndingBalancePrice),
+                                ExpendOtherPrice = group.Sum(x => x.ExpendOtherPrice),
+                                ExpendOtherQty = group.Sum(x => x.ExpendOtherQty),
+                                ExpendSubconPrice = group.Sum(x => x.ExpendSubconPrice),
+                                ExpendSubconQty = group.Sum(x => x.ExpendSubconQty),
+                                ExpendTransferPrice = group.Sum(x => x.ExpendTransferPrice),
+                                ExpendTransferQty = group.Sum(x => x.ExpendTransferQty)
                             }).ToList();
 
 
@@ -418,6 +442,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 ExpendKon1BPrice = 0,
                                 EndingBalanceQty = 0,
                                 EndingBalancePrice = 0,
+                                ExpendOtherPrice = 0,
+                                ExpendOtherQty = 0,
+                                ExpendSubconPrice = 0,
+                                ExpendSubconQty = 0,
+                                ExpendTransferPrice = 0,
+                                ExpendTransferQty = 0
                             })
                             .GroupBy(x => new { x.ProductCode, /*x.ProductName,*/ x.BeginningBalanceUom, x.Buyer, x.NoArticle, x.PlanPo, x.RO }, (key, group) => new AccountingStockTempViewModel
                             {
@@ -466,6 +496,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                 ExpendKon1BPrice = group.Sum(x => x.ExpendKon1BPrice),
                                 EndingBalanceQty = group.Sum(x => x.EndingBalanceQty),
                                 EndingBalancePrice = group.Sum(x => x.EndingBalancePrice),
+                                ExpendOtherPrice = group.Sum(x => x.ExpendOtherPrice),
+                                ExpendOtherQty = group.Sum(x => x.ExpendOtherQty),
+                                ExpendSubconPrice = group.Sum(x => x.ExpendSubconPrice),
+                                ExpendSubconQty = group.Sum(x => x.ExpendSubconQty),
+                                ExpendTransferPrice = group.Sum(x => x.ExpendTransferPrice),
+                                ExpendTransferQty = group.Sum(x => x.ExpendTransferQty)
                             }).ToList();
 
             var SAKoreksi = (from a in dbContext.GarmentUnitReceiptNotes
@@ -531,6 +567,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  ExpendKon1BPrice = 0,
                                  EndingBalanceQty = 0,
                                  EndingBalancePrice = 0,
+                                 ExpendOtherPrice = 0,
+                                 ExpendOtherQty = 0,
+                                 ExpendSubconPrice = 0,
+                                 ExpendSubconQty = 0,
+                                 ExpendTransferPrice = 0,
+                                 ExpendTransferQty = 0
                              }).GroupBy(x => new { x.ProductCode, /*x.ProductName,*/ x.BeginningBalanceUom, x.Buyer, x.NoArticle, x.PlanPo, x.RO }, (key, group) => new AccountingStockTempViewModel
                              {
                                  ProductCode = key.ProductCode,
@@ -578,6 +620,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                  ExpendKon1BPrice = group.Sum(x => x.ExpendKon1BPrice),
                                  EndingBalanceQty = group.Sum(x => x.EndingBalanceQty),
                                  EndingBalancePrice = group.Sum(x => x.EndingBalancePrice),
+                                 ExpendOtherPrice = group.Sum(x => x.ExpendOtherPrice),
+                                 ExpendOtherQty = group.Sum(x => x.ExpendOtherQty),
+                                 ExpendSubconPrice = group.Sum(x => x.ExpendSubconPrice),
+                                 ExpendSubconQty = group.Sum(x => x.ExpendSubconQty),
+                                 ExpendTransferPrice = group.Sum(x => x.ExpendTransferPrice),
+                                 ExpendTransferQty = group.Sum(x => x.ExpendTransferQty)
                              }).ToList();
 
             var SaldoAwal1 = BalanceStock.Concat(SATerima).Concat(SAKeluar).Concat(SAKoreksi).AsEnumerable();
@@ -628,6 +676,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 ExpendKon1BPrice = group.Sum(x => x.ExpendKon1BPrice),
                 EndingBalanceQty = group.Sum(x => x.EndingBalanceQty),
                 EndingBalancePrice = group.Sum(x => x.EndingBalancePrice),
+                ExpendOtherPrice = group.Sum(x => x.ExpendOtherPrice),
+                ExpendOtherQty = group.Sum(x => x.ExpendOtherQty),
+                ExpendSubconPrice = group.Sum(x => x.ExpendSubconPrice),
+                ExpendSubconQty = group.Sum(x => x.ExpendSubconQty),
+                ExpendTransferPrice = group.Sum(x => x.ExpendTransferPrice),
+                ExpendTransferQty = group.Sum(x => x.ExpendTransferQty)
             }).ToList();
 
             var Terima = (from a in (from aa in dbContext.GarmentUnitReceiptNoteItems  select aa)
@@ -692,7 +746,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             ExpendKon1BPrice = 0,
                             EndingBalanceQty = 0,
                             EndingBalancePrice = 0,
-                        }).GroupBy(x => new { x.ProductCode, /*x.ProductName,*/ x.BeginningBalanceUom, x.Buyer, x.NoArticle, x.PlanPo, x.RO }, (key, group) => new AccountingStockTempViewModel
+                            ExpendOtherPrice = 0,
+                            ExpendOtherQty = 0,
+                            ExpendSubconPrice = 0,
+                            ExpendSubconQty = 0,
+                            ExpendTransferPrice = 0,
+                            ExpendTransferQty = 0
+                          }).GroupBy(x => new { x.ProductCode, /*x.ProductName,*/ x.BeginningBalanceUom, x.Buyer, x.NoArticle, x.PlanPo, x.RO }, (key, group) => new AccountingStockTempViewModel
                         {
                             ProductCode = key.ProductCode,
                             //ProductName = key.ProductName,
@@ -739,8 +799,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                             ExpendKon1BPrice = group.Sum(x => x.ExpendKon1BPrice),
                             EndingBalanceQty = group.Sum(x => x.EndingBalanceQty),
                             EndingBalancePrice = group.Sum(x => x.EndingBalancePrice),
-                        });
-
+                              ExpendOtherPrice = group.Sum(x => x.ExpendOtherPrice),
+                              ExpendOtherQty = group.Sum(x => x.ExpendOtherQty),
+                              ExpendSubconPrice = group.Sum(x => x.ExpendSubconPrice),
+                              ExpendSubconQty = group.Sum(x => x.ExpendSubconQty),
+                              ExpendTransferPrice = group.Sum(x => x.ExpendTransferPrice),
+                              ExpendTransferQty = group.Sum(x => x.ExpendTransferQty)
+                          });
+            
             var Keluar = (from a in (from aa in dbContext.GarmentUnitExpenditureNoteItems select aa)
                           join b in dbContext.GarmentUnitExpenditureNotes on a.UENId equals b.Id
                           join c in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.EPOItemId equals c.Id
@@ -811,8 +877,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                               ExpendKon1APrice = (b.ExpenditureType == "GUDANG LAIN" || b.ExpenditureType == "TRANSFER") && b.UnitRequestName == "CENTRAL 1A/EX. K3" ? Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity) * (a.PricePerDealUnit / (double)(a.Conversion == 0 ? 1 : a.Conversion)) * (double)a.DOCurrencyRate, 2) : 0,
                               ExpendKon1BPrice = (b.ExpenditureType == "GUDANG LAIN" || b.ExpenditureType == "TRANSFER") && b.UnitRequestName == "CENTRAL 1B" ? Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity) * (a.PricePerDealUnit / (double)(a.Conversion == 0 ? 1 : a.Conversion)) * (double)a.DOCurrencyRate, 2) : 0,
                               EndingBalanceQty = 0,
-                             EndingBalancePrice = 0,
-                         }).GroupBy(x => new { x.ProductCode, /*x.ProductName,*/ x.BeginningBalanceUom, x.Buyer, x.NoArticle, x.PlanPo, x.RO }, (key, group) => new AccountingStockTempViewModel
+                              EndingBalancePrice = 0,
+                              ExpendTransferQty = b.ExpenditureType == "TRANSFER" ? Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity), 2) : 0,
+                              ExpendOtherQty = b.ExpenditureType == "LAIN-LAIN" ? Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity), 2) : 0,
+                              ExpendSubconQty= b.ExpenditureType == "SUBCON" ? Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity), 2) : 0,
+                              ExpendTransferPrice= b.ExpenditureType == "TRANSFER" ? Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity) * (a.PricePerDealUnit / (double)(a.Conversion == 0 ? 1 : a.Conversion)) * (double)a.DOCurrencyRate, 2) : 0,
+                              ExpendSubconPrice= b.ExpenditureType == "SUBCON" ? Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity) * (a.PricePerDealUnit / (double)(a.Conversion == 0 ? 1 : a.Conversion)) * (double)a.DOCurrencyRate, 2) : 0,
+                              ExpendOtherPrice= b.ExpenditureType == "LAIN-LAIN" ? Math.Round((a.UomUnit == "YARD" && ctg == "BB" ? a.Quantity * 0.9144 : a.Quantity) * (a.PricePerDealUnit / (double)(a.Conversion == 0 ? 1 : a.Conversion)) * (double)a.DOCurrencyRate, 2) : 0,
+                          }).GroupBy(x => new { x.ProductCode, /*x.ProductName,*/ x.BeginningBalanceUom, x.Buyer, x.NoArticle, x.PlanPo, x.RO }, (key, group) => new AccountingStockTempViewModel
                          {
                              ProductCode = key.ProductCode,
                              //ProductName = key.ProductName,
@@ -859,7 +931,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              ExpendKon1BPrice = Math.Round(group.Sum(x => x.ExpendKon1BPrice), 2),
                              EndingBalanceQty = group.Sum(x => x.EndingBalanceQty),
                              EndingBalancePrice = group.Sum(x => x.EndingBalancePrice),
-                         });
+                              ExpendOtherPrice = Math.Round(group.Sum(x => x.ExpendOtherPrice),2),
+                              ExpendOtherQty = group.Sum(x => x.ExpendOtherQty),
+                              ExpendSubconPrice = Math.Round(group.Sum(x => x.ExpendSubconPrice),2),
+                              ExpendSubconQty = group.Sum(x => x.ExpendSubconQty),
+                              ExpendTransferPrice = Math.Round(group.Sum(x => x.ExpendTransferPrice),2),
+                              ExpendTransferQty = group.Sum(x => x.ExpendTransferQty)
+                          });
 
             var Koreksi = (from a in dbContext.GarmentUnitReceiptNotes
                            join b in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa) on a.Id equals b.URNId
@@ -924,6 +1002,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                ExpendKon1BPrice = 0,
                                EndingBalanceQty = 0,
                                EndingBalancePrice = 0,
+                               ExpendOtherPrice = 0,
+                               ExpendOtherQty = 0,
+                               ExpendSubconPrice = 0,
+                               ExpendSubconQty = 0,
+                               ExpendTransferPrice = 0,
+                               ExpendTransferQty = 0,
                            }).GroupBy(x => new { x.ProductCode, /*x.ProductName,*/ x.BeginningBalanceUom, x.Buyer, x.NoArticle, x.PlanPo, x.RO }, (key, group) => new AccountingStockTempViewModel
                            {
                                ProductCode = key.ProductCode,
@@ -971,6 +1055,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                ExpendKon1BPrice = group.Sum(x => x.ExpendKon1BPrice),
                                EndingBalanceQty = group.Sum(x => x.EndingBalanceQty),
                                EndingBalancePrice = group.Sum(x => x.EndingBalancePrice),
+                               ExpendOtherPrice = group.Sum(x => x.ExpendOtherPrice),
+                               ExpendOtherQty = group.Sum(x => x.ExpendOtherQty),
+                               ExpendSubconPrice = group.Sum(x => x.ExpendSubconPrice),
+                               ExpendSubconQty = group.Sum(x => x.ExpendSubconQty),
+                               ExpendTransferPrice = group.Sum(x => x.ExpendTransferPrice),
+                               ExpendTransferQty = group.Sum(x => x.ExpendTransferQty)
                            });
 
             var SaldoAkhir1 = Terima.Concat(Keluar).Concat(Koreksi).AsEnumerable();
@@ -1021,6 +1111,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 ExpendKon1BPrice = group.Sum(x => x.ExpendKon1BPrice),
                 EndingBalanceQty = group.Sum(x => x.EndingBalanceQty),
                 EndingBalancePrice = group.Sum(x => x.EndingBalancePrice),
+                ExpendOtherPrice = group.Sum(x => x.ExpendOtherPrice),
+                ExpendOtherQty = group.Sum(x => x.ExpendOtherQty),
+                ExpendSubconPrice = group.Sum(x => x.ExpendSubconPrice),
+                ExpendSubconQty = group.Sum(x => x.ExpendSubconQty),
+                ExpendTransferPrice = group.Sum(x => x.ExpendTransferPrice),
+                ExpendTransferQty = group.Sum(x => x.ExpendTransferQty)
             }).ToList();
 
             var Stock = SaldoAwal.Concat(SaldoAkhir).AsEnumerable();
@@ -1071,6 +1167,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 ExpendKon1BPrice = data.Sum(x => x.ExpendKon1BPrice),
                 EndingBalanceQty = Math.Round((decimal)data.Sum(x => x.BeginningBalanceQty) + (decimal)data.Sum(x => x.ReceiptCorrectionQty) + (decimal)data.Sum(a => a.ReceiptPurchaseQty) + (decimal)data.Sum(a => a.ReceiptProcessQty) + (decimal)data.Sum(a => a.ReceiptKon2AQty) + (decimal)data.Sum(a => a.ReceiptKon2BQty) + (decimal)data.Sum(a => a.ReceiptKon2CQty) + (decimal)data.Sum(a => a.ReceiptKon1AQty) + (decimal)data.Sum(a => a.ReceiptKon1BQty) - ((decimal)data.Sum(a => a.ExpendReturQty) + (decimal)data.Sum(a => a.ExpendSampleQty) + (decimal)data.Sum(a => a.ExpendRestQty) + (decimal)data.Sum(a => a.ExpendProcessQty) + (decimal)data.Sum(a => a.ExpendKon2AQty) + (decimal)data.Sum(a => a.ExpendKon2BQty) + (decimal)data.Sum(a => a.ExpendKon2CQty) + (decimal)data.Sum(a => a.ExpendKon1AQty) + (decimal)data.Sum(a => a.ExpendKon1BQty)), 2),
                 EndingBalancePrice = Math.Round((double)data.Sum(a => a.BeginningBalancePrice) + (double)data.Sum(a => a.ReceiptCorrectionPrice) + (double)data.Sum(a => a.ReceiptPurchasePrice) + (double)data.Sum(a => a.ReceiptProcessPrice) + (double)data.Sum(a => a.ReceiptKon2APrice) + (double)data.Sum(a => a.ReceiptKon2BPrice) + (double)data.Sum(a => a.ReceiptKon2CPrice) + (double)data.Sum(a => a.ReceiptKon1APrice) + (double)data.Sum(a => a.ReceiptKon1BPrice) - ((double)data.Sum(a => a.ExpendReturPrice) + (double)data.Sum(a => a.ExpendRestPrice) + (double)data.Sum(a => a.ExpendProcessPrice) + (double)data.Sum(a => a.ExpendSamplePrice) + (double)data.Sum(a => a.ExpendKon2APrice) + (double)data.Sum(a => a.ExpendKon2BPrice) + (double)data.Sum(a => a.ExpendKon2CPrice) + (double)data.Sum(a => a.ExpendKon1APrice) + (double)data.Sum(a => a.ExpendKon1BPrice)), 2),
+                ExpendOtherPrice = data.Sum(x => x.ExpendOtherPrice),
+                ExpendOtherQty = data.Sum(x => x.ExpendOtherQty),
+                ExpendSubconPrice = data.Sum(x => x.ExpendSubconPrice),
+                ExpendSubconQty = data.Sum(x => x.ExpendSubconQty),
+                ExpendTransferPrice = data.Sum(x => x.ExpendTransferPrice),
+                ExpendTransferQty = data.Sum(x => x.ExpendTransferQty)
             }).ToList();
 
             List<AccountingStockReportViewModel> stockReportViewModels = new List<AccountingStockReportViewModel>();
@@ -1141,6 +1243,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                     ExpendKon1BPrice = i.ExpendKon1BPrice,
                     EndingBalanceQty = i.EndingBalanceQty,
                     EndingBalancePrice = i.EndingBalancePrice,
+                    ExpendOtherPrice=i.ExpendOtherPrice,
+                    ExpendSubconPrice=i.ExpendSubconPrice,
+                    ExpendTransferPrice=i.ExpendTransferPrice,
+                    ExpendSubconQty=i.ExpendSubconQty,
+                    ExpendOtherQty=i.ExpendOtherQty,
+                    ExpendTransferQty=i.ExpendTransferQty
                 });
 
                 //i.BeginningBalanceQty = i.BeginningBalanceQty > 0 ? i.BeginningBalanceQty : 0;
@@ -1160,12 +1268,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             //(x.ReceiptCorrectionPrice > 0) || (x.ReceiptCorrectionQty > 0) || (x.ReceiptKon1APrice > 0) || (x.ReceiptKon1AQty > 0) || (x.ReceiptKon1BPrice > 0) || (x.ReceiptKon1BQty > 0) || (x.ReceiptKon2APrice > 0) || (x.ReceiptKon2AQty > 0)
             //|| (x.ReceiptKon2BPrice > 0) || (x.ReceiptKon2BQty > 0) || (x.ReceiptKon2CPrice > 0) || (x.ReceiptKon2CQty > 0) || (x.ReceiptProcessPrice > 0) || (x.ReceiptProcessQty > 0) || (x.ReceiptPurchasePrice > 0) || (x.ReceiptPurchaseQty > 0)).ToList();
 
-            stockReportViewModels = stockReportViewModels.Where(x => (x.BeginningBalanceQty != 0) || (x.BeginningBalancePrice != 0) || (x.EndingBalancePrice != 0) || (x.EndingBalanceQty != 0) || (x.ExpendKon1APrice != 0) || (x.ExpendKon1AQty != 0) ||
-            (x.ExpendKon1BPrice != 0) || (x.ExpendKon1BQty != 0) || (x.ExpendKon2APrice != 0) || (x.ExpendKon2AQty != 0) || (x.ExpendKon2BPrice != 0) || (x.ExpendKon2BQty != 0) || (x.ExpendKon2CPrice != 0) || (x.ExpendKon2CQty != 0) ||
-            (x.ExpendProcessPrice != 0) || (x.ExpendProcessQty != 0) || (x.ExpendRestPrice != 0) || (x.ExpendRestQty != 0) || (x.ExpendReturPrice != 0) || (x.ExpendReturQty != 0) || (x.ExpendSamplePrice != 0) || (x.ExpendSampleQty != 0) ||
-            (x.ReceiptCorrectionPrice != 0) || (x.ReceiptCorrectionQty != 0) || (x.ReceiptKon1APrice != 0) || (x.ReceiptKon1AQty != 0) || (x.ReceiptKon1BPrice != 0) || (x.ReceiptKon1BQty != 0) || (x.ReceiptKon2APrice != 0) || (x.ReceiptKon2AQty != 0)
-            || (x.ReceiptKon2BPrice != 0) || (x.ReceiptKon2BQty != 0) || (x.ReceiptKon2CPrice != 0) || (x.ReceiptKon2CQty != 0) || (x.ReceiptProcessPrice != 0) || (x.ReceiptProcessQty != 0) || (x.ReceiptPurchasePrice != 0) || (x.ReceiptPurchaseQty != 0)).ToList();
+            if (unitcode != "SMP1")
+            {
+                stockReportViewModels = stockReportViewModels.Where(x => (x.BeginningBalanceQty != 0) || (x.BeginningBalancePrice != 0) || (x.EndingBalancePrice != 0) || (x.EndingBalanceQty != 0) || (x.ExpendKon1APrice != 0) || (x.ExpendKon1AQty != 0) ||
+                (x.ExpendKon1BPrice != 0) || (x.ExpendKon1BQty != 0) || (x.ExpendKon2APrice != 0) || (x.ExpendKon2AQty != 0) || (x.ExpendKon2BPrice != 0) || (x.ExpendKon2BQty != 0) || (x.ExpendKon2CPrice != 0) || (x.ExpendKon2CQty != 0) ||
+                (x.ExpendProcessPrice != 0) || (x.ExpendProcessQty != 0) || (x.ExpendRestPrice != 0) || (x.ExpendRestQty != 0) || (x.ExpendReturPrice != 0) || (x.ExpendReturQty != 0) || (x.ExpendSamplePrice != 0) || (x.ExpendSampleQty != 0) ||
+                (x.ReceiptCorrectionPrice != 0) || (x.ReceiptCorrectionQty != 0) || (x.ReceiptKon1APrice != 0) || (x.ReceiptKon1AQty != 0) || (x.ReceiptKon1BPrice != 0) || (x.ReceiptKon1BQty != 0) || (x.ReceiptKon2APrice != 0) || (x.ReceiptKon2AQty != 0)
+                || (x.ReceiptKon2BPrice != 0) || (x.ReceiptKon2BQty != 0) || (x.ReceiptKon2CPrice != 0) || (x.ReceiptKon2CQty != 0) || (x.ReceiptProcessPrice != 0) || (x.ReceiptProcessQty != 0) || (x.ReceiptPurchasePrice != 0) || (x.ReceiptPurchaseQty != 0)).ToList();
 
+            }
+            else
+            {
+                stockReportViewModels = stockReportViewModels.Where(x => (x.BeginningBalanceQty != 0) || (x.BeginningBalancePrice != 0) || (x.EndingBalancePrice != 0) || (x.EndingBalanceQty != 0) || (x.ExpendKon1APrice != 0) || (x.ExpendKon1AQty != 0) ||
+                (x.ExpendKon1BPrice != 0) || (x.ExpendKon1BQty != 0) || (x.ExpendKon2APrice != 0) || (x.ExpendKon2AQty != 0) || (x.ExpendKon2BPrice != 0) || (x.ExpendKon2BQty != 0) || (x.ExpendKon2CPrice != 0) || (x.ExpendKon2CQty != 0) ||
+                (x.ExpendRestPrice != 0) || (x.ExpendRestQty != 0) || (x.ExpendReturPrice != 0) || (x.ExpendReturQty != 0) || (x.ExpendSamplePrice != 0) || (x.ExpendSampleQty != 0) ||
+                (x.ReceiptCorrectionPrice != 0) || (x.ReceiptCorrectionQty != 0) || (x.ReceiptKon1APrice != 0) || (x.ReceiptKon1AQty != 0) || (x.ReceiptKon1BPrice != 0) || (x.ReceiptKon1BQty != 0) || (x.ReceiptKon2APrice != 0) || (x.ReceiptKon2AQty != 0)
+                || (x.ReceiptKon2BPrice != 0) || (x.ReceiptKon2BQty != 0) || (x.ReceiptKon2CPrice != 0) || (x.ReceiptKon2CQty != 0) || (x.ReceiptProcessPrice != 0) || (x.ReceiptProcessQty != 0) || (x.ReceiptPurchasePrice != 0) || (x.ReceiptPurchaseQty != 0) ||
+                (x.ExpendTransferQty != 0) || (x.ExpendTransferPrice != 0) || (x.ExpendSubconQty != 0) || (x.ExpendSubconPrice != 0) || (x.ExpendOtherQty != 0) || (x.ExpendOtherPrice != 0)).ToList();
+
+            }
             var total = new AccountingStockReportViewModel
             {
                 ProductCode = "TOTAL",
@@ -1213,6 +1334,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 ExpendKon1BPrice = Math.Round(SaldoAkhirs.Sum(X => X.ExpendKon1BPrice), 2),
                 EndingBalanceQty = Math.Round(SaldoAkhirs.Sum(X => X.EndingBalanceQty), 2),
                 EndingBalancePrice = Math.Round(SaldoAkhirs.Sum(X => X.EndingBalancePrice), 2),
+                ExpendOtherPrice = Math.Round(SaldoAkhirs.Sum(x => x.ExpendOtherPrice), 2),
+                ExpendOtherQty = Math.Round(SaldoAkhirs.Sum(x => x.ExpendOtherQty),2),
+                ExpendSubconPrice = Math.Round(SaldoAkhirs.Sum(x => x.ExpendSubconPrice), 2),
+                ExpendSubconQty = Math.Round(SaldoAkhirs.Sum(x => x.ExpendSubconQty),2),
+                ExpendTransferPrice = Math.Round(SaldoAkhirs.Sum(x => x.ExpendTransferPrice), 2),
+                ExpendTransferQty = Math.Round(SaldoAkhirs.Sum(x => x.ExpendTransferQty),2)
 
             };
 
@@ -1255,7 +1382,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             double KONFEKSI1AQtyTotal = Query.Sum(x => Convert.ToDouble(x.ReceiptKon1AQty));
             double KONFEKSI1APriceTotal = Query.Sum(x => Convert.ToDouble(x.ReceiptKon1APrice));
             #endregion
-            #region Pemngeluaran
+            #region Pengeluaran
             double? ReturQtyTotal = Query.Sum(x => Convert.ToDouble(x.ExpendReturQty));
             double? ReturJumlahTotal = Query.Sum(x => Convert.ToDouble(x.ExpendReturPrice));
             double? SisaQtyTotal = Query.Sum(x => Convert.ToDouble(x.ExpendRestQty));
@@ -1274,13 +1401,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             double? ExpendKONFEKSI1BPriceTotal = Query.Sum(x => Convert.ToDouble(x.ExpendKon1BPrice));
             double? ExpendKONFEKSI1AQtyTotal = Query.Sum(x => Convert.ToDouble(x.ExpendKon1AQty));
             double? ExpendKONFEKSI1APriceTotal = Query.Sum(x => Convert.ToDouble(x.ExpendKon1APrice));
+            double? ExpendOTHERPriceTotal = Query.Sum(x => Convert.ToDouble(x.ExpendOtherPrice));
+            double? ExpendOTHERQtyTotal = Query.Sum(x => Convert.ToDouble(x.ExpendOtherQty));
+            double? ExpendSUBCONPriceTotal = Query.Sum(x => Convert.ToDouble(x.ExpendSubconPrice));
+            double? ExpendSUBCONQtyTotal = Query.Sum(x => Convert.ToDouble(x.ExpendSubconQty));
+            double? ExpendTRANSFERPriceTotal = Query.Sum(x => Convert.ToDouble(x.ExpendTransferPrice));
+            double? ExpendTRANSFERQtyTotal = Query.Sum(x => Convert.ToDouble(x.ExpendTransferQty));
             #endregion
             double? EndingQty = Query.Sum(x => Convert.ToDouble(x.EndingBalanceQty));
             double? EndingTotal = Query.Sum(x => Convert.ToDouble(x.EndingBalancePrice));
             DataTable result = new DataTable();
             var headers = new string[] { "No", "Kode", "No RO", "PlanPO", "No Artikel", "Nama Barang", "Buyer", "Saldo Awal", "Saldo Awal1", "Saldo Awal2", "P E M A S U K A N", "P E M B E L I A N1", "P E M B E L I A N2", "P E M B E L I A N3", "P E M B E L I A N4", "P E M B E L I A N5", "P E M B E L I A N6", "P E M B E L I A N7", "P E M B E L I A N8", "P E M B E L I A N9", "P E M B E L I A N10", "P E M B E L I A N11", "P E M B E L I A N12", "P E M B E L I A N13", "P E M B E L I A N14", "P E M B E L I A N15", "P E N G E L U A R A N", "P E N G E L U A R A N1", "P E N G E L U A R A N2", "P E N G E L U A R A N3", "P E N G E L U A R A N4", "P E N G E L U A R A N5", "P E N G E L U A R A N6", "P E N G E L U A R A N7", "P E N G E L U A R A N8", "P E N G E L U A R A N9", "P E N G E L U A R A N10", "P E N G E L U A R A N11", "P E N G E L U A R A N12", "P E N G E L U A R A N13", "P E N G E L U A R A N14", "P E N G E L U A R A N15", "P E N G E L U A R A N16", "P E N G E L U A R A N17", "Saldo Akhir", "Saldo Akhir 1" };
+            if (unitcode == "SMP1")
+            {
+                headers= new string[] { "No", "Kode", "No RO", "PlanPO", "No Artikel", "Nama Barang", "Buyer", "Saldo Awal", "Saldo Awal1", "Saldo Awal2", "P E M A S U K A N", "P E M B E L I A N1", "P E M B E L I A N2", "P E M B E L I A N3", "P E M B E L I A N4", "P E M B E L I A N5", "P E M B E L I A N6", "P E M B E L I A N7", "P E M B E L I A N8", "P E M B E L I A N9", "P E M B E L I A N10", "P E M B E L I A N11", "P E M B E L I A N12", "P E M B E L I A N13", "P E M B E L I A N14", "P E M B E L I A N15", "P E N G E L U A R A N", "P E N G E L U A R A N1", "P E N G E L U A R A N2", "P E N G E L U A R A N3", "P E N G E L U A R A N4", "P E N G E L U A R A N5", "P E N G E L U A R A N6", "P E N G E L U A R A N7", "P E N G E L U A R A N8", "P E N G E L U A R A N9", "P E N G E L U A R A N10", "P E N G E L U A R A N11", "P E N G E L U A R A N12", "P E N G E L U A R A N13", "P E N G E L U A R A N14", "P E N G E L U A R A N15", "P E N G E L U A R A N16", "P E N G E L U A R A N17", "P E N G E L U A R A N18", "P E N G E L U A R A N19", "Saldo Akhir", "Saldo Akhir 1" };
+            }
             var headers2 = new string[] { "Koreksi", "Pembelian", "Proses", "KONFEKSI 2A", "KONFEKSI 2B", "KONFEKSI 2C/EX.K4", "KONFEKSI 1A/EX.K3",  "KONFEKSI 1B", "Retur", "Sisa", "Proses", "Sample", "KONFEKSI 2A", "KONFEKSI 2B", "KONFEKSI 2C/EX.K4", "KONFEKSI 1A/EX. K3", "KONFEKSI 1B" };
-            var subheaders = new string[] { "Jumlah", "Sat", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp" };
+            var subheaders = new string[] { "Jumlah", "Sat", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp", "Qty", "Rp" };
             for (int i = 0; i < 7; i++)
             {
                 result.Columns.Add(new DataColumn() { ColumnName = headers[i], DataType = typeof(string) });
@@ -1292,61 +1429,125 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 result.Columns.Add(new DataColumn() { ColumnName = headers[i], DataType = typeof(Double) });
             }
             var index = 1;
-            foreach (var item in Query)
+            if(unitcode!= "SMP1")
             {
-                var ReceiptPurchaseQty = unitcode == "C2A" ? item.ReceiptPurchaseQty + item.ReceiptKon2AQty : unitcode == "C2B" ? item.ReceiptPurchaseQty + item.ReceiptKon2BQty : unitcode == "C2C" ? item.ReceiptPurchaseQty + item.ReceiptKon2CQty : unitcode == "C1B" ? item.ReceiptPurchaseQty + item.ReceiptKon1BQty : unitcode == "C1A" ? item.ReceiptPurchaseQty + item.ReceiptKon1AQty : item.ReceiptPurchaseQty + item.ReceiptKon2AQty + item.ReceiptKon2BQty + item.ReceiptKon2CQty + item.ReceiptKon1BQty + item.ReceiptKon1AQty;
-                var ReceiptPurchasePrice = unitcode == "C2A" ? item.ReceiptPurchasePrice + item.ReceiptKon2APrice : unitcode == "C2B" ? item.ReceiptPurchasePrice + item.ReceiptKon2BPrice : unitcode == "C2C" ? item.ReceiptPurchasePrice + item.ReceiptKon2CPrice : unitcode == "C1B" ? item.ReceiptPurchasePrice + item.ReceiptKon1BPrice : unitcode == "C1A" ? item.ReceiptPurchasePrice + item.ReceiptKon1APrice : item.ReceiptPurchasePrice + item.ReceiptKon2APrice + item.ReceiptKon2BPrice + item.ReceiptKon2CPrice + item.ReceiptKon1BPrice + item.ReceiptKon1APrice;
-                var ReceiptKon2AQty = unitcode == "C2A" ? 0 : item.ReceiptKon2AQty;
-                var ReceiptKon2APrice = unitcode == "C2A" ? 0 : item.ReceiptKon2APrice;
-                var ReceiptKon2BPrice = unitcode == "C2B" ? 0 : item.ReceiptKon2BPrice;
-                var ReceiptKon2BQty = unitcode == "C2B" ? 0 : item.ReceiptKon2BQty;
-                var ReceiptKon2CPrice = unitcode == "C2C" ? 0 : item.ReceiptKon2CPrice;
-                var ReceiptKon2CQty = unitcode == "C2C" ? 0 : item.ReceiptKon2CQty;
-                var ReceiptKon1BPrice = unitcode == "C1B" ? 0 : item.ReceiptKon1BPrice;
-                var ReceiptKon1BQty = unitcode == "C1B" ? 0 : item.ReceiptKon1BQty;
-                var ReceiptKon1AQty = unitcode == "C1A" ? 0 : item.ReceiptKon1AQty;
-                var ReceiptKon1APrice = unitcode == "C1A" ? 0 : item.ReceiptKon1APrice;
-                var ReceiptCorrection = item.ReceiptCorrectionPrice;
+                foreach (var item in Query)
+                {
+                    var ReceiptPurchaseQty = unitcode == "C2A" ? item.ReceiptPurchaseQty + item.ReceiptKon2AQty : unitcode == "C2B" ? item.ReceiptPurchaseQty + item.ReceiptKon2BQty : unitcode == "C2C" ? item.ReceiptPurchaseQty + item.ReceiptKon2CQty : unitcode == "C1B" ? item.ReceiptPurchaseQty + item.ReceiptKon1BQty : unitcode == "C1A" ? item.ReceiptPurchaseQty + item.ReceiptKon1AQty : item.ReceiptPurchaseQty + item.ReceiptKon2AQty + item.ReceiptKon2BQty + item.ReceiptKon2CQty + item.ReceiptKon1BQty + item.ReceiptKon1AQty;
+                    var ReceiptPurchasePrice = unitcode == "C2A" ? item.ReceiptPurchasePrice + item.ReceiptKon2APrice : unitcode == "C2B" ? item.ReceiptPurchasePrice + item.ReceiptKon2BPrice : unitcode == "C2C" ? item.ReceiptPurchasePrice + item.ReceiptKon2CPrice : unitcode == "C1B" ? item.ReceiptPurchasePrice + item.ReceiptKon1BPrice : unitcode == "C1A" ? item.ReceiptPurchasePrice + item.ReceiptKon1APrice : item.ReceiptPurchasePrice + item.ReceiptKon2APrice + item.ReceiptKon2BPrice + item.ReceiptKon2CPrice + item.ReceiptKon1BPrice + item.ReceiptKon1APrice;
+                    var ReceiptKon2AQty = unitcode == "C2A" ? 0 : item.ReceiptKon2AQty;
+                    var ReceiptKon2APrice = unitcode == "C2A" ? 0 : item.ReceiptKon2APrice;
+                    var ReceiptKon2BPrice = unitcode == "C2B" ? 0 : item.ReceiptKon2BPrice;
+                    var ReceiptKon2BQty = unitcode == "C2B" ? 0 : item.ReceiptKon2BQty;
+                    var ReceiptKon2CPrice = unitcode == "C2C" ? 0 : item.ReceiptKon2CPrice;
+                    var ReceiptKon2CQty = unitcode == "C2C" ? 0 : item.ReceiptKon2CQty;
+                    var ReceiptKon1BPrice = unitcode == "C1B" ? 0 : item.ReceiptKon1BPrice;
+                    var ReceiptKon1BQty = unitcode == "C1B" ? 0 : item.ReceiptKon1BQty;
+                    var ReceiptKon1AQty = unitcode == "C1A" ? 0 : item.ReceiptKon1AQty;
+                    var ReceiptKon1APrice = unitcode == "C1A" ? 0 : item.ReceiptKon1APrice;
+                    var ReceiptCorrection = item.ReceiptCorrectionPrice;
 
-                result.Rows.Add(index++, item.ProductCode, item.RO, item.PlanPo, item.NoArticle, item.ProductName, item.Buyer,
-                    Convert.ToDouble(item.BeginningBalanceQty), item.BeginningBalanceUom,
-                    Convert.ToDouble(item.BeginningBalancePrice),
-                    Convert.ToDouble(item.ReceiptCorrectionQty),
-                    Convert.ToDouble(item.ReceiptCorrectionPrice),
-                    Convert.ToDouble(ReceiptPurchaseQty),
-                    Convert.ToDouble(ReceiptPurchasePrice),
-                    Convert.ToDouble(item.ReceiptProcessQty),
-                    Convert.ToDouble(item.ReceiptProcessPrice),
-                    Convert.ToDouble(ReceiptKon2AQty),
-                    Convert.ToDouble(ReceiptKon2APrice),
-                    Convert.ToDouble(ReceiptKon2BQty),
-                    Convert.ToDouble(ReceiptKon2BPrice),
-                    Convert.ToDouble(ReceiptKon2CQty),
-                    Convert.ToDouble(ReceiptKon2CPrice),
-                    Convert.ToDouble(ReceiptKon1AQty),
-                    Convert.ToDouble(ReceiptKon1APrice),
-                    Convert.ToDouble(ReceiptKon1BQty),
-                    Convert.ToDouble(ReceiptKon1BPrice),
-                    Convert.ToDouble(item.ExpendReturQty), 
-                    item.ExpendReturPrice, 
-                    item.ExpendRestQty, 
-                    item.ExpendRestPrice, 
-                    item.ExpendProcessQty, 
-                    item.ExpendProcessPrice, 
-                    item.ExpendSampleQty, 
-                    item.ExpendSamplePrice, 
-                    item.ExpendKon2AQty, 
-                    item.ExpendKon2APrice, 
-                    item.ExpendKon2BQty, 
-                    item.ExpendKon2BPrice, 
-                    item.ExpendKon2CQty, 
-                    item.ExpendKon2CPrice, 
-                    item.ExpendKon1AQty, 
-                    item.ExpendKon1APrice, 
-                    item.ExpendKon1BQty, 
-                    item.ExpendKon1BPrice, 
-                    Convert.ToDouble(item.EndingBalanceQty), 
-                    Convert.ToDouble(item.EndingBalancePrice));
+                    result.Rows.Add(index++, item.ProductCode, item.RO, item.PlanPo, item.NoArticle, item.ProductName, item.Buyer,
+                        Convert.ToDouble(item.BeginningBalanceQty), item.BeginningBalanceUom,
+                        Convert.ToDouble(item.BeginningBalancePrice),
+                        Convert.ToDouble(item.ReceiptCorrectionQty),
+                        Convert.ToDouble(item.ReceiptCorrectionPrice),
+                        Convert.ToDouble(ReceiptPurchaseQty),
+                        Convert.ToDouble(ReceiptPurchasePrice),
+                        Convert.ToDouble(item.ReceiptProcessQty),
+                        Convert.ToDouble(item.ReceiptProcessPrice),
+                        Convert.ToDouble(ReceiptKon2AQty),
+                        Convert.ToDouble(ReceiptKon2APrice),
+                        Convert.ToDouble(ReceiptKon2BQty),
+                        Convert.ToDouble(ReceiptKon2BPrice),
+                        Convert.ToDouble(ReceiptKon2CQty),
+                        Convert.ToDouble(ReceiptKon2CPrice),
+                        Convert.ToDouble(ReceiptKon1AQty),
+                        Convert.ToDouble(ReceiptKon1APrice),
+                        Convert.ToDouble(ReceiptKon1BQty),
+                        Convert.ToDouble(ReceiptKon1BPrice),
+                        Convert.ToDouble(item.ExpendReturQty),
+                        item.ExpendReturPrice,
+                        item.ExpendRestQty,
+                        item.ExpendRestPrice,
+                        item.ExpendProcessQty,
+                        item.ExpendProcessPrice,
+                        item.ExpendSampleQty,
+                        item.ExpendSamplePrice,
+                        item.ExpendKon2AQty,
+                        item.ExpendKon2APrice,
+                        item.ExpendKon2BQty,
+                        item.ExpendKon2BPrice,
+                        item.ExpendKon2CQty,
+                        item.ExpendKon2CPrice,
+                        item.ExpendKon1AQty,
+                        item.ExpendKon1APrice,
+                        item.ExpendKon1BQty,
+                        item.ExpendKon1BPrice,
+                        Convert.ToDouble(item.EndingBalanceQty),
+                        Convert.ToDouble(item.EndingBalancePrice));
+                }
+            }
+            else
+            {
+                foreach (var item in Query)
+                {
+                    var ReceiptPurchaseQty = unitcode == "C2A" ? item.ReceiptPurchaseQty + item.ReceiptKon2AQty : unitcode == "C2B" ? item.ReceiptPurchaseQty + item.ReceiptKon2BQty : unitcode == "C2C" ? item.ReceiptPurchaseQty + item.ReceiptKon2CQty : unitcode == "C1B" ? item.ReceiptPurchaseQty + item.ReceiptKon1BQty : unitcode == "C1A" ? item.ReceiptPurchaseQty + item.ReceiptKon1AQty : item.ReceiptPurchaseQty + item.ReceiptKon2AQty + item.ReceiptKon2BQty + item.ReceiptKon2CQty + item.ReceiptKon1BQty + item.ReceiptKon1AQty;
+                    var ReceiptPurchasePrice = unitcode == "C2A" ? item.ReceiptPurchasePrice + item.ReceiptKon2APrice : unitcode == "C2B" ? item.ReceiptPurchasePrice + item.ReceiptKon2BPrice : unitcode == "C2C" ? item.ReceiptPurchasePrice + item.ReceiptKon2CPrice : unitcode == "C1B" ? item.ReceiptPurchasePrice + item.ReceiptKon1BPrice : unitcode == "C1A" ? item.ReceiptPurchasePrice + item.ReceiptKon1APrice : item.ReceiptPurchasePrice + item.ReceiptKon2APrice + item.ReceiptKon2BPrice + item.ReceiptKon2CPrice + item.ReceiptKon1BPrice + item.ReceiptKon1APrice;
+                    var ReceiptKon2AQty = unitcode == "C2A" ? 0 : item.ReceiptKon2AQty;
+                    var ReceiptKon2APrice = unitcode == "C2A" ? 0 : item.ReceiptKon2APrice;
+                    var ReceiptKon2BPrice = unitcode == "C2B" ? 0 : item.ReceiptKon2BPrice;
+                    var ReceiptKon2BQty = unitcode == "C2B" ? 0 : item.ReceiptKon2BQty;
+                    var ReceiptKon2CPrice = unitcode == "C2C" ? 0 : item.ReceiptKon2CPrice;
+                    var ReceiptKon2CQty = unitcode == "C2C" ? 0 : item.ReceiptKon2CQty;
+                    var ReceiptKon1BPrice = unitcode == "C1B" ? 0 : item.ReceiptKon1BPrice;
+                    var ReceiptKon1BQty = unitcode == "C1B" ? 0 : item.ReceiptKon1BQty;
+                    var ReceiptKon1AQty = unitcode == "C1A" ? 0 : item.ReceiptKon1AQty;
+                    var ReceiptKon1APrice = unitcode == "C1A" ? 0 : item.ReceiptKon1APrice;
+                    var ReceiptCorrection = item.ReceiptCorrectionPrice;
+
+                    result.Rows.Add(index++, item.ProductCode, item.RO, item.PlanPo, item.NoArticle, item.ProductName, item.Buyer,
+                        Convert.ToDouble(item.BeginningBalanceQty), item.BeginningBalanceUom,
+                        Convert.ToDouble(item.BeginningBalancePrice),
+                        Convert.ToDouble(item.ReceiptCorrectionQty),
+                        Convert.ToDouble(item.ReceiptCorrectionPrice),
+                        Convert.ToDouble(ReceiptPurchaseQty),
+                        Convert.ToDouble(ReceiptPurchasePrice),
+                        Convert.ToDouble(item.ReceiptProcessQty),
+                        Convert.ToDouble(item.ReceiptProcessPrice),
+                        Convert.ToDouble(ReceiptKon2AQty),
+                        Convert.ToDouble(ReceiptKon2APrice),
+                        Convert.ToDouble(ReceiptKon2BQty),
+                        Convert.ToDouble(ReceiptKon2BPrice),
+                        Convert.ToDouble(ReceiptKon2CQty),
+                        Convert.ToDouble(ReceiptKon2CPrice),
+                        Convert.ToDouble(ReceiptKon1AQty),
+                        Convert.ToDouble(ReceiptKon1APrice),
+                        Convert.ToDouble(ReceiptKon1BQty),
+                        Convert.ToDouble(ReceiptKon1BPrice),
+                        Convert.ToDouble(item.ExpendReturQty),
+                        item.ExpendReturPrice,
+                        item.ExpendRestQty,
+                        item.ExpendRestPrice,
+                        item.ExpendSampleQty,
+                        item.ExpendSamplePrice,
+                        item.ExpendSubconQty,
+                        item.ExpendSubconPrice,
+                        item.ExpendOtherQty,
+                        item.ExpendOtherPrice,
+                        item.ExpendKon2AQty,
+                        item.ExpendKon2APrice,
+                        item.ExpendKon2BQty,
+                        item.ExpendKon2BPrice,
+                        item.ExpendKon2CQty,
+                        item.ExpendKon2CPrice,
+                        item.ExpendKon1AQty,
+                        item.ExpendKon1APrice,
+                        item.ExpendKon1BQty,
+                        item.ExpendKon1BPrice,
+                        Convert.ToDouble(item.EndingBalanceQty),
+                        Convert.ToDouble(item.EndingBalancePrice));
+                }
             }
 
             ExcelPackage package = new ExcelPackage();
@@ -1380,12 +1581,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             sheet.Cells["K4"].Value = headers[10];
             sheet.Cells["K4:Z4"].Merge = true;
             sheet.Cells["K4:Z4"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
-            sheet.Cells["AA4"].Value = headers[26];
-            sheet.Cells["AA4:AR4"].Merge = true;
-            sheet.Cells["AA4:AR4"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
-            sheet.Cells["AS4"].Value = headers[44];
-            sheet.Cells["AS4:AT5"].Merge = true;
-            sheet.Cells["AS4:AT5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+            if (unitcode != "SMP1")
+            {
+                sheet.Cells["AA4"].Value = headers[26];
+                sheet.Cells["AA4:AR4"].Merge = true;
+                sheet.Cells["AA4:AR4"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                sheet.Cells["AS4"].Value = headers[44];
+                sheet.Cells["AS4:AT5"].Merge = true;
+                sheet.Cells["AS4:AT5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+            }
+            else
+            {
+                sheet.Cells["AA4"].Value = headers[26];
+                sheet.Cells["AA4:AT4"].Merge = true;
+                sheet.Cells["AA4:AT4"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                sheet.Cells["AU4"].Value = headers[44];
+                sheet.Cells["AU4:AV5"].Merge = true;
+                sheet.Cells["AU4:AV5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+            }
+
             sheet.Cells["K5"].Value = headers2[0];
             sheet.Cells["K5:L5"].Merge = true;
             sheet.Cells["K5:L5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
@@ -1410,33 +1624,65 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             sheet.Cells["Y5"].Value = headers2[7];
             sheet.Cells["Y5:Z5"].Merge = true;
             sheet.Cells["Y5:Z5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+
             sheet.Cells["AA5"].Value = headers2[8];
             sheet.Cells["AA5:AB5"].Merge = true;
             sheet.Cells["AA5:AB5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
             sheet.Cells["AC5"].Value = headers2[9];
             sheet.Cells["AC5:AD5"].Merge = true;
             sheet.Cells["AC5:AD5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
-            sheet.Cells["AE5"].Value = headers2[10];
-            sheet.Cells["AE5:AF5"].Merge = true;
-            sheet.Cells["AE5:AF5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
-            sheet.Cells["AG5"].Value = headers2[11];
-            sheet.Cells["AG5:AH5"].Merge = true;
-            sheet.Cells["AG5:AH5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
-            sheet.Cells["AI5"].Value = headers2[12];
-            sheet.Cells["AI5:AJ5"].Merge = true;
-            sheet.Cells["AI5:AJ5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
-            sheet.Cells["AK5"].Value = headers2[13];
-            sheet.Cells["AK5:AL5"].Merge = true;
-            sheet.Cells["AK5:AL5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
-            sheet.Cells["AM5"].Value = headers2[14];
-            sheet.Cells["AM5:AN5"].Merge = true;
-            sheet.Cells["AM5:AN5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
-            sheet.Cells["AO5"].Value = headers2[15];
-            sheet.Cells["AO5:AP5"].Merge = true;
-            sheet.Cells["AO5:AP5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
-            sheet.Cells["AQ5"].Value = headers2[16];
-            sheet.Cells["AQ5:AR5"].Merge = true;
-            sheet.Cells["AQ5:AR5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+
+            if (unitcode != "SMP1")
+            {
+                sheet.Cells["AE5"].Value = headers2[10];
+                sheet.Cells["AE5:AF5"].Merge = true;
+                sheet.Cells["AE5:AF5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                sheet.Cells["AG5"].Value = headers2[11];
+                sheet.Cells["AG5:AH5"].Merge = true;
+                sheet.Cells["AG5:AH5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                sheet.Cells["AI5"].Value = headers2[12];
+                sheet.Cells["AI5:AJ5"].Merge = true;
+                sheet.Cells["AI5:AJ5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                sheet.Cells["AK5"].Value = headers2[13];
+                sheet.Cells["AK5:AL5"].Merge = true;
+                sheet.Cells["AK5:AL5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                sheet.Cells["AM5"].Value = headers2[14];
+                sheet.Cells["AM5:AN5"].Merge = true;
+                sheet.Cells["AM5:AN5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                sheet.Cells["AO5"].Value = headers2[15];
+                sheet.Cells["AO5:AP5"].Merge = true;
+                sheet.Cells["AO5:AP5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                sheet.Cells["AQ5"].Value = headers2[16];
+                sheet.Cells["AQ5:AR5"].Merge = true;
+                sheet.Cells["AQ5:AR5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+            }
+            else
+            {
+                sheet.Cells["AE5"].Value = headers2[11];
+                sheet.Cells["AE5:AF5"].Merge = true;
+                sheet.Cells["AE5:AF5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                sheet.Cells["AG5"].Value = "Subcon";
+                sheet.Cells["AG5:AH5"].Merge = true;
+                sheet.Cells["AG5:AH5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                sheet.Cells["AI5"].Value = "Lain-lain";
+                sheet.Cells["AI5:AJ5"].Merge = true;
+                sheet.Cells["AI5:AJ5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                sheet.Cells["AK5"].Value = headers2[12];
+                sheet.Cells["AK5:AL5"].Merge = true;
+                sheet.Cells["AK5:AL5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                sheet.Cells["AM5"].Value = headers2[13];
+                sheet.Cells["AM5:AN5"].Merge = true;
+                sheet.Cells["AM5:AN5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                sheet.Cells["AO5"].Value = headers2[14];
+                sheet.Cells["AO5:AP5"].Merge = true;
+                sheet.Cells["AO5:AP5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                sheet.Cells["AQ5"].Value = headers2[15];
+                sheet.Cells["AQ5:AR5"].Merge = true;
+                sheet.Cells["AQ5:AR5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+                sheet.Cells["AS5"].Value = headers2[16];
+                sheet.Cells["AS5:AT5"].Merge = true;
+                sheet.Cells["AS5:AT5"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Medium);
+            }
 
             foreach (var i in Enumerable.Range(0, 7))
             {
@@ -1454,7 +1700,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             }
 
-            for (var i = 19; i < 39; i++)
+            
+            for (var i = 19; unitcode!="SMP1" ? i < 39 : i < 41; i++)
             {
                 var col = (char)('A' + i - 19);
                 sheet.Cells[$"A{col}6"].Value = subheaders[i];
@@ -1509,6 +1756,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             sheet.Cells[$"Y{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
             sheet.Cells[$"Z{7 + result.Rows.Count}"].Value = KONFEKSI1BPriceTotal;
             sheet.Cells[$"Z{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+
             sheet.Cells[$"AA{7 + result.Rows.Count}"].Value = ReturQtyTotal;
             sheet.Cells[$"AA{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
             sheet.Cells[$"AB{7 + result.Rows.Count}"].Value = ReturJumlahTotal;
@@ -1517,41 +1765,85 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             sheet.Cells[$"AC{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
             sheet.Cells[$"AD{7 + result.Rows.Count}"].Value = SisaPriceTotal;
             sheet.Cells[$"AD{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AE{7 + result.Rows.Count}"].Value = ExpendPROSESQtyTotal;
-            sheet.Cells[$"AE{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AF{7 + result.Rows.Count}"].Value = ExpendPROSESPriceTotal;
-            sheet.Cells[$"AF{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AG{7 + result.Rows.Count}"].Value = SAMPLEQtyTotal;
-            sheet.Cells[$"AG{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AH{7 + result.Rows.Count}"].Value = SAMPLEPriceTotal;
-            sheet.Cells[$"AH{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AI{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2AQtyTotal;
-            sheet.Cells[$"AI{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AJ{7 + result.Rows.Count}"].Value = ExpendKonfeksi2APriceTotal;
-            sheet.Cells[$"AJ{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AK{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2BQtyTotal;
-            sheet.Cells[$"AK{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AL{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2BPriceTotal;
-            sheet.Cells[$"AL{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AM{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2CQtyTotal;
-            sheet.Cells[$"AM{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AN{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2CPriceTotal;
-            sheet.Cells[$"AN{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AO{7 + result.Rows.Count}"].Value = ExpendKONFEKSI1AQtyTotal;
-            sheet.Cells[$"AO{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AP{7 + result.Rows.Count}"].Value = ExpendKONFEKSI1APriceTotal;
-            sheet.Cells[$"AP{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AQ{7 + result.Rows.Count}"].Value = ExpendKONFEKSI1BQtyTotal;
-            sheet.Cells[$"AQ{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AR{7 + result.Rows.Count}"].Value = ExpendKONFEKSI1BPriceTotal;
-            sheet.Cells[$"AR{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AS{7 + result.Rows.Count}"].Value = EndingQty;
-            sheet.Cells[$"AS{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
-            sheet.Cells[$"AT{7 + result.Rows.Count}"].Value = EndingTotal;
-            sheet.Cells[$"AT{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+
+            if (unitcode != "SMP1")
+            {
+                sheet.Cells[$"AE{7 + result.Rows.Count}"].Value = ExpendPROSESQtyTotal;
+                sheet.Cells[$"AE{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AF{7 + result.Rows.Count}"].Value = ExpendPROSESPriceTotal;
+                sheet.Cells[$"AF{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AG{7 + result.Rows.Count}"].Value = SAMPLEQtyTotal;
+                sheet.Cells[$"AG{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AH{7 + result.Rows.Count}"].Value = SAMPLEPriceTotal;
+                sheet.Cells[$"AH{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AI{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2AQtyTotal;
+                sheet.Cells[$"AI{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AJ{7 + result.Rows.Count}"].Value = ExpendKonfeksi2APriceTotal;
+                sheet.Cells[$"AJ{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AK{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2BQtyTotal;
+                sheet.Cells[$"AK{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AL{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2BPriceTotal;
+                sheet.Cells[$"AL{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AM{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2CQtyTotal;
+                sheet.Cells[$"AM{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AN{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2CPriceTotal;
+                sheet.Cells[$"AN{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AO{7 + result.Rows.Count}"].Value = ExpendKONFEKSI1AQtyTotal;
+                sheet.Cells[$"AO{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AP{7 + result.Rows.Count}"].Value = ExpendKONFEKSI1APriceTotal;
+                sheet.Cells[$"AP{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AQ{7 + result.Rows.Count}"].Value = ExpendKONFEKSI1BQtyTotal;
+                sheet.Cells[$"AQ{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AR{7 + result.Rows.Count}"].Value = ExpendKONFEKSI1BPriceTotal;
+                sheet.Cells[$"AR{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AS{7 + result.Rows.Count}"].Value = EndingQty;
+                sheet.Cells[$"AS{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AT{7 + result.Rows.Count}"].Value = EndingTotal;
+                sheet.Cells[$"AT{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            }
+            else
+            {
+                sheet.Cells[$"AE{7 + result.Rows.Count}"].Value = SAMPLEQtyTotal;
+                sheet.Cells[$"AE{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AF{7 + result.Rows.Count}"].Value = SAMPLEPriceTotal;
+                sheet.Cells[$"AF{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AG{7 + result.Rows.Count}"].Value = ExpendSUBCONQtyTotal;
+                sheet.Cells[$"AG{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AH{7 + result.Rows.Count}"].Value = ExpendSUBCONPriceTotal;
+                sheet.Cells[$"AH{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AI{7 + result.Rows.Count}"].Value = ExpendOTHERQtyTotal;
+                sheet.Cells[$"AI{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AJ{7 + result.Rows.Count}"].Value = ExpendOTHERPriceTotal;
+                sheet.Cells[$"AJ{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+
+                sheet.Cells[$"AK{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2AQtyTotal;
+                sheet.Cells[$"AK{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AL{7 + result.Rows.Count}"].Value = ExpendKonfeksi2APriceTotal;
+                sheet.Cells[$"AL{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AM{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2BQtyTotal;
+                sheet.Cells[$"AM{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AN{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2BPriceTotal;
+                sheet.Cells[$"AN{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AO{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2CQtyTotal;
+                sheet.Cells[$"AO{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AP{7 + result.Rows.Count}"].Value = ExpendKONFEKSI2CPriceTotal;
+                sheet.Cells[$"AP{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AQ{7 + result.Rows.Count}"].Value = ExpendKONFEKSI1AQtyTotal;
+                sheet.Cells[$"AQ{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AR{7 + result.Rows.Count}"].Value = ExpendKONFEKSI1APriceTotal;
+                sheet.Cells[$"AR{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AS{7 + result.Rows.Count}"].Value = ExpendKONFEKSI1BQtyTotal;
+                sheet.Cells[$"AS{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AT{7 + result.Rows.Count}"].Value = ExpendKONFEKSI1BPriceTotal;
+                sheet.Cells[$"AT{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AU{7 + result.Rows.Count}"].Value = EndingQty;
+                sheet.Cells[$"AU{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+                sheet.Cells[$"AV{7 + result.Rows.Count}"].Value = EndingTotal;
+                sheet.Cells[$"AV{7 + result.Rows.Count}"].Style.Border.BorderAround(ExcelBorderStyle.Medium);
+            }
 
 
-            var widths = new int[] { 5, 10, 20, 15, 7, 20, 20, 10, 7, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 };
+            var widths = new int[] { 5, 10, 20, 15, 7, 20, 20, 10, 7, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 };
             foreach (var i in Enumerable.Range(0, headers.Length))
             {
                 sheet.Column(i + 1).Width = widths[i];
