@@ -113,13 +113,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             //var garmentSupplierUri = APIEndpoint.Core + $"master/garment-categories";
             //string queryUri = "?dateFrom=" + dateFrom + "&dateTo=" + dateTo + "&page=1 &size=" + int.MaxValue + "&receiptType=" + receiptType;
             //string uri = garmentSupplierUri + queryUri;
-            var order = "{}";
+            
 
             //string dateFromConv = dateFrom.ToString("MM/dd/yyyy");
             //string dateToConv = dateTo.ToString("MM/dd/yyyy");
             //var response = httpClient.GetAsync($"{APIEndpoint.Inventory}/garment/leftover-warehouse-stocks/report/fabric?dateFrom={dateFromConv}&dateTo={dateToConv}&order={order}&page=1&size={int.MaxValue}&unit={unit}").Result;
 
-            var response = httpClient.GetAsync($"{APIEndpoint.Inventory}/garment/leftover-warehouse-stocks/report/fabric?dateFrom={dateFrom}&dateTo={dateTo}&order={order}&page=1&size={int.MaxValue}&unit={unit}").Result;
+            var response = httpClient.GetAsync($"{APIEndpoint.Inventory}/garment/leftover-warehouse-stocks/report/fabric?dateFrom={dateFrom}&dateTo={dateTo}&page=1&size={int.MaxValue}&unit={unit}").Result;
             if (response.IsSuccessStatusCode)
             {
                 var content = response.Content.ReadAsStringAsync().Result;
