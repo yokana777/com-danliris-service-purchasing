@@ -258,6 +258,28 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentDispositionCon
         }
 
         [Fact]
+        public async Task GetAl_Should_Success()
+        {
+            _serviceMock = SetDefaultSuccessService();
+            SetDefaultServiceMockProvider(_serviceMock, _serviceExternalMock, _mapperMock);
+
+            var response = await _controller.GetAll(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>());
+
+            Assert.Equal((int)HttpStatusCode.OK, GetStatusCode(response));
+        }
+
+        [Fact]
+        public async Task GetAl_Should_Exception()
+        {
+            _serviceMock = SetDefaultExceptionService();
+            SetDefaultServiceMockProvider(_serviceMock, _serviceExternalMock, _mapperMock);
+
+            var response = await _controller.GetAll(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>());
+
+            Assert.Equal((int)HttpStatusCode.InternalServerError, GetStatusCode(response));
+        }
+
+        [Fact]
         public void GetLoader_Should_Success()
         {
             _serviceMock = SetDefaultSuccessService();

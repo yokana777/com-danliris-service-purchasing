@@ -74,6 +74,27 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDispositi
             }
         }
 
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAll(int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}")
+        {
+            try
+            {
+                var Data = await facade.GetAll(keyword, page, size, filter, order);
+
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(Data);
+                return Ok(Result);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
         [HttpGet("loader")]
         public IActionResult GetLoader(PurchasingGarmentExpeditionPosition position = PurchasingGarmentExpeditionPosition.Invalid,int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}", int supplierId=0)
         {
