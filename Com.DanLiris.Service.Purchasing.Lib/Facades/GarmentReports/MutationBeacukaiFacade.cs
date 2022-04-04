@@ -89,6 +89,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             //var garmentSupplierUri = APIEndpoint.Core + $"master/garment-categories";
             //string queryUri = "?dateFrom=" + dateFrom + "&dateTo=" + dateTo + "&page=1 &size=" + int.MaxValue + "&receiptType=" + receiptType;
             //string uri = garmentSupplierUri + queryUri;
+
+            //string dateFromConv = dateFrom.ToString("MM/dd/yyyy");
+            //string dateToConv = dateTo.ToString("MM/dd/yyyy");
+            //var response = httpClient.GetAsync($"{APIEndpoint.Inventory}/garment/leftover-warehouse-expenditures/report-expenditures?dateFrom={dateFromConv}&dateTo={dateToConv}&page=1&size={int.MaxValue}&receiptType={receiptType}").Result;
             var response = httpClient.GetAsync($"{APIEndpoint.Inventory}/garment/leftover-warehouse-expenditures/report-expenditures?dateFrom={dateFrom}&dateTo={dateTo}&page=1&size={int.MaxValue}&receiptType={receiptType}").Result;
             if (response.IsSuccessStatusCode)
             {
@@ -109,6 +113,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
             //var garmentSupplierUri = APIEndpoint.Core + $"master/garment-categories";
             //string queryUri = "?dateFrom=" + dateFrom + "&dateTo=" + dateTo + "&page=1 &size=" + int.MaxValue + "&receiptType=" + receiptType;
             //string uri = garmentSupplierUri + queryUri;
+            
+
+            //string dateFromConv = dateFrom.ToString("MM/dd/yyyy");
+            //string dateToConv = dateTo.ToString("MM/dd/yyyy");
+            //var response = httpClient.GetAsync($"{APIEndpoint.Inventory}/garment/leftover-warehouse-stocks/report/fabric?dateFrom={dateFromConv}&dateTo={dateToConv}&order={order}&page=1&size={int.MaxValue}&unit={unit}").Result;
+
             var response = httpClient.GetAsync($"{APIEndpoint.Inventory}/garment/leftover-warehouse-stocks/report/fabric?dateFrom={dateFrom}&dateTo={dateTo}&page=1&size={int.MaxValue}&unit={unit}").Result;
             if (response.IsSuccessStatusCode)
             {
@@ -125,10 +135,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
         private List<ReceiptMonitoringViewModel> GetReportLeftOverReceipt(DateTime dateFrom, DateTime dateTo, string receiptType)
         {
+
+            
             IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
             //var garmentSupplierUri = APIEndpoint.Core + $"master/garment-categories";
             //string queryUri = "?dateFrom=" + dateFrom + "&dateTo=" + dateTo + "&page=1 &size=" + int.MaxValue + "&receiptType=" + receiptType;
             //string uri = garmentSupplierUri + queryUri;
+            //string dateFromConv = dateFrom.ToString("MM/dd/yyyy");
+            //string dateToConv = dateTo.ToString("MM/dd/yyyy");
+            //var response = httpClient.GetAsync($"{APIEndpoint.Inventory}/garment/leftover-warehouse-receipts/monitoring?dateFrom={dateFromConv}&dateTo={dateToConv}&page=1&size={int.MaxValue}&type={receiptType}").Result;
             var response = httpClient.GetAsync($"{APIEndpoint.Inventory}/garment/leftover-warehouse-receipts/monitoring?dateFrom={dateFrom}&dateTo={dateTo}&page=1&size={int.MaxValue}&type={receiptType}").Result;
             if (response.IsSuccessStatusCode)
             {
@@ -153,7 +168,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var categories = GetProductCodes(1, int.MaxValue, "{}", "{}");
             var coderequirement = new[] { "BP", "BE" };
-            var categories1 = categories.Where(x => x.CodeRequirement == "BB").Select(x => x.Name).ToArray();
+            //var categories1 = categories.Where(x => x.CodeRequirement == "BB").Select(x => x.Name).ToArray();
+            var categories1 = new[] { "FABRIC", "SUBKON" };
 
 
             List<MutationBBCentralViewModelTemp> saldoawalreceipt = new List<MutationBBCentralViewModelTemp>();
@@ -241,7 +257,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                    SupplierType = key.SupplierType,
                                    UnitQtyName = key.UnitQtyName
 
-                               });
+                               }).ToList();
 
             var ReceiptBalance = (from a in (from aa in dbContext.GarmentUnitReceiptNoteItems select aa)
                                   join b in dbContext.GarmentUnitReceiptNotes on a.URNId equals b.Id
@@ -281,7 +297,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                       SupplierType = key.SupplierType,
                                       UnitQtyName = key.UnitQtyName
 
-                                  });
+                                  }).ToList();
 
             
 
@@ -326,7 +342,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                           SupplierType = key.SupplierType,
                                           UnitQtyName = key.UnitQtyName
 
-                                      });
+                                      }).ToList();
 
             
 
@@ -370,12 +386,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                                 SupplierType = key.SupplierType,
                                                 UnitQtyName = key.UnitQtyName
 
-                                            });
+                                            }).ToList();
 
             //var leftoverbalance = GetReportLeftOverStock(new DateTime(2022, 1, 1), new DateTime(2022, 1, 1),"");
             var leftoverbalance = GetReportLeftOverStock(DateFrom, DateTo, "");
             var leftoverBalanceRemove = leftoverbalance.Where(x => x.ProductCode != "").AsQueryable();
-            //var totalQtyBefore = leftoverBalanceRemove.Sum(x => x.BeginingbalanceQty);
+
+            var totalQtyBefore = leftoverBalanceRemove.Sum(x => x.BeginingbalanceQty);
+
             var EPO = (from a in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters()
                        join b in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on a.GarmentEPOId equals b.Id
                        select new
@@ -389,7 +407,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                            PO_SerialNumber = d.Key.PO_SerialNumber,
                            SupplierType = d.FirstOrDefault().SupplierType
 
-                       });
+                       }).ToList();
                 
 
             var leftoverbalanceQuery = (from a in leftoverBalanceRemove
@@ -426,7 +444,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                            SupplierType = key.SupplierType,
                                            UnitQtyName = key.UnitQtyName
 
-                                       });
+                                       }).ToList();
 
             //var totalQty = leftoverbalanceQuery.Sum(x => x.BeginQty);
 
@@ -488,7 +506,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                SupplierType = key.SupplierType,
                                UnitQtyName = key.UnitQtyName
 
-                           });
+                           }).ToList();
 
 
             
@@ -530,7 +548,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                    SupplierType = key.SupplierType,
                                    UnitQtyName = key.UnitQtyName
 
-                               });
+                               }).ToList();
 
 
             var ReceiptCorrection = (from a in dbContext.GarmentUnitReceiptNotes
@@ -573,16 +591,36 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                          SupplierType = key.SupplierType,
                                          UnitQtyName = key.UnitQtyName
 
-                                     });
+                                     }).ToList();
 
             var leftoverreceipt = GetReportLeftOverReceipt(DateFrom, DateTo, "FABRIC");
             var leftoverexpenditure = GetReportLeftOver(DateFrom, DateTo, "FABRIC");
 
-            var leftoverexpenditurefiltered = (from a in leftoverexpenditure.AsQueryable()
-                                    join b in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.PONo equals b.PO_SerialNumber
-                                   join c in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on b.GarmentEPOId equals c.Id
-                                   where b.IsDeleted == false && c.IsDeleted == false
-                                   && a.ExpenditureDestination == "JUAL LOKAL"
+            var EPOExpend = (from a in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters()
+                       join b in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on a.GarmentEPOId equals b.Id
+                       where a.IsDeleted == false && b.IsDeleted == false 
+                       select new
+                       {
+                           PO_SerialNumber = a.PO_SerialNumber,
+                           SupplierType = b.SupplierImport
+
+
+                       }).GroupBy(x => new { x.PO_SerialNumber }).Select(d => new
+                       {
+                           PO_SerialNumber = d.Key.PO_SerialNumber,
+                           SupplierType = d.FirstOrDefault().SupplierType
+
+                       });
+
+
+            var leftoverexpenditurefiltered = (from a in leftoverexpenditure
+                                   // join b in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.PONo equals b.PO_SerialNumber
+                                   //join c in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on b.GarmentEPOId equals c.Id
+                                   //where b.IsDeleted == false && c.IsDeleted == false
+                                   //&& a.ExpenditureDestination == "JUAL LOKAL"
+
+                                   join b in EPOExpend on a.PONo equals b.PO_SerialNumber
+                                   where  a.ExpenditureDestination == "JUAL LOKAL"
                                    
                                    select new MutationBBCentralViewModelTemp
                                    {
@@ -594,7 +632,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                        LastQty = 0,
                                        OpnameQty = 0,
                                        ReceiptQty = 0,
-                                       SupplierType = c.SupplierImport == false ? "LOKAL" : "IMPORT",
+                                       //SupplierType = b.SupplierImport == false ? "LOKAL" : "IMPORT",
+                                       SupplierType = b.SupplierType == false ? "LOKAL" : "IMPORT",
                                        UnitQtyName = a.Uom.Unit
                                    }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBBCentralViewModelTemp
                                    {
@@ -609,13 +648,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                        SupplierType = key.SupplierType,
                                        UnitQtyName = key.UnitQtyName
 
-                                   });
+                                   }).ToList();
 
-            var leftoverreceiptfiltered = (from a in leftoverreceipt.AsQueryable()
-                                           join b in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.POSerialNumber equals b.PO_SerialNumber
-                                    join c in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on b.GarmentEPOId equals c.Id
-                                    where b.IsDeleted == false && c.IsDeleted == false
-                                    select new MutationBBCentralViewModelTemp
+            var leftoverreceiptfiltered = (from a in leftoverreceipt
+                                    //       join b in dbContext.GarmentExternalPurchaseOrderItems.IgnoreQueryFilters() on a.POSerialNumber equals b.PO_SerialNumber
+                                    //join c in dbContext.GarmentExternalPurchaseOrders.IgnoreQueryFilters() on b.GarmentEPOId equals c.Id
+                                    //where b.IsDeleted == false && c.IsDeleted == false
+
+                                    join b in EPOExpend on a.POSerialNumber equals b.PO_SerialNumber
+                                           
+                                     select new MutationBBCentralViewModelTemp
                                     {
                                         AdjustmentQty = 0,
                                         BeginQty = 0,
@@ -625,7 +667,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                         LastQty = 0,
                                         OpnameQty = 0,
                                         ReceiptQty = a.Quantity,
-                                        SupplierType = c.SupplierImport == false ? "LOKAL" : "IMPORT",
+                                        //SupplierType = c.SupplierImport == false ? "LOKAL" : "IMPORT",
+                                        SupplierType = b.SupplierType == false ? "LOKAL" : "IMPORT",
                                         UnitQtyName = a.Uom.Unit
                                     }).GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBBCentralViewModelTemp
                                     {
@@ -640,10 +683,50 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                                         SupplierType = key.SupplierType,
                                         UnitQtyName = key.UnitQtyName
 
-                                    });
+                                    }).ToList();
 
             //var SFiltered = Receipt.Union(Expenditure).Union(ReceiptCorrection).AsEnumerable();
-            var SFiltered = Receipt.Union(Expenditure).Union(ReceiptCorrection).Union(leftoverexpenditurefiltered).Union(leftoverreceiptfiltered).AsEnumerable();
+            var SFiltered = Receipt.Union(Expenditure).Union(ReceiptCorrection).Union(leftoverexpenditurefiltered).Union(leftoverreceiptfiltered).AsEnumerable(); 
+
+            //var SFiltered1 = Receipt.Union(Expenditure).Union(ReceiptCorrection).AsEnumerable();
+            //var SFiltered2 = leftoverexpenditurefiltered.Union(leftoverreceiptfiltered).AsEnumerable();
+
+            //var SfilteredUnion1 = SFiltered1.GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBBCentralViewModelTemp
+            //{
+            //    AdjustmentQty = group.Sum(x => x.AdjustmentQty),
+            //    BeginQty = group.Sum(x => x.BeginQty),
+            //    ExpenditureQty = group.Sum(x => x.ExpenditureQty),
+            //    ItemCode = key.ItemCode,
+            //    ItemName = key.ItemName,
+            //    LastQty = group.Sum(x => x.LastQty),
+            //    OpnameQty = group.Sum(x => x.OpnameQty),
+            //    ReceiptQty = group.Sum(x => x.ReceiptQty),
+            //    SupplierType = key.SupplierType,
+            //    UnitQtyName = key.UnitQtyName
+
+            //});
+
+            //var SfilteredUnion2 = SFiltered2.GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBBCentralViewModelTemp
+            //{
+            //    AdjustmentQty = group.Sum(x => x.AdjustmentQty),
+            //    BeginQty = group.Sum(x => x.BeginQty),
+            //    ExpenditureQty = group.Sum(x => x.ExpenditureQty),
+            //    ItemCode = key.ItemCode,
+            //    ItemName = key.ItemName,
+            //    LastQty = group.Sum(x => x.LastQty),
+            //    OpnameQty = group.Sum(x => x.OpnameQty),
+            //    ReceiptQty = group.Sum(x => x.ReceiptQty),
+            //    SupplierType = key.SupplierType,
+            //    UnitQtyName = key.UnitQtyName
+
+            //});
+
+
+            //var SFilteredUnion = SFiltered1.Union(SfilteredUnion2).AsEnumerable();
+
+
+
+
             var SaldoFilterd = SFiltered.GroupBy(x => new { x.ItemCode, x.ItemName, x.SupplierType, x.UnitQtyName }, (key, group) => new MutationBBCentralViewModelTemp
             {
                 AdjustmentQty = group.Sum(x => x.AdjustmentQty),
@@ -661,9 +744,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
             var dataUnion = SaldoAwal.Union(SaldoFilterd).AsEnumerable();
 
+            //var dataUnion = dataUnion1.ToList();
             #endregion
 
-            var mutation = dataUnion.GroupBy(x => new { x.ItemCode, x.ItemName, x.UnitQtyName, x.SupplierType }, (key, group) => new MutationBBCentralViewModel
+
+
+            var mutation1 = dataUnion.GroupBy(x => new { x.ItemCode, x.ItemName, x.UnitQtyName, x.SupplierType }, (key, group) => new MutationBBCentralViewModel
             {
                 AdjustmentQty = Math.Round(Convert.ToDouble(group.Sum(x => x.AdjustmentQty)), 2),
                 BeginQty = Math.Round(Convert.ToDouble(group.Sum(x => x.BeginQty)), 2),
@@ -676,7 +762,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 UnitQtyName = key.UnitQtyName,
                 OpnameQty = 0,
                 Diff = 0
-            }).OrderBy(x => x.ItemCode).ToList();
+            });
+
+            var mutation = mutation1.OrderBy(x => x.ItemCode).ToList();
 
             var mm = new MutationBBCentralViewModel();
 

@@ -59,6 +59,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
                         Name="tax",
                         Rate=1
                     },
+                    Vat = new VatViewModel
+                    {
+                        Id = 1,
+                        Rate = 1
+                    },
                     Supplier = new SupplierViewModel
                     {
                         Import = true,
@@ -133,6 +138,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
                         Code = "TEST",
                         Rate = 1,
                         Symbol = "tst"
+                    },
+                    Vat = new VatViewModel
+                    {
+                        Id = 1,
+                        Rate = 1
                     },
                     Items = new List<GarmentExternalPurchaseOrderItemViewModel>
                     {
@@ -307,7 +317,9 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.GarmentExternalPurcha
 
             var controller = GetController(mockFacade, validateMock, mockMapper, IPOmockFacade);
 
-            var response = await controller.Post(this.ViewModel);
+            var ViewModel = this.ViewModel;
+            ViewModel.IsUseVat = true;
+            var response = await controller.Post(ViewModel);
             Assert.Equal((int)HttpStatusCode.BadRequest, GetStatusCode(response));
         }
 

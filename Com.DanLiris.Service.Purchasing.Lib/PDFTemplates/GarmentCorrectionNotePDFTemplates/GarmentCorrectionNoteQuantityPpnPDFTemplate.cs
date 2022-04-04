@@ -40,6 +40,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
 
             var deliveryOrder = garmentDeliveryOrderFacade.ReadById((int)model.DOId);
             var invoice = garmentInvoiceFacade.ReadByDOId((int)model.DOId);
+            
 
             #region Header
             string addressString = "PT. DAN LIRIS\n" +
@@ -137,8 +138,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
                 tableContent.AddCell(cellLeft);
 
                 decimal totalPPH;
-                
-                totalPPH = item.PricePerDealUnitAfter * item.Quantity / 10;
+
+                var convertdouble = Convert.ToDecimal(model.VatRate);
+
+                totalPPH = (convertdouble / 100) * item.PricePerDealUnitAfter * item.Quantity ;
                 
                 totalAmountPPH += totalPPH;
 
@@ -195,7 +198,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates.GarmentCorrectionNote
             document.Add(tableSignature);
 
             #endregion
-
+                
             document.Close();
             byte[] byteInfo = stream.ToArray();
             stream.Write(byteInfo, 0, byteInfo.Length);

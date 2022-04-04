@@ -1219,6 +1219,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("UseVat");
 
+                    b.Property<string>("VatId");
+
+                    b.Property<string>("VatRate");
+
                     b.HasKey("Id");
 
                     b.HasIndex("EPONo")
@@ -1668,6 +1672,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("UseVat");
 
+                    b.Property<string>("VatId")
+                        .HasMaxLength(255);
+
+                    b.Property<string>("VatRate")
+                        .HasMaxLength(255);
+
                     b.HasKey("Id");
 
                     b.HasIndex("CorrectionNo")
@@ -1881,6 +1891,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<bool?>("UseIncomeTax");
 
                     b.Property<bool?>("UseVat");
+
+                    b.Property<int?>("VatId")
+                        .HasMaxLength(255);
+
+                    b.Property<double?>("VatRate");
 
                     b.HasKey("Id");
 
@@ -2338,6 +2353,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<double>("VATAmount");
 
+                    b.Property<string>("VatId");
+
+                    b.Property<string>("VatRate");
+
                     b.Property<double>("VerifiedAmount");
 
                     b.HasKey("Id");
@@ -2480,6 +2499,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
                     b.Property<long?>("UENId");
 
                     b.Property<string>("UId")
+                        .HasMaxLength(255);
+
+                    b.Property<string>("VatId")
+                        .HasMaxLength(255);
+
+                    b.Property<string>("VatRate")
                         .HasMaxLength(255);
 
                     b.Property<string>("Washing")
@@ -3451,7 +3476,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTimeOffset>("VatDate");
 
+                    b.Property<long>("VatId");
+
                     b.Property<string>("VatNo");
+
+                    b.Property<double>("VatRate");
 
                     b.HasKey("Id");
 
@@ -5981,6 +6010,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<bool>("UseVat");
 
+                    b.Property<string>("VatId");
+
+                    b.Property<string>("VatRate");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PurchasingDispositionId");
@@ -6337,8 +6370,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Migrations
 
                     b.Property<DateTimeOffset>("VatDate");
 
+                    b.Property<string>("VatId");
+
                     b.Property<string>("VatNo")
                         .HasMaxLength(255);
+
+                    b.Property<double>("VatRate");
 
                     b.HasKey("Id");
 

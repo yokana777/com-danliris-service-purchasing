@@ -713,6 +713,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     DOCurrencyId = m.DOCurrencyId,
                     DOCurrencyCode = m.DOCurrencyCode,
                     UseVat = m.UseVat,
+                    VatId = m.VatId,
+                    VatRate = m.VatRate,
                     IncomeTaxId = m.IncomeTaxId,
                     IncomeTaxName = m.IncomeTaxName,
                     IncomeTaxRate = m.IncomeTaxRate,
@@ -749,6 +751,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     s.isInvoice,
                     s.useVat,
                     s.incomeTax,
+                    s.vat,
                     s.LastModifiedUtc,
                     s.doDate,
                     items = s.items.Select(i => new

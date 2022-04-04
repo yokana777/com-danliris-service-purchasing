@@ -169,6 +169,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.Controllers.UnitPaymentCorrection
                         description = "currency",
                         rate = 1
                     },
+                    vatTax = new VatTaxViewModel 
+                    { 
+                        _id = "1",
+                        rate = "11"
+                    },
                     items = new List<UnitPaymentOrderItemViewModel>()
 
                 };

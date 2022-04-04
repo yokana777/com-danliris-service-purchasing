@@ -53,6 +53,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                     dataModel.Position = Enums.PurchasingGarmentExpeditionPosition.Purchasing;
                     dataModel.GarmentDispositionPurchaseItems.ForEach(s=> {
                         EntityExtension.FlagForCreate(s, identityService.Username, USER_AGENT);
+
+                        //var DispoDetail = this.dbContext.GarmentDispositionPurchaseDetailss.Where(a => a.GarmentDispositionPurchaseItemId == dataModel.Id).FirstOrDefault();
+                        //var EPOItems1 = this.dbContext.GarmentExternalPurchaseOrderItems.Where(a => a.Id == DispoDetail.EPO_POId).FirstOrDefault();
+                        //var EPO = this.dbContext.GarmentExternalPurchaseOrders.Where(a => a.Id == EPOItems1.GarmentEPOId).FirstOrDefault();
+
+                        //s.VatId = EPO.VatId;
+                        //s.VatRate = EPO.VatRate;
                         s.IsDispositionCreated = true;
                         s.GarmentDispositionPurchaseDetails.ForEach(t =>
                         {
@@ -186,7 +193,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
 
         public async Task<DispositionPurchaseIndexDto> GetAll(string keyword, int page, int size,string filter, string order)
         {
-            var dataModel = dbSet
+
+            IQueryable<GarmentDispositionPurchase> Query = dbSet;
+
+            if (!string.IsNullOrWhiteSpace(identityService.Username))
+            {
+                Query = Query.Where(x => x.CreatedBy == identityService.Username);
+            }
+
+            Query = Query
                 .AsNoTracking()
                     .Include(p => p.GarmentDispositionPurchaseItems)
                         .ThenInclude(p => p.GarmentDispositionPurchaseDetails)
@@ -194,14 +209,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
                         .AsQueryable();
 
             if (keyword != null)
-                dataModel = dataModel.Where(s => s.DispositionNo.Contains(keyword) || s.SupplierName.Contains(keyword));
+                Query = Query.Where(s => s.DispositionNo.Contains(keyword) || s.SupplierName.Contains(keyword));
 
             //var countData = dataModel.Count();
 
             //var dataList = await dataModel.ToListAsync();
 
 
-            var Query = dataModel;
+            //var Query = dataModel;
 
             List<string> searchAttributes = new List<string>()
             {
@@ -213,7 +228,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDispositionPurchase
             
             Dictionary<string, string> FilterDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(filter);
             //override by user
-            FilterDictionary.Add("CreatedBy", identityService.Username);
+            //FilterDictionary.Add("CreatedBy", identityService.Username);
             Query = QueryHelper<GarmentDispositionPurchase>.ConfigureFilter(Query, FilterDictionary);
 
             Dictionary<string, string> OrderDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(order);

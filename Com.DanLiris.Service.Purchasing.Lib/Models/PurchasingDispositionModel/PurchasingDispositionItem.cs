@@ -18,6 +18,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.PurchasingDispositionModel
         public string IncomeTaxName { get; set; }
         public double IncomeTaxRate { get; set; }
 
+        public string VatId { get; set; }
+        public string VatRate { get; set; }
+
         public virtual long PurchasingDispositionId { get; set; }
         [ForeignKey("PurchasingDispositionId")]
         public virtual PurchasingDisposition PurchasingDisposition { get; set; }

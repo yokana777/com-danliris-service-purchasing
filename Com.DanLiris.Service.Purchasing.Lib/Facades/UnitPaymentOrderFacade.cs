@@ -698,6 +698,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 IncomeTaxDate = s.IncomeTaxDate,
                 IncomeTaxBy = s.IncomeTaxBy,
                 UseVat = s.UseVat,
+                VatId = s.VatId,
+                VatRate = s.VatRate,
                 VatNo = s.VatNo,
                 VatDate = s.VatDate,
                 Remark = s.Remark,
@@ -801,8 +803,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                              jumlah = c.ReceiptQuantity,
                              hrgsat = c.PricePerDealUnit,
                              jumlahhrg = c.PriceTotal,
-                             ppn = a.UseVat == true ? (c.PriceTotal * 10) / 100 : 0,
-                             total = c.PriceTotal + (a.UseVat == true ? (c.PriceTotal * 10) / 100 : 0),
+                             ppn = a.UseVat == true ? (c.PriceTotal * (a.VatRate / 100)) : 0,
+                             total = c.PriceTotal + (a.UseVat == true ? (c.PriceTotal * (a.VatRate / 100)) : 0),
                              pph = (a.IncomeTaxRate * c.PriceTotal) / 100,
                              tglpr = d.Date,
                              nopr = c.PRNo,
@@ -1286,7 +1288,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                         }
                     }
 
-                    var totalVAT = 0.1 * grandTotal;
+                    var totalVAT = model.VatRate * grandTotal;
                     journalCreditItems.Add(new JournalTransactionItem()
                     {
                         COA = new COA()
@@ -1453,7 +1455,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                && a.VatDate.AddHours(offset).Date >= taxDateFrom.Date
                                && a.VatDate.AddHours(offset).Date <= taxDateTo.Date
 
-                         group new { Total = c.PriceTotal } by new { a.UPONo, a.Date, a.VatNo, a.VatDate, a.SupplierCode, a.SupplierName, a.UseIncomeTax, a.UseVat, a.IncomeTaxRate } into G
+                         group new { Total = c.PriceTotal } by new { a.UPONo, a.Date, a.VatNo, a.VatDate, a.SupplierCode, a.SupplierName, a.UseIncomeTax, a.UseVat, a.IncomeTaxRate, a.VatRate } into G
 
 
                          select new ViewModels.UnitPaymentOrderViewModel.UnitPaymentOrderTaxReportViewModel
@@ -1464,7 +1466,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                              noppn = G.Key.VatNo,
                              supplier = G.Key.SupplierCode + " - " + G.Key.SupplierName,
                              amountspb = Math.Round(G.Sum(c => c.Total), 2),
-                             amountppn = G.Key.UseVat == false ? 0 : Math.Round((G.Sum(c => c.Total) / 10), 2),
+                             amountppn = G.Key.UseVat == false ? 0 : Math.Round((G.Sum(c => c.Total) * (G.Key.VatRate / 100)), 2),
                              amountpph = G.Key.UseIncomeTax == false ? 0 : Math.Round((G.Sum(c => c.Total) * (G.Key.IncomeTaxRate / 100)), 2),
                          });
             return Query;

@@ -133,12 +133,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
             var internalNoteDetails = _dbContext.GarmentInternNoteDetails.Where(entity => internalNoteItemIds.Contains(entity.GarmentItemINId)).Select(entity => new { entity.Id, entity.GarmentItemINId, entity.PaymentDueDate, entity.DOId, entity.PaymentType, entity.PaymentMethod, entity.PaymentDueDays }).ToList();
 
             var doIds = internalNoteDetails.Select(element => element.DOId).ToList();
-            var corrections = _dbContext.GarmentCorrectionNotes.Where(entity => doIds.Contains(entity.DOId)).Select(entity => new { entity.Id, entity.TotalCorrection, entity.CorrectionType, entity.DOId, entity.UseIncomeTax, entity.UseVat, entity.IncomeTaxRate });
+            var corrections = _dbContext.GarmentCorrectionNotes.Where(entity => doIds.Contains(entity.DOId)).Select(entity => new { entity.Id, entity.TotalCorrection, entity.CorrectionType, entity.DOId, entity.UseIncomeTax, entity.UseVat, entity.IncomeTaxRate ,entity.VatRate});
             var correctionIds = corrections.Select(element => element.Id).ToList();
             var correctionItems = _dbContext.GarmentCorrectionNoteItems.Where(entity => correctionIds.Contains(entity.GCorrectionId)).Select(entity => new { entity.Id, entity.PricePerDealUnitAfter, entity.Quantity, entity.GCorrectionId });
 
             var invoiceIds = internalNoteItems.Select(element => element.InvoiceId).ToList();
-            var invoices = _dbContext.GarmentInvoices.Where(entity => invoiceIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.IsPayTax, entity.IsPayVat, entity.UseIncomeTax, entity.UseVat, entity.IncomeTaxRate, entity.TotalAmount, entity.InvoiceNo }).ToList();
+            var invoices = _dbContext.GarmentInvoices.Where(entity => invoiceIds.Contains(entity.Id)).Select(entity => new { entity.Id, entity.IsPayTax, entity.IsPayVat, entity.UseIncomeTax, entity.UseVat, entity.IncomeTaxRate, entity.TotalAmount, entity.InvoiceNo, entity.VatRate }).ToList();
 
             var result = internalNotes.Select(internalNote =>
             {
@@ -167,7 +167,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
                         total = (double)element.TotalCorrection;
 
                     if (garmentInvoicesCorrection.UseVat && garmentInvoicesCorrection.IsPayVat)
-                        total += total * 0.1;
+                        total += total * (Convert.ToDouble(element.VatRate)/100);
 
                     if (garmentInvoicesCorrection.UseIncomeTax && garmentInvoicesCorrection.IsPayTax)
                         total -= total * (double)(element.IncomeTaxRate / 100);
@@ -185,7 +185,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
 
                     if (garmentInvoicesCorrection.UseVat && garmentInvoicesCorrection.IsPayVat)
                     {
-                        total += element.CorrectionType.ToUpper() == "RETUR" ? (double)selectedCorrectionItems.Sum(item => item.PricePerDealUnitAfter * item.Quantity) * 0.1 : (double)element.TotalCorrection * 0.1;
+                        total += element.CorrectionType.ToUpper() == "RETUR" ? (double)selectedCorrectionItems.Sum(item => item.PricePerDealUnitAfter * item.Quantity) * (Convert.ToDouble(element.VatRate) / 100) : (double)element.TotalCorrection * (Convert.ToDouble(element.VatRate) / 100);
                     }
 
                     if (garmentInvoicesCorrection.UseIncomeTax && garmentInvoicesCorrection.IsPayTax)
@@ -202,7 +202,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
 
                     if (element.UseVat && element.IsPayVat)
                     {
-                        total += element.TotalAmount * 0.1;
+                        total += element.TotalAmount * (Convert.ToDouble(element.VatRate) / 100);
                     }
                     
                     if (element.UseIncomeTax && element.IsPayTax)
@@ -222,7 +222,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
 
                     if (element.UseVat)
                     {
-                        total += element.CorrectionType.ToUpper() == "RETUR" ? (double)selectedCorrectionItems.Sum(item => item.PricePerDealUnitAfter * item.Quantity) * 0.1 : (double)element.TotalCorrection * 0.1;
+                        total += element.CorrectionType.ToUpper() == "RETUR" ? (double)selectedCorrectionItems.Sum(item => item.PricePerDealUnitAfter * item.Quantity) * (Convert.ToDouble(element.VatRate) / 100) : (double)element.TotalCorrection * (Convert.ToDouble(element.VatRate) / 100);
                     }
                     
                     return total;
@@ -234,7 +234,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchasingExpeditio
 
                     if (element.UseVat && element.IsPayVat)
                     {
-                        vat += element.TotalAmount * 0.1;
+                        vat += element.TotalAmount * (Convert.ToDouble(element.VatRate) / 100);
                     }
                     
                     return vat;

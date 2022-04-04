@@ -121,6 +121,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
                                 if (model.IsPayVat)
                                 {
                                     vatAmount = item.TotalAmount * 0.1;
+                                    //vatAmount = item.TotalAmount * (model.VatRate / 100);
                                 }
 
                                 if (model.IsPayTax)
@@ -135,7 +136,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInvoiceFacades
                                 if (model.IsPayVat)
                                 {
                                     vatAmount = amount * 0.1;
+                                    //vatAmount = amount * (model.VatRate / 100);
                                     currencyVATAmount = item.TotalAmount * 0.1;
+                                    //currencyVATAmount = item.TotalAmount * (model.VatRate / 100);
                                 }
 
                                 if (model.IsPayTax)
