@@ -1113,11 +1113,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
             foreach (var item in model.Items)
             {
+                var purchaseRequestNos = item.Details.Select(entity => entity.PRNo).ToList();
+                var externalPurchaseOrders = item.Details.Select(entity => entity.EPONo).ToList();
+                var purchaseRequests = dbContext.PurchaseRequests.Where(entity => purchaseRequestNos.Contains(entity.No));
+                var categoryIds = purchaseRequests.Select(element => element.CategoryId).Distinct().ToList();
+                string epoNos = "";
+
+                if (categoryIds.Count > 1)
+                {
+                    foreach (var epo in categoryIds)
+                    {
+                        var newPurchaseRequests = purchaseRequests.Where(entity => entity.CategoryId == epo).Select(entity => entity.No).ToList();
+                        var newExternalPOItems = dbContext.ExternalPurchaseOrderItems.Where(entity => newPurchaseRequests.Contains(entity.PRNo)).Select(entity => entity.EPOId).ToList();
+                        var newExternalPOs = dbContext.ExternalPurchaseOrders.Where(entity => newExternalPOItems.Contains(entity.Id) && externalPurchaseOrders.Contains(entity.EPONo));
+                        var newExternalPONos = newExternalPOs.Select(entity => entity.EPONo).ToList();
+                        epoNos = string.Join('\n', newExternalPONos.Select(entity => $"- {entity}"));
+                    }
+                }
+
                 data.Add(new CreditorAccountViewModel()
                 {
                     Code = item.URNNo,
                     SupplierCode = model.SupplierCode,
-                    InvoiceNo = model.InvoiceNo
+                    InvoiceNo = model.InvoiceNo,
+                    ExternalPurchaseOrderNo = epoNos
                 });
             }
 

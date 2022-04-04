@@ -271,8 +271,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
         private async Task CreateCreditorAccount(UnitReceiptNote model, bool useVATFlag, string currencyCode, string paymentDuration)
         {
             var dpp = model.Items.Sum(s => s.ReceiptQuantity * s.PricePerDealUnit);
-            var externalPurchaseOrderNo = model.Items.FirstOrDefault().EPONo;
-            var externalPurchaseOrder = dbContext.ExternalPurchaseOrders.FirstOrDefault(entity => entity.EPONo == externalPurchaseOrderNo);
+            var externalPurchaseOrderNo = model.Items.Select(entity => entity.EPONo).ToList();
+            var externalPurchaseOrders = dbContext.ExternalPurchaseOrders.Where(entity => externalPurchaseOrderNo.Contains(entity.EPONo)).ToList();
+            var externalPurchaseOrdersIds = externalPurchaseOrders.Select(element => element.Id).ToList();
+            var externalPurchaseOrder = dbContext.ExternalPurchaseOrders.FirstOrDefault(entity => externalPurchaseOrderNo.Contains(entity.EPONo));
 
             var vatAmount = externalPurchaseOrder.UseVat ? dpp * 0.1 : 0;
             double.TryParse(externalPurchaseOrder.IncomeTaxRate, out var incomeTaxRate);
@@ -286,34 +288,172 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
 
             var currencyRate = currency != null && currency.FirstOrDefault() != null ? currency.FirstOrDefault().Rate.GetValueOrDefault() : 1;
 
-            var creditorAccount = new
+            var creditorAccounts = new List<CreditorAccountDto>();
+
+            if (externalPurchaseOrders.Count > 1)
             {
-                PPN = useVATFlag ? 0.1 * (currencyCode != "IDR" ? dpp * currencyRate : dpp) : 0,
-                DPP = currencyCode != "IDR" ? dpp * currencyRate : dpp,
-                model.SupplierCode,
-                model.SupplierName,
-                model.SupplierIsImport,
-                Date = model.ReceiptDate,
-                Code = model.URNNo,
-                Currency = currencyCode,
-                CurrencyRate = currencyRate,
-                PaymentDuration = paymentDuration,
-                Products = productList,
-                model.DivisionId,
-                model.DivisionCode,
-                model.DivisionName,
-                model.UnitId,
-                model.UnitCode,
-                model.UnitName,
-                ExternalPurchaseOrderNo = string.Join('\n', model.Items.Select(item => $"- {item.EPONo}")),
-                VATAmount = vatAmount,
-                IncomeTaxAmount = currencyCode != "IDR" ? incomeTaxAmount * currencyRate : incomeTaxAmount,
-                DPPCurrency = currencyCode != "IDR" ? dpp : 0
-            };
+                var externalPOItems = dbContext.ExternalPurchaseOrderItems.Where(entity => externalPurchaseOrdersIds.Contains(entity.EPOId));
+                var purchaseRequestNos = externalPOItems.Select(element => element.PRNo).ToList();
+                var purchaseRequests = dbContext.PurchaseRequests.Where(entity => purchaseRequestNos.Contains(entity.No));
+                var categoryIds = purchaseRequests.Select(element => element.CategoryId).Distinct().ToList();
+                var tax = externalPurchaseOrders.GroupBy(element => new { element.UseVat, element.UseIncomeTax, element.IncomeTaxId, element.IncomeTaxName, element.IncomeTaxRate, element.IncomeTaxBy }).Select(element => new { 
+                    element.Key.UseVat,
+                    element.Key.UseIncomeTax,
+                    element.Key.IncomeTaxId,
+                    element.Key.IncomeTaxName,
+                    element.Key.IncomeTaxRate,
+                    element.Key.IncomeTaxBy,
+                    EpoNos = element.Select(s => s.EPONo)
+                }).ToList();
+
+                if (categoryIds.Count > 1)
+                {
+                    foreach (var epo in categoryIds)
+                    {
+                        var newPurchaseRequests = purchaseRequests.Where(entity => entity.CategoryId == epo).Select(entity => entity.No).ToList();
+                        var newExternalPOItems = externalPOItems.Where(entity => newPurchaseRequests.Contains(entity.PRNo)).Select(entity => entity.EPOId).ToList();
+                        var newExternalPOs = externalPurchaseOrders.Where(entity => newExternalPOItems.Contains(entity.Id));
+                        var newExternalPONos = newExternalPOs.Select(entity => entity.EPONo).ToList();
+                        var epoItem = model.Items.Where(s => newExternalPONos.Contains(s.EPONo));
+                        var newDPP = epoItem.Sum(s => s.ReceiptQuantity * s.PricePerDealUnit);
+                        var newProductList = string.Join("\n", epoItem.Select(s => s.ProductName).ToList());
+                        var newVatAmount = newExternalPOs.FirstOrDefault().UseVat ? newDPP * 0.1 : 0;
+                        double.TryParse(newExternalPOs.FirstOrDefault().IncomeTaxRate, out var newIncomeTaxRate);
+                        var newIncomeTaxAmount = newExternalPOs.FirstOrDefault().UseIncomeTax && newExternalPOs.FirstOrDefault().IncomeTaxBy.ToUpper() == "SUPPLIER" ? newDPP * newIncomeTaxRate / 100 : 0;
+
+                        var creditorAccount = new CreditorAccountDto()
+                        {
+                            DPP = Convert.ToDecimal(currencyCode != "IDR" ? newDPP * currencyRate : newDPP),
+                            PPN = Convert.ToDecimal(useVATFlag ? 0.1 * (currencyCode != "IDR" ? newDPP * currencyRate : newDPP) : 0),
+                            SupplierCode = model.SupplierCode,
+                            SupplierName = model.SupplierName,
+                            SupplierIsImport = model.SupplierIsImport,
+                            Date = model.ReceiptDate,
+                            Code = model.URNNo,
+                            Currency = currencyCode,
+                            CurrencyRate = Convert.ToDecimal(currencyRate),
+                            PaymentDuration = paymentDuration,
+                            Products = newProductList,
+                            DivisionId = Convert.ToInt32(model.DivisionId),
+                            DivisionCode = model.DivisionCode,
+                            DivisionName = model.DivisionName,
+                            UnitId = Convert.ToInt32(model.UnitId),
+                            UnitCode = model.UnitCode,
+                            UnitName = model.UnitName,
+                            ExternalPurchaseOrderNo = string.Join('\n', epoItem.Select(item => $"- {item.EPONo}")),
+                            VATAmount = Convert.ToDecimal(newVatAmount),
+                            IncomeTaxAmount = Convert.ToDecimal(currencyCode != "IDR" ? newIncomeTaxAmount * currencyRate : newIncomeTaxAmount),
+                            DPPCurrency = Convert.ToDecimal(currencyCode != "IDR" ? newDPP : 0)
+                        };
+
+                        creditorAccounts.Add(creditorAccount);
+                    }
+                }
+                else
+                {
+                    if (tax.Count > 1)
+                    {
+                        foreach (var epo in tax)
+                        {
+                            var epoItem = model.Items.Where(s => epo.EpoNos.Contains(s.EPONo));
+                            var newDPP = epoItem.Sum(s => s.ReceiptQuantity * s.PricePerDealUnit);
+                            var newProductList = string.Join("\n", epoItem.Select(s => s.ProductName).ToList());
+                            var newVatAmount = epo.UseVat ? newDPP * 0.1 : 0;
+                            double.TryParse(epo.IncomeTaxRate, out var newIncomeTaxRate);
+                            var newIncomeTaxAmount = epo.UseIncomeTax && epo.IncomeTaxBy.ToUpper() == "SUPPLIER" ? newDPP * newIncomeTaxRate / 100 : 0;
+
+                            var creditorAccount = new CreditorAccountDto()
+                            {
+                                DPP = Convert.ToDecimal(currencyCode != "IDR" ? newDPP * currencyRate : newDPP),
+                                PPN = Convert.ToDecimal(useVATFlag ? 0.1 * (currencyCode != "IDR" ? newDPP * currencyRate : newDPP) : 0),
+                                SupplierCode = model.SupplierCode,
+                                SupplierName = model.SupplierName,
+                                SupplierIsImport = model.SupplierIsImport,
+                                Date = model.ReceiptDate,
+                                Code = model.URNNo,
+                                Currency = currencyCode,
+                                CurrencyRate = Convert.ToDecimal(currencyRate),
+                                PaymentDuration = paymentDuration,
+                                Products = newProductList,
+                                DivisionId = Convert.ToInt32(model.DivisionId),
+                                DivisionCode = model.DivisionCode,
+                                DivisionName = model.DivisionName,
+                                UnitId = Convert.ToInt32(model.UnitId),
+                                UnitCode = model.UnitCode,
+                                UnitName = model.UnitName,
+                                ExternalPurchaseOrderNo = string.Join('\n', epoItem.Select(item => $"- {item.EPONo}")),
+                                VATAmount = Convert.ToDecimal(newVatAmount),
+                                IncomeTaxAmount = Convert.ToDecimal(currencyCode != "IDR" ? newIncomeTaxAmount * currencyRate : newIncomeTaxAmount),
+                                DPPCurrency = Convert.ToDecimal(currencyCode != "IDR" ? newDPP : 0)
+                            };
+
+                            creditorAccounts.Add(creditorAccount);
+                        }
+                    }
+                    else
+                    {
+                        var creditorAccount = new CreditorAccountDto()
+                        {
+                            DPP = Convert.ToDecimal(currencyCode != "IDR" ? dpp * currencyRate : dpp),
+                            PPN = Convert.ToDecimal(useVATFlag ? 0.1 * (currencyCode != "IDR" ? dpp * currencyRate : dpp) : 0),
+                            SupplierCode = model.SupplierCode,
+                            SupplierName = model.SupplierName,
+                            SupplierIsImport = model.SupplierIsImport,
+                            Date = model.ReceiptDate,
+                            Code = model.URNNo,
+                            Currency = currencyCode,
+                            CurrencyRate = Convert.ToDecimal(currencyRate),
+                            PaymentDuration = paymentDuration,
+                            Products = productList,
+                            DivisionId = Convert.ToInt32(model.DivisionId),
+                            DivisionCode = model.DivisionCode,
+                            DivisionName = model.DivisionName,
+                            UnitId = Convert.ToInt32(model.UnitId),
+                            UnitCode = model.UnitCode,
+                            UnitName = model.UnitName,
+                            ExternalPurchaseOrderNo = string.Join('\n', model.Items.Select(item => $"- {item.EPONo}")),
+                            VATAmount = Convert.ToDecimal(vatAmount),
+                            IncomeTaxAmount = Convert.ToDecimal(currencyCode != "IDR" ? incomeTaxAmount * currencyRate : incomeTaxAmount),
+                            DPPCurrency = Convert.ToDecimal(currencyCode != "IDR" ? dpp : 0)
+                        };
+
+                        creditorAccounts.Add(creditorAccount);
+                    }
+                }
+            }
+            else
+            {
+                var creditorAccount = new CreditorAccountDto()
+                {
+                    DPP = Convert.ToDecimal(currencyCode != "IDR" ? dpp * currencyRate : dpp),
+                    PPN = Convert.ToDecimal(useVATFlag ? 0.1 * (currencyCode != "IDR" ? dpp * currencyRate : dpp) : 0),
+                    SupplierCode = model.SupplierCode,
+                    SupplierName = model.SupplierName,
+                    SupplierIsImport = model.SupplierIsImport,
+                    Date = model.ReceiptDate,
+                    Code = model.URNNo,
+                    Currency = currencyCode,
+                    CurrencyRate = Convert.ToDecimal(currencyRate),
+                    PaymentDuration = paymentDuration,
+                    Products = productList,
+                    DivisionId = Convert.ToInt32(model.DivisionId),
+                    DivisionCode = model.DivisionCode,
+                    DivisionName = model.DivisionName,
+                    UnitId = Convert.ToInt32(model.UnitId),
+                    UnitCode = model.UnitCode,
+                    UnitName = model.UnitName,
+                    ExternalPurchaseOrderNo = string.Join('\n', model.Items.Select(item => $"- {item.EPONo}")),
+                    VATAmount = Convert.ToDecimal(vatAmount),
+                    IncomeTaxAmount = Convert.ToDecimal(currencyCode != "IDR" ? incomeTaxAmount * currencyRate : incomeTaxAmount),
+                    DPPCurrency = Convert.ToDecimal(currencyCode != "IDR" ? dpp : 0)
+                };
+
+                creditorAccounts.Add(creditorAccount);
+            }
 
             string creditorAccountUri = "creditor-account/unit-receipt-note";
             var httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
-            var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{creditorAccountUri}", new StringContent(JsonConvert.SerializeObject(creditorAccount).ToString(), Encoding.UTF8, General.JsonMediaType));
+            var response = await httpClient.PostAsync($"{APIEndpoint.Finance}{creditorAccountUri}", new StringContent(JsonConvert.SerializeObject(creditorAccounts).ToString(), Encoding.UTF8, General.JsonMediaType));
 
             response.EnsureSuccessStatusCode();
         }

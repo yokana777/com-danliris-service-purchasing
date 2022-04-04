@@ -25,5 +25,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel
         public string MemoNo { get; set; }
 
         public string UnitReceiptNoteNo { get; set; }
+
+        public string ExternalPurchaseOrderNo { get; set; }
     }
 }
