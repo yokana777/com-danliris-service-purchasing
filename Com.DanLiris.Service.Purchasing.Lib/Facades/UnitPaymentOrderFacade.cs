@@ -359,7 +359,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                 model.DivisionName.ToUpper().Equals("SPINNING") ||
                 model.DivisionName.ToUpper().Equals("DYEING & PRINTING") ||
                 model.DivisionName.ToUpper().Equals("UTILITY") ||
-                model.DivisionName.ToUpper().Equals("WEAVING"))
+                model.DivisionName.ToUpper().Equals("WEAVING") ||
+                model.DivisionName.ToUpper().Equals("TRADING"))
             {
                 TG = "T-";
             }
@@ -802,8 +803,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                              jumlah = c.ReceiptQuantity,
                              hrgsat = c.PricePerDealUnit,
                              jumlahhrg = c.PriceTotal,
-                             ppn = a.UseVat == true ? (c.PriceTotal * 10) / 100 : 0,
-                             total = c.PriceTotal + (a.UseVat == true ? (c.PriceTotal * 10) / 100 : 0),
+                             ppn = a.UseVat == true ? (c.PriceTotal * (a.VatRate / 100)) : 0,
+                             total = c.PriceTotal + (a.UseVat == true ? (c.PriceTotal * (a.VatRate / 100)) : 0),
                              pph = (a.IncomeTaxRate * c.PriceTotal) / 100,
                              tglpr = d.Date,
                              nopr = c.PRNo,
@@ -1114,11 +1115,30 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
             foreach (var item in model.Items)
             {
+                var purchaseRequestNos = item.Details.Select(entity => entity.PRNo).ToList();
+                var externalPurchaseOrders = item.Details.Select(entity => entity.EPONo).ToList();
+                var purchaseRequests = dbContext.PurchaseRequests.Where(entity => purchaseRequestNos.Contains(entity.No));
+                var categoryIds = purchaseRequests.Select(element => element.CategoryId).Distinct().ToList();
+                string epoNos = "";
+
+                if (categoryIds.Count > 1)
+                {
+                    foreach (var epo in categoryIds)
+                    {
+                        var newPurchaseRequests = purchaseRequests.Where(entity => entity.CategoryId == epo).Select(entity => entity.No).ToList();
+                        var newExternalPOItems = dbContext.ExternalPurchaseOrderItems.Where(entity => newPurchaseRequests.Contains(entity.PRNo)).Select(entity => entity.EPOId).ToList();
+                        var newExternalPOs = dbContext.ExternalPurchaseOrders.Where(entity => newExternalPOItems.Contains(entity.Id) && externalPurchaseOrders.Contains(entity.EPONo));
+                        var newExternalPONos = newExternalPOs.Select(entity => entity.EPONo).ToList();
+                        epoNos = string.Join('\n', newExternalPONos.Select(entity => $"- {entity}"));
+                    }
+                }
+
                 data.Add(new CreditorAccountViewModel()
                 {
                     Code = item.URNNo,
                     SupplierCode = model.SupplierCode,
-                    InvoiceNo = model.InvoiceNo
+                    InvoiceNo = model.InvoiceNo,
+                    ExternalPurchaseOrderNo = epoNos
                 });
             }
 
@@ -1435,7 +1455,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                && a.VatDate.AddHours(offset).Date >= taxDateFrom.Date
                                && a.VatDate.AddHours(offset).Date <= taxDateTo.Date
 
-                         group new { Total = c.PriceTotal } by new { a.UPONo, a.Date, a.VatNo, a.VatDate, a.SupplierCode, a.SupplierName, a.UseIncomeTax, a.UseVat, a.IncomeTaxRate } into G
+                         group new { Total = c.PriceTotal } by new { a.UPONo, a.Date, a.VatNo, a.VatDate, a.SupplierCode, a.SupplierName, a.UseIncomeTax, a.UseVat, a.IncomeTaxRate, a.VatRate } into G
 
 
                          select new ViewModels.UnitPaymentOrderViewModel.UnitPaymentOrderTaxReportViewModel
@@ -1446,7 +1466,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                              noppn = G.Key.VatNo,
                              supplier = G.Key.SupplierCode + " - " + G.Key.SupplierName,
                              amountspb = Math.Round(G.Sum(c => c.Total), 2),
-                             amountppn = G.Key.UseVat == false ? 0 : Math.Round((G.Sum(c => c.Total) / 10), 2),
+                             amountppn = G.Key.UseVat == false ? 0 : Math.Round((G.Sum(c => c.Total) * (G.Key.VatRate / 100)), 2),
                              amountpph = G.Key.UseIncomeTax == false ? 0 : Math.Round((G.Sum(c => c.Total) * (G.Key.IncomeTaxRate / 100)), 2),
                          });
             return Query;
