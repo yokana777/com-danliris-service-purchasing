@@ -324,7 +324,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         var creditorAccount = new CreditorAccountDto()
                         {
                             DPP = Convert.ToDecimal(currencyCode != "IDR" ? newDPP * currencyRate : newDPP),
-                            PPN = Convert.ToDecimal(useVATFlag ? 0.1 * (currencyCode != "IDR" ? newDPP * currencyRate : newDPP) : 0),
+                            PPN = Convert.ToDecimal(newExternalPOs.FirstOrDefault().UseVat ? 0.1 * (currencyCode != "IDR" ? newDPP * currencyRate : newDPP) : 0),
                             SupplierCode = model.SupplierCode,
                             SupplierName = model.SupplierName,
                             SupplierIsImport = model.SupplierIsImport,
@@ -356,6 +356,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                         foreach (var epo in tax)
                         {
                             var epoItem = model.Items.Where(s => epo.EpoNos.Contains(s.EPONo));
+                            var epoNos = epoItem.Select(entity => entity.EPONo).ToList();
+                            var newExternalPOs = externalPurchaseOrders.Where(entity => epoNos.Contains(entity.EPONo));
                             var newDPP = epoItem.Sum(s => s.ReceiptQuantity * s.PricePerDealUnit);
                             var newProductList = string.Join("\n", epoItem.Select(s => s.ProductName).ToList());
                             var newVatAmount = epo.UseVat ? newDPP * 0.1 : 0;
@@ -365,7 +367,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitReceiptNoteFacade
                             var creditorAccount = new CreditorAccountDto()
                             {
                                 DPP = Convert.ToDecimal(currencyCode != "IDR" ? newDPP * currencyRate : newDPP),
-                                PPN = Convert.ToDecimal(useVATFlag ? 0.1 * (currencyCode != "IDR" ? newDPP * currencyRate : newDPP) : 0),
+                                PPN = Convert.ToDecimal(newExternalPOs.FirstOrDefault().UseVat ? 0.1 * (currencyCode != "IDR" ? newDPP * currencyRate : newDPP) : 0),
                                 SupplierCode = model.SupplierCode,
                                 SupplierName = model.SupplierName,
                                 SupplierIsImport = model.SupplierIsImport,
