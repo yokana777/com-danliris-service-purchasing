@@ -1115,11 +1115,65 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
 
             foreach (var item in model.Items)
             {
+                var purchaseRequestNos = item.Details.Select(entity => entity.PRNo).ToList();
+                var externalPurchaseOrderNos = item.Details.Select(entity => entity.EPONo).ToList();
+                var externalPurchaseOrders = dbContext.ExternalPurchaseOrders.Where(entity => externalPurchaseOrderNos.Contains(entity.EPONo));
+                var purchaseRequests = dbContext.PurchaseRequests.Where(entity => purchaseRequestNos.Contains(entity.No));
+                var categoryIds = purchaseRequests.Select(element => element.CategoryId).Distinct().ToList();
+                var tax = externalPurchaseOrders.GroupBy(element => new { element.UseVat, element.UseIncomeTax, element.IncomeTaxId, element.IncomeTaxName, element.IncomeTaxRate, element.IncomeTaxBy }).Select(element => new {
+                    element.Key.UseVat,
+                    element.Key.UseIncomeTax,
+                    element.Key.IncomeTaxId,
+                    element.Key.IncomeTaxName,
+                    element.Key.IncomeTaxRate,
+                    element.Key.IncomeTaxBy,
+                    EpoNos = element.Select(s => s.EPONo)
+                }).ToList();
+                string epoNos = "";
+
+                if (categoryIds.Count > 1)
+                {
+                    List<string> newExternalPONos = new List<string>();
+
+                    foreach (var epo in categoryIds)
+                    {
+                        var newPurchaseRequests = purchaseRequests.Where(entity => entity.CategoryId == epo).Select(entity => entity.No).ToList();
+                        var newExternalPOItems = dbContext.ExternalPurchaseOrderItems.Where(entity => newPurchaseRequests.Contains(entity.PRNo)).Select(entity => entity.EPOId).ToList();
+                        var newExternalPOs = dbContext.ExternalPurchaseOrders.Where(entity => newExternalPOItems.Contains(entity.Id) && externalPurchaseOrderNos.Contains(entity.EPONo));
+                        newExternalPONos = newExternalPOs.Select(entity => entity.EPONo).ToList();
+                        //epoNos = string.Join('\n', newExternalPONos.Select(entity => $"- {entity}"));
+                    }
+
+                    epoNos = string.Join('\n', newExternalPONos.Select(entity => $"- {entity}"));
+                }
+                else
+                {
+                    if (tax.Count > 1)
+                    {
+                        List<string> newExternalPONos = new List<string>();
+
+                        foreach (var epo in tax)
+                        {
+                            var newExternalPOItems = dbContext.ExternalPurchaseOrderItems.Where(entity => epo.EpoNos.Contains(entity.PRNo)).Select(entity => entity.EPOId).ToList();
+                            var newExternalPOs = dbContext.ExternalPurchaseOrders.Where(entity => newExternalPOItems.Contains(entity.Id) && externalPurchaseOrderNos.Contains(entity.EPONo));
+                            newExternalPONos = newExternalPOs.Select(entity => entity.EPONo).ToList();
+                            //epoNos = string.Join('\n', newExternalPONos.Select(entity => $"- {entity}"));
+                        }
+
+                        epoNos = string.Join('\n', newExternalPONos.Select(entity => $"- {entity}"));
+                    }
+                    else
+                    {
+                        epoNos = string.Join('\n', externalPurchaseOrderNos.Select(entity => $"- {entity}"));
+                    }
+                }
+
                 data.Add(new CreditorAccountViewModel()
                 {
                     Code = item.URNNo,
                     SupplierCode = model.SupplierCode,
-                    InvoiceNo = model.InvoiceNo
+                    InvoiceNo = model.InvoiceNo,
+                    ExternalPurchaseOrderNo = epoNos
                 });
             }
 
