@@ -31,6 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                 UseIncomeTax = elementInvoice.UseIncomeTax;
                 IncomeTax = new IncomeTaxDto(elementInvoice.IncomeTaxId, elementInvoice.IncomeTaxName, elementInvoice.IncomeTaxRate);
                 IncomeTaxBy = elementInvoice.IsPayTax ? "Dan Liris" : "Supplier";
+                VatTax = new VatTaxDto(Convert.ToString(elementInvoice.VatId), elementInvoice.VatRate);
             }
         }
 
@@ -46,6 +47,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             UseIncomeTax = element.UseIncomeTax;
             IncomeTax = new IncomeTaxDto(element.IncomeTaxId, element.IncomeTaxName, element.IncomeTaxRate);
             IncomeTaxBy = element.IncomeTaxBy;
+            VatTax = new VatTaxDto(element.VatId, element.VatRate);
 
             UnitCosts = new List<UnitCostDto>();
         }
@@ -125,6 +127,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                 UseIncomeTax = elementInvoice.UseIncomeTax;
                 IncomeTax = new IncomeTaxDto(elementInvoice.IncomeTaxId, elementInvoice.IncomeTaxName, elementInvoice.IncomeTaxRate);
                 //IncomeTaxBy = elementInvoice.IsPayTax ? "Dan Liris" : "Supplier";
+                VatTax = new VatTaxDto(Convert.ToString(elementInvoice.VatId), elementInvoice.VatRate);
                 IncomeTaxBy = "Supplier";
             }
 
@@ -160,9 +163,12 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
                 return total;
             });
             Amount += correctionAmount;
+            
             var invoiceIds = selectedInternalNoteItems.Select(item => item.InvoiceId).ToList();
             var elementInvoice = invoices.FirstOrDefault(entity => invoiceIds.Contains(entity.Id));
+            VatTax = new VatTaxDto( Convert.ToString(elementInvoice.VatId), elementInvoice.VatRate);
             UnitCosts = selectedInternalNoteDetails.Select(detail => new UnitCostDto(detail, selectedInternalNoteItems, internNote, elementInvoice)).ToList();
+
         }
 
         public long Id { get; private set; }
