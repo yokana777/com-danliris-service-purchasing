@@ -95,6 +95,53 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentDispositi
             }
         }
 
+        [HttpGet("all/{id}")]
+        public async Task<IActionResult> GetPdfAll([FromRoute]int id, [FromQuery] bool isVerifiedAmountCalculated = false)
+        {
+            try
+            {
+                VerifyUser();
+                identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
+                var indexAcceptPdf = Request.Headers["Accept"].ToList().IndexOf("application/pdf");
+
+                var Data = await facade.GetFormById(id, isVerifiedAmountCalculated);
+                if (indexAcceptPdf < 0)
+                {
+                    //return Ok(new
+                    //{
+                    //    apiVersion = ApiVersion,
+                    //    statusCode = General.OK_STATUS_CODE,
+                    //    message = General.OK_MESSAGE,
+                    //    data = Data,
+                    //});
+                    Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.OK_STATUS_CODE, General.OK_MESSAGE)
+                    .Ok(Data);
+                    return Ok(Result);
+                }
+                else
+                {
+                    int clientTimeZoneOffset = int.Parse(Request.Headers["x-timezone-offset"].First());
+
+                    DispotitionPurchasingAllPDFTemplate PdfTemplate = new DispotitionPurchasingAllPDFTemplate();
+                    MemoryStream stream = PdfTemplate.GeneratePdfTemplate(Data, clientTimeZoneOffset, identityService.Username);
+
+                    return new FileStreamResult(stream, "application/pdf")
+                    {
+                        FileDownloadName = $"{Data.DispositionNo}.pdf"
+                    };
+                }
+
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Result =
+                    new ResultFormatter(ApiVersion, General.INTERNAL_ERROR_STATUS_CODE, e.Message)
+                    .Fail();
+                return StatusCode(General.INTERNAL_ERROR_STATUS_CODE, Result);
+            }
+        }
+
         [HttpGet("loader")]
         public IActionResult GetLoader(PurchasingGarmentExpeditionPosition position = PurchasingGarmentExpeditionPosition.Invalid,int page = 1, int size = 25, string order = "{}", string keyword = null, string filter = "{}", int supplierId=0)
         {
