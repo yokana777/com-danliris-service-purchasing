@@ -211,7 +211,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.PDFTemplates
             PdfPTable tableTax = new PdfPTable(3);
             tableTax.SetWidths(new float[] { 1f, 0.3f, 1f });
 
-            var ppn = jumlah / model.VatRate;
+            var ppn = jumlah * (model.VatRate/100);
             var total = jumlah + (model.UseVat ? ppn : 0);
             var pph = jumlah * model.IncomeTaxRate / 100;
             var totalWithPph = total - pph;
