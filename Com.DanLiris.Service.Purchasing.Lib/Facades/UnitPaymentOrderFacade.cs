@@ -933,6 +933,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                              UseVat = a.UseVat ? "YA " : "TIDAK",
                              VatNo = a.VatNo,
                              VatDate = a.VatDate,
+                             VatRate = a.VatRate,
                              UseIncomeTax = a.UseIncomeTax ? "YA " : "TIDAK",
                              IncomeTaxName = a.IncomeTaxName,
                              IncomeTaxRate = a.IncomeTaxRate,
@@ -1004,9 +1005,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
             result.Columns.Add(new DataColumn() { ColumnName = "PRINTED_FLAG", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "USER INPUT", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "TERM", DataType = typeof(string) });
+            result.Columns.Add(new DataColumn() { ColumnName = "RATE PPN", DataType = typeof(double) });
 
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "", "", "", 0, "", 0, "", "", 0, 0, "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "", "", "", 0, "", 0, "", "", 0, 0, "", "", "", "", "", 0); // to allow column name to be generated properly for empty data as template
             else
             {
                 var index = 0;
@@ -1024,7 +1026,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades
                                     DueDate, item.UPORemark, item.UseVat, item.VatNo, VatDate, item.UseIncomeTax, item.IncomeTaxName,
                                     item.IncomeTaxRate, item.IncomeTaxNo, IncomeTaxDate, item.EPONO, item.PRNo, item.AccountNo, item.ProductCode,
                                     item.ProductName, item.ReceiptQty, item.UOMUnit, item.PricePerDealUnit, item.IncludedPPN, item.CurrencyCode, item.CurrencyRate,
-                                    item.PriceTotal, item.URNNo, URNDate, item.Printed, item.UserCreated, item.PaymentMethod);
+                                    item.PriceTotal, item.URNNo, URNDate, item.Printed, item.UserCreated, item.PaymentMethod, item.VatRate);
                 }
             }
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Sheet1") }, true);

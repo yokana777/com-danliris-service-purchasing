@@ -1026,6 +1026,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
             var Query = (from a in dbContext.UnitPaymentCorrectionNotes
                          join b in dbContext.UnitPaymentCorrectionNoteItems on a.Id equals b.UPCId
                          join c in dbContext.UnitReceiptNotes on b.URNNo equals c.URNNo
+                         join d in dbContext.UnitPaymentOrders on a.UPOId equals d.Id
 
                          where a.IsDeleted == false && b.IsDeleted == false && c.IsDeleted == false &&
                                a.CorrectionDate.AddHours(offset).Date >= DateFrom.Date &&
@@ -1063,6 +1064,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
                              UserCreated = a.CreatedBy,
                              UseVat = a.useVat ? "YA " : "TIDAK",
                              UseIncomeTax = a.useIncomeTax ? "YA " : "TIDAK",
+                             VatRate = d.VatRate,
                          }
                          );
             return Query;
@@ -1107,9 +1109,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
             result.Columns.Add(new DataColumn() { ColumnName = "USER INPUT", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "PPN", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "PPH", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "RATE PPN", DataType = typeof(double) });
 
             if (Query.ToArray().Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0, "", "", 0, "", "", "", "", ""); // to allow column name to be generated properly for empty data as template
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", 0, "", "", 0, "", "", "", "", "", 0); // to allow column name to be generated properly for empty data as template
             else
             {
                 var index = 0;
@@ -1124,7 +1127,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.UnitPaymentCorrectionNoteF
 
                     result.Rows.Add(item.UPCNo, UPCDate, item.CorrectionType, item.UPONo, item.InvoiceCorrectionNo, InvoiceCorrectionDate, item.VatTaxCorrectionNo, VatTaxCorrectionDate, item.IncomeTaxCorrectionNo,
                                     IncomeTaxCorrectionDate, item.SupplierCode, item.SupplierName, item.SupplierAddress, item.ReleaseOrderNoteNo, item.UPCRemark, item.EPONo, item.PRNo, item.AccountNo, item.ProductCode,
-                                    item.ProductName, item.Quantity, item.UOMUnit, item.PricePerDealUnit, item.CurrencyCode, item.CurrencyRate, item.PriceTotal, item.URNNo, URNDate, item.UserCreated, item.UseVat, item.UseIncomeTax);
+                                    item.ProductName, item.Quantity, item.UOMUnit, item.PricePerDealUnit, item.CurrencyCode, item.CurrencyRate, item.PriceTotal, item.URNNo, URNDate, item.UserCreated, item.UseVat, item.UseIncomeTax, item.VatRate);
                 }
             }
             return Excel.CreateExcel(new List<KeyValuePair<DataTable, string>>() { new KeyValuePair<DataTable, string>(result, "Sheet1") }, true);
