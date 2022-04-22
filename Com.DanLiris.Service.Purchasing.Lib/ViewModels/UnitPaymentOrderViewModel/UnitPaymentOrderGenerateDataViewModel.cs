@@ -20,6 +20,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentOrderViewMod
         public string UPORemark { get; set; }
         public string UseVat { get; set; }
         public string VatNo { get; set; }
+        public double VatRate { get; set; }
         public DateTimeOffset? VatDate { get; set; }
         public string UseIncomeTax { get; set; }
         public string IncomeTaxName { get; set; }

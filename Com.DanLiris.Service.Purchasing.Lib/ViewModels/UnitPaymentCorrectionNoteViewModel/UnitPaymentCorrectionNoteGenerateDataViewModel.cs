@@ -38,5 +38,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.UnitPaymentCorrectionNo
         public string UserCreated { get; set; }
         public string UseVat { get; set; }
         public string UseIncomeTax { get; set; }
+        public double VatRate { get; set; }
     }
 }
