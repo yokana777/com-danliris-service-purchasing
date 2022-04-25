@@ -7,6 +7,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel
     public class BeacukaiAddedViewModel
     {
         public DateTime BCDate { get; set; }
+        public DateTime BonDate { get; set; }
         public string BCNo { get; set; }
         public string BonNo { get; set; }
         public double Quantity { get; set; }

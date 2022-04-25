@@ -220,7 +220,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
                 .AddTransient<IMutationBeacukaiFacade, MutationBeacukaiFacade>()
                 .AddTransient<IGarmentClosingDateFacade, GarmentClosingDateFacade>()
                 .AddTransient<IMonitoringFlowProductFacade, MonitoringFlowProductFacade>()
-                .AddTransient<IBeacukaiNoFeature, BeacukaiNoFeature>();
+                .AddTransient<IBeacukaiNoFeature, BeacukaiNoFeature>()
+                .AddTransient<IRealizationBOMFacade, RealizationBOMFacade>();
+
         }
 
         private void RegisterServices(IServiceCollection services, bool isTest)

@@ -23,6 +23,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel
         public string Article { get; set; }
         public double TotalQuantity { get; set; }
         public double TotalPrice { get; set; }
+        public Unit Unit { get; set; }
     }
 
     public class GarmentComodity
@@ -33,6 +34,13 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel
     }
 
     public class Buyer
+    {
+        public int Id { get; set; }
+        public string Code { get; set; }
+        public string Name { get; set; }
+    }
+
+    public class Unit
     {
         public int Id { get; set; }
         public string Code { get; set; }

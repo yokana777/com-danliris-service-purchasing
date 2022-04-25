@@ -12,6 +12,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public double Qty { get; set; }
         public string ExpenditureNo { get; set; }
         public string BuyerName { get; set; }
+        public string BuyerCode { get; set; }
         public string BCType { get; set; }
         public string BCNo { get; set; }
         public DateTime BCDate { get; set; }
@@ -30,5 +31,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentReports
         public string BCNo { get; set; }
         public string BCType { get; set; }
         public DateTime BCDate { get; set; }
+        public string DONo { get; set; }
+        public string SupplierName { get; set; }
     }
 }
