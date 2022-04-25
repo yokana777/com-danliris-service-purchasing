@@ -971,7 +971,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
 
         #endregion
         #region Keluar
-        private List<GarmentExpenditureGoodViewModel> GetRono(string invoice)
+        public List<GarmentExpenditureGoodViewModel> GetRono(string invoice)
         {
             IHttpClientService httpClient = (IHttpClientService)serviceProvider.GetService(typeof(IHttpClientService));
             var param = new StringContent(JsonConvert.SerializeObject(invoice), Encoding.UTF8, "application/json");
@@ -1312,7 +1312,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                 foreach (var detail in item.rincian)
                 {
                     index2++;
-                    string BCDate2 = detail.BCDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : Convert.ToDateTime(item.BCDate).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string BCDate2 = detail.BCDate == new DateTimeOffset(new DateTime(1970, 1, 1)) ? "-" : Convert.ToDateTime(detail.BCDate).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
                     result2.Rows.Add(index2, detail.DestinationJob, detail.ItemCode, detail.ItemName, detail.SmallestQuantity, detail.UnitQtyName, detail.BCType, detail.BCNo, BCDate2);
 
                 }
