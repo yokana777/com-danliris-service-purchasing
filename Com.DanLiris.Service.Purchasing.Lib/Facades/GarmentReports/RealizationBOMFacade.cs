@@ -106,7 +106,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentReports
                              RO = key.RO,
                              UnitQtyName = key.UnitQtyName
 
-                         }).ToList();
+                         }).OrderBy(x => x.RO).ToList();
 
             var listRo = Query.Select(x => x.RO).Distinct().ToList();
 
