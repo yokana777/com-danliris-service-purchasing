@@ -50,6 +50,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             IncomeTax = new IncomeTaxDto(element.IncomeTaxId, element.IncomeTaxName, element.IncomeTaxRate);
             IncomeTaxBy = element.IncomeTaxBy;
             VatTax = new VatTaxDto(element.VatId, element.VatRate);
+            IsPayVat = element.UseVat;
+            IsPayTax = element.UseIncomeTax;
 
             UnitCosts = new List<UnitCostDto>();
         }
@@ -69,6 +71,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             UseIncomeTax = element.UseIncomeTax;
             IncomeTax = new IncomeTaxDto(element.IncomeTaxId, element.IncomeTaxName, element.IncomeTaxRate);
             IncomeTaxBy = element.IncomeTaxBy;
+            IsPayVat = element.UseVat;
+            IsPayTax = element.UseIncomeTax;
+
 
 
             //var selectedSPBDetails = spbDetails.Where(detail =)
