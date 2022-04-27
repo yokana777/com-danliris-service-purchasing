@@ -15,6 +15,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             Conversion = element.Conversion;
             Price = element.PricePerDealUnit;
             UseVat = entity.UseVat;
+            VatTax = new VatTaxDto(entity.VatId, entity.VatRate);
             Unit = new UnitDto(entity.UnitId, entity.UnitCode, entity.UnitName, entity.DivisionCode, entity.DivisionId, entity.DivisionName);
             IncomeTax = new IncomeTaxDto(entity.IncomeTaxId, entity.IncomeTaxName, entity.IncomeTaxRate);
             IncomeTaxBy = entity.IncomeTaxBy;
@@ -31,6 +32,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             Conversion = element.Conversion;
             Price = element.PricePerDealUnit;
             UseVat = entity.IsUseVat;
+            VatTax = new VatTaxDto(entity.VatId, entity.VatRate);
             Unit = new UnitDto(purchaseOrder.UnitId, purchaseOrder.UnitCode, purchaseOrder.UnitName, purchaseOrder.DivisionCode, purchaseOrder.DivisionId, purchaseOrder.DivisionName);
             IncomeTax = new IncomeTaxDto(entity.IncomeTaxId, entity.IncomeTaxName, entity.IncomeTaxRate);
             UseIncomeTax = entity.IsIncomeTax;
@@ -46,6 +48,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
         public bool UseVat { get; private set; }
         public UnitDto Unit { get; private set; }
         public IncomeTaxDto IncomeTax { get; private set; }
+        public VatTaxDto VatTax { get; private set; }
         public string IncomeTaxBy { get; private set; }
         public bool UseIncomeTax { get; private set; }
         public int EPOId { get; private set; }
