@@ -73,7 +73,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.VBRequestPOExternal
             {
                 if (element.UseVat)
                 {
-                    result += total * 0.1;
+                    result += total * (element.VatRate/100);
+
+                    //result += total * 0.1;
                 }
 
                 if (element.UseIncomeTax && (element.IncomeTaxBy == "Supplier" || element.IncomeTaxBy == "SUPPLIER"))
