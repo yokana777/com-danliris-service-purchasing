@@ -2155,6 +2155,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              TermPayment = m.PaymentMethod,
                              BeacukaiNo = rr != null ? rr.BeacukaiNo : "-",
                              BeacukaiDate = rr != null? rr.CreatedUtc : DateTimeOffset.MinValue,
+                             BeacukaiType = rr != null ? rr.CustomsType : "-",
                              BillNo = a.BillNo,
                              PaymentBill = a.PaymentBill,
                              BCDate = rr != null? rr.BeacukaiDate : new DateTime(1970, 1, 1)
@@ -2200,6 +2201,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                              URNType = gdo.URNType,
                              BeacukaiNo = gdo.BeacukaiNo,
                              BeacukaiDate = gdo.BeacukaiDate,
+                             BeacukaiType = gdo.BeacukaiType,
                              BillNo = gdo.BillNo,
                              PaymentBill = gdo.PaymentBill,
                              BCDate = gdo.BCDate,
@@ -2277,6 +2279,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
             result.Columns.Add(new DataColumn() { ColumnName = "Staff Pembelian (S/J)", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Staff Pembelian (P/O)", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "No BC", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tipe BC", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal BC", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Input BC", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "No BP Besar", DataType = typeof(String) });
@@ -2292,7 +2295,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
 
             if (Query.ToArray().Count() == 0)
                 // result.Rows.Add("", "", "", "", "", "", "", "", "", "", 0, 0, 0, ""); // to allow column name to be generated properly for empty data as template
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", 0, 0, "", 0, "", 0, "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "");
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", "", 0, 0, "", 0, "", 0, "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "");
             else
             {
                 int index = 0;
@@ -2308,7 +2311,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentDeliveryOrderFacade
                     string BcDate = item.BCDate == new DateTime(1970, 1, 1) ? "-" : item.BCDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
 
                     // result.Rows.Add(index, item.supplierCode, item.supplierName, item.no, supplierDoDate, date, item.ePONo, item.productCode, item.productName, item.productRemark, item.dealQuantity, item.dOQuantity, item.remainingQuantity, item.uomUnit);
-                    result.Rows.Add(index, item.no, supplierDoDate, date, item.supplierName, jenissupp, item.shipmentNo, item.ePONo, item.roNo, item.prRefNo, item.productCode, item.productName, item.dealQuantity, item.dOQuantity, item.uomUnit, item.price, item.doCurrencyCode, item.doCurrencyRate, item.productRemark, item.createdBy, item.EPOcreatedBy, item.BeacukaiNo, BcDate, BcinputDate, item.BillNo, item.PaymentBill, item.URNNo, URNDate, item.urnQuantity, item.urnUom, item.UnitName, item.INNo, item.TermPayment, item.diffdate);
+                    result.Rows.Add(index, item.no, supplierDoDate, date, item.supplierName, jenissupp, item.shipmentNo, item.ePONo, item.roNo, item.prRefNo, item.productCode, item.productName, item.dealQuantity, item.dOQuantity, item.uomUnit, item.price, item.doCurrencyCode, item.doCurrencyRate, item.productRemark, item.createdBy, item.EPOcreatedBy, item.BeacukaiNo, item.BeacukaiType, BcDate, BcinputDate, item.BillNo, item.PaymentBill, item.URNNo, URNDate, item.urnQuantity, item.urnUom, item.UnitName, item.INNo, item.TermPayment, item.diffdate);
                 }
             }
 
