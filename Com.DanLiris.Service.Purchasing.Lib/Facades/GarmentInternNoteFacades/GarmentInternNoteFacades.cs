@@ -442,6 +442,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     VatNo = invoice.VatNo,
                     //pOSerialNumber = String.Join(",",pg.Select(m=>m.c.POSerialNumber)),//InDetail.POSerialNumber,
                     priceTotal = item.priceTotal,//InDetail.PriceTotal,
+                    doId = deliveryorder.Id,
                     doNo = internnotedetail.DONo,
                     doDate = internnotedetail.DODate,
                     ProductName = internnotedetail.ProductName,
@@ -455,7 +456,43 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     paymentDate = data1 == null ? new DateTime(1970, 1, 1) : data1.ExpenditureDate
                 });
             }
-            return list;
+            //return list;
+
+            var Query1 = list.AsQueryable();
+
+            var gcn = dbContext.GarmentCorrectionNotes.Where(x => x.IsDeleted == false).AsEnumerable();
+            var result = (from i in Query1
+                          join f in gcn on i.doId equals f.DOId into cn
+                          from gcnn in cn.DefaultIfEmpty()
+                          select new GarmentInternNoteReportViewModel
+                          {
+                              inNo = i.inNo,
+                              iNDate = i.iNDate,
+                              currencyCode = i.currencyCode,
+                              supplierName = i.supplierName,
+                              invoiceNo = i.invoiceNo,
+                              invoiceDate = i.invoiceDate,
+                              NPN = i.NPN,
+                              VatNo = i.VatNo,
+                              priceTotal = i.priceTotal,
+                              doId = i.doId,
+                              doNo = i.doNo,
+                              doDate = i.doDate,
+                              ProductName = i.ProductName,
+                              supplierCode = i.supplierCode,
+                              createdBy = i.createdBy,
+                              billNo = i.billNo,
+                              paymentBill = i.paymentBill,
+                              doCurrencyRate = i.doCurrencyRate,
+                              paymentType = i.paymentType,
+                              paymentDoc = i.paymentDoc,
+                              paymentDate = i.paymentDate,
+                              cnNo = gcnn == null ? "-" : gcnn.CorrectionNo,
+                              cnDate = gcnn == null ? new DateTime(1970, 1, 1) : gcnn.CorrectionDate,
+                              cnAmount = gcnn == null ? 0 : gcnn.TotalCorrection
+                          });
+
+            return result.ToList();
         }
 
         public MemoryStream GenerateExcelIn(string no, string supplierCode, string curencyCode, string invoiceNo, string npn, string doNo, string billNo, string paymentBill, DateTime? dateFrom, DateTime? dateTo, int offset)
@@ -483,14 +520,16 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
             result.Columns.Add(new DataColumn() { ColumnName = "Jenis Barang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Rate", DataType = typeof(Double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nomor Nota Koreksi", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Nota Koreksi", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Nominal Koreksi", DataType = typeof(Decimal) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tipe Bayar", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Pembayaran", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal Pembayaran", DataType = typeof(String) });
             //result.Columns.Add(new DataColumn() { ColumnName = "poserialnumber", DataType = typeof(String) });
 
-
             if (Query.Count() == 0)
-                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", 0, "","","");
+                result.Rows.Add("", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", 0, "", "", 0, "","","");
             else
             {
                 int index = 0;
@@ -505,9 +544,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                     //var price = item.priceTotal.ToString();
                     string priceTotal = string.Format("{0:N2}", item.priceTotal);
                     //double totalHarga = item.pricePerDealUnit * item.quantity;
-
+                    string corrDate = item.cnDate == new DateTime(1970, 1, 1) ? "-" : item.cnDate.ToOffset(new TimeSpan(offset, 0, 0)).ToString("dd MMM yyyy", new CultureInfo("id-ID"));
+                    string corrAmt = string.Format("{0:N2}", item.cnAmount);
                     //result.Rows.Add(index, item.inNo, date, item.currencyCode, item.supplierName, item.paymentMethod, item.paymentType, DueDate, item.invoiceNo, invoDate, item.doNo, Dodate, item.pOSerialNumber, item.rONo, item.productCode, item.productName, item.quantity, item.uOMUnit, item.pricePerDealUnit, totalHarga);
-                    result.Rows.Add(index, item.inNo, date, item.supplierCode, item.supplierName, item.invoiceNo, invoDate, item.doNo, Dodate, item.billNo, item.paymentBill, priceTotal, item.NPN, item.VatNo, item.ProductName, item.currencyCode, item.doCurrencyRate, item.paymentType, item.paymentDoc, paymentdate);
+                    result.Rows.Add(index, item.inNo, date, item.supplierCode, item.supplierName, item.invoiceNo, invoDate, item.doNo, Dodate, item.billNo, item.paymentBill, priceTotal, item.NPN, item.VatNo, item.ProductName, item.currencyCode, item.doCurrencyRate, item.cnNo, corrDate, corrAmt, item.paymentType, item.paymentDoc, paymentdate);
                 }
             }
 

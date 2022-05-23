@@ -17,6 +17,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
         public string VatNo { get; set; }
         public string ProductName { get; set; }
         public double priceTotal { get; set; }
+        public long doId { get; set; }
         public string doNo { get; set; }
         public DateTimeOffset doDate { get; set; }
         public string billNo { get; set; }
@@ -26,5 +27,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
         public string createdBy { get; set; }
         public string paymentDoc { get; set; }
         public DateTimeOffset paymentDate { get; set; }
+
+        public string cnNo { get; set; }
+        public DateTimeOffset cnDate { get; set; }
+        public decimal cnAmount { get; set; }
     }
 }

@@ -44,6 +44,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentDeliveryOrderVie
         public string BillNo { get; set; }
         public string PaymentBill { get; set; }
         public string BeacukaiNo { get; set; }
+        public string BeacukaiType { get; set; }
         public DateTimeOffset BeacukaiDate { get; set; }
         public DateTimeOffset BCDate { get; set; }
         public string diffdate { get; set; }
