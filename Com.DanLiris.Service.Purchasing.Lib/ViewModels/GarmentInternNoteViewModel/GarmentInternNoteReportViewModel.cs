@@ -27,6 +27,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternNoteViewMo
         public string createdBy { get; set; }
         public string paymentDoc { get; set; }
         public DateTimeOffset paymentDate { get; set; }
+
         public string cnNo { get; set; }
         public DateTimeOffset cnDate { get; set; }
         public decimal cnAmount { get; set; }

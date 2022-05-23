@@ -457,6 +457,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternNoteFacades
                 });
             }
             //return list;
+
             var Query1 = list.AsQueryable();
 
             var gcn = dbContext.GarmentCorrectionNotes.Where(x => x.IsDeleted == false).AsEnumerable();
