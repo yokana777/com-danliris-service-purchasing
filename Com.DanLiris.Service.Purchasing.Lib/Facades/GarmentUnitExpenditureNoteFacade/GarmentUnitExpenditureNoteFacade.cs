@@ -363,7 +363,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentUnitExpenditureNote
                                 WetRubbing = garmentExternalPurchaseOrder.WetRubbing,
                                 Items = epoItems,
                                 UENId = garmentUnitExpenditureNote.Id,
-                                BudgetRate = garmentExternalPurchaseOrder.BudgetRate
+                                BudgetRate = garmentExternalPurchaseOrder.BudgetRate,
+                                VatId = garmentExternalPurchaseOrder.VatId,
+                                VatRate = garmentExternalPurchaseOrder.VatRate
                             };
 
                             suppType = garmentExternalPurchaseOrder.SupplierImport;
