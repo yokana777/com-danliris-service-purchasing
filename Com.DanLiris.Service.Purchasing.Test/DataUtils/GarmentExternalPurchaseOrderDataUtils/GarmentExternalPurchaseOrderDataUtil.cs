@@ -58,6 +58,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.GarmentExternalPurchase
                 IsPosted = false,
                 IsIncomeTax=true,
                 IsUseVat=true,
+                VatId = "1",
+                VatRate = "10",
 
                 Remark = "Remark1",
 
